@@ -1,4 +1,4 @@
-## My Agda Prelude
+## My Agda Prelude [![Build Status](https://travis-ci.com/omelkonian/my-agda-prelude.svg?branch=master)](https://travis-ci.com/omelkonian/my-agda-prelude)
 
 - `Data.Set'`
   * Concerns lists containing element that have decidable equality
