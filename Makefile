@@ -7,7 +7,7 @@ clean:
 	rm -rf docs/
 
 # Travis Setup (install Agda, the Agda standard library, acknowledgements, etc.)
-AGDA_VERSION := 2.6.0.1
+AGDA_VERSION := 2.6.0
 AGDA_STDLIB_VERSION := 1.1
 
 travis-setup:\

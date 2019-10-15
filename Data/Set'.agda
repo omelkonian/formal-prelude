@@ -246,7 +246,7 @@ module Data.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
     → list (fromList xs) ≡ xs
   from↔to {[]} uniq = refl
   from↔to {x ∷ xs} uniq with x ∈? xs
-  ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail {0ℓ} {A} {0ℓ} {0ℓ} uniq))
+  ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail uniq))
   ... | yes p with uniq
   ... | p1 U∷ p2 = {!!}
 
