@@ -30,7 +30,3 @@ $(HOME)/agda-stdlib-$(AGDA_STDLIB_VERSION)/src:
 
 $(HOME)/.agda/libraries:
 	echo "$(HOME)/agda-stdlib-$(AGDA_STDLIB_VERSION)/standard-library.agda-lib" >> $(HOME)/.agda/libraries
-
-# Travis check
-travis-check:
-	agda Everything.agda

@@ -18,4 +18,11 @@ before_install:
 script:
 - curl -L https://raw.githubusercontent.com/MestreLion/git-tools/master/git-restore-mtime | python
 - agda --version
-- make travis-check
+- make
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github_token: $GITHUB_TOKEN
+  target_branch: gh-pages
+  local_dir: ./docs
