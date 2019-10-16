@@ -3,9 +3,16 @@ sudo: false
 
 language: generic
 
-# Ensure we run BASH and not SH
 env:
-  - SH=bash
+  - SH=bash AGDA_VERSION=2.6.0 AGDA_STDLIB_VERSION=1.1
+
+cache:
+  directories:
+  - $HOME/.stack
+  - $HOME/.agda
+  - $HOME/.local
+  - $HOME/agda-$AGDA_VERSION
+  - $HOME/agda-stdlib-$AGDA_STDLIB_VERSION
 
 before_install:
 # Download and unpack the stack executable
