@@ -1,4 +1,4 @@
-## My Agda Prelude [![Build Status](https://travis-ci.com/omelkonian/my-agda-prelude.svg?branch=master)](https://travis-ci.com/omelkonian/my-agda-prelude)
+## Formal Prelude [![Build Status](https://travis-ci.com/omelkonian/formal-prelude.svg?branch=master)](https://travis-ci.com/omelkonian/formal-prelude)
 
 - `Data.Set'`
   * Concerns lists containing element that have decidable equality
@@ -16,4 +16,4 @@
   * `Prefix` relation
   * Some other properties of lists
 
-- Browse the Agda code in HTML [here](http://omelkonian.github.io/my-agda-prelude).
+- Browse the Agda code in HTML [here](http://omelkonian.github.io/formal-prelude).
