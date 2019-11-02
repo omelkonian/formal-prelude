@@ -28,9 +28,9 @@ open import Relation.Unary                        using (Pred)
 open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; inspect)
 
-open import Utilities.Lists
+open import Prelude.Lists
 
-module Data.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
+module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   open import Data.List.Membership.DecPropositional _≟_ using (_∈_; _∉_; _∈?_) public
 

@@ -2,7 +2,7 @@
 -- List utilities
 ------------------------------------------------------------------------
 
-module Utilities.Lists where
+module Prelude.Lists where
 
 open import Function      using (_∋_; case_of_)
 open import Data.Empty    using (⊥; ⊥-elim)

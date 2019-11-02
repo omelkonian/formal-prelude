@@ -1,10 +1,13 @@
+TOP := Prelude
+
 default: site
 
 site:
-	agda --html --html-dir=docs Everything.agda && cp docs/Everything.html docs/index.html
+	agda --html --html-dir=docs --css=css/Agda.css $(TOP)/Main.agda \
+	  && cp docs/$(TOP).Main.html docs/index.html
 
 clean:
-	rm -rf docs/
+	rm -f docs/*.html
 
 # Travis Setup (install Agda, the Agda standard library, acknowledgements, etc.)
 travis-setup:\

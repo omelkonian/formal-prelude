@@ -1,6 +1,6 @@
 ## Formal Prelude [![Build Status](https://travis-ci.com/omelkonian/formal-prelude.svg?branch=master)](https://travis-ci.com/omelkonian/formal-prelude)
 
-- `Data.Set'`
+- `Prelude.Set'`
   * Concerns lists containing element that have decidable equality
   * Subset relation
   * Sets as lists without duplicates
@@ -9,7 +9,7 @@
   * `Permutation` relation
   * Properties of set operations
 
-- `Utilities.Lists`
+- `Prelude.Lists`
   * Indexed lists
   * `_≾_` length relation
   * `Partition` relation
