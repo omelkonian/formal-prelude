@@ -15,8 +15,9 @@ open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_
 open import Data.Nat.Properties using (suc-injective)
 open import Data.List.Properties using (length-map)
 
-open import Relation.Nullary using (¬_)
+open import Relation.Nullary                      using (¬_; Dec)
 open import Relation.Nullary.Decidable            using (True)
+open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
 
 open import Data.List public

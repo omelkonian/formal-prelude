@@ -33,6 +33,7 @@ open import Prelude.Lists
 module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   open import Data.List.Membership.DecPropositional _≟_ using (_∈_; _∉_; _∈?_) public
+  open import Data.List.Relation.Binary.Equality.DecPropositional _≟_ using (_≡?_)
 
   ------------------------------------------------------------------------
   -- Decidable equality.
@@ -42,14 +43,7 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   infix 4 _≟ₗ_
   _≟ₗ_ : Decidable {A = List A} _≡_
-  []     ≟ₗ []     = yes refl
-  []     ≟ₗ _ ∷ _  = no λ ()
-  _ ∷ _  ≟ₗ []     = no λ ()
-  x ∷ xs ≟ₗ y ∷ ys with x ≟ y
-  ... | no ¬p      = no λ{refl → ¬p refl}
-  ... | yes refl   with xs ≟ₗ ys
-  ... | no ¬pp     = no λ{refl → ¬pp refl}
-  ... | yes refl   = yes refl
+  _≟ₗ_ = _≡?_
 
   ------------------------------------------------------------------------
   -- Subset relation.
