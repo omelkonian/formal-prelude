@@ -4,12 +4,14 @@
 
 module Prelude.Lists where
 
-open import Function      using (_∋_; case_of_)
+open import Level    using (Level)
+open import Function using (_∘_; _∋_; case_of_)
+
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_)
 open import Data.Maybe    using (Maybe; just; nothing)
-open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤)
+open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
 open import Data.Nat.Properties using (suc-injective)
@@ -21,21 +23,27 @@ open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
 
 open import Data.List public
-  using (List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length; sum; upTo; lookup)
+  using (List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length; zip; sum; upTo; lookup; allFin)
 open import Data.List.Membership.Propositional using (_∈_)
 
 ------------------------------------------------------------------------
 -- Indexed operations.
 
-Index : ∀ {ℓ} {A : Set ℓ} → (xs : List A) → Set
-Index xs = Fin (length xs)
+private
+  variable
+    ℓ : Level
+    A : Set ℓ
+    xs : List A
+
+Index : List A → Set
+Index = Fin ∘ length
 
 infix 3 _‼_
-_‼_ : ∀ {ℓ} {A : Set ℓ} → (vs : List A) → Index vs → A
+_‼_ : (vs : List A) → Index vs → A
 _‼_ = lookup
 
 infix 3 _⁉_
-_⁉_ : ∀ {ℓ} {A : Set ℓ} → (vs : List A) → ℕ → Maybe A
+_⁉_ : (vs : List A) → ℕ → Maybe A
 []       ⁉ _     = nothing
 (x ∷ xs) ⁉ zero  = just x
 (x ∷ xs) ⁉ suc n = xs ⁉ n
@@ -57,29 +65,28 @@ _at_⟨_⟩remove_ : ∀ {A : Set} → (vs : List A) → Index vs → A → Inde
 (_ ∷ vs) at fsuc x ⟨ xv ⟩remove fzero  = vs at x ⟨ xv ⟩
 (v ∷ vs) at fsuc x ⟨ xv ⟩remove fsuc y = v ∷ vs at x ⟨ xv ⟩remove y
 
-indices : ∀ {ℓ} {A : Set ℓ} → List A → List ℕ
+indices : List A → List ℕ
 indices xs = upTo (length xs)
 
-cast : ∀ {m n} → .(_ : m ≡ n) → Fin m → Fin n
-cast {zero}  {zero}  eq k        = k
-cast {suc m} {suc n} eq fzero    = fzero
-cast {suc m} {suc n} eq (fsuc k) = fsuc (cast (cong pred eq) k)
-cast {zero}  {suc n} ()
-cast {suc m} {zero}  ()
+fin-indices : (xs : List A) → List (Index xs)
+fin-indices = allFin ∘ length
+
+enumerate : (xs : List A) → List (Index xs × A)
+enumerate xs = zip (fin-indices xs) xs
 
 just-injective : ∀ {A : Set} {x y} → (Maybe A ∋ just x) ≡ just y → x ≡ y
 just-injective refl = refl
-
-toℕ-cast : ∀ {n m} {fm : Fin m}
-         → (eq : m ≡ n)
-         → toℕ (cast eq fm) ≡ toℕ fm
-toℕ-cast {_} {_} {fzero}   refl = refl
-toℕ-cast {_} {_} {fsuc fm} refl = cong suc (toℕ-cast refl)
 
 ‼-suc : ∀ {ℓ} {A : Set ℓ} {x : A} {xs : List A} {i : Index xs}
   → (x ∷ xs ‼ fsuc i)
   ≡ (xs ‼ i)
 ‼-suc = refl
+
+‼-map′ : ∀ {A B : Set} {xs : List A} {f : A → B}
+  → Index xs
+  → Index (map f xs)
+‼-map′ {xs = x ∷ xs} fzero    = fzero
+‼-map′ {xs = x ∷ xs} (fsuc i) = fsuc (‼-map′ {xs = xs} i)
 
 ‼-map : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} {f : A → B} {xs : List A} {i : Index xs}
   → (map f xs ‼ cast (sym (length-map f xs)) i)
@@ -127,7 +134,7 @@ data _≾_ {ℓ} {A : Set ℓ} : List A → List A → Set where
     → x ∷ xs ≾ y ∷ ys
 
 infix 3 _≾?_
-_≾?_ : ∀ {ℓ} {A : Set ℓ} → List A → List A → Set
+_≾?_ : List A → List A → Set
 []     ≾? _      = ⊤
 _ ∷ _  ≾? []     = ⊥
 _ ∷ xs ≾? _ ∷ ys = xs ≾? ys

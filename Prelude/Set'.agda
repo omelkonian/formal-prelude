@@ -50,18 +50,14 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   open import Data.List.Relation.Binary.Subset.Propositional {A = A} using (_⊆_) public
 
-  _⊆?_ : List A → List A → Set
-  []       ⊆? _  = ⊤
-  (x ∷ xs) ⊆? ys with x ∈? ys
-  ... | yes _ = xs ⊆? ys
-  ... | no  _ = ⊥
-
-  sound-⊆ : ∀ {xs ys} → {p : xs ⊆? ys} → xs ⊆ ys
-  sound-⊆ {[]} {ys} {xs⊆?ys} = λ ()
-  sound-⊆ {x ∷ xs} {ys} {xs⊆?ys} with x ∈? ys
-  ... | yes x∈ys = λ{ (here refl)  → x∈ys
-                    ; (there y∈xs) → (sound-⊆ {p = xs⊆?ys}) y∈xs }
-  ... | no  x∉ys = ⊥-elim xs⊆?ys
+  _⊆?_ : (xs : List A) → (ys : List A) → Dec (xs ⊆ ys)
+  []       ⊆? ys  = yes λ ()
+  (x ∷ xs) ⊆? ys  with x ∈? ys
+  ... | no  x∉ys  = no λ xs⊆ys → x∉ys (xs⊆ys (here refl))
+  ... | yes x∈ys  with xs ⊆? ys
+  ... | no  xs⊈ys = no λ xs⊆ys → xs⊈ys (λ {x} z → xs⊆ys (there z))
+  ... | yes xs⊆ys = yes λ{ (here refl) → x∈ys
+                         ; (there x∈)  → xs⊆ys x∈ }
 
   ------------------------------------------------------------------------
   -- Sets as lists with no duplicates.
