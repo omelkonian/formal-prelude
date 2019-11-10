@@ -35,6 +35,11 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   open import Data.List.Membership.DecPropositional _≟_ using (_∈_; _∉_; _∈?_) public
   open import Data.List.Relation.Binary.Equality.DecPropositional _≟_ using (_≡?_)
 
+  private
+    variable
+      x : A
+      xs ys zs : List A
+
   ------------------------------------------------------------------------
   -- Decidable equality.
 
@@ -50,6 +55,7 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   open import Data.List.Relation.Binary.Subset.Propositional {A = A} using (_⊆_) public
 
+  infix 4 _⊆?_
   _⊆?_ : (xs : List A) → (ys : List A) → Dec (xs ⊆ ys)
   []       ⊆? ys  = yes λ ()
   (x ∷ xs) ⊆? ys  with x ∈? ys
@@ -141,99 +147,116 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ... | no _     = xs \\ ys
   ... | yes x∈xs = (remove xs (index x∈xs)) \\ ys
 
-  \\-same : ∀ {xs} → [] ≡ xs \\ xs
+  \\-same : [] ≡ xs \\ xs
   \\-same {[]} = refl
   \\-same {x ∷ ys} with x ∈? (x ∷ ys)
   ... | no ¬p           = ⊥-elim (¬p (here refl))
   ... | yes (here refl) = \\-same {ys}
   ... | yes (there p)   = {!!}
 
-  \\-left : ∀ {xs} → [] ≡ [] \\ xs
+  \\-left : [] ≡ [] \\ xs
   \\-left {[]}     = refl
   \\-left {x ∷ ys} with x ∈? []
   ... | no _ = \\-left {ys}
   ... | yes ()
 
-  \\-head : ∀ {x xs} → [] ≡ [ x ] \\ (x ∷ xs)
-  \\-head {x} {xs} with x ∈? [ x ]
+  \\-head : [] ≡ [ x ] \\ (x ∷ xs)
+  \\-head {x = x} {xs = xs} with x ∈? [ x ]
   ... | no ¬p = ⊥-elim (¬p (here refl))
   ... | yes p with index p
-  ... | 0ᶠ    = \\-left {xs}
+  ... | 0ᶠ    = \\-left {xs = xs}
   ... | sucᶠ ()
 
-  \\-‼ : ∀ {xs : List A} {i : Index xs}
+  \\-‼ : ∀ {i : Index xs}
        → [] ≡ [ xs ‼ i ] \\ xs
-  \\-‼ {[]} {()}
-  \\-‼ {x ∷ xs} {0ᶠ} with x ∈? [ x ]
+  \\-‼ {xs = []} {()}
+  \\-‼ {xs = x ∷ xs} {0ᶠ} with x ∈? [ x ]
   ... | no ¬p = ⊥-elim (¬p (here refl))
-  ... | yes (here relf) = \\-left {xs}
+  ... | yes (here relf) = \\-left {xs = xs}
   ... | yes (there ())
-  \\-‼ {x ∷ xs} {sucᶠ i} with x ∈? [ xs ‼ i ]
-  ... | no ¬p = \\-‼ {xs} {i}
-  ... | yes (here refl) = \\-left {xs}
+  \\-‼ {xs = x ∷ xs} {sucᶠ i} with x ∈? [ xs ‼ i ]
+  ... | no ¬p = \\-‼ {xs = xs} {i}
+  ... | yes (here refl) = \\-left {xs = xs}
   ... | yes (there ())
 
   ------------------------------------------------------------------------
   -- Permutation relation.
 
-  open import Data.List.Relation.Permutation.Inductive using (_↭_)
+  open import Data.List.Relation.Permutation.Inductive            using (_↭_; refl; prep; swap; trans; ↭-sym)
+  open import Data.List.Relation.Permutation.Inductive.Properties using (∈-resp-↭; drop-∷; drop-mid; inject)
   open import Data.List.Any using (index)
 
-  _↭?_ : List A → List A → Set
-  []       ↭? []       = ⊤
-  []       ↭? (_ ∷ _)  = ⊥
-  (x ∷ xs) ↭? ys with x ∈? ys
-  ... | no  _    = ⊥
-  ... | yes x∈ys = xs ↭? remove ys (index x∈ys)
+  ¬[]↭ : ∀ {x : A} {xs : List A} → ¬ ([] ↭ x ∷ xs)
+  ¬[]↭ (trans {.[]} {[]}     {.(_ ∷ _)} []↭ []↭₁) = ¬[]↭ []↭₁
+  ¬[]↭ (trans {.[]} {x ∷ ys} {.(_ ∷ _)} []↭ []↭₁) = ¬[]↭ []↭
 
-  ↭-remove : ∀ {y : A} {ys : List A} {y∈ys : y ∈ ys}
-           → y ∷ remove ys (index y∈ys) ↭ ys
-  ↭-remove {y} {.(y ∷ _)} {here refl} = _↭_.refl
-  ↭-remove {y} {(x ∷ y ∷ _)} {there (here refl)} = _↭_.swap y x _↭_.refl
-  ↭-remove {y} {(x₁ ∷ x₂ ∷ ys)} {there (there y∈ys)} =
-    _↭_.trans h₁ h₂
+  ↭-remove : ∀ {x : A} {ys : List A} {x∈ys : x ∈ ys}
+           → x ∷ remove ys (index x∈ys) ↭ ys
+  ↭-remove {x} {.(x ∷ _)}       {here refl}          = refl
+  ↭-remove {x} {(y ∷ x ∷ _)}    {there (here refl)}  = swap x y refl
+  ↭-remove {x} {(x₁ ∷ x₂ ∷ ys)} {there (there x∈ys)} = trans h₁ h₂
     where
       ys′ : List A
-      ys′ = remove ys (index y∈ys)
+      ys′ = remove ys (index x∈ys)
 
-      h₁ : y ∷ x₁ ∷ x₂ ∷ ys′ ↭ x₁ ∷ x₂ ∷ y ∷ ys′
-      h₁ = _↭_.trans (_↭_.swap y x₁ _↭_.refl) (_↭_.prep x₁ (_↭_.swap y x₂ _↭_.refl))
+      h₁ : x ∷ x₁ ∷ x₂ ∷ ys′ ↭ x₁ ∷ x₂ ∷ x ∷ ys′
+      h₁ = trans (swap x x₁ refl) (prep x₁ (swap x x₂ refl))
 
-      h₂ : x₁ ∷ x₂ ∷ y ∷ ys′ ↭ x₁ ∷ x₂ ∷ ys
-      h₂ = _↭_.prep x₁ (_↭_.prep x₂ ↭-remove)
+      h₂ : x₁ ∷ x₂ ∷ x ∷ ys′ ↭ x₁ ∷ x₂ ∷ ys
+      h₂ = prep x₁ (prep x₂ ↭-remove)
 
-  ↭-helper : ∀ {x : A} {xs ys : List A} {x∈ys : x ∈ ys}
+  ↭-helper : ∀ {x∈ys : x ∈ ys}
            → xs ↭ remove ys (index x∈ys)
            → x ∷ xs ↭ ys
-  ↭-helper {x} {xs} {ys} {x∈ys} h = _↭_.trans (_↭_.prep x h) ↭-remove
+  ↭-helper {x} {xs} {ys} {x∈ys} h = trans (prep x h) ↭-remove
 
-  sound-↭ : ∀ {xs ys} → {p : xs ↭? ys} → xs ↭ ys
-  sound-↭ {[]} {[]}    {xs↭?ys} = _↭_.refl
-  sound-↭ {[]} {_ ∷ _} {()}
-  sound-↭ {x ∷ xs} {ys} {xs↭?ys} with x ∈? ys
-  sound-↭ {x ∷ xs} {ys} {()} | no ¬x∈ys
-  ... | yes x∈ys = ↭-helper (sound-↭ {p = xs↭?ys})
+  ↭-helper′ : ∀ {x∈ys : x ∈ ys}
+           → x ∷ xs ↭ ys
+           → xs ↭ remove ys (index x∈ys)
+  ↭-helper′ {x} {.(x ∷ _)}       {xs} {here refl}          h = drop-∷ h
+  ↭-helper′ {x} {(y ∷ x ∷ _)}    {xs} {there (here refl)}  h = drop-mid [] [ y ] h
+  ↭-helper′ {x} {(x₁ ∷ x₂ ∷ ys)} {xs} {there (there x∈ys)} h = drop-∷ {x = x} (trans h h′)
+    where
+      ys′ : List A
+      ys′ = remove ys (index x∈ys)
+
+      h‴ : ys ↭ x ∷ ys′
+      h‴ = ↭-sym ↭-remove
+
+      h″ : x₂ ∷ ys ↭ x ∷ x₂ ∷ ys′
+      h″ = trans (prep x₂ h‴) (swap x₂ x refl)
+
+      h′ : x₁ ∷ x₂ ∷ ys ↭ x ∷ x₁ ∷ x₂ ∷ ys′
+      h′ = trans (prep x₁ h″) (swap x₁ x refl)
+
+
+  _↭?_ : (xs : List A) → (ys : List A) → Dec (xs ↭ ys)
+  []       ↭? []       = yes refl
+  []       ↭? (x ∷ ys) = no ¬[]↭
+  (x ∷ xs) ↭? ys       with x ∈? ys
+  ... | no  x∉         = no λ x∷xs↭ → x∉ (∈-resp-↭ x∷xs↭ (here refl))
+  ... | yes x∈         with xs ↭? remove ys (index x∈)
+  ... | no ¬xs↭        = no (¬xs↭ ∘ ↭-helper′)
+  ... | yes xs↭        = yes (↭-helper xs↭)
 
   -----------------------------------------------------
   -- Properties
 
-  ≡-Set' : ∀ {xs ys px py}
+  ≡-Set' : ∀ {px py}
          → xs ≡ ys
          → ⟨ xs ⟩∶- px ≡ ⟨ ys ⟩∶- py
   ≡-Set' refl = refl
 
-  ∅─-identityʳ : ∀ {x} → (x ─ ∅) ≡ x
-  ∅─-identityʳ {x} = {!!}
+  ∅─-identityʳ : ∀ {xs} → (xs ─ ∅) ≡ xs
+  ∅─-identityʳ = {!!}
 
-  ∅∪-identityˡ : ∀ {x} → (∅ ∪ x) ≡ x
-  ∅∪-identityˡ {x} rewrite ∅─-identityʳ {x} = refl
+  ∅∪-identityˡ : ∀ {xs} → (∅ ∪ xs) ≡ xs
+  ∅∪-identityˡ {xs} rewrite ∅─-identityʳ {xs} = refl
 
   ∅─∅≡∅ : ∅ ─ ∅ ≡ ∅
   ∅─∅≡∅ = ∅─-identityʳ {∅}
 
-  from↔to : ∀ {xs}
-    → Unique xs
-    → list (fromList xs) ≡ xs
+  from↔to : Unique xs → list (fromList xs) ≡ xs
   from↔to {[]} uniq = refl
   from↔to {x ∷ xs} uniq with x ∈? xs
   ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail uniq))
