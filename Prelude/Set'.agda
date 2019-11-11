@@ -50,6 +50,10 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   _≟ₗ_ : Decidable {A = List A} _≡_
   _≟ₗ_ = _≡?_
 
+  infix 4 _∉?_
+  _∉?_ : Decidable _∉_
+  x ∉? xs = ¬? (x ∈? xs)
+
   ------------------------------------------------------------------------
   -- Subset relation.
 
@@ -137,6 +141,9 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   fromList (x ∷ xs) with x ∈? xs
   ... | yes _ = fromList xs
   ... | no  _ = ⟨ x ∷ list (fromList xs) ⟩∶- {!!}
+
+  nub : List A → List A
+  nub = list ∘ fromList
 
   ------------------------------------------------------------------------
   -- Deletion/Non-membership.
@@ -228,7 +235,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
       h′ : x₁ ∷ x₂ ∷ ys ↭ x ∷ x₁ ∷ x₂ ∷ ys′
       h′ = trans (prep x₁ h″) (swap x₁ x refl)
-
 
   _↭?_ : (xs : List A) → (ys : List A) → Dec (xs ↭ ys)
   []       ↭? []       = yes refl

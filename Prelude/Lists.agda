@@ -9,7 +9,7 @@ open import Function using (_∘_; _∋_; case_of_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_)
+open import Data.Product  using (_×_; _,_; map₂)
 open import Data.Maybe    using (Maybe; just; nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc)
@@ -23,7 +23,7 @@ open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
 
 open import Data.List public
-  using (List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length; zip; sum; upTo; lookup; allFin)
+  using (List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length; zip; sum; upTo; lookup; allFin; unzip)
 open import Data.List.Membership.Propositional using (_∈_)
 
 ------------------------------------------------------------------------
@@ -31,8 +31,10 @@ open import Data.List.Membership.Propositional using (_∈_)
 
 private
   variable
-    ℓ : Level
-    A : Set ℓ
+    a b c : Level
+    A : Set a
+    B : Set b
+    C : Set c
     xs : List A
 
 Index : List A → Set
@@ -114,6 +116,12 @@ just-injective refl = refl
 ⁉→‼ {_} {A} {x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
   rewrite ‼-suc {_} {A} {x} {xs} {ix}
         = ⁉→‼ {_} {A} {xs} {ys} {ix} (suc-injective len≡) eq
+
+------------------------------------------------------------------------
+-- General utilities.
+
+unzip₃ : List (A × B × C) → List A × List B × List C
+unzip₃ = map₂ unzip ∘ unzip
 
 ------------------------------------------------------------------------
 -- Inductive relations on lists.
