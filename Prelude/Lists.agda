@@ -9,22 +9,24 @@ open import Function using (_∘_; _∋_; case_of_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_; map₂)
+open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>)
 open import Data.Maybe    using (Maybe; just; nothing)
-open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁)
+open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁; 0F)
   renaming (zero to fzero; suc to fsuc)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
 open import Data.Nat.Properties using (suc-injective)
-open import Data.List.Properties using (length-map)
 
 open import Relation.Nullary                      using (¬_; Dec)
 open import Relation.Nullary.Decidable            using (True)
 open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
 
-open import Data.List public
-  using (List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length; zip; sum; upTo; lookup; allFin; unzip)
-open import Data.List.Membership.Propositional using (_∈_)
+open import Data.List using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length
+                            ; zip; sum; upTo; lookup; allFin; unzip
+                            )
+open import Data.List.Properties                using (length-map)
+open import Data.List.Membership.Propositional  using (_∈_; mapWith∈)
+open import Data.List.Relation.Unary.Any as Any using (Any; here; there)
 
 ------------------------------------------------------------------------
 -- Indexed operations.
@@ -75,6 +77,19 @@ fin-indices = allFin ∘ length
 
 enumerate : (xs : List A) → List (Index xs × A)
 enumerate xs = zip (fin-indices xs) xs
+
+zip-∈ : ∀ {xs : List A} {ys : List B} {x : A} {y : B}
+       → (x , y) ∈ zip xs ys → (x ∈ xs) × (y ∈ ys)
+zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (here refl) = here refl , here refl
+zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (there xy∈) with zip-∈ xy∈
+... | (x∈ , y∈) = there x∈ , there y∈
+
+ix∈→x∈ : ∀ {xs : List A} {i : Index xs} {x : A}
+       → (i , x) ∈ enumerate xs → x ∈ xs
+ix∈→x∈ = proj₂ ∘ zip-∈
+
+mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
+mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
 
 just-injective : ∀ {A : Set} {x y} → (Maybe A ∋ just x) ≡ just y → x ≡ y
 just-injective refl = refl
