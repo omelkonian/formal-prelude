@@ -10,23 +10,24 @@ open import Function using (_∘_; _∋_; case_of_)
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>)
+open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁; 0F)
   renaming (zero to fzero; suc to fsuc)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
+open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
+                                ; zip; sum; upTo; lookup; allFin; unzip )
+
 open import Data.Nat.Properties using (suc-injective)
+
+open import Data.List.Properties                using (length-map)
+open import Data.List.Membership.Propositional  using (_∈_; mapWith∈)
+open import Data.List.Relation.Unary.Any as Any using (Any; here; there)
 
 open import Relation.Nullary                      using (¬_; Dec)
 open import Relation.Nullary.Decidable            using (True)
 open import Relation.Binary                       using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
-
-open import Data.List using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; concatMap; length
-                            ; zip; sum; upTo; lookup; allFin; unzip
-                            )
-open import Data.List.Properties                using (length-map)
-open import Data.List.Membership.Propositional  using (_∈_; mapWith∈)
-open import Data.List.Relation.Unary.Any as Any using (Any; here; there)
 
 ------------------------------------------------------------------------
 -- Indexed operations.
@@ -137,6 +138,12 @@ just-injective refl = refl
 
 unzip₃ : List (A × B × C) → List A × List B × List C
 unzip₃ = map₂ unzip ∘ unzip
+
+filter₁ : List (A ⊎ B) → List A
+filter₁ = mapMaybe isInj₁
+
+filter₂ : List (A ⊎ B) → List B
+filter₂ = mapMaybe isInj₂
 
 ------------------------------------------------------------------------
 -- Inductive relations on lists.
