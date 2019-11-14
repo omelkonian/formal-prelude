@@ -4,7 +4,7 @@
 {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Level         using (0ℓ)
-open import Function      using (_∘_)
+open import Function      using (_∘_; case_of_)
 open import Data.Unit     using (⊤; tt)
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Product  using (_×_; ∃-syntax; proj₁; proj₂; _,_; Σ)
@@ -15,10 +15,13 @@ open import Data.Fin      using (Fin)
   renaming (zero to 0ᶠ; suc to sucᶠ)
 open import Data.List     using (List; []; _∷_; [_]; filter; _++_; length)
 
-open import Data.List.Relation.Unary.Any using (Any; any; here; there; index)
-open import Data.List.Relation.Unary.All using (All) renaming ([] to ∀[]; _∷_ to _∀∷_)
-import Data.List.Relation.Unary.Unique.Propositional as Uniq
+open import Data.List.Relation.Unary.Any                  using (Any; any; here; there; index)
+open import Data.List.Relation.Unary.All                  using (All) renaming ([] to ∀[]; _∷_ to _∀∷_)
+open import Data.List.Relation.Unary.AllPairs             using (allPairs?; []; _∷_)
+open import Data.List.Relation.Unary.All.Properties       using (¬Any⇒All¬)
 open import Data.List.Membership.Propositional.Properties using (∈-filter⁻; ∈-++⁻)
+
+import Data.List.Relation.Unary.Unique.Propositional as Uniq
 
 open import Relation.Nullary                      using (Dec; yes; no; ¬_)
 open import Relation.Nullary.Negation             using (contradiction; ¬?)
@@ -26,7 +29,7 @@ open import Relation.Nullary.Decidable            using (True; False; fromWitnes
 open import Relation.Unary                        using (Pred)
   renaming (Decidable to UnaryDec)
 open import Relation.Binary                       using (Decidable)
-open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; inspect)
+open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; inspect) renaming ([_] to ≡[_])
 
 open import Prelude.Lists
 
@@ -73,7 +76,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   -- Sets as lists with no duplicates.
 
   open Uniq {0ℓ} {A} using (Unique) public renaming ([] to U[]; _∷_ to _U∷_)
-  open import Data.List.Relation.Unary.AllPairs using (allPairs?)
 
   unique? : ∀ xs → Dec (Unique xs)
   unique? xs = allPairs? (λ x y → ¬? (x ≟ y)) xs
@@ -136,14 +138,26 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   _∪_ : Set' → Set' → Set'
   x@(⟨ xs ⟩∶- pxs) ∪ y@(⟨ ys ⟩∶- pys) = ⟨ xs ++ list (y ─ x) ⟩∶- {!!}
 
-  fromList : List A → Set'
-  fromList [] = ⟨ [] ⟩∶- U[]
-  fromList (x ∷ xs) with x ∈? xs
-  ... | yes _ = fromList xs
-  ... | no  _ = ⟨ x ∷ list (fromList xs) ⟩∶- {!!}
-
   nub : List A → List A
-  nub = list ∘ fromList
+  nub [] = []
+  nub (x ∷ xs) with x ∈? xs
+  ... | yes _ = nub xs
+  ... | no  _ = x ∷ nub xs
+
+  nub-all : ∀ {P : A → Set} → All P xs → All P (nub xs)
+  nub-all {xs = []}     ∀[]       = ∀[]
+  nub-all {xs = x ∷ xs} (p ∀∷ ps) with x ∈? xs
+  ... | yes _ = nub-all ps
+  ... | no  _ = p ∀∷ nub-all ps
+
+  nub-unique : Unique (nub xs)
+  nub-unique {xs = []} = U[]
+  nub-unique {xs = x ∷ xs} with x ∈? xs
+  ... | yes _ = nub-unique {xs = xs}
+  ... | no x∉ = nub-all {xs = xs} {P = _≢_ x} (¬Any⇒All¬ xs x∉) ∷ (nub-unique {xs = xs})
+
+  fromList : List A → Set'
+  fromList xs = ⟨ nub xs ⟩∶- (nub-unique {xs = xs})
 
   ------------------------------------------------------------------------
   -- Deletion/Non-membership.
@@ -262,12 +276,12 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ∅─∅≡∅ : ∅ ─ ∅ ≡ ∅
   ∅─∅≡∅ = ∅─-identityʳ {∅}
 
-  from↔to : Unique xs → list (fromList xs) ≡ xs
-  from↔to {[]} uniq = refl
-  from↔to {x ∷ xs} uniq with x ∈? xs
-  ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail uniq))
-  ... | yes p with uniq
-  ... | p1 U∷ p2 = {!!}
+  -- from↔to : Unique xs → list (fromList xs) ≡ xs
+  -- from↔to {[]} uniq = refl
+  -- from↔to {x ∷ xs} uniq with x ∈? xs
+  -- ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail uniq))
+  -- ... | yes p with uniq
+  -- ... | p1 U∷ p2 = {!!}
 
   ∈-─ : ∀ {x : A} {xs ys : Set'}
     → x ∈′ (xs ─ ys)
