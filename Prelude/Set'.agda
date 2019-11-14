@@ -1,27 +1,26 @@
 ------------------------------------------------------------------------
 -- Set utilities
 ------------------------------------------------------------------------
-{-# OPTIONS --allow-unsolved-metas #-}
+open import Level        using (0ℓ)
+open import Function     using (_∘_; case_of_)
+open import Data.Unit    using (⊤; tt)
+open import Data.Empty   using (⊥; ⊥-elim)
+open import Data.Product using (_×_; ∃-syntax; proj₁; proj₂; _,_; Σ)
+open import Data.Sum     using (_⊎_; inj₁; inj₂; map₁; map₂)
+open import Data.Bool    using (Bool; true; false; T)
+open import Data.Nat     using (ℕ)
+open import Data.Fin     using (Fin; 0F; suc)
+open import Data.List    using (List; []; _∷_; [_]; filter; _++_; length)
 
-open import Level         using (0ℓ)
-open import Function      using (_∘_; case_of_)
-open import Data.Unit     using (⊤; tt)
-open import Data.Empty    using (⊥; ⊥-elim)
-open import Data.Product  using (_×_; ∃-syntax; proj₁; proj₂; _,_; Σ)
-open import Data.Sum      using (_⊎_; inj₁; inj₂; map₁; map₂)
-open import Data.Bool     using (Bool; true; false; T)
-open import Data.Nat      using (ℕ)
-open import Data.Fin      using (Fin)
-  renaming (zero to 0ᶠ; suc to sucᶠ)
-open import Data.List     using (List; []; _∷_; [_]; filter; _++_; length)
-
-open import Data.List.Relation.Unary.Any                  using (Any; any; here; there; index)
-open import Data.List.Relation.Unary.All                  using (All) renaming ([] to ∀[]; _∷_ to _∀∷_)
-open import Data.List.Relation.Unary.AllPairs             using (allPairs?; []; _∷_)
-open import Data.List.Relation.Unary.All.Properties       using (¬Any⇒All¬)
-open import Data.List.Membership.Propositional.Properties using (∈-filter⁻; ∈-++⁻)
-
-import Data.List.Relation.Unary.Unique.Propositional as Uniq
+open import Data.List.Properties                                     using (filter-all)
+open import Data.List.Membership.Propositional.Properties            using (∈-filter⁻; ∈-++⁻)
+open import Data.List.Relation.Unary.AllPairs                        using (allPairs?; []; _∷_)
+open import Data.List.Relation.Unary.Unique.Propositional            using (Unique; tail)
+open import Data.List.Relation.Unary.Unique.Propositional.Properties using (filter⁺; ++⁺)
+open import Data.List.Relation.Unary.Any                             using (Any; any; here; there; index)
+open import Data.List.Relation.Unary.All                             using (All; []; _∷_)
+open import Data.List.Relation.Unary.All.Properties                  using (¬Any⇒All¬; All¬⇒¬Any)
+open import Data.List.Relation.Binary.Disjoint.Propositional         using (Disjoint)
 
 open import Relation.Nullary                      using (Dec; yes; no; ¬_)
 open import Relation.Nullary.Negation             using (contradiction; ¬?)
@@ -41,7 +40,7 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   private
     variable
       x : A
-      xs ys zs : List A
+      xs ys : List A
 
   ------------------------------------------------------------------------
   -- Decidable equality.
@@ -75,8 +74,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ------------------------------------------------------------------------
   -- Sets as lists with no duplicates.
 
-  open Uniq {0ℓ} {A} using (Unique) public renaming ([] to U[]; _∷_ to _U∷_)
-
   unique? : ∀ xs → Dec (Unique xs)
   unique? xs = allPairs? (λ x y → ¬? (x ≟ y)) xs
 
@@ -92,51 +89,28 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   o ∈′ ⟨ os ⟩∶- _ = o ∈ os
 
   ∅ : Set'
-  ∅ = ⟨ [] ⟩∶- U[]
+  ∅ = ⟨ [] ⟩∶- []
 
   singleton : A → Set'
-  singleton a = ⟨ [ a ] ⟩∶- (∀[] U∷ U[])
+  singleton a = ⟨ [ a ] ⟩∶- ([] ∷ [])
 
   ∣_∣ : Set' → ℕ
   ∣_∣ = length ∘ list
 
   infixr 5 _─_
   _─_ : Set' → Set' → Set'
-  ⟨ xs ⟩∶- pxs ─ ⟨ ys ⟩∶- pys = ⟨ filter (λ x → ¬? (x ∈? ys)) xs ⟩∶- {!!}
-    -- where
-    --   zs : List A
-    --   zs = filter (λ x → ¬? (x ∈? ys)) xs
-
-    --   lem₁ : ∀ {a as}
-
-    --        → noDuplicates as
-    --        → ¬ (a ∈ as)
-    --          ---------------------
-    --        → noDuplicates (a ∷ as)
-    --   lem₁ {a} {as} pas a∉as with a ∈? as
-    --   ... | yes a∈as = a∉as a∈as
-    --   ... | no  _    = pas
+  ⟨ xs ⟩∶- pxs ─ ⟨ ys ⟩∶- pys = ⟨ filter (_∉? ys) xs ⟩∶- filter⁺ (_∉? ys) pxs
 
 
-    --   lem₂ : ∀ {as : List A} {P : Pred A 0ℓ} {P? : UnaryDec P}
-
-    --      → noDuplicates as
-    --        ---------------------------
-    --      → noDuplicates (filter P? as)
-
-    --   lem₂ {[]}     {P} {P?} pas = tt
-    --   lem₂ {a ∷ as} {P} {P?} pas with a ∈? as | P? a | a ∈? filter P? as
-    --   ... | yes _   | _     | _     = ⊥-elim pas
-    --   ... | no  _   | no  _ | _     = lem₂ {as} pas
-    --   ... | no _    | yes _ | no ¬p = lem₁ (lem₂ {as} pas) ¬p
-    --   ... | no a∉as | yes _ | yes p = ⊥-elim (a∉as (proj₁ (∈-filter⁻ P? p)))
-
-    --   pzs : noDuplicates zs
-    --   pzs = lem₂ {as = xs} pxs
+  disjoint-─ : Disjoint xs (filter (_∉? xs) ys)
+  disjoint-─ {xs = xs} {ys = ys} (x∈xs , x∈ys─xs) with ∈-filter⁻ (_∉? xs) {xs = ys} x∈ys─xs
+  ... | (_ , x∉xs) = x∉xs x∈xs
 
   infixr 4 _∪_
   _∪_ : Set' → Set' → Set'
-  x@(⟨ xs ⟩∶- pxs) ∪ y@(⟨ ys ⟩∶- pys) = ⟨ xs ++ list (y ─ x) ⟩∶- {!!}
+  (⟨ xs ⟩∶- pxs) ∪ (⟨ ys ⟩∶- pys)
+    = ⟨ xs ++ filter (_∉? xs) ys
+      ⟩∶- ++⁺ pxs (filter⁺ (_∉? xs) pys) (disjoint-─ {xs = xs} {ys = ys})
 
   nub : List A → List A
   nub [] = []
@@ -145,13 +119,13 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ... | no  _ = x ∷ nub xs
 
   nub-all : ∀ {P : A → Set} → All P xs → All P (nub xs)
-  nub-all {xs = []}     ∀[]       = ∀[]
-  nub-all {xs = x ∷ xs} (p ∀∷ ps) with x ∈? xs
+  nub-all {xs = []}     []       = []
+  nub-all {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
   ... | yes _ = nub-all ps
-  ... | no  _ = p ∀∷ nub-all ps
+  ... | no  _ = p ∷ nub-all ps
 
   nub-unique : Unique (nub xs)
-  nub-unique {xs = []} = U[]
+  nub-unique {xs = []} = []
   nub-unique {xs = x ∷ xs} with x ∈? xs
   ... | yes _ = nub-unique {xs = xs}
   ... | no x∉ = nub-all {xs = xs} {P = _≢_ x} (¬Any⇒All¬ xs x∉) ∷ (nub-unique {xs = xs})
@@ -168,13 +142,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ... | no _     = xs \\ ys
   ... | yes x∈xs = (remove xs (index x∈xs)) \\ ys
 
-  \\-same : [] ≡ xs \\ xs
-  \\-same {[]} = refl
-  \\-same {x ∷ ys} with x ∈? (x ∷ ys)
-  ... | no ¬p           = ⊥-elim (¬p (here refl))
-  ... | yes (here refl) = \\-same {ys}
-  ... | yes (there p)   = {!!}
-
   \\-left : [] ≡ [] \\ xs
   \\-left {[]}     = refl
   \\-left {x ∷ ys} with x ∈? []
@@ -185,17 +152,17 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   \\-head {x = x} {xs = xs} with x ∈? [ x ]
   ... | no ¬p = ⊥-elim (¬p (here refl))
   ... | yes p with index p
-  ... | 0ᶠ    = \\-left {xs = xs}
-  ... | sucᶠ ()
+  ... | 0F    = \\-left {xs = xs}
+  ... | suc ()
 
   \\-‼ : ∀ {i : Index xs}
        → [] ≡ [ xs ‼ i ] \\ xs
   \\-‼ {xs = []} {()}
-  \\-‼ {xs = x ∷ xs} {0ᶠ} with x ∈? [ x ]
+  \\-‼ {xs = x ∷ xs} {0F} with x ∈? [ x ]
   ... | no ¬p = ⊥-elim (¬p (here refl))
   ... | yes (here relf) = \\-left {xs = xs}
   ... | yes (there ())
-  \\-‼ {xs = x ∷ xs} {sucᶠ i} with x ∈? [ xs ‼ i ]
+  \\-‼ {xs = x ∷ xs} {suc i} with x ∈? [ xs ‼ i ]
   ... | no ¬p = \\-‼ {xs = xs} {i}
   ... | yes (here refl) = \\-left {xs = xs}
   ... | yes (there ())
@@ -262,13 +229,17 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   -----------------------------------------------------
   -- Properties
 
-  ≡-Set' : ∀ {px py}
+  ≡-Set' : ∀ .{px : Unique xs} .{py : Unique ys}
          → xs ≡ ys
          → ⟨ xs ⟩∶- px ≡ ⟨ ys ⟩∶- py
   ≡-Set' refl = refl
 
+  All∉[] : ∀ {ys} → All (_∉ []) ys
+  All∉[] {ys = []}     = []
+  All∉[] {ys = y ∷ ys} = (λ ()) ∷ All∉[] {ys = ys}
+
   ∅─-identityʳ : ∀ {xs} → (xs ─ ∅) ≡ xs
-  ∅─-identityʳ = {!!}
+  ∅─-identityʳ {xs = (⟨ xs ⟩∶- p)} = ≡-Set' {px = filter⁺ (_∉? []) p} {py = p} (filter-all (_∉? []) All∉[])
 
   ∅∪-identityˡ : ∀ {xs} → (∅ ∪ xs) ≡ xs
   ∅∪-identityˡ {xs} rewrite ∅─-identityʳ {xs} = refl
@@ -276,17 +247,24 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
   ∅─∅≡∅ : ∅ ─ ∅ ≡ ∅
   ∅─∅≡∅ = ∅─-identityʳ {∅}
 
-  -- from↔to : Unique xs → list (fromList xs) ≡ xs
-  -- from↔to {[]} uniq = refl
-  -- from↔to {x ∷ xs} uniq with x ∈? xs
-  -- ... | no  _ = cong (x ∷_) (from↔to (Uniq.tail uniq))
-  -- ... | yes p with uniq
-  -- ... | p1 U∷ p2 = {!!}
+  unique-∈ : Unique (x ∷ xs) → x ∉ xs
+  unique-∈ {xs = []} u ()
+  unique-∈ {xs = x ∷ xs} ((x≢x ∷ _) ∷ _) (here refl) = x≢x refl
+  unique-∈ {xs = x ∷ xs} ((_ ∷ p) ∷ _)   (there x∈)  = All¬⇒¬Any p x∈
+
+  nub-from∘to : Unique xs → nub xs ≡ xs
+  nub-from∘to {[]}     _ = refl
+  nub-from∘to {x ∷ xs} u@(_ ∷ Uxs) with x ∈? xs
+  ... | no  _    = cong (x ∷_) (nub-from∘to Uxs)
+  ... | yes x∈xs = ⊥-elim (unique-∈ u x∈xs)
+
+  from↔to : Unique xs → list (fromList xs) ≡ xs
+  from↔to Uxs rewrite nub-from∘to Uxs = refl
 
   ∈-─ : ∀ {x : A} {xs ys : Set'}
     → x ∈′ (xs ─ ys)
     → x ∈′ xs
-  ∈-─ {x} {xs} {ys} x∈ = proj₁ (∈-filter⁻ (λ x → ¬? (x ∈? list ys)) x∈)
+  ∈-─ {x} {xs} {ys} x∈ = proj₁ (∈-filter⁻ (_∉? list ys) x∈)
 
   ∈-∪ : ∀ {x : A} {xs ys : Set'}
     → x ∈′ (xs ∪ ys)
