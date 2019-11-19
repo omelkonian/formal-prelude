@@ -4,30 +4,34 @@
 
 module Prelude.Lists where
 
-open import Level    using (Level)
-open import Function using (_∘_; _∋_; case_of_)
+open import Level            using (Level)
+open import Function         using (_∘_; _∋_; case_of_)
+open import Function.Inverse using (_↔_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>)
+open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>; ∃-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁; 0F)
-  renaming (zero to fzero; suc to fsuc)
+  renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
                                 ; zip; sum; upTo; lookup; allFin; unzip )
 
 open import Data.Nat.Properties using (suc-injective)
 
-open import Data.List.Properties                using (length-map)
-open import Data.List.Membership.Propositional  using (_∈_; mapWith∈)
-open import Data.List.Relation.Unary.Any as Any using (Any; here; there)
+open import Data.List.Properties                           using (length-map)
+open import Data.List.Membership.Propositional             using (_∈_; mapWith∈)
+open import Data.List.Relation.Unary.Any                   using (here; there)
+open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix)
 
-open import Relation.Nullary                      using (¬_; Dec)
+open import Relation.Nullary                      using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable            using (True)
 open import Relation.Binary                       using (Decidable)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym)
+
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; cong; sym; trans)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_;_∎)
 
 ------------------------------------------------------------------------
 -- Indexed operations.
@@ -145,105 +149,27 @@ filter₁ = mapMaybe isInj₁
 filter₂ : List (A ⊎ B) → List B
 filter₂ = mapMaybe isInj₂
 
-------------------------------------------------------------------------
--- Inductive relations on lists.
+-- Prefix relation, instantiated for propositional equality.
+Prefix≡ : List A → List A → Set _
+Prefix≡ = Prefix _≡_
 
--- Less-than relation for lists (on lengths).
-infix 3 _≾_
-data _≾_ {ℓ} {A : Set ℓ} : List A → List A → Set where
+-- Finite sets.
+Finite : Set → Set
+Finite A = ∃[ n ] (A ↔ Fin n)
 
-  base-≾ : ∀ {xs : List A}
+finList : Finite A → List A
+finList (n , record { from = record { _⟨$⟩_ = f } }) = map f (allFin n)
 
-    → -------
-      [] ≾ xs
+_≟_∶-_ : (x : A) → (y : A) → Finite A → Dec (x ≡ y)
+x ≟ y ∶- (_ , record { to   = record { _⟨$⟩_ = toFin }
+                     ; from = record { _⟨$⟩_ = fromFin ; cong = cong′ }
+                     ; inverse-of = record { left-inverse-of  = invˡ }})
+  with toFin x ≟ᶠ toFin y
+... | yes x≡y = yes (begin x                 ≡⟨ sym (invˡ x) ⟩
+                           fromFin (toFin x) ≡⟨ cong′ x≡y ⟩
+                           fromFin (toFin y) ≡⟨ invˡ y ⟩
+                           y ∎)
+... | no  x≢y = no λ{ refl → x≢y refl }
 
-  step-≾ : ∀ {x y : A} {xs ys : List A}
-
-    → xs ≾ ys
-      ---------------
-    → x ∷ xs ≾ y ∷ ys
-
-infix 3 _≾?_
-_≾?_ : List A → List A → Set
-[]     ≾? _      = ⊤
-_ ∷ _  ≾? []     = ⊥
-_ ∷ xs ≾? _ ∷ ys = xs ≾? ys
-
-sound-≾ : ∀ {ℓ} {A : Set ℓ} {xs ys : List A} → {p : xs ≾? ys} → xs ≾ ys
-sound-≾ {_} {_} {[]}     {ys}     {tt} = base-≾
-sound-≾ {_} {_} {x ∷ xs} {[]}     {()}
-sound-≾ {_} {_} {_ ∷ xs} {_ ∷ ys} {pp} = step-≾ (sound-≾ {p = pp})
-
-_ : ([ 1 ]) ≾? (1 ∷ 2 ∷ 3 ∷ [])
-_ = tt
-
-_ : ∀ {v} → True (length [ v ] <? length (1 ∷ [ v ]))
-_ = tt
-
-
--- Partition relation.
-data Partition {ℓ} {A : Set ℓ} : List A → (List A × List A) → Set where
-
-  Partition-[] :
-
-      ----------------------
-      Partition [] ([] , [])
-
-
-  Partition-L  : ∀ {x xs ys zs}
-
-    → Partition xs (ys , zs)
-      --------------------------------
-    → Partition (x ∷ xs) (x ∷ ys , zs)
-
-
-  Partition-R  : ∀ {x xs ys zs}
-
-    → Partition xs (ys , xs)
-      --------------------------------
-    → Partition (x ∷ xs) (ys , x ∷ zs)
-
-partition-[]ˡ : ∀ {ℓ} {A : Set ℓ} (xs : List A) → Partition xs ([] , xs)
-partition-[]ˡ []       = Partition-[]
-partition-[]ˡ (x ∷ xs) = Partition-R (partition-[]ˡ xs)
-
--- Prefix relation. (T0D0: upgrade stdlib and get from Data.List.Relation.Binary.Prefix)
-
-record Prefix {A : Set} (xs ys : List A) : Set where
-  constructor is-prefix-of
-  field
-    {k}   : List A
-    proof : xs ++ k ≡ ys
-
-open import Relation.Nullary using (yes; no; ¬_)
-open import Relation.Binary  using (Decidable)
-
-Prefix? : ∀ {A : Set} → Decidable {A = A} _≡_ → Decidable (Prefix {A})
-Prefix? _≟_ []       ys       = yes (is-prefix-of refl)
-Prefix? _≟_ (x ∷ xs) []       = no (λ { (is-prefix-of ()) })
-Prefix? _≟_ (x ∷ xs) (y ∷ ys)
-  with x ≟ y
-... | no ¬p                   = no λ{ (is-prefix-of refl) → ¬p refl }
-... | yes refl
-  with Prefix? _≟_ xs ys
-... | no ¬p                   = no λ { (is-prefix-of refl) → ¬p (is-prefix-of refl) }
-... | yes (is-prefix-of refl) = yes (is-prefix-of (cong (x ∷_) refl))
-
-------------------------------------------------------------------------
--- List properties.
-
--- Concatenation
-++-idʳ : ∀ {A : Set} {xs : List A}
-       → xs ≡ xs ++ []
-++-idʳ {_} {[]}     = refl
-++-idʳ {_} {x ∷ xs} = cong (x ∷_) ++-idʳ
-
-
--- Sublist relation
-import Data.List.Relation.Binary.Sublist.Heterogeneous as Sublist
-open import Data.List.Relation.Binary.Sublist.Propositional using (_⊆_)
-
-complement-⊆ : ∀ {A : Set} {xs ys : List A} → xs ⊆ ys → List A
-complement-⊆ Sublist.[] = []
-complement-⊆ (_ Sublist.∷  p) = complement-⊆ p
-complement-⊆ (y Sublist.∷ʳ p) = y ∷ complement-⊆ p
+≡-findec : Finite A → Decidable {A = A} _≡_
+≡-findec A↔fin = _≟_∶- A↔fin
