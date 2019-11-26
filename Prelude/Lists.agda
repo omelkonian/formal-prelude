@@ -6,14 +6,14 @@ module Prelude.Lists where
 
 open import Level            using (Level)
 open import Function         using (_∘_; _∋_; case_of_)
-open import Function.Inverse using (_↔_)
+open import Function.Bundles using (_↔_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>; ∃-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
-open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁; 0F)
+open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
@@ -158,12 +158,13 @@ Finite : Set → Set
 Finite A = ∃[ n ] (A ↔ Fin n)
 
 finList : Finite A → List A
-finList (n , record { from = record { _⟨$⟩_ = f } }) = map f (allFin n)
+finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)
 
 _≟_∶-_ : (x : A) → (y : A) → Finite A → Dec (x ≡ y)
-x ≟ y ∶- (_ , record { to   = record { _⟨$⟩_ = toFin }
-                     ; from = record { _⟨$⟩_ = fromFin ; cong = cong′ }
-                     ; inverse-of = record { left-inverse-of  = invˡ }})
+x ≟ y ∶- (_ , record { f       = toFin
+                     ; f⁻¹     = fromFin
+                     ; cong₂   = cong′
+                     ; inverse = _ , invˡ })
   with toFin x ≟ᶠ toFin y
 ... | yes x≡y = yes (begin x                 ≡⟨ sym (invˡ x) ⟩
                            fromFin (toFin x) ≡⟨ cong′ x≡y ⟩

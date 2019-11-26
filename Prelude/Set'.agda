@@ -1,16 +1,17 @@
 ------------------------------------------------------------------------
 -- Set utilities
 ------------------------------------------------------------------------
-open import Level        using (0ℓ)
-open import Function     using (_∘_; case_of_)
-open import Data.Unit    using (⊤; tt)
-open import Data.Empty   using (⊥; ⊥-elim)
-open import Data.Product using (_×_; ∃-syntax; proj₁; proj₂; _,_; Σ)
-open import Data.Sum     using (_⊎_; inj₁; inj₂; map₁; map₂)
-open import Data.Bool    using (Bool; true; false; T)
-open import Data.Nat     using (ℕ)
-open import Data.Fin     using (Fin; 0F; suc)
-open import Data.List    using (List; []; _∷_; [_]; filter; _++_; length)
+open import Level             using (0ℓ)
+open import Function          using (_∘_; case_of_)
+open import Data.Unit         using (⊤; tt)
+open import Data.Empty        using (⊥; ⊥-elim)
+open import Data.Product      using (_×_; ∃-syntax; proj₁; proj₂; _,_; Σ)
+open import Data.Sum          using (_⊎_; inj₁; inj₂; map₁; map₂)
+open import Data.Bool         using (Bool; true; false; T)
+open import Data.Nat          using (ℕ)
+open import Data.Fin          using (Fin; suc)
+open import Data.Fin.Patterns using (0F)
+open import Data.List         using (List; []; _∷_; [_]; filter; _++_; length)
 
 open import Data.List.Properties                                     using (filter-all)
 open import Data.List.Membership.Propositional.Properties            using (∈-filter⁻; ∈-++⁻)
