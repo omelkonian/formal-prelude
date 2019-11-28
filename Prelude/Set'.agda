@@ -271,3 +271,19 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
     → x ∈′ (xs ∪ ys)
     → x ∈′ xs ⊎ x ∈′ ys
   ∈-∪ {x} {xs} {ys} x∈ = map₂ (∈-─ {x} {ys} {xs}) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
+
+  unique-nub-∈ : ∀ {x : A} {xs : List A}
+    → Unique xs
+    → (x ∈ nub xs) ≡ (x ∈ xs)
+  unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
+
+  ∈-nub : ∀ {x : A} {xs : List A}
+    → x ∈ nub xs
+    → x ∈ xs
+  ∈-nub {x = x} {xs = x′ ∷ xs} x∈
+    with x′ ∈? xs
+  ... | yes _ = there (∈-nub x∈)
+  ... | no ¬p
+    with x∈
+  ... | (here refl) = here refl
+  ... | (there x∈′) = there (∈-nub x∈′)

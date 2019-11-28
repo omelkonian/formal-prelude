@@ -10,20 +10,20 @@ open import Function.Bundles using (_↔_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_; map₂; proj₂; <_,_>; ∃-syntax)
+open import Data.Product  using (_×_; _,_; map₂; proj₁; proj₂; <_,_>; ∃-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
-open import Data.Fin      using (Fin; toℕ; fromℕ≤; inject≤; cast; inject₁)
+open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
-open import Data.Nat      using (ℕ; zero; suc; _≤_; z≤n; s≤s; pred; _<?_)
+open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
                                 ; zip; sum; upTo; lookup; allFin; unzip )
 
 open import Data.Nat.Properties using (suc-injective)
 
 open import Data.List.Properties                           using (length-map)
-open import Data.List.Membership.Propositional             using (_∈_; mapWith∈)
-open import Data.List.Relation.Unary.Any                   using (here; there)
+open import Data.List.Membership.Propositional             using (_∈_; mapWith∈; find)
+open import Data.List.Relation.Unary.Any as Any            using (here; there)
 open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix)
 
 open import Relation.Nullary                      using (¬_; Dec; yes; no)
@@ -136,6 +136,31 @@ just-injective refl = refl
 ⁉→‼ {_} {A} {x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
   rewrite ‼-suc {_} {A} {x} {xs} {ix}
         = ⁉→‼ {_} {A} {xs} {ys} {ix} (suc-injective len≡) eq
+
+‼-index : ∀ {A : Set} {x : A} {xs : List A}
+  → (x∈xs : x ∈ xs)
+  → (xs ‼ Any.index x∈xs) ≡ x
+‼-index (here refl) = refl
+‼-index (there x∈)  rewrite ‼-index x∈ = refl
+
+toℕ< : ∀ {n} (fin : Fin n) → toℕ fin < n
+toℕ< fzero    = s≤s z≤n
+toℕ< (fsuc f) = s≤s (toℕ< f)
+
+fromℕ<∘toℕ< : ∀ {n} (i : Fin n) → fromℕ< (toℕ< i) ≡ i
+fromℕ<∘toℕ< fzero    = refl
+fromℕ<∘toℕ< (fsuc i) rewrite fromℕ<∘toℕ< i = refl
+
+‼-fromℕ<∘toℕ< : ∀ {A : Set} {xs : List A}
+  → (i : Index xs)
+  → (xs ‼ fromℕ< (toℕ< i)) ≡ (xs ‼ i)
+‼-fromℕ<∘toℕ< i rewrite fromℕ<∘toℕ< i = refl
+
+proj₁∘find : ∀ {A : Set} {x : A} {xs : List A}
+  → (x∈xs : x ∈ xs)
+  → proj₁ (find x∈xs) ≡ x
+proj₁∘find (here refl) = refl
+proj₁∘find (there x∈)  = proj₁∘find x∈
 
 ------------------------------------------------------------------------
 -- General utilities.
