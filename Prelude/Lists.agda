@@ -15,7 +15,7 @@ open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
-open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_)
+open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
                                 ; zip; sum; upTo; lookup; allFin; unzip )
 
@@ -42,7 +42,11 @@ private
     A : Set a
     B : Set b
     C : Set c
-    xs : List A
+
+    x y : A
+    xs ys : List A
+
+    m n : ℕ
 
 Index : List A → Set
 Index = Fin ∘ length
@@ -96,9 +100,6 @@ ix∈→x∈ = proj₂ ∘ zip-∈
 mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
 mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
 
-just-injective : ∀ {A : Set} {x y} → (Maybe A ∋ just x) ≡ just y → x ≡ y
-just-injective refl = refl
-
 ‼-suc : ∀ {ℓ} {A : Set ℓ} {x : A} {xs : List A} {i : Index xs}
   → (x ∷ xs ‼ fsuc i)
   ≡ (xs ‼ i)
@@ -137,28 +138,38 @@ just-injective refl = refl
   rewrite ‼-suc {_} {A} {x} {xs} {ix}
         = ⁉→‼ {_} {A} {xs} {ys} {ix} (suc-injective len≡) eq
 
-‼-index : ∀ {A : Set} {x : A} {xs : List A}
-  → (x∈xs : x ∈ xs)
-  → (xs ‼ Any.index x∈xs) ≡ x
+‼-index : (x∈xs : x ∈ xs)
+        → (xs ‼ Any.index x∈xs) ≡ x
 ‼-index (here refl) = refl
 ‼-index (there x∈)  rewrite ‼-index x∈ = refl
 
-toℕ< : ∀ {n} (fin : Fin n) → toℕ fin < n
+toℕ< : ∀ (fin : Fin n) → toℕ fin < n
 toℕ< fzero    = s≤s z≤n
 toℕ< (fsuc f) = s≤s (toℕ< f)
 
-fromℕ<∘toℕ< : ∀ {n} (i : Fin n) → fromℕ< (toℕ< i) ≡ i
+fromℕ<∘toℕ< : ∀ (i : Fin n) → fromℕ< (toℕ< i) ≡ i
 fromℕ<∘toℕ< fzero    = refl
 fromℕ<∘toℕ< (fsuc i) rewrite fromℕ<∘toℕ< i = refl
 
-‼-fromℕ<∘toℕ< : ∀ {A : Set} {xs : List A}
-  → (i : Index xs)
-  → (xs ‼ fromℕ< (toℕ< i)) ≡ (xs ‼ i)
+‼-fromℕ<∘toℕ< : (i : Index xs)
+              → (xs ‼ fromℕ< (toℕ< i)) ≡ (xs ‼ i)
 ‼-fromℕ<∘toℕ< i rewrite fromℕ<∘toℕ< i = refl
 
-proj₁∘find : ∀ {A : Set} {x : A} {xs : List A}
-  → (x∈xs : x ∈ xs)
-  → proj₁ (find x∈xs) ≡ x
+fromℕ<-≡ : (p₁ : m < length xs)
+         → (p₂ : m < length xs)
+         → fromℕ< p₁ ≡ fromℕ< p₂
+fromℕ<-≡ {m = zero}  {xs = x ∷ xs} p₁ p₂ = refl
+fromℕ<-≡ {m = suc m} {xs = x ∷ xs} p₁ p₂ rewrite fromℕ<-≡ {m = m} {xs = xs} (≤-pred p₁) (≤-pred p₂) = refl
+
+‼-fromℕ<-≡ : (p₁ : m < length xs)
+           → (p₂ : m < length ys)
+           → xs ≡ ys
+           → (xs ‼ fromℕ< p₁)
+           ≡ (ys ‼ fromℕ< p₂)
+‼-fromℕ<-≡ {m = m} {xs = xs} p₁ p₂ refl rewrite fromℕ<-≡ {m = m} {xs = xs} p₁ p₂ = refl
+
+proj₁∘find : (x∈xs : x ∈ xs)
+           → proj₁ (find x∈xs) ≡ x
 proj₁∘find (here refl) = refl
 proj₁∘find (there x∈)  = proj₁∘find x∈
 
