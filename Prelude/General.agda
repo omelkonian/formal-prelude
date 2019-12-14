@@ -10,7 +10,7 @@ open import Data.Bool    using (T; true)
 open import Data.Nat     using (_+_)
 open import Data.Maybe   using (Maybe; nothing)
   renaming (just to pure; ap to _<*>_) -- for idiom brackets
-open import Data.List    using (List; []; _∷_)
+open import Data.List    using (List; []; _∷_; foldr)
 
 open import Data.Nat.Properties using (+-assoc; +-comm)
 
@@ -55,6 +55,9 @@ ap-nothing {m = pure _ } ()
 
 ------------------------------------------------------------------------
 -- Lists.
+
+sequence : ∀ {A : Set} → List (Maybe A) → Maybe (List A)
+sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (pure [])
 
 singleton→∈ : ∃[ ys ] (xs ≡ x ∷ ys)
             → x ∈ xs
