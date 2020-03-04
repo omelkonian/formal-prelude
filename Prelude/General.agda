@@ -6,7 +6,7 @@ module Prelude.General where
 
 open import Data.Unit    using (tt)
 open import Data.Product using (_×_; _,_; ∃-syntax)
-open import Data.Bool    using (T; true)
+open import Data.Bool    using (T; true; false; _∧_)
 open import Data.Nat     using (_+_)
 open import Data.Maybe   using (Maybe; nothing)
   renaming (just to pure; ap to _<*>_) -- for idiom brackets
@@ -17,6 +17,7 @@ open import Data.Nat.Properties using (+-assoc; +-comm)
 open import Data.List.Membership.Propositional using (_∈_; mapWith∈)
 open import Data.List.Relation.Unary.Any       using (here; there)
 
+open import Relation.Nullary                      using (¬_)
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym)
 
 private
@@ -30,6 +31,13 @@ private
 
 true⇒T : ∀ {b} → b ≡ true → T b
 true⇒T refl = tt
+
+⊥-bool : ∀ {b} → ¬ ((b ≡ true) × (b ≡ false))
+⊥-bool (refl , ())
+
+∧-falseʳ : ∀ {l} → ¬ (T (l ∧ false))
+∧-falseʳ {l = true}  ()
+∧-falseʳ {l = false} ()
 
 ------------------------------------------------------------------------
 -- Nats.

@@ -5,24 +5,25 @@
 module Prelude.Lists where
 
 open import Level            using (Level)
-open import Function         using (_∘_; _∋_; case_of_)
+open import Function         using (_∘_; _∋_; case_of_; id)
 open import Function.Bundles using (_↔_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_; map₂; proj₁; proj₂; <_,_>; ∃-syntax)
+open import Data.Product  using (_×_; _,_; map₁; map₂; proj₁; proj₂; <_,_>; ∃-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
 open import Data.Maybe    using (Maybe; just; nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
-                                ; zip; sum; upTo; lookup; allFin; unzip )
+                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate )
 
 open import Data.Nat.Properties using (suc-injective)
 
-open import Data.List.Properties                           using (length-map)
+open import Data.List.Properties                           using (length-map; map-tabulate)
 open import Data.List.Membership.Propositional             using (_∈_; mapWith∈; find)
+open import Data.List.Membership.Propositional.Properties  using (∈-map⁺)
 open import Data.List.Relation.Unary.Any as Any            using (here; there)
 open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix)
 
@@ -88,14 +89,36 @@ enumerate : (xs : List A) → List (Index xs × A)
 enumerate xs = zip (fin-indices xs) xs
 
 zip-∈ : ∀ {xs : List A} {ys : List B} {x : A} {y : B}
-       → (x , y) ∈ zip xs ys → (x ∈ xs) × (y ∈ ys)
+  → (x , y) ∈ zip xs ys → (x ∈ xs) × (y ∈ ys)
 zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (here refl) = here refl , here refl
 zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (there xy∈) with zip-∈ xy∈
 ... | (x∈ , y∈) = there x∈ , there y∈
 
 ix∈→x∈ : ∀ {xs : List A} {i : Index xs} {x : A}
-       → (i , x) ∈ enumerate xs → x ∈ xs
+  → (i , x) ∈ enumerate xs → x ∈ xs
 ix∈→x∈ = proj₂ ∘ zip-∈
+
+map-map₁-zip : ∀ {A B C : Set} {xs : List A} {ys : List B} (f : A → C)
+  → map (map₁ f) (zip xs ys)
+  ≡ zip (map f xs) ys
+map-map₁-zip {xs = []}     {ys = _}      f = refl
+map-map₁-zip {xs = _ ∷ xs} {ys = []}     f = refl
+map-map₁-zip {xs = _ ∷ xs} {ys = _ ∷ ys} f rewrite map-map₁-zip {xs = xs} {ys = ys} f = refl
+
+enum∈-∷ : ∀ {A : Set} {x y : A} {xs : List A} {i : Index xs}
+  → (i , y) ∈ enumerate xs
+  → (fsuc i , y) ∈ enumerate (x ∷ xs)
+enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
+  with ∈-map⁺ (map₁ fsuc) ix∈
+... | ix∈′
+  rewrite map-map₁-zip {xs = tabulate {n = length xs} id} {ys = xs} fsuc
+        | map-tabulate {n = length xs} (λ x → x) fsuc
+        = there ix∈′
+
+x∈→ix∈ : ∀ {A : Set} {xs : List A} {x : A}
+  → (x∈ : x ∈ xs) → ((Any.index x∈ , x) ∈ enumerate xs)
+x∈→ix∈ (here refl) = here refl
+x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
 
 mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
 mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
@@ -105,20 +128,16 @@ mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (i
   ≡ (xs ‼ i)
 ‼-suc = refl
 
-‼-map′ : ∀ {A B : Set} {xs : List A} {f : A → B}
+‼-map : ∀ {A B : Set} {xs : List A} {f : A → B}
   → Index xs
   → Index (map f xs)
-‼-map′ {xs = x ∷ xs} fzero    = fzero
-‼-map′ {xs = x ∷ xs} (fsuc i) = fsuc (‼-map′ {xs = xs} i)
+‼-map {xs = x ∷ xs} fzero    = fzero
+‼-map {xs = x ∷ xs} (fsuc i) = fsuc (‼-map {xs = xs} i)
 
-‼-map : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} {f : A → B} {xs : List A} {i : Index xs}
-  → (map f xs ‼ cast (sym (length-map f xs)) i)
-  ≡ f (xs ‼ i)
-‼-map {_} {_} {A} {B} {f} {[]} {()}
-‼-map {_} {_} {A} {B} {f} {x ∷ xs} {fzero} = refl
-‼-map {_} {_} {A} {B} {f} {x ∷ xs} {fsuc i}
-  rewrite ‼-suc {_} {A} {x} {xs} {i}
-        = ‼-map {_} {_} {A} {B} {f} {xs} {i}
+map-‼ : ∀ {xs : List A} {x : A} {f : A → B} (x∈ : x ∈ xs)
+  → (map f xs ‼ ‼-map {xs = xs} {f = f} (Any.index x∈)) ≡ f x
+map-‼ (here refl) = refl
+map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x∈ = refl
 
 ‼→⁉ : ∀ {ℓ} {A : Set ℓ} {xs : List A} {ix : Index xs}
     → just (xs ‼ ix) ≡ (xs ⁉ toℕ ix)
