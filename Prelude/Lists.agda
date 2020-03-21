@@ -24,8 +24,11 @@ open import Data.Nat.Properties using (suc-injective)
 open import Data.List.Properties                           using (length-map; map-tabulate)
 open import Data.List.Membership.Propositional             using (_∈_; mapWith∈; find)
 open import Data.List.Membership.Propositional.Properties  using (∈-map⁺)
-open import Data.List.Relation.Unary.Any as Any            using (here; there)
+open import Data.List.Relation.Unary.Any as Any            using (Any; here; there)
+open import Data.List.Relation.Unary.All as All            using (All; []; _∷_)
+
 open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix)
+open import Data.List.Relation.Binary.Suffix.Heterogeneous using (Suffix)
 
 open import Relation.Nullary                      using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable            using (True)
@@ -57,7 +60,7 @@ _‼_ : (vs : List A) → Index vs → A
 _‼_ = lookup
 
 infix 3 _⁉_
-_⁉_ : (vs : List A) → ℕ → Maybe A
+_⁉_ : List A → ℕ → Maybe A
 []       ⁉ _     = nothing
 (x ∷ xs) ⁉ zero  = just x
 (x ∷ xs) ⁉ suc n = xs ⁉ n
@@ -204,9 +207,27 @@ filter₁ = mapMaybe isInj₁
 filter₂ : List (A ⊎ B) → List B
 filter₂ = mapMaybe isInj₂
 
+map-proj₁-map₁ : ∀ {xs : List (A × B)} {f : A → C}
+  → map proj₁ (map (map₁ f) xs)
+  ≡ map (f ∘ proj₁) xs
+map-proj₁-map₁ {xs = []} = refl
+map-proj₁-map₁ {xs = x ∷ xs} {f = f}
+  rewrite map-proj₁-map₁ {xs = xs} {f = f}
+        = refl
+
+-- Any/All
+All-Any-refl : ∀ {xs : List A} {f : A → B}
+  → All (λ x → Any (λ x′ → f x ≡ f x′) xs) xs
+All-Any-refl {xs = []}     = []
+All-Any-refl {xs = _ ∷ xs} = here refl ∷ All.map there (All-Any-refl {xs = xs})
+
 -- Prefix relation, instantiated for propositional equality.
 Prefix≡ : List A → List A → Set _
 Prefix≡ = Prefix _≡_
+
+-- Suffix relation, instantiated for propositional equality.
+Suffix≡ : List A → List A → Set _
+Suffix≡ = Suffix _≡_
 
 -- Finite sets.
 Finite : Set → Set

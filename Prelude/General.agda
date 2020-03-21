@@ -32,12 +32,29 @@ private
 true⇒T : ∀ {b} → b ≡ true → T b
 true⇒T refl = tt
 
+T⇒true : ∀ {b} → T b → b ≡ true
+T⇒true {true}  tt = refl
+T⇒true {false} ()
+
 ⊥-bool : ∀ {b} → ¬ ((b ≡ true) × (b ≡ false))
 ⊥-bool (refl , ())
+
+T-∧ : ∀ {l r} → T (l ∧ r) → T l × T r
+T-∧ {true} {true} _ = tt , tt
+
+∧-falseˡ : ∀ {r} → ¬ (T (false ∧ r))
+∧-falseˡ {r = true}  ()
+∧-falseˡ {r = false} ()
 
 ∧-falseʳ : ∀ {l} → ¬ (T (l ∧ false))
 ∧-falseʳ {l = true}  ()
 ∧-falseʳ {l = false} ()
+
+∧-falseʳ² : ∀ {x y} → ¬ (T (x ∧ (y ∧ false)))
+∧-falseʳ² {x = true}  {y = true}  ()
+∧-falseʳ² {x = true}  {y = false} ()
+∧-falseʳ² {x = false} {y = true}  ()
+∧-falseʳ² {x = false} {y = false} ()
 
 ------------------------------------------------------------------------
 -- Nats.
