@@ -4,15 +4,21 @@
 
 module Prelude.General where
 
+open import Level          using (0ℓ)
+open import Category.Monad using (RawMonad)
+
 open import Data.Unit    using (tt)
 open import Data.Product using (_×_; _,_; ∃-syntax)
 open import Data.Bool    using (T; true; false; _∧_)
 open import Data.Nat     using (_+_)
-open import Data.Maybe   using (Maybe; nothing)
-  renaming (just to pure; ap to _<*>_) -- for idiom brackets
+open import Data.Maybe   using (Maybe; just; nothing)
 open import Data.List    using (List; []; _∷_; foldr)
 
 open import Data.Nat.Properties using (+-assoc; +-comm)
+
+import Data.Maybe.Relation.Unary.Any as M
+import Data.Maybe.Categorical as MaybeCat
+open RawMonad {f = 0ℓ} MaybeCat.monad renaming (_⊛_ to _<*>_)
 
 open import Data.List.Membership.Propositional using (_∈_; mapWith∈)
 open import Data.List.Relation.Unary.Any       using (here; there)
@@ -67,22 +73,28 @@ x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
 
 toMaybe : List A → Maybe A
 toMaybe []      = nothing
-toMaybe (x ∷ _) = pure x
+toMaybe (x ∷ _) = just x
 
-toMaybe-≡ : ∀ {A : Set} {x : A} {xs : List A}
-  → toMaybe xs ≡ pure x
+toMaybe-≡ : ∀ {x : A} {xs : List A}
+  → toMaybe xs ≡ just x
   → ∃[ ys ] (xs ≡ x ∷ ys)
 toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
 
-ap-nothing : ∀ {A B : Set} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ pure r
+ap-nothing : ∀ {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
 ap-nothing {m = nothing} ()
-ap-nothing {m = pure _ } ()
+ap-nothing {m = just _ } ()
+
+Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
+ → mx ≡ just x
+ → M.Any P mx
+ → P x
+Any-just refl (M.just p) = p
 
 ------------------------------------------------------------------------
 -- Lists.
 
 sequence : ∀ {A : Set} → List (Maybe A) → Maybe (List A)
-sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (pure [])
+sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (just [])
 
 singleton→∈ : ∃[ ys ] (xs ≡ x ∷ ys)
             → x ∈ xs
