@@ -5,14 +5,16 @@
 module Prelude.General where
 
 open import Level          using (0ℓ)
+open import Function       using (case_of_)
 open import Category.Monad using (RawMonad)
 
+open import Data.Empty   using (⊥-elim)
 open import Data.Unit    using (tt)
 open import Data.Product using (_×_; _,_; ∃-syntax)
-open import Data.Bool    using (T; true; false; _∧_)
+open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
 open import Data.Nat     using (_+_)
-open import Data.Maybe   using (Maybe; just; nothing)
-open import Data.List    using (List; []; _∷_; foldr)
+open import Data.Maybe   using (Maybe; just; nothing; fromMaybe)
+open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
 
 open import Data.Nat.Properties using (+-assoc; +-comm)
 
@@ -23,8 +25,11 @@ open RawMonad {f = 0ℓ} MaybeCat.monad renaming (_⊛_ to _<*>_)
 open import Data.List.Membership.Propositional using (_∈_; mapWith∈)
 open import Data.List.Relation.Unary.Any       using (here; there)
 
-open import Relation.Nullary                      using (¬_)
-open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym)
+open import Relation.Nullary           using (yes; no; does; ¬_)
+open import Relation.Nullary.Decidable using (isYes≗does)
+import Relation.Unary  as Un
+import Relation.Binary as Bi
+open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym; trans)
 
 private
   variable
@@ -32,8 +37,7 @@ private
     x : A
     xs : List A
 
-------------------------------------------------------------------------
--- Bools.
+-- ** Bools
 
 true⇒T : ∀ {b} → b ≡ true → T b
 true⇒T refl = tt
@@ -62,14 +66,29 @@ T-∧ {true} {true} _ = tt , tt
 ∧-falseʳ² {x = false} {y = true}  ()
 ∧-falseʳ² {x = false} {y = false} ()
 
-------------------------------------------------------------------------
--- Nats.
+if-true : ∀ {b} {t f : A}
+  → b ≡ true
+  → (if b then t else f) ≡ t
+if-true refl = refl
+
+if-false : ∀ {b} {t f : A}
+  → b ≡ false
+  → (if b then t else f) ≡ f
+if-false refl = refl
+
+infixr 6 _∧-×_
+_∧-×_ : ∀ {x y}
+  → x ≡ true
+  → y ≡ true
+  → x ∧ y ≡ true
+refl ∧-× refl = refl
+
+-- ** Nats
 
 x+y+0≡y+x+0 : ∀ x y → x + (y + 0) ≡ (y + x) + 0
 x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
 
-------------------------------------------------------------------------
--- Maybes.
+-- ** Maybes
 
 toMaybe : List A → Maybe A
 toMaybe []      = nothing
@@ -90,10 +109,17 @@ Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
  → P x
 Any-just refl (M.just p) = p
 
-------------------------------------------------------------------------
--- Lists.
+-- ** Decidable
 
-sequence : ∀ {A : Set} → List (Maybe A) → Maybe (List A)
+≟-refl : ∀ {A : Set} (_≟_ : Bi.Decidable {A = A} _≡_) (x : A)
+  → x ≟ x ≡ yes refl
+≟-refl _≟_ x with x ≟ x
+... | no ¬p    = ⊥-elim (¬p refl)
+... | yes refl = refl
+
+-- ** Lists
+
+sequence : List (Maybe A) → Maybe (List A)
 sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (just [])
 
 singleton→∈ : ∃[ ys ] (xs ≡ x ∷ ys)
@@ -107,3 +133,23 @@ mapWith∈⁺ {x = x} {xs = []}      ()
 mapWith∈⁺ {x = x} {xs = .x ∷ xs} (here refl) = (_ , here refl , refl)
 mapWith∈⁺ {x = x} {xs = x′ ∷ xs} (there x∈) with mapWith∈⁺ x∈
 ... | y , y∈ , refl = y , there y∈ , refl
+
+filter-singleton : ∀ {P : A → Set} {P? : Un.Decidable P} {px : P x}
+  → P? x ≡ yes px
+  → filter P? [ x ] ≡ [ x ]
+filter-singleton {P? = P?} p rewrite p = refl -- (trans (sym (isYes≗does (P? _))) p) = refl
+
+case-singleton : ∀ {x xs} {f : A → B} {g : B}
+  → xs ≡ [ x ]
+  → (case xs of λ{ (x′ ∷ []) → f x′
+                 ; _         → g }) ≡ f x
+case-singleton refl = refl
+
+-- ** Maybe-Bool
+
+do-pure : ∀ {x : A} {mx : Maybe A} {f : A → Bool}
+  → mx ≡ just x
+  → f x ≡ true
+  → (fromMaybe false do x ← mx
+                        pure (f x)) ≡ true
+do-pure refl f≡ rewrite f≡ = refl

@@ -35,7 +35,7 @@ open import Relation.Nullary.Decidable            using (True)
 open import Relation.Binary                       using (Decidable)
 
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; cong; sym; trans)
-open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_;_∎)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 
 ------------------------------------------------------------------------
 -- Indexed operations.

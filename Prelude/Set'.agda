@@ -21,7 +21,11 @@ open import Data.List.Relation.Unary.Unique.Propositional.Properties using (filt
 open import Data.List.Relation.Unary.Any                             using (Any; any; here; there; index)
 open import Data.List.Relation.Unary.All                             using (All; []; _∷_)
 open import Data.List.Relation.Unary.All.Properties                  using (¬Any⇒All¬; All¬⇒¬Any)
-open import Data.List.Relation.Binary.Disjoint.Propositional         using (Disjoint)
+
+open import Data.List.Relation.Binary.Disjoint.Propositional    using (Disjoint)
+open import Data.List.Relation.Binary.Permutation.Propositional using (_↭_; refl; prep; swap; trans; ↭-sym)
+open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭; drop-∷; drop-mid; inject)
+
 
 open import Relation.Nullary                      using (Dec; yes; no; ¬_)
 open import Relation.Nullary.Negation             using (contradiction; ¬?)
@@ -170,10 +174,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   ------------------------------------------------------------------------
   -- Permutation relation.
-
-  open import Data.List.Relation.Permutation.Inductive            using (_↭_; refl; prep; swap; trans; ↭-sym)
-  open import Data.List.Relation.Permutation.Inductive.Properties using (∈-resp-↭; drop-∷; drop-mid; inject)
-  open import Data.List.Any using (index)
 
   ¬[]↭ : ∀ {x : A} {xs : List A} → ¬ ([] ↭ x ∷ xs)
   ¬[]↭ (trans {.[]} {[]}     {.(_ ∷ _)} []↭ []↭₁) = ¬[]↭ []↭₁
