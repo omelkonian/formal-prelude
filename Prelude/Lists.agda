@@ -27,8 +27,9 @@ open import Data.List.Membership.Propositional.Properties  using (∈-map⁺)
 open import Data.List.Relation.Unary.Any as Any            using (Any; here; there)
 open import Data.List.Relation.Unary.All as All            using (All; []; _∷_)
 
-open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix)
-open import Data.List.Relation.Binary.Suffix.Heterogeneous using (Suffix)
+open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix; []; _∷_)
+open import Data.List.Relation.Binary.Pointwise as PW      using (Pointwise; []; _∷_)
+open import Data.List.Relation.Binary.Suffix.Heterogeneous using (Suffix; here; there)
 
 open import Relation.Nullary                      using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable            using (True)
@@ -228,6 +229,12 @@ Prefix≡ = Prefix _≡_
 -- Suffix relation, instantiated for propositional equality.
 Suffix≡ : List A → List A → Set _
 Suffix≡ = Suffix _≡_
+
+∈⇒Suffix : ∀ {A : Set} {x : A} {ys : List A}
+  → x ∈ ys
+  → ∃[ xs ] Suffix≡ (x ∷ xs) ys
+∈⇒Suffix {ys = x ∷ xs}  (here refl) = xs , here (refl ∷ PW.refl refl)
+∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂ there (∈⇒Suffix x∈)
 
 -- Finite sets.
 Finite : Set → Set
