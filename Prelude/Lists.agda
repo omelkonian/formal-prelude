@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 ------------------------------------------------------------------------
 -- List utilities
 ------------------------------------------------------------------------
@@ -5,7 +6,7 @@
 module Prelude.Lists where
 
 open import Level            using (Level)
-open import Function         using (_∘_; _∋_; case_of_; id)
+open import Function         using (_∘_; _∋_; case_of_; id; _$_)
 open import Function.Bundles using (_↔_)
 
 open import Data.Empty    using (⊥; ⊥-elim)
@@ -17,26 +18,29 @@ open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject�
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
-                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate )
+                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate; filter; foldr )
 
 open import Data.Nat.Properties using (suc-injective)
 
-open import Data.List.Properties                           using (length-map; map-tabulate)
-open import Data.List.Membership.Propositional             using (_∈_; mapWith∈; find)
-open import Data.List.Membership.Propositional.Properties  using (∈-map⁺)
-open import Data.List.Relation.Unary.Any as Any            using (Any; here; there)
-open import Data.List.Relation.Unary.All as All            using (All; []; _∷_)
-
-open import Data.List.Relation.Binary.Prefix.Heterogeneous using (Prefix; []; _∷_)
-open import Data.List.Relation.Binary.Pointwise as PW      using (Pointwise; []; _∷_)
-open import Data.List.Relation.Binary.Suffix.Heterogeneous using (Suffix; here; there)
+open import Data.List.Properties                                using (length-map; map-tabulate; filter-none)
+open import Data.List.Membership.Propositional                  using (_∈_; mapWith∈; find)
+open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺)
+open import Data.List.Relation.Unary.Any as Any                 using (Any; here; there)
+open import Data.List.Relation.Unary.All as All                 using (All; []; _∷_)
+open import Data.List.Relation.Unary.Unique.Propositional       using (Unique)
+open import Data.List.Relation.Binary.Subset.Propositional      using (_⊆_)
+open import Data.List.Relation.Binary.Prefix.Heterogeneous      using (Prefix; []; _∷_)
+open import Data.List.Relation.Binary.Pointwise as PW           using (Pointwise; []; _∷_)
+open import Data.List.Relation.Binary.Suffix.Heterogeneous      using (Suffix; here; there)
+open import Data.List.Relation.Binary.Permutation.Propositional using ( _↭_; prep; ↭-sym; ↭-reflexive
+                                                                      ; module PermutationReasoning )
 
 open import Relation.Nullary                      using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable            using (True)
 open import Relation.Binary                       using (Decidable)
 
-open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; cong; sym; trans)
-open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; cong; sym; trans; module ≡-Reasoning)
+open import Algebra using (Op₂; Identity; Commutative)
 
 ------------------------------------------------------------------------
 -- Indexed operations.
@@ -216,6 +220,52 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
   rewrite map-proj₁-map₁ {xs = xs} {f = f}
         = refl
 
+-- mapWith∈/filter
+filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
+                  {x : A} {xs : List A} {ys : List B}
+  → (x∈ : x ∈ map f ys)
+  → Unique ys
+  → filter ((_∈? (x ∷ xs)) ∘ f) ys
+  ↭ (proj₁ ∘ ∈-map⁻ f) x∈ ∷ filter ((_∈? xs) ∘ f) ys
+filter-exists {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {x = x} {xs = xs} {ys = ys} x∈ uniq
+  with ∈-map⁻ f x∈
+... | y , y∈ , refl -- y∈  : y ∈ ys
+  with ∈-filter⁺ (_∈? (x ∷ xs) ∘ f) y∈ (here refl)
+... | y∈′           -- y∈′ : y ∈ filter _ ys
+    = begin
+        filter ((_∈? (x ∷ xs)) ∘ f) ys
+      ↭⟨ {!!} ⟩
+        y ∷ filter ((_∈? xs) ∘ f) ys
+      ∎ where open PermutationReasoning
+
+mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
+                    {xs : List A} {ys : List B}
+  → (p⊆ : xs ⊆ map f ys)
+  → Unique ys
+  → mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆)
+  ↭ filter ((_∈? xs) ∘ f) ys
+mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = []}     {ys = ys} p⊆ uniq =
+  ↭-sym (↭-reflexive $ filter-none ((_∈? []) ∘ f) (All.universal (λ _ ()) ys))
+mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {ys = ys} p⊆ uniq =
+  begin
+    mapWith∈ (x ∷ xs) get
+  ≡⟨⟩
+    get {x} _ ∷ mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆ ∘ there)
+  ↭⟨ prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
+    get {x} _ ∷ filter ((_∈? xs) ∘ f) ys
+  ↭⟨ ↭-sym (filter-exists {_∈?_ = _∈?_} (p⊆ (here refl)) uniq) ⟩
+    filter ((_∈? (x ∷ xs)) ∘ f) ys
+  ∎ where open PermutationReasoning
+          get : ∀ {x′} → x′ ∈ x ∷ xs → B
+          get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
+
+↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
+  → Identity _≡_ x₀ _⊕_
+  → Commutative _≡_ _⊕_
+  → xs ↭ ys
+  → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
+↭⇒≡ = {!!}
+
 -- Any/All
 All-Any-refl : ∀ {xs : List A} {f : A → B}
   → All (λ x → Any (λ x′ → f x ≡ f x′) xs) xs
@@ -253,6 +303,7 @@ x ≟ y ∶- (_ , record { f       = toFin
                            fromFin (toFin x) ≡⟨ cong′ x≡y ⟩
                            fromFin (toFin y) ≡⟨ invˡ y ⟩
                            y ∎)
+                where open ≡-Reasoning
 ... | no  x≢y = no λ{ refl → x≢y refl }
 
 ≡-findec : Finite A → Decidable {A = A} _≡_
