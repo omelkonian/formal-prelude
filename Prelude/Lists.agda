@@ -18,13 +18,15 @@ open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject�
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
 open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
-                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate; filter; foldr )
+                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate; filter; foldr; concat )
 
-open import Data.Nat.Properties using (suc-injective)
 
-open import Data.List.Properties                                using (length-map; map-tabulate; filter-none)
+open import Data.Nat.Properties  using (suc-injective)
+open import Data.List.Properties using (length-map; map-tabulate; filter-none; ++-identityˡ)
+open import Data.List.NonEmpty   using (List⁺; _∷_; toList)
+
 open import Data.List.Membership.Propositional                  using (_∈_; mapWith∈; find)
-open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺)
+open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
 open import Data.List.Relation.Unary.Any as Any                 using (Any; here; there)
 open import Data.List.Relation.Unary.All as All                 using (All; []; _∷_)
 open import Data.List.Relation.Unary.Unique.Propositional       using (Unique)
@@ -37,9 +39,10 @@ open import Data.List.Relation.Binary.Permutation.Propositional using ( _↭_; p
 
 open import Relation.Nullary                      using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable            using (True)
+import Relation.Unary as Unary
 open import Relation.Binary                       using (Decidable)
 
-open import Relation.Binary.PropositionalEquality as Eq using (_≡_; refl; cong; sym; trans; module ≡-Reasoning)
+open import Relation.Binary.PropositionalEquality as Eq using (_≡_; _≢_; refl; cong; sym; trans; module ≡-Reasoning)
 open import Algebra using (Op₂; Identity; Commutative)
 
 ------------------------------------------------------------------------
@@ -201,6 +204,25 @@ proj₁∘find (here refl) = refl
 proj₁∘find (there x∈)  = proj₁∘find x∈
 
 ------------------------------------------------------------------------
+-- Combinatorics.
+
+-- e.g. subsequences "abc" ≡ ["","c","b","bc","a","ab","ac","abc"]
+subsequences : List A → List (List A)
+subsequences []       = [ [] ]
+subsequences (x ∷ xs) = xss ++ map (x ∷_) xss
+  where xss = subsequences xs
+
+subsequences-refl : ∀ {xs : List A} → xs ∈ subsequences xs
+subsequences-refl {xs = []}     = here refl
+subsequences-refl {xs = x ∷ xs} = ∈-++⁺ʳ (subsequences xs) (∈-map⁺ (x ∷_) (subsequences-refl {xs = xs}))
+
+-- e.g. combinations [[1,2,3],[4,5]] ≡ [[1,4],[1,5],[2,4],[2,5],[3,4],[3,5]]
+combinations : List (List A) → List (List A)
+combinations []         = []
+combinations (xs ∷ xss) = concatMap (λ x → map (x ∷_) xss′) xs
+  where xss′ = combinations xss
+
+------------------------------------------------------------------------
 -- General utilities.
 
 unzip₃ : List (A × B × C) → List A × List B × List C
@@ -265,6 +287,78 @@ mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {y
   → xs ↭ ys
   → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
 ↭⇒≡ = {!!}
+
+-- Empty lists
+Null : ∀ {A : Set} → List A → Set
+Null xs = xs ≡ []
+
+¬Null : ∀ {A : Set} → List A → Set
+¬Null xs = xs ≢ []
+
+toList≢[] : ∀ {xs : List⁺ A} → ¬Null (toList xs)
+toList≢[] {xs = x ∷ xs} ()
+
+map≢[] : ∀ {xs : List A} {f : A → B}
+  → ¬Null xs
+  → ¬Null (map f xs)
+map≢[] {xs = []}     xs≢[] _      = ⊥-elim $ xs≢[] refl
+map≢[] {xs = x ∷ xs} _    ()
+
+mapWith∈≢[] : ∀ {xs : List A} {f : ∀ {x} → x ∈ xs → B}
+  → ¬Null xs
+  → ¬Null (mapWith∈ xs f)
+mapWith∈≢[] {xs = []}     xs≢[] _ = ⊥-elim $ xs≢[] refl
+mapWith∈≢[] {xs = x ∷ xs} _    ()
+
+concat≡[]ˡ : ∀ {xs : List A} {xss : List (List A)}
+  → Null $ concat (xs ∷ xss)
+  → Null xs
+concat≡[]ˡ {xs = []} _ = refl
+
+concat≡[]ʳ : ∀ {xs : List A} {xss : List (List A)}
+  → Null $ concat (xs ∷ xss)
+  → Null $ concat xss
+concat≡[]ʳ {xs = []} {xss = xss} concat≡[] rewrite ++-identityˡ xss = concat≡[]
+
+concat≢[] : ∀ {xss : List (List A)}
+  → ∃[ xs ] ( (xs ∈ xss)
+            × ¬Null xs )
+  → ¬Null (concat xss)
+concat≢[] {_} {_ ∷ xss} (_  , here refl , xs≢[]) concat≡[] = xs≢[] $ concat≡[]ˡ {xss = xss} concat≡[]
+concat≢[] {_} {_ ∷ xss} (xs , there xs∈ , xs≢[]) concat≡[] = concat≢[] (xs , xs∈ , xs≢[])
+                                                                       (concat≡[]ʳ {xss = xss} concat≡[])
+
+concat≡[] : ∀ {xss : List (List A)}
+  → Null $ concat xss
+  → All Null xss
+concat≡[] {xss = []}       _  = []
+concat≡[] {xss = [] ∷ xss} eq rewrite ++-identityˡ xss = refl ∷ concat≡[] eq
+
+mapWith∈≡[] : ∀ {xs : List A} {f : ∀ {x} → x ∈ xs → B}
+  → Null $ mapWith∈ xs f
+  → Null xs
+mapWith∈≡[] {xs = []} _ = refl
+
+∀mapWith∈≡[] : ∀ {xs : List A} {f : ∀ {x} → x ∈ xs → List B}
+  → (∀ {x} x∈ → ¬Null $ f {x} x∈)
+  → ¬ (Null xs)
+  → ¬ (All Null $ mapWith∈ xs f)
+∀mapWith∈≡[] {xs = []}     {f} _  xs≢[]  _    = xs≢[] refl
+∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (All.lookup ∀≡[] (here refl))
+
+filter≡[] : ∀ {A : Set} {P : A → Set} {P? : Unary.Decidable P} {xs : List A}
+  → filter P? xs ≡ []
+  → All (¬_ ∘ P) xs
+filter≡[] {P = P} {P?} {[]}     _  = []
+filter≡[] {P = P} {P?} {x ∷ xs} eq
+  with P? x | eq
+... | yes px  | ()
+... | no  ¬px | eq′ = ¬px ∷ filter≡[] eq′
+
+-- List⁺
+toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
+toList⁺ []       ¬[] = ⊥-elim $ ¬[] refl
+toList⁺ (x ∷ xs) _   = x ∷ xs
 
 -- Any/All
 All-Any-refl : ∀ {xs : List A} {f : A → B}
