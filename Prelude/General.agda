@@ -8,8 +8,8 @@ open import Level          using (0ℓ)
 open import Function       using (case_of_)
 open import Category.Monad using (RawMonad)
 
-open import Data.Empty   using (⊥-elim)
-open import Data.Unit    using (tt)
+open import Data.Empty   using (⊥; ⊥-elim)
+open import Data.Unit    using (⊤; tt)
 open import Data.Product using (_×_; _,_; ∃-syntax)
 open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
 open import Data.Nat     using (_+_)
@@ -108,6 +108,10 @@ Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
  → M.Any P mx
  → P x
 Any-just refl (M.just p) = p
+
+Is-here : ∀ {A : Set} {x : A} {xs : List A} → x ∈ xs → Set
+Is-here (here _)  = ⊤
+Is-here (there _) = ⊥
 
 -- ** Decidable
 

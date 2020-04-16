@@ -22,14 +22,18 @@ open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapM
 
 
 open import Data.Nat.Properties  using (suc-injective)
+open import Data.Fin.Properties  using ()
+  renaming (suc-injective to fsuc-injective)
 open import Data.List.Properties using (length-map; map-tabulate; filter-none; ++-identityˡ)
 open import Data.List.NonEmpty   using (List⁺; _∷_; toList)
 
-open import Data.List.Membership.Propositional                  using (_∈_; mapWith∈; find)
+open import Data.List.Membership.Propositional                  using (_∈_; _∉_; mapWith∈; find)
 open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
 open import Data.List.Relation.Unary.Any as Any                 using (Any; here; there)
 open import Data.List.Relation.Unary.All as All                 using (All; []; _∷_)
+open import Data.List.Relation.Unary.All.Properties             using (¬Any⇒All¬)
 open import Data.List.Relation.Unary.Unique.Propositional       using (Unique)
+open import Data.List.Relation.Unary.AllPairs as AllPairs       using ([]; _∷_)
 open import Data.List.Relation.Binary.Subset.Propositional      using (_⊆_)
 open import Data.List.Relation.Binary.Prefix.Heterogeneous      using (Prefix; []; _∷_)
 open import Data.List.Relation.Binary.Pointwise as PW           using (Pointwise; []; _∷_)
@@ -225,6 +229,7 @@ combinations (xs ∷ xss) = concatMap (λ x → map (x ∷_) xss′) xs
 ------------------------------------------------------------------------
 -- General utilities.
 
+
 unzip₃ : List (A × B × C) → List A × List B × List C
 unzip₃ = map₂ unzip ∘ unzip
 
@@ -241,6 +246,29 @@ map-proj₁-map₁ {xs = []} = refl
 map-proj₁-map₁ {xs = x ∷ xs} {f = f}
   rewrite map-proj₁-map₁ {xs = xs} {f = f}
         = refl
+
+-- count
+count : ∀ {P : A → Set} → Unary.Decidable P → List A → ℕ
+count P? = length ∘ filter P?
+
+count-single : ∀ {P : A → Set} {P? : Unary.Decidable P} {x xs}
+  → count P? (x ∷ xs) ≡ 1
+  → P x
+  → All (x ≢_) xs
+count-single {P = P} {P?} {x} {xs} count≡1 px
+  with P? x
+... | no ¬px = ⊥-elim $ ¬px px
+... | yes _  = ¬Any⇒All¬ xs h
+  where
+    h : x ∉ xs
+    h x∈ = {!!}
+
+-- mapWith∈
+mapWith∈-∀ : ∀ {A B : Set} {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Set}
+  → (∀ {x} x∈ → P (f {x} x∈))
+  → (∀ {y} → y ∈ mapWith∈ xs f → P y)
+mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (Any.here refl)
+mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ Any.there) y∈
 
 -- mapWith∈/filter
 filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
@@ -288,12 +316,29 @@ mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {y
   → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
 ↭⇒≡ = {!!}
 
+-- Unique
+Unique-mapWith∈ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
+  → (∀ {x x′} {x∈ : x ∈ xs} {x∈′ : x′ ∈ xs} → f x∈ ≡ f x∈′ → Any.index x∈ ≡ Any.index x∈′)
+  → Unique (mapWith∈ xs f)
+Unique-mapWith∈ {xs = []}     {f = f} f≡ = []
+Unique-mapWith∈ {xs = x ∷ xs} {f = f} f≡
+  = All.tabulate (mapWith∈-∀ {P = f (Any.here refl) ≢_} λ _ eq → case f≡ eq of λ () )
+  ∷ Unique-mapWith∈ {xs = xs} (fsuc-injective ∘ f≡)
+
 -- Empty lists
 Null : ∀ {A : Set} → List A → Set
 Null xs = xs ≡ []
 
 ¬Null : ∀ {A : Set} → List A → Set
 ¬Null xs = xs ≢ []
+
+null? : ∀ {A : Set} → Unary.Decidable (Null {A})
+null? []      = yes refl
+null? (_ ∷ _) = no  λ ()
+
+¬null? : ∀ {A : Set} → Unary.Decidable (¬Null {A})
+¬null? []      = no  λ ¬p → ¬p refl
+¬null? (_ ∷ _) = yes λ ()
 
 toList≢[] : ∀ {xs : List⁺ A} → ¬Null (toList xs)
 toList≢[] {xs = x ∷ xs} ()
@@ -354,6 +399,12 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
   with P? x | eq
 ... | yes px  | ()
 ... | no  ¬px | eq′ = ¬px ∷ filter≡[] eq′
+
+¬Null⇒∃x : ∀ {A : Set} {xs : List A}
+  → ¬Null xs
+  → ∃[ x ] (x ∈ xs)
+¬Null⇒∃x {xs = []}     ¬p = ⊥-elim $ ¬p refl
+¬Null⇒∃x {xs = x ∷ xs} _  = x , here refl
 
 -- List⁺
 toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
