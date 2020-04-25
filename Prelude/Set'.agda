@@ -14,13 +14,18 @@ open import Data.Fin.Patterns using (0F)
 open import Data.List         using (List; []; _∷_; [_]; filter; _++_; length)
 
 open import Data.List.Properties                                     using (filter-all)
-open import Data.List.Membership.Propositional.Properties            using (∈-filter⁻; ∈-++⁻)
+
+
+open import Data.List.Membership.Propositional            using (_∈_; _∉_)
+open import Data.List.Membership.Propositional.Properties using (∈-filter⁻; ∈-++⁻)
+
 open import Data.List.Relation.Unary.AllPairs                        using (allPairs?; []; _∷_)
 open import Data.List.Relation.Unary.Unique.Propositional            using (Unique; tail)
 open import Data.List.Relation.Unary.Unique.Propositional.Properties using (filter⁺; ++⁺)
 open import Data.List.Relation.Unary.Any                             using (Any; any; here; there; index)
 open import Data.List.Relation.Unary.All                             using (All; []; _∷_)
 open import Data.List.Relation.Unary.All.Properties                  using (¬Any⇒All¬; All¬⇒¬Any)
+open import Data.List.Relation.Binary.Subset.Propositional           using (_⊆_)
 
 open import Data.List.Relation.Binary.Disjoint.Propositional    using (Disjoint)
 open import Data.List.Relation.Binary.Permutation.Propositional using (_↭_; refl; prep; swap; trans; ↭-sym)
@@ -39,7 +44,7 @@ open import Prelude.Lists
 
 module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
-  open import Data.List.Membership.DecPropositional _≟_ using (_∈_; _∉_; _∈?_) public
+  open import Data.List.Membership.DecPropositional               _≟_ using (_∈?_) public
   open import Data.List.Relation.Binary.Equality.DecPropositional _≟_ using (_≡?_)
 
   private
@@ -63,8 +68,6 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
 
   ------------------------------------------------------------------------
   -- Subset relation.
-
-  open import Data.List.Relation.Binary.Subset.Propositional {A = A} using (_⊆_) public
 
   infix 4 _⊆?_
   _⊆?_ : (xs : List A) → (ys : List A) → Dec (xs ⊆ ys)
@@ -235,7 +238,7 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
          → ⟨ xs ⟩∶- px ≡ ⟨ ys ⟩∶- py
   ≡-Set' refl = refl
 
-  All∉[] : ∀ {ys} → All (_∉ []) ys
+  All∉[] : ∀ {ys : List A} → All (_∉ []) ys
   All∉[] {ys = []}     = []
   All∉[] {ys = y ∷ ys} = (λ ()) ∷ All∉[] {ys = ys}
 
