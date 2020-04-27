@@ -12,7 +12,7 @@ open import Data.Empty   using (⊥; ⊥-elim)
 open import Data.Unit    using (⊤; tt)
 open import Data.Product using (_×_; _,_; ∃-syntax)
 open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
-open import Data.Nat     using (_+_)
+open import Data.Nat     using (_+_; _≤_)
 open import Data.Maybe   using (Maybe; just; nothing; fromMaybe)
 open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
 
@@ -87,6 +87,12 @@ refl ∧-× refl = refl
 
 x+y+0≡y+x+0 : ∀ x y → x + (y + 0) ≡ (y + x) + 0
 x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
+
+postulate
+  ≤0⇒≡0 : ∀ {n} → n ≤ 0 → n ≡ 0
+
+≤0⇒≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
+≤0⇒≡0′ refl = ≤0⇒≡0
 
 -- ** Maybes
 

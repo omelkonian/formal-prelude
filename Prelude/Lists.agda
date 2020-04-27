@@ -247,22 +247,6 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
   rewrite map-proj₁-map₁ {xs = xs} {f = f}
         = refl
 
--- count
-count : ∀ {P : A → Set} → Unary.Decidable P → List A → ℕ
-count P? = length ∘ filter P?
-
-count-single : ∀ {P : A → Set} {P? : Unary.Decidable P} {x xs}
-  → count P? (x ∷ xs) ≡ 1
-  → P x
-  → All (x ≢_) xs
-count-single {P = P} {P?} {x} {xs} count≡1 px
-  with P? x
-... | no ¬px = ⊥-elim $ ¬px px
-... | yes _  = ¬Any⇒All¬ xs h
-  where
-    h : x ∉ xs
-    h x∈ = {!!}
-
 -- mapWith∈
 mapWith∈-∀ : ∀ {A B : Set} {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Set}
   → (∀ {x} x∈ → P (f {x} x∈))
@@ -406,6 +390,33 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
 ¬Null⇒∃x {xs = []}     ¬p = ⊥-elim $ ¬p refl
 ¬Null⇒∃x {xs = x ∷ xs} _  = x , here refl
 
+-- count
+count : ∀ {P : A → Set} → Unary.Decidable P → List A → ℕ
+count P? = length ∘ filter P?
+
+count-single : ∀ {P : A → Set} {P? : Unary.Decidable P} {x xs}
+  → count P? (x ∷ xs) ≡ 1
+  → P x
+  → All (x ≢_) xs
+count-single {P = P} {P?} {x} {xs} count≡1 px
+  with P? x
+... | no ¬px = ⊥-elim $ ¬px px
+... | yes _  = ¬Any⇒All¬ xs h
+  where
+    h : x ∉ xs
+    h x∈ = {!!}
+
+postulate
+  ⊆⇒count≤ : ∀ {xs ys : List A} {P : Pred A 0ℓ}
+    → (P? : Unary.Decidable P)
+    → xs ⊆ ys
+    → count P? xs ≤ count P? ys
+
+  count≡0⇒null-filter : ∀ {xs : List A} {P : Pred A 0ℓ}
+    → (P? : Unary.Decidable P)
+    → count P? xs ≡ 0
+    → Null $ filter P? xs
+
 -- List⁺
 toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
 toList⁺ []       ¬[] = ⊥-elim $ ¬[] refl
@@ -527,9 +538,25 @@ ams-filter⁺ {xs = x ∷ []}    {P? = P?} tt with P? x
 ams-filter⁺ {xs = _ ∷ _ ∷ _}           ()
 
 postulate
-  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : B → Set} {P? : Unary.Decidable P}
+  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Unary.Decidable P}
     → AtMostSingleton $ filter P? (map f xs)
     → AtMostSingleton $ filter (P? ∘ f) xs
+
+  ams-filter-reject : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
+    → (P? : Unary.Decidable P)
+    → ¬ P x
+    → AtMostSingleton $ filter P? xs
+    → AtMostSingleton $ filter P? (x ∷ xs)
+
+  ams-filter-accept : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
+    → (P? : Unary.Decidable P)
+    → P x
+    → Null $ filter P? xs
+    → AtMostSingleton $ filter P? (x ∷ xs)
+
+  length≤1⇒ams : ∀ {xs : List A}
+    → length xs ≤ 1
+    → AtMostSingleton xs
 
 am-¬null⇒singleton : ∀ {xs : List A}
   → AtMostSingleton xs
