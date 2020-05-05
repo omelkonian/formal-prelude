@@ -10,13 +10,13 @@ open import Category.Monad using (RawMonad)
 
 open import Data.Empty   using (⊥; ⊥-elim)
 open import Data.Unit    using (⊤; tt)
-open import Data.Product using (_×_; _,_; ∃-syntax)
+open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
-open import Data.Nat     using (_+_; _≤_)
-open import Data.Maybe   using (Maybe; just; nothing; fromMaybe)
+open import Data.Nat     using (_+_; _≤_; _≥_; _>_)
+open import Data.Maybe   using (Maybe; just; nothing; fromMaybe; Is-just)
 open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
 
-open import Data.Nat.Properties using (+-assoc; +-comm)
+open import Data.Nat.Properties using (+-assoc; +-comm; ≤-trans)
 
 import Data.Maybe.Relation.Unary.Any as M
 import Data.Maybe.Categorical as MaybeCat
@@ -89,10 +89,29 @@ x+y+0≡y+x+0 : ∀ x y → x + (y + 0) ≡ (y + x) + 0
 x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
 
 postulate
-  ≤0⇒≡0 : ∀ {n} → n ≤ 0 → n ≡ 0
+  ¬x>0⇒x≡0 : ∀ {x} → ¬ (x > 0) → x ≡ 0
+  x≡0⇒¬x>0 : ∀ {x} → x ≡ 0 → ¬ (x > 0)
+  x≤0⇒x≡0 : ∀ {x} → x ≤ 0 → x ≡ 0
+  x>0,x≤1⇒x≡1 : ∀ {x} → x > 0 → x ≤ 1 → x ≡ 1
+  ≤-+ˡ : ∀ {x y z} → x + y ≤ z → x ≤ z
+  ≤-+ʳ : ∀ {x y z} → x + y ≤ z → y ≤ z
+  x+y≤y⇒x≡0 : ∀ {x y} → x + y ≤ y → x ≡ 0
+  ¬>⇒≤ : ∀ {m n} → ¬ (m > n) → m ≤ n
+  x+y>x⇒y>0 : ∀ {x y} → x + y > x → y > 0
 
-≤0⇒≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
-≤0⇒≡0′ refl = ≤0⇒≡0
+  ≥-+-swapˡ : ∀ {x x′ y}
+    → x ≥ x′
+    → x + y ≥ x′ + y
+
+  ≥-+-swapʳ : ∀ {x y y′}
+    → y ≥ y′
+    → x + y ≥ x + y′
+
+x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
+x≤0⇒x≡0′ refl = x≤0⇒x≡0
+
+≥-trans : Bi.Transitive _≥_
+≥-trans x≥y y≥z = ≤-trans y≥z x≥y
 
 -- ** Maybes
 
@@ -118,6 +137,16 @@ Any-just refl (M.just p) = p
 Is-here : ∀ {A : Set} {x : A} {xs : List A} → x ∈ xs → Set
 Is-here (here _)  = ⊤
 Is-here (there _) = ⊥
+
+Is-just⇒≢nothing : ∀ {A : Set} {mx : Maybe A} → Is-just mx → mx ≢ nothing
+Is-just⇒≢nothing {mx = nothing} () _
+Is-just⇒≢nothing {mx = just _} _ ()
+
+destruct-Is-just : ∀ {A : Set} {mx : Maybe A}
+  → Is-just mx
+  → ∃ λ x → mx ≡ just x
+destruct-Is-just {mx = nothing} ()
+destruct-Is-just {mx = just _}  _ = _ , refl
 
 -- ** Decidable
 

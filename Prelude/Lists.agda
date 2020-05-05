@@ -13,19 +13,18 @@ open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_; map₁; map₂; proj₁; proj₂; <_,_>; ∃; ∃-syntax; Σ; Σ-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
-open import Data.Maybe    using (Maybe; just; nothing)
+open import Data.Maybe    using (Maybe; just; nothing; Is-just; Is-nothing)
 open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
   renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
-open import Data.Nat      using (ℕ; zero; suc; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
-open import Data.List     using ( List; []; [_]; _∷_; _∷ʳ_; _++_; map; mapMaybe; concatMap; length
-                                ; zip; sum; upTo; lookup; allFin; unzip; tabulate; filter; foldr; concat )
+open import Data.Nat      using (ℕ; zero; suc; _+_; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
+open import Data.List     renaming (sum to ∑ℕ)
 
 open import Data.Nat.Properties using (suc-injective)
 open import Data.Fin.Properties using ()
   renaming (suc-injective to fsuc-injective)
 
 open import Data.List.Properties     using (length-map; map-tabulate; filter-none; ++-identityˡ; ++-identityʳ)
-open import Data.List.NonEmpty as NE using (List⁺; _∷_; toList)
+open import Data.List.NonEmpty as NE using (List⁺; _∷_; toList; _⁺++_)
 
 open import Data.List.Membership.Propositional                  using (_∈_; _∉_; mapWith∈; find)
 open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
@@ -390,6 +389,23 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
 ¬Null⇒∃x {xs = []}     ¬p = ⊥-elim $ ¬p refl
 ¬Null⇒∃x {xs = x ∷ xs} _  = x , here refl
 
+postulate
+  Null-++⁻ : ∀ {xs ys : List A} → Null (xs ++ ys) → Null xs × Null ys
+
+-- mapMaybe
+postulate
+  ∈-mapMaybe⁻ : ∀ {xs : List A} {f : A → Maybe B} {y : B}
+    → y ∈ mapMaybe f xs
+    → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
+
+  mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}
+    → Null (mapMaybe f xs)
+    → All (Is-nothing ∘ f) xs
+
+  All-nothing⇒mapMaybe≡[] : ∀ {xs : List A} {f : A → Maybe B}
+    → All Is-nothing (map f xs)
+    → Null (mapMaybe f xs)
+
 -- count
 count : ∀ {P : A → Set} → Unary.Decidable P → List A → ℕ
 count P? = length ∘ filter P?
@@ -417,10 +433,32 @@ postulate
     → count P? xs ≡ 0
     → Null $ filter P? xs
 
+  count≡0⇒All¬ : ∀ {xs : List A} {P : Pred A 0ℓ}
+    → (P? : Unary.Decidable P)
+    → count P? xs ≡ 0
+    → All (¬_ ∘ P) xs
+
+  count-map⁺ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Unary.Decidable P}
+    → count (P? ∘ f) xs
+    ≡ count P? (map f xs)
+
 -- List⁺
+All⁺ : ∀ {A : Set} → Pred A 0ℓ → List⁺ A → Set
+All⁺ P = All P ∘ NE.toList
+
 toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
 toList⁺ []       ¬[] = ⊥-elim $ ¬[] refl
 toList⁺ (x ∷ xs) _   = x ∷ xs
+
+toList∘toList⁺ : ∀ (xs : List A) (xs≢[] : ¬Null xs)
+  → toList (toList⁺ xs xs≢[]) ≡ xs
+toList∘toList⁺ [] ¬n     = ⊥-elim $ ¬n refl
+toList∘toList⁺ (_ ∷ _) _ = refl
+
+All⇒All⁺ : ∀ {A : Set} {xs : List A} {p : ¬Null xs} {P : Pred A 0ℓ}
+  → All P xs
+  → All⁺ P (toList⁺ xs p)
+All⇒All⁺ {xs = xs} {p} ∀P rewrite toList∘toList⁺ xs p = ∀P
 
 -- Any/All
 All-Any-refl : ∀ {xs : List A} {f : A → B}
@@ -436,6 +474,12 @@ all-filter⁺ {P? = P?} {xs = x ∷ _} (Qx ∷ Qxs)
   with P? x
 ... | no  _  = all-filter⁺ Qxs
 ... | yes Px = Qx Px ∷ all-filter⁺ Qxs
+
+All-map : ∀ {P : Pred A 0ℓ} {Q : Pred A 0ℓ} {xs : List A}
+  → (∀ x → P x → Q x)
+  → All P xs
+  → All Q xs
+All-map P⇒Q = All.map (λ {x} → P⇒Q x)
 
 -- Prefix relation, instantiated for propositional equality.
 Prefix≡ : List A → List A → Set _
@@ -476,6 +520,34 @@ x ≟ y ∶- (_ , record { f       = toFin
 
 ≡-findec : Finite A → Decidable {A = A} _≡_
 ≡-findec A↔fin = _≟_∶- A↔fin
+
+-- Sums of nat lists.
+private
+  variable
+    X : ℕ → Set
+
+∑⁺ : List⁺ ℕ → ℕ
+∑⁺ = ∑ℕ ∘ NE.toList
+
+∑₁ : List (∃ X) → ℕ
+∑₁ = ∑ℕ ∘ map proj₁
+
+∑₁⁺ : List⁺ (∃ X) → ℕ
+∑₁⁺ = ∑₁ ∘ NE.toList
+
+postulate
+  ∑₁-⁺++ : ∀ {xs : List⁺ (∃ X)} {ys : List (∃ X)}
+    → ∑₁⁺ (xs ⁺++ ys)
+    ≡ ∑₁⁺ xs + ∑₁ ys
+
+  ∑₁-++ : ∀ {xs ys : List (∃ X)}
+    → ∑₁ (xs ++ ys)
+    ≡ ∑₁ xs + ∑₁ ys
+
+  ∑ℕ-∀≡0 : ∀ {xs}
+    → All (_≡ 0) xs
+    → ∑ℕ xs ≡ 0
+
 
 ------------------------------------------------------------------------
 -- Singleton predicate for various kinds of lists.
@@ -557,6 +629,11 @@ postulate
   length≤1⇒ams : ∀ {xs : List A}
     → length xs ≤ 1
     → AtMostSingleton xs
+
+  ams-count : ∀ {P : Pred A 0ℓ} {P? : Unary.Decidable P} {xs : List A} {f : A → Maybe B}
+    → (∀ x → P x → Is-just (f x))
+    → count P? xs ≤ 1
+    → AtMostSingleton (mapMaybe f xs)
 
 am-¬null⇒singleton : ∀ {xs : List A}
   → AtMostSingleton xs
