@@ -23,8 +23,9 @@ open import Data.Nat.Properties using (suc-injective)
 open import Data.Fin.Properties using ()
   renaming (suc-injective to fsuc-injective)
 
-open import Data.List.Properties     using (length-map; map-tabulate; filter-none; ++-identityˡ; ++-identityʳ)
-open import Data.List.NonEmpty as NE using (List⁺; _∷_; toList; _⁺++_)
+open import Data.List.Properties using (length-map; map-tabulate; filter-none; ++-identityˡ; ++-identityʳ)
+open import Data.List.NonEmpty   using (List⁺; _∷_; toList; _⁺++_)
+  renaming ([_] to [_]⁺; map to map⁺)
 
 open import Data.List.Membership.Propositional                  using (_∈_; _∉_; mapWith∈; find)
 open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
@@ -444,7 +445,7 @@ postulate
 
 -- List⁺
 All⁺ : ∀ {A : Set} → Pred A 0ℓ → List⁺ A → Set
-All⁺ P = All P ∘ NE.toList
+All⁺ P = All P ∘ toList
 
 toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
 toList⁺ []       ¬[] = ⊥-elim $ ¬[] refl
@@ -498,6 +499,9 @@ suffix-refl xs = here (PW.≡⇒Pointwise-≡ refl)
 ∈⇒Suffix {ys = x ∷ xs}  (here refl) = xs , here (refl ∷ PW.refl refl)
 ∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂ there (∈⇒Suffix x∈)
 
+postulate
+  Suffix⇒⊆ : ∀ {A : Set} {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
+
 -- Finite sets.
 Finite : Set → Set
 Finite A = ∃[ n ] (A ↔ Fin n)
@@ -524,16 +528,16 @@ x ≟ y ∶- (_ , record { f       = toFin
 -- Sums of nat lists.
 private
   variable
-    X : ℕ → Set
+    X Y : ℕ → Set
 
 ∑⁺ : List⁺ ℕ → ℕ
-∑⁺ = ∑ℕ ∘ NE.toList
+∑⁺ = ∑ℕ ∘ toList
 
 ∑₁ : List (∃ X) → ℕ
 ∑₁ = ∑ℕ ∘ map proj₁
 
 ∑₁⁺ : List⁺ (∃ X) → ℕ
-∑₁⁺ = ∑₁ ∘ NE.toList
+∑₁⁺ = ∑₁ ∘ toList
 
 postulate
   ∑₁-⁺++ : ∀ {xs : List⁺ (∃ X)} {ys : List (∃ X)}
@@ -548,6 +552,9 @@ postulate
     → All (_≡ 0) xs
     → ∑ℕ xs ≡ 0
 
+  ∑₁-map₂ : ∀ {xs : List (∃ X)} {f : ∀ {n} → X n → Y n}
+    → ∑₁ (map (map₂ f) xs)
+    ≡ ∑₁ xs
 
 ------------------------------------------------------------------------
 -- Singleton predicate for various kinds of lists.
@@ -586,6 +593,11 @@ singleton∈ : ∀ {xs : List A}
   → (s-xs : Singleton xs)
   → proj₁ (destruct-Singleton s-xs) ∈ xs
 singleton∈ s-xs with _ , refl ← destruct-Singleton s-xs = here refl
+
+singleton-concat : ∀ {x : A} {xss : List (List A)}
+  → xss ≡ [ [ x ] ]
+  → Singleton (concat xss)
+singleton-concat refl = tt
 
 ---
 
@@ -651,7 +663,7 @@ Singleton⁺ (_ ∷ _)  = ⊥
 
 destruct-Singleton⁺ : ∀ {xs : List⁺ A}
   → Singleton⁺ xs
-  → ∃ λ x → xs ≡ NE.[ x ]
+  → ∃ λ x → xs ≡ [ x ]⁺
 destruct-Singleton⁺ {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton⁺ {xs = _ ∷ (_ ∷ _)} ()
 
@@ -663,15 +675,10 @@ singleton⁺ {xs = []}        tt xs≢[] = ⊥-elim $ xs≢[] refl
 singleton⁺ {xs = _ ∷ []}    tt xs≢[] = tt
 singleton⁺ {xs = _ ∷ _ ∷ _} ()
 
-singleton-concat : ∀ {x : A} {xss : List (List A)}
-  → xss ≡ [ [ x ] ]
-  → Singleton (concat xss)
-singleton-concat refl = tt
-
 singleton-concatMap  : ∀ {h : List⁺ A} {f : A → List B}
   → Singleton⁺ h
   → (∀ x → Singleton (f x))
-  → Singleton $ concatMap f (NE.toList h)
+  → Singleton $ concatMap f (toList h)
 singleton-concatMap {f = f} h⁺ s-f
   with h , refl ← destruct-Singleton⁺ h⁺
   rewrite ++-identityʳ (f h)
@@ -681,6 +688,9 @@ singleton⇒singleton⁺ : ∀ {xs : List A} {xs≢[] : ¬ Null xs}
   → Singleton xs
   → Singleton⁺ (toList⁺ xs xs≢[])
 singleton⇒singleton⁺ p rewrite proj₂ $ destruct-Singleton p = tt
+
+postulate
+  singleton⁺-map⁺ : ∀ {xs : List⁺ A} {f : A → B} → Singleton⁺ xs → Singleton⁺ (map⁺ f xs)
 
 ---
 
@@ -731,13 +741,13 @@ CS V T = List (HS V T)
 ∃Singleton² hs = Σ[ hs⁺ ∈ Singleton hs ] Singleton⁺ (proj₂ $ proj₁ $ destruct-Singleton hs⁺)
 
 construct-∃Singleton² : ∀ {hs : HS V T} {hᵥ : V} {h : T hᵥ}
-  → hs ≡ [ hᵥ , NE.[ h ] ]
+  → hs ≡ [ hᵥ , [ h ]⁺ ]
   → ∃Singleton² hs
 construct-∃Singleton² refl = tt , tt
 
 destruct-∃Singleton² : ∀ {hs : HS V T}
   → ∃Singleton² hs
-  → ∃ λ hᵥ → ∃ λ h → hs ≡ [ hᵥ , NE.[ h ] ]
+  → ∃ λ hᵥ → ∃ λ h → hs ≡ [ hᵥ , [ h ]⁺ ]
 destruct-∃Singleton² (hs⁺ , h⁺)
   with _ , refl ← destruct-Singleton hs⁺
   with _ , refl ← destruct-Singleton⁺ h⁺
@@ -749,13 +759,13 @@ Singleton³ : Pred (CS V T) 0ℓ
 Singleton³ vcs = Σ[ vcs⁺ ∈ Singleton² vcs ] Singleton⁺ (proj₂ $ proj₁ $ destruct-Singleton² vcs⁺)
 
 construct-Singleton³ : ∀ {hᵥ : V} {h : T hᵥ} {vcs : CS V T}
-  → vcs ≡ [ [ hᵥ , NE.[ h ] ] ]
+  → vcs ≡ [ [ hᵥ , [ h ]⁺ ] ]
   → Singleton³ vcs
 construct-Singleton³ refl = (tt , tt) , tt
 
 destruct-Singleton³ : ∀ {vcs : CS V T}
   → Singleton³ vcs
-  → ∃ λ hᵥ → ∃ λ h → vcs ≡ [ [ hᵥ , NE.[ h ] ] ]
+  → ∃ λ hᵥ → ∃ λ h → vcs ≡ [ [ hᵥ , [ h ]⁺ ] ]
 destruct-Singleton³ (vcs⁺ , hs⁺)
   with _ , refl ← destruct-Singleton² vcs⁺
   with _ , refl ← destruct-Singleton⁺ hs⁺
