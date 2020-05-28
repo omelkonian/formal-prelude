@@ -13,25 +13,31 @@ open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_; map₁; map₂; proj₁; proj₂; <_,_>; ∃; ∃-syntax; Σ; Σ-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
-open import Data.Maybe    using (Maybe; just; nothing; Is-just; Is-nothing)
-open import Data.Fin      using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
-  renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
-open import Data.Nat      using (ℕ; zero; suc; _+_; _≤_; _<_; z≤n; s≤s; pred; _<?_; ≤-pred)
-open import Data.List     renaming (sum to ∑ℕ)
 
-open import Data.Nat.Properties using (suc-injective)
+
+open import Data.Maybe using (Maybe; just; nothing; Is-just; Is-nothing)
+import Data.Maybe.Properties as Maybe
+
+open import Data.Nat
+open import Data.Nat.Properties
+
+open import Data.Fin            using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
+  renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
 open import Data.Fin.Properties using ()
   renaming (suc-injective to fsuc-injective)
 
+open import Data.List
+  renaming (sum to ∑ℕ)
 open import Data.List.Properties using (length-map; map-tabulate; filter-none; ++-identityˡ; ++-identityʳ)
-open import Data.List.NonEmpty   using (List⁺; _∷_; toList; _⁺++_)
+open import Data.List.NonEmpty   using (List⁺; _∷_; toList; _⁺++_; last; _∷⁺_)
   renaming ([_] to [_]⁺; map to map⁺)
 
 open import Data.List.Membership.Propositional                  using (_∈_; _∉_; mapWith∈; find)
 open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
 open import Data.List.Relation.Unary.Any as Any                 using (Any; here; there)
+import Data.List.Relation.Unary.Any.Properties as Any
 open import Data.List.Relation.Unary.All as All                 using (All; []; _∷_)
-open import Data.List.Relation.Unary.All.Properties             using (¬Any⇒All¬)
+import Data.List.Relation.Unary.All.Properties as All
 open import Data.List.Relation.Unary.Unique.Propositional       using (Unique)
 open import Data.List.Relation.Unary.AllPairs as AllPairs       using ([]; _∷_)
 open import Data.List.Relation.Binary.Subset.Propositional      using (_⊆_)
@@ -207,6 +213,12 @@ proj₁∘find : (x∈xs : x ∈ xs)
 proj₁∘find (here refl) = refl
 proj₁∘find (there x∈)  = proj₁∘find x∈
 
+just-⁉⇒∈ : ∀ {i : ℕ}
+  → (xs ⁉ i) ≡ just x
+  → x ∈ xs
+just-⁉⇒∈ {xs = _ ∷ _}  {i = zero}  ⁉≡just = here (Maybe.just-injective (sym ⁉≡just))
+just-⁉⇒∈ {xs = _ ∷ xs} {i = suc i} ⁉≡just = there (just-⁉⇒∈ {xs = xs} {i = i} ⁉≡just)
+
 ------------------------------------------------------------------------
 -- Combinatorics.
 
@@ -228,7 +240,6 @@ combinations (xs ∷ xss) = concatMap (λ x → map (x ∷_) xss′) xs
 
 ------------------------------------------------------------------------
 -- General utilities.
-
 
 unzip₃ : List (A × B × C) → List A × List B × List C
 unzip₃ = map₂ unzip ∘ unzip
@@ -253,6 +264,10 @@ mapWith∈-∀ : ∀ {A B : Set} {xs : List A}  {f : ∀ {x : A} → x ∈ xs �
   → (∀ {y} → y ∈ mapWith∈ xs f → P y)
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (Any.here refl)
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ Any.there) y∈
+
+postulate
+  mapWith∈-id : ∀ {xs : List A} → mapWith∈ xs (λ {x} _ → x) ≡ xs
+  map∘mapWith∈ : ∀ {xs : List A} {f : B → C} {g : ∀ {x} → x ∈ xs → B} → map f (mapWith∈ xs g) ≡ mapWith∈ xs (f ∘ g)
 
 -- mapWith∈/filter
 filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
@@ -418,7 +433,7 @@ count-single : ∀ {P : A → Set} {P? : Unary.Decidable P} {x xs}
 count-single {P = P} {P?} {x} {xs} count≡1 px
   with P? x
 ... | no ¬px = ⊥-elim $ ¬px px
-... | yes _  = ¬Any⇒All¬ xs h
+... | yes _  = All.¬Any⇒All¬ xs h
   where
     h : x ∉ xs
     h x∈ = {!!}
@@ -447,7 +462,7 @@ postulate
 All⁺ : ∀ {A : Set} → Pred A 0ℓ → List⁺ A → Set
 All⁺ P = All P ∘ toList
 
-toList⁺ : ∀ {A : Set} → (xs : List A) → xs ≢ [] → List⁺ A
+toList⁺ : ∀ (xs : List A) → xs ≢ [] → List⁺ A
 toList⁺ []       ¬[] = ⊥-elim $ ¬[] refl
 toList⁺ (x ∷ xs) _   = x ∷ xs
 
@@ -456,12 +471,26 @@ toList∘toList⁺ : ∀ (xs : List A) (xs≢[] : ¬Null xs)
 toList∘toList⁺ [] ¬n     = ⊥-elim $ ¬n refl
 toList∘toList⁺ (_ ∷ _) _ = refl
 
-All⇒All⁺ : ∀ {A : Set} {xs : List A} {p : ¬Null xs} {P : Pred A 0ℓ}
+All⇒All⁺ : ∀ {xs : List A} {p : ¬Null xs} {P : Pred A 0ℓ}
   → All P xs
   → All⁺ P (toList⁺ xs p)
 All⇒All⁺ {xs = xs} {p} ∀P rewrite toList∘toList⁺ xs p = ∀P
 
+postulate
+  last-∷ : ∀ {x : A} {xs : List⁺ A} → last (x ∷⁺ xs) ≡ last xs
+
+All⁺-last : ∀ {A : Set} {xs : List⁺ A} {P : Pred A 0ℓ}
+  → All⁺ P xs
+  → P (last xs)
+All⁺-last {xs = x ∷ []}     (px ∷ []) = px
+All⁺-last {xs = x ∷ y ∷ xs} (_  ∷ ∀p) rewrite last-∷ {x = x}{y ∷ xs} = All⁺-last ∀p
+
 -- Any/All
+lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
+  → (p : Any P (map f xs))
+  → Any.lookup p ≡ f (proj₁ $ find $ Any.map⁻ p)
+lookup≡find∘map⁻ {xs = xs}{f} p = {!!}
+
 All-Any-refl : ∀ {xs : List A} {f : A → B}
   → All (λ x → Any (λ x′ → f x ≡ f x′) xs) xs
 All-Any-refl {xs = []}     = []
@@ -502,6 +531,10 @@ suffix-refl xs = here (PW.≡⇒Pointwise-≡ refl)
 postulate
   Suffix⇒⊆ : ∀ {A : Set} {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
 
+  proj₁∘∈⇒Suffix≡ : ∀ {A : Set} {xs : List⁺ A} {ys zs : List A} (∀x∈ : All⁺ (_∈ ys) xs) (ys≼ : Suffix≡ ys zs)
+    → (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last ∘ All.map (Suffix⇒⊆ ys≼)) ∀x∈
+    ≡ (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last) ∀x∈
+
 -- Finite sets.
 Finite : Set → Set
 Finite A = ∃[ n ] (A ↔ Fin n)
@@ -536,13 +569,26 @@ private
 ∑₁ : List (∃ X) → ℕ
 ∑₁ = ∑ℕ ∘ map proj₁
 
-∑₁⁺ : List⁺ (∃ X) → ℕ
-∑₁⁺ = ∑₁ ∘ toList
+
+limit : (lim : ℕ)
+      → (∀ {n} → lim ≤ n → X n → Y lim)
+      → (∀ {n} → n ≤ lim → X n → Y n)
+      → List (∃ X)
+      → List (∃ Y)
+limit {X = X} {Y = Y} l k₁ k₂ = map f
+  where
+    f : ∃ X → ∃ Y
+    f (n , x) with l ≤? n
+    ... | yes l≤ = l , k₁ l≤ x
+    ... | no ¬l≤ = n , k₂ n≤ x
+      where
+        n≤ : n ≤ l
+        n≤ = ≰⇒≥ ¬l≤
 
 postulate
-  ∑₁-⁺++ : ∀ {xs : List⁺ (∃ X)} {ys : List (∃ X)}
-    → ∑₁⁺ (xs ⁺++ ys)
-    ≡ ∑₁⁺ xs + ∑₁ ys
+  ∑₁-limit : ∀ {lim} {xs : List (∃ X)} {k₁ : ∀ {n} → lim ≤ n → X n → Y lim} {k₂ : ∀ {n} → n ≤ lim → X n → Y n}
+    → ∑₁ xs ≥ lim
+    → ∑₁ (limit lim k₁ k₂ xs) ≥ lim
 
   ∑₁-++ : ∀ {xs ys : List (∃ X)}
     → ∑₁ (xs ++ ys)
@@ -552,9 +598,17 @@ postulate
     → All (_≡ 0) xs
     → ∑ℕ xs ≡ 0
 
+  ∑ℕ-⊆ : ∀ {xs ys} → xs ⊆ ys → ∑ℕ xs ≤ ∑ℕ ys
+
   ∑₁-map₂ : ∀ {xs : List (∃ X)} {f : ∀ {n} → X n → Y n}
     → ∑₁ (map (map₂ f) xs)
     ≡ ∑₁ xs
+
+  ∑₁-single : ∀ {x : ∃ X} → ∑₁ [ n , x ] ≡ n
+
+  x∈∑ℕ : ∀ {x xs}
+    → x ∈ xs
+    → x ≤ ∑ℕ xs
 
 ------------------------------------------------------------------------
 -- Singleton predicate for various kinds of lists.
@@ -575,6 +629,13 @@ destruct-Singleton : ∀ {xs : List A}
 destruct-Singleton {xs = []}          ()
 destruct-Singleton {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton {xs = _ ∷ (_ ∷ _)} ()
+
+singleton-map : ∀ {xs : List A} {f : A → B}
+  → Singleton xs
+  → Singleton (map f xs)
+singleton-map {xs = []}        ()
+singleton-map {xs = _ ∷ []}    tt = tt
+singleton-map {xs = _ ∷ _ ∷ _} ()
 
 singleton-subseqs : ∀ {xs : List A}
   → Singleton xs
@@ -599,6 +660,12 @@ singleton-concat : ∀ {x : A} {xss : List (List A)}
   → Singleton (concat xss)
 singleton-concat refl = tt
 
+All-singleton : ∀ {A : Set} {x xs} {P : A → Set}
+ → xs ≡ [ x ]
+ → All P xs
+ → P x
+All-singleton refl (Px ∷ []) = Px
+
 ---
 
 AtMostSingleton : Pred (List A) 0ℓ
@@ -611,6 +678,14 @@ ams-single : ∀ {x : A} {xs : List A}
   → xs ≡ []
 ams-single {xs = []}    _ = refl
 ams-single {xs = _ ∷ _} ()
+
+ams-∈ : ∀ {x : A} {xs : List A}
+  → AtMostSingleton xs
+  → x ∈ xs
+  → xs ≡ [ x ]
+ams-∈ {xs = []}        _  ()
+ams-∈ {xs = x ∷ []}    _  (here refl) = refl
+ams-∈ {xs = _ ∷ _ ∷ _} () _
 
 ams-filter⁺ : ∀ {xs : List A} {P : A → Set} {P? : Unary.Decidable P}
   → AtMostSingleton xs
@@ -694,87 +769,26 @@ postulate
 
 ---
 
-Singleton² : Pred (List (List A)) 0ℓ
-Singleton² xss = Σ[ xss⁺ ∈ Singleton xss ] Singleton (proj₁ $ destruct-Singleton xss⁺)
+Singleton² : ∀ {A : Set} → Pred (List (List A)) 0ℓ
+Singleton² xss = Singleton xss × All Singleton xss
 
 construct-Singleton² : ∀ {xss : List (List A)} {x : A}
   → xss ≡ [ [ x ] ]
   → Singleton² xss
-construct-Singleton² refl = tt , tt
+construct-Singleton² refl = tt , tt ∷ []
 
 destruct-Singleton² : ∀ {xss : List (List A)}
   → Singleton² xss
   → ∃ λ x → xss ≡ [ [ x ] ]
-destruct-Singleton² (p , p′)
-  with xs , refl ← destruct-Singleton p
-  with x  , refl ← destruct-Singleton p′
+destruct-Singleton² (tt , s-xs ∷ [])
+  with x , refl ← destruct-Singleton s-xs
      = x , refl
 
 singleton-concat⁺ : ∀ {xss : List (List A)}
   → Singleton² xss
   → Singleton (concat xss)
 singleton-concat⁺ {xss = []}                  (()   , _)
-singleton-concat⁺ {xss = []          ∷ []}    (_    , ())
-singleton-concat⁺ {xss = (_ ∷ [])    ∷ []}    (_    , _)  = tt
-singleton-concat⁺ {xss = (_ ∷ _ ∷ _) ∷ []}    (_    , ())
+singleton-concat⁺ {xss = []          ∷ []}    (_    , () ∷ _)
+singleton-concat⁺ {xss = (_ ∷ [])    ∷ []}    (_    , _)      = tt
+singleton-concat⁺ {xss = (_ ∷ _ ∷ _) ∷ []}    (_    , () ∷ _)
 singleton-concat⁺ {xss = _           ∷ _ ∷ _} (()   , _)
-
---
-
--- Traces    = List $ ∃ Trace
--- History   = List⁺ ∘ Trace
--- Histories = List $ ∃ History
--- Choices   = List Histories
-
-private
-  variable
-    V  : Set
-    T  : V → Set
-
-HS : ∀ V (T : V → Set) → Set
-HS V T = List $ Σ V (List⁺ ∘ T)
-
-CS : ∀ V (T : V → Set) → Set
-CS V T = List (HS V T)
-
-∃Singleton² : Pred (HS V T) 0ℓ
-∃Singleton² hs = Σ[ hs⁺ ∈ Singleton hs ] Singleton⁺ (proj₂ $ proj₁ $ destruct-Singleton hs⁺)
-
-construct-∃Singleton² : ∀ {hs : HS V T} {hᵥ : V} {h : T hᵥ}
-  → hs ≡ [ hᵥ , [ h ]⁺ ]
-  → ∃Singleton² hs
-construct-∃Singleton² refl = tt , tt
-
-destruct-∃Singleton² : ∀ {hs : HS V T}
-  → ∃Singleton² hs
-  → ∃ λ hᵥ → ∃ λ h → hs ≡ [ hᵥ , [ h ]⁺ ]
-destruct-∃Singleton² (hs⁺ , h⁺)
-  with _ , refl ← destruct-Singleton hs⁺
-  with _ , refl ← destruct-Singleton⁺ h⁺
-     = _ , _ , refl
-
---
-
-Singleton³ : Pred (CS V T) 0ℓ
-Singleton³ vcs = Σ[ vcs⁺ ∈ Singleton² vcs ] Singleton⁺ (proj₂ $ proj₁ $ destruct-Singleton² vcs⁺)
-
-construct-Singleton³ : ∀ {hᵥ : V} {h : T hᵥ} {vcs : CS V T}
-  → vcs ≡ [ [ hᵥ , [ h ]⁺ ] ]
-  → Singleton³ vcs
-construct-Singleton³ refl = (tt , tt) , tt
-
-destruct-Singleton³ : ∀ {vcs : CS V T}
-  → Singleton³ vcs
-  → ∃ λ hᵥ → ∃ λ h → vcs ≡ [ [ hᵥ , [ h ]⁺ ] ]
-destruct-Singleton³ (vcs⁺ , hs⁺)
-  with _ , refl ← destruct-Singleton² vcs⁺
-  with _ , refl ← destruct-Singleton⁺ hs⁺
-     = _ , _ , refl
-
-singleton²-mapWith∈  : ∀ {v : V} {vcs : CS V T} {f : ∀ {hs} → hs ∈ vcs → List (T v)}
-  → (∀ {hs} hs∈ → ∃Singleton² hs → Singleton (f {hs} hs∈))
-  → Singleton³ vcs
-  → Singleton² $ mapWith∈ vcs f
-singleton²-mapWith∈ fp vcs⁺
-  with _ , _ , refl ← destruct-Singleton³ vcs⁺
-    = tt , fp (here refl) (tt , tt)

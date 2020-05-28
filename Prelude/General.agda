@@ -98,14 +98,10 @@ postulate
   x+y≤y⇒x≡0 : ∀ {x y} → x + y ≤ y → x ≡ 0
   ¬>⇒≤ : ∀ {m n} → ¬ (m > n) → m ≤ n
   x+y>x⇒y>0 : ∀ {x y} → x + y > x → y > 0
-
-  ≥-+-swapˡ : ∀ {x x′ y}
-    → x ≥ x′
-    → x + y ≥ x′ + y
-
-  ≥-+-swapʳ : ∀ {x y y′}
-    → y ≥ y′
-    → x + y ≥ x + y′
+  ≥-+-swapˡ : ∀ {x x′ y} → x ≥ x′ → x + y ≥ x′ + y
+  ≥-+-swapʳ : ∀ {x y y′} → y ≥ y′ → x + y ≥ x + y′
+  ≥-+-swapˡʳ : ∀ {x y x′ y′} → x ≥ x′ → y ≥ y′ → x + y ≥ x′ + y′
+  ¬i≥x+y : ∀ {i x y} → i ≤ 1 → x > 0 → y > 0 → ¬ (i ≥ x + y)
 
 x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
 x≤0⇒x≡0′ refl = x≤0⇒x≡0
@@ -133,6 +129,11 @@ Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
  → M.Any P mx
  → P x
 Any-just refl (M.just p) = p
+
+Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Set}
+ → M.Any P mx
+ → Is-just mx
+Any⇒Is-just {mx = .(just _)} (M.just _) = M.just tt
 
 Is-here : ∀ {A : Set} {x : A} {xs : List A} → x ∈ xs → Set
 Is-here (here _)  = ⊤
