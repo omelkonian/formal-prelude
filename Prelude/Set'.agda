@@ -80,6 +80,12 @@ module Prelude.Set' {A : Set} (_≟_ : Decidable (_≡_ {A = A})) where
                          ; (there x∈)  → xs⊆ys x∈ }
 
   ------------------------------------------------------------------------
+  -- Disjoint relation.
+
+  postulate
+    disjoint? : (xs : List A) → (ys : List A) → Dec (Disjoint xs ys)
+
+  ------------------------------------------------------------------------
   -- Sets as lists with no duplicates.
 
   unique? : ∀ xs → Dec (Unique xs)

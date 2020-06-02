@@ -259,6 +259,17 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
         = refl
 
 -- mapWith∈
+
+-- Any-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {P : B → Set} → Any P (mapWith∈ xs f) → Any (P ∘ f) xs
+-- Any-mapWith∈⁻ {xs = x ∷ xs} (here p)  = here p
+-- Any-mapWith∈⁻ {xs = x ∷ xs} (there p) = there $ Any-mapWith∈⁻ p
+
+∈-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {y : B}
+  → y ∈ mapWith∈ xs f
+  → ∃ λ x → Σ (x ∈ xs) λ x∈ → y ≡ f {x} x∈
+∈-mapWith∈⁻ {xs = x ∷ _}  (here refl) = x , here refl , refl
+∈-mapWith∈⁻ {xs = x ∷ xs} (there p)   = let x , x∈ , y≡ = ∈-mapWith∈⁻ p in x , there x∈ , y≡
+
 mapWith∈-∀ : ∀ {A B : Set} {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Set}
   → (∀ {x} x∈ → P (f {x} x∈))
   → (∀ {y} → y ∈ mapWith∈ xs f → P y)
@@ -486,10 +497,19 @@ All⁺-last {xs = x ∷ []}     (px ∷ []) = px
 All⁺-last {xs = x ∷ y ∷ xs} (_  ∷ ∀p) rewrite last-∷ {x = x}{y ∷ xs} = All⁺-last ∀p
 
 -- Any/All
-lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
-  → (p : Any P (map f xs))
-  → Any.lookup p ≡ f (proj₁ $ find $ Any.map⁻ p)
-lookup≡find∘map⁻ {xs = xs}{f} p = {!!}
+postulate
+  lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
+    → (p : Any P (map f xs))
+    → Any.lookup p ≡ f (proj₁ $ find $ Any.map⁻ p)
+
+  Any-lookup∘map : ∀ {P Q : Pred A 0ℓ}
+    → (P⊆Q : ∀ {x} → P x → Q x)
+    → (p : Any P xs)
+    → Any.lookup (Any.map P⊆Q p) ≡ Any.lookup p
+
+  lookup∘∈-map⁺ : ∀ {f : A → B}
+    → (x∈ : x ∈ xs)
+    → Any.lookup (∈-map⁺ f x∈) ≡ f x
 
 All-Any-refl : ∀ {xs : List A} {f : A → B}
   → All (λ x → Any (λ x′ → f x ≡ f x′) xs) xs
@@ -629,6 +649,14 @@ destruct-Singleton : ∀ {xs : List A}
 destruct-Singleton {xs = []}          ()
 destruct-Singleton {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton {xs = _ ∷ (_ ∷ _)} ()
+
+Singleton⇒len≡ : Singleton xs → length xs ≡ 1
+Singleton⇒len≡ s-xs rewrite proj₂ $ destruct-Singleton s-xs = refl
+
+len≡⇒Singleton : length xs ≡ 1 → Singleton xs
+len≡⇒Singleton {xs = []}        ()
+len≡⇒Singleton {xs = _ ∷ []}    refl = tt
+len≡⇒Singleton {xs = _ ∷ _ ∷ _} ()
 
 singleton-map : ∀ {xs : List A} {f : A → B}
   → Singleton xs
