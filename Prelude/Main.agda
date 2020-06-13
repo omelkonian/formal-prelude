@@ -5,3 +5,5 @@ open import Prelude.Lists
 open import Prelude.Set'
 open import Prelude.Unsafe
 open import Prelude.Default
+open import Prelude.Generics
+open import Prelude.DecEq

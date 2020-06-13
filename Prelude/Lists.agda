@@ -258,6 +258,22 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
   rewrite map-proj₁-map₁ {xs = xs} {f = f}
         = refl
 
+-- concat
+
+concat-∷ : ∀ {A : Set} {x : List A} {xs : List (List A)}
+  → concat (x ∷ xs) ≡ x ++ concat xs
+concat-∷ = {!!}
+
+-- concatMap
+
+concatMap-∷ : ∀ {A B : Set} {x : A} {xs : List A} {f : A → List B}
+  → concatMap f (x ∷ xs) ≡ f x ++ concatMap f xs
+concatMap-∷ {x = x}{xs}{f} rewrite concat-∷ {x = f x}{map f xs} = refl
+
+concatMap-++ : ∀ {A B : Set} {xs ys : List A} {f : A → List B}
+  → concatMap f (xs ++ ys) ≡ concatMap f xs ++ concatMap f ys
+concatMap-++ = {!!}
+
 -- mapWith∈
 
 -- Any-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {P : B → Set} → Any P (mapWith∈ xs f) → Any (P ∘ f) xs
