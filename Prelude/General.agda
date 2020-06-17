@@ -12,11 +12,11 @@ open import Data.Empty   using (⊥; ⊥-elim)
 open import Data.Unit    using (⊤; tt)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
-open import Data.Nat     using (_+_; _≤_; _≥_; _>_)
+open import Data.Nat     using (ℕ; _+_; _≤_; _≥_; _>_; suc)
+open import Data.Nat.Properties
 open import Data.Maybe   using (Maybe; just; nothing; fromMaybe; Is-just)
 open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
 
-open import Data.Nat.Properties using (+-assoc; +-comm; ≤-trans)
 
 import Data.Maybe.Relation.Unary.Any as M
 import Data.Maybe.Categorical as MaybeCat
@@ -36,6 +36,11 @@ private
     A B : Set
     x : A
     xs : List A
+
+-- ** N-ary tuples
+_^_ : Set → ℕ → Set
+A ^ 0     = A
+A ^ suc n = A × (A ^ n)
 
 -- ** Bools
 

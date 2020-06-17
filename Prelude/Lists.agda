@@ -5,7 +5,7 @@
 
 module Prelude.Lists where
 
-open import Level            using (Level; 0ℓ)
+open import Level            using (0ℓ)
 open import Function         using (_∘_; _∋_; case_of_; id; _$_)
 open import Function.Bundles using (_↔_)
 
@@ -13,12 +13,13 @@ open import Data.Empty    using (⊥; ⊥-elim)
 open import Data.Unit     using (⊤; tt)
 open import Data.Product  using (_×_; _,_; map₁; map₂; proj₁; proj₂; <_,_>; ∃; ∃-syntax; Σ; Σ-syntax)
 open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
-
+open import Data.String as Str using (String)
 
 open import Data.Maybe using (Maybe; just; nothing; Is-just; Is-nothing)
 import Data.Maybe.Properties as Maybe
 
 open import Data.Nat
+  hiding (_^_)
 open import Data.Nat.Properties
 
 open import Data.Fin            using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
@@ -55,20 +56,31 @@ open import Relation.Binary            using (Decidable)
 open import Relation.Binary.PropositionalEquality as Eq using (_≡_; _≢_; refl; cong; sym; trans; module ≡-Reasoning)
 open import Algebra using (Op₂; Identity; Commutative)
 
-------------------------------------------------------------------------
--- Indexed operations.
+open import Prelude.General
+
+
+-- Re-export common list operations
+open import Data.List using (List; []; _∷_; [_]; length; map) public
+open import Data.List.NonEmpty using (List⁺; _∷_) public
 
 private
   variable
-    a b c : Level
-    A : Set a
-    B : Set b
-    C : Set c
+    A B C : Set
 
     x y : A
     xs ys : List A
 
     m n : ℕ
+
+------------------------------------------------------------------------
+-- N-ary notation.
+
+⟦_⟧ : ∀ {n} → A ^ n → List A
+⟦_⟧ {n = zero}  x        = [ x ]
+⟦_⟧ {n = suc n} (x , xs) = x ∷ ⟦ xs ⟧
+
+------------------------------------------------------------------------
+-- Indexed operations.
 
 Index : List A → Set
 Index = Fin ∘ length
@@ -83,17 +95,17 @@ _⁉_ : List A → ℕ → Maybe A
 (x ∷ xs) ⁉ zero  = just x
 (x ∷ xs) ⁉ suc n = xs ⁉ n
 
-remove : ∀ {A : Set} → (vs : List A) → Index vs → List A
+remove : (vs : List A) → Index vs → List A
 remove []       ()
 remove (_ ∷ xs) fzero    = xs
 remove (x ∷ vs) (fsuc f) = x ∷ remove vs f
 
-_at_⟨_⟩ : ∀ {A : Set} → (vs : List A) → Index vs → A → List A
+_at_⟨_⟩ : (vs : List A) → Index vs → A → List A
 []       at ()       ⟨ _ ⟩
 (_ ∷ xs) at fzero    ⟨ x ⟩ = x ∷ xs
 (y ∷ vs) at (fsuc f) ⟨ x ⟩ = y ∷ (vs at f ⟨ x ⟩)
 
-_at_⟨_⟩remove_ : ∀ {A : Set} → (vs : List A) → Index vs → A → Index vs → List A
+_at_⟨_⟩remove_ : (vs : List A) → Index vs → A → Index vs → List A
 [] at () ⟨ _ ⟩remove ()
 (_ ∷ vs) at fzero  ⟨ _  ⟩remove fzero  = vs
 (_ ∷ vs) at fzero  ⟨ xv ⟩remove fsuc y = xv ∷ remove vs y
@@ -126,7 +138,7 @@ map-map₁-zip {xs = []}     {ys = _}      f = refl
 map-map₁-zip {xs = _ ∷ xs} {ys = []}     f = refl
 map-map₁-zip {xs = _ ∷ xs} {ys = _ ∷ ys} f rewrite map-map₁-zip {xs = xs} {ys = ys} f = refl
 
-enum∈-∷ : ∀ {A : Set} {x y : A} {xs : List A} {i : Index xs}
+enum∈-∷ : {x y : A} {xs : List A} {i : Index xs}
   → (i , y) ∈ enumerate xs
   → (fsuc i , y) ∈ enumerate (x ∷ xs)
 enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
@@ -136,7 +148,7 @@ enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
         | map-tabulate {n = length xs} (λ x → x) fsuc
         = there ix∈′
 
-x∈→ix∈ : ∀ {A : Set} {xs : List A} {x : A}
+x∈→ix∈ : {xs : List A} {x : A}
   → (x∈ : x ∈ xs) → ((Any.index x∈ , x) ∈ enumerate xs)
 x∈→ix∈ (here refl) = here refl
 x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
@@ -144,7 +156,7 @@ x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
 mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
 mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
 
-‼-suc : ∀ {ℓ} {A : Set ℓ} {x : A} {xs : List A} {i : Index xs}
+‼-suc : ∀ {x : A} {xs : List A} {i : Index xs}
   → (x ∷ xs ‼ fsuc i)
   ≡ (xs ‼ i)
 ‼-suc = refl
@@ -160,23 +172,23 @@ map-‼ : ∀ {xs : List A} {x : A} {f : A → B} (x∈ : x ∈ xs)
 map-‼ (here refl) = refl
 map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x∈ = refl
 
-‼→⁉ : ∀ {ℓ} {A : Set ℓ} {xs : List A} {ix : Index xs}
+‼→⁉ : ∀ {xs : List A} {ix : Index xs}
     → just (xs ‼ ix) ≡ (xs ⁉ toℕ ix)
-‼→⁉ {_} {_} {[]}     {()}
-‼→⁉ {_} {_} {x ∷ xs} {fzero}   = refl
-‼→⁉ {_} {A} {x ∷ xs} {fsuc ix} = ‼→⁉ {_} {A} {xs} {ix}
+‼→⁉ {_} {[]}     {()}
+‼→⁉ {_} {x ∷ xs} {fzero}   = refl
+‼→⁉ {A} {x ∷ xs} {fsuc ix} = ‼→⁉ {A} {xs} {ix}
 
-⁉→‼ : ∀ {ℓ} {A : Set ℓ} {xs ys : List A} {ix : Index xs}
+⁉→‼ : ∀ {xs ys : List A} {ix : Index xs}
     → (len≡ : length xs ≡ length ys)
     → (xs ⁉ toℕ ix) ≡ (ys ⁉ toℕ ix)
     → (xs ‼ ix) ≡ (ys ‼ cast len≡ ix)
-⁉→‼ {_} {A} {[]}     {[]}      {ix}      len≡ eq   = refl
-⁉→‼ {_} {A} {[]}     {x ∷ ys}  {ix}      () eq
-⁉→‼ {_} {A} {x ∷ xs} {[]}      {ix}      () eq
-⁉→‼ {_} {A} {x ∷ xs} {.x ∷ ys} {fzero}   len≡ refl = refl
-⁉→‼ {_} {A} {x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
-  rewrite ‼-suc {_} {A} {x} {xs} {ix}
-        = ⁉→‼ {_} {A} {xs} {ys} {ix} (suc-injective len≡) eq
+⁉→‼ {A} {[]}     {[]}      {ix}      len≡ eq   = refl
+⁉→‼ {A} {[]}     {x ∷ ys}  {ix}      () eq
+⁉→‼ {A} {x ∷ xs} {[]}      {ix}      () eq
+⁉→‼ {A} {x ∷ xs} {.x ∷ ys} {fzero}   len≡ refl = refl
+⁉→‼ {A} {x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
+  rewrite ‼-suc {A} {x} {xs} {ix}
+        = ⁉→‼ {A} {xs} {ys} {ix} (suc-injective len≡) eq
 
 ‼-index : (x∈xs : x ∈ xs)
         → (xs ‼ Any.index x∈xs) ≡ x
@@ -238,6 +250,13 @@ combinations []         = []
 combinations (xs ∷ xss) = concatMap (λ x → map (x ∷_) xss′) xs
   where xss′ = combinations xss
 
+cartesianProduct : List A → List B → List (A × B)
+cartesianProduct []       _  = []
+cartesianProduct (x ∷ xs) ys = map (x ,_) ys ++ cartesianProduct xs ys
+
+allPairs : List A → List (A × A)
+allPairs xs = cartesianProduct xs xs
+
 ------------------------------------------------------------------------
 -- General utilities.
 
@@ -260,7 +279,7 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
 
 -- concat
 
-concat-∷ : ∀ {A : Set} {x : List A} {xs : List (List A)}
+concat-∷ : {x : List A} {xs : List (List A)}
   → concat (x ∷ xs) ≡ x ++ concat xs
 concat-∷ = {!!}
 
@@ -352,17 +371,17 @@ Unique-mapWith∈ {xs = x ∷ xs} {f = f} f≡
   ∷ Unique-mapWith∈ {xs = xs} (fsuc-injective ∘ f≡)
 
 -- Empty lists
-Null : ∀ {A : Set} → List A → Set
+Null : List A → Set
 Null xs = xs ≡ []
 
-¬Null : ∀ {A : Set} → List A → Set
+¬Null : List A → Set
 ¬Null xs = xs ≢ []
 
-null? : ∀ {A : Set} → Unary.Decidable (Null {A})
+null? : Unary.Decidable (Null {A})
 null? []      = yes refl
 null? (_ ∷ _) = no  λ ()
 
-¬null? : ∀ {A : Set} → Unary.Decidable (¬Null {A})
+¬null? : Unary.Decidable (¬Null {A})
 ¬null? []      = no  λ ¬p → ¬p refl
 ¬null? (_ ∷ _) = yes λ ()
 
@@ -395,8 +414,8 @@ concat≢[] : ∀ {xss : List (List A)}
   → ∃[ xs ] ( (xs ∈ xss)
             × ¬Null xs )
   → ¬Null (concat xss)
-concat≢[] {_} {_ ∷ xss} (_  , here refl , xs≢[]) concat≡[] = xs≢[] $ concat≡[]ˡ {xss = xss} concat≡[]
-concat≢[] {_} {_ ∷ xss} (xs , there xs∈ , xs≢[]) concat≡[] = concat≢[] (xs , xs∈ , xs≢[])
+concat≢[] {xss = _ ∷ xss} (_  , here refl , xs≢[]) concat≡[] = xs≢[] $ concat≡[]ˡ {xss = xss} concat≡[]
+concat≢[] {xss = _ ∷ xss} (xs , there xs∈ , xs≢[]) concat≡[] = concat≢[] (xs , xs∈ , xs≢[])
                                                                        (concat≡[]ʳ {xss = xss} concat≡[])
 
 concat≡[] : ∀ {xss : List (List A)}
@@ -417,7 +436,7 @@ mapWith∈≡[] {xs = []} _ = refl
 ∀mapWith∈≡[] {xs = []}     {f} _  xs≢[]  _    = xs≢[] refl
 ∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (All.lookup ∀≡[] (here refl))
 
-filter≡[] : ∀ {A : Set} {P : A → Set} {P? : Unary.Decidable P} {xs : List A}
+filter≡[] : {P : A → Set} {P? : Unary.Decidable P} {xs : List A}
   → filter P? xs ≡ []
   → All (¬_ ∘ P) xs
 filter≡[] {P = P} {P?} {[]}     _  = []
@@ -426,7 +445,7 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
 ... | yes px  | ()
 ... | no  ¬px | eq′ = ¬px ∷ filter≡[] eq′
 
-¬Null⇒∃x : ∀ {A : Set} {xs : List A}
+¬Null⇒∃x : {xs : List A}
   → ¬Null xs
   → ∃[ x ] (x ∈ xs)
 ¬Null⇒∃x {xs = []}     ¬p = ⊥-elim $ ¬p refl
@@ -486,7 +505,7 @@ postulate
     ≡ count P? (map f xs)
 
 -- List⁺
-All⁺ : ∀ {A : Set} → Pred A 0ℓ → List⁺ A → Set
+All⁺ : Pred A 0ℓ → List⁺ A → Set
 All⁺ P = All P ∘ toList
 
 toList⁺ : ∀ (xs : List A) → xs ≢ [] → List⁺ A
@@ -506,7 +525,7 @@ All⇒All⁺ {xs = xs} {p} ∀P rewrite toList∘toList⁺ xs p = ∀P
 postulate
   last-∷ : ∀ {x : A} {xs : List⁺ A} → last (x ∷⁺ xs) ≡ last xs
 
-All⁺-last : ∀ {A : Set} {xs : List⁺ A} {P : Pred A 0ℓ}
+All⁺-last : {xs : List⁺ A} {P : Pred A 0ℓ}
   → All⁺ P xs
   → P (last xs)
 All⁺-last {xs = x ∷ []}     (px ∷ []) = px
@@ -558,16 +577,16 @@ Suffix≡ = Suffix _≡_
 suffix-refl : (xs : List A) → Suffix≡ xs xs
 suffix-refl xs = here (PW.≡⇒Pointwise-≡ refl)
 
-∈⇒Suffix : ∀ {A : Set} {x : A} {ys : List A}
+∈⇒Suffix : {x : A} {ys : List A}
   → x ∈ ys
   → ∃[ xs ] Suffix≡ (x ∷ xs) ys
 ∈⇒Suffix {ys = x ∷ xs}  (here refl) = xs , here (refl ∷ PW.refl refl)
 ∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂ there (∈⇒Suffix x∈)
 
 postulate
-  Suffix⇒⊆ : ∀ {A : Set} {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
+  Suffix⇒⊆ : {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
 
-  proj₁∘∈⇒Suffix≡ : ∀ {A : Set} {xs : List⁺ A} {ys zs : List A} (∀x∈ : All⁺ (_∈ ys) xs) (ys≼ : Suffix≡ ys zs)
+  proj₁∘∈⇒Suffix≡ : {xs : List⁺ A} {ys zs : List A} (∀x∈ : All⁺ (_∈ ys) xs) (ys≼ : Suffix≡ ys zs)
     → (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last ∘ All.map (Suffix⇒⊆ ys≼)) ∀x∈
     ≡ (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last) ∀x∈
 
@@ -655,7 +674,7 @@ Singleton (_ ∷ []) = ⊤
 Singleton (_ ∷ _)  = ⊥
 
 construct-Singleton : ∀ {xs : List A}
-  → ∃[ x ] (xs ≡ [ x ])
+  → ∃[ x ] (xs ≡ x ∷ [])
   → Singleton xs
 construct-Singleton (_ , refl) = tt
 
@@ -704,7 +723,7 @@ singleton-concat : ∀ {x : A} {xss : List (List A)}
   → Singleton (concat xss)
 singleton-concat refl = tt
 
-All-singleton : ∀ {A : Set} {x xs} {P : A → Set}
+All-singleton : {x : A} {xs : List A} {P : A → Set}
  → xs ≡ [ x ]
  → All P xs
  → P x
@@ -813,7 +832,7 @@ postulate
 
 ---
 
-Singleton² : ∀ {A : Set} → Pred (List (List A)) 0ℓ
+Singleton² : Pred (List (List A)) 0ℓ
 Singleton² xss = Singleton xss × All Singleton xss
 
 construct-Singleton² : ∀ {xss : List (List A)} {x : A}
@@ -836,3 +855,9 @@ singleton-concat⁺ {xss = []          ∷ []}    (_    , () ∷ _)
 singleton-concat⁺ {xss = (_ ∷ [])    ∷ []}    (_    , _)      = tt
 singleton-concat⁺ {xss = (_ ∷ _ ∷ _) ∷ []}    (_    , () ∷ _)
 singleton-concat⁺ {xss = _           ∷ _ ∷ _} (()   , _)
+
+------------------------------------------------------------------------
+-- String utilities.
+
+join : (A → String) → (List A → String)
+join f = Str.intersperse ", " ∘ map f
