@@ -13,6 +13,7 @@ open import Prelude.Default
 open import Prelude.Show
 open import Prelude.DecEq
 open import Prelude.Measurable
+open import Prelude.Collections
 
 -- ** Sets as unique lists
 open import Prelude.Set'

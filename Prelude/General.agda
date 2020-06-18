@@ -12,7 +12,8 @@ open import Data.Empty   using (⊥; ⊥-elim)
 open import Data.Unit    using (⊤; tt)
 open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
 open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
-open import Data.Nat     using (ℕ; _+_; _≤_; _≥_; _>_; suc)
+open import Data.Nat
+  hiding (_^_)
 open import Data.Nat.Properties
 open import Data.Maybe   using (Maybe; just; nothing; fromMaybe; Is-just)
 open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
@@ -107,6 +108,9 @@ postulate
   ≥-+-swapʳ : ∀ {x y y′} → y ≥ y′ → x + y ≥ x + y′
   ≥-+-swapˡʳ : ∀ {x y x′ y′} → x ≥ x′ → y ≥ y′ → x + y ≥ x′ + y′
   ¬i≥x+y : ∀ {i x y} → i ≤ 1 → x > 0 → y > 0 → ¬ (i ≥ x + y)
+  x<x+1 : ∀ x → x < x + 1
+  +-helper : ∀ {x y z} → x ≡ y + z → y > 0 → z > 0 → (y < x) × (z < x)
+  x<x+y : ∀ {y} x → y > 0 → x < x + y
 
 x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
 x≤0⇒x≡0′ refl = x≤0⇒x≡0
