@@ -1,16 +1,12 @@
 module Prelude.Show where
 
-open import Function
 open import Reflection
 open import Reflection.Argument using (unArg)
-open import Data.String hiding (show) renaming (_++_ to _<>_)
-open import Data.Product
-open import Data.Bool
-open import Data.Bool.Show using () renaming (show to showᵇ)
-open import Data.Nat
-open import Data.Nat.Show using () renaming (show to showℕ)
+open import Reflection.Show
 
+open import Prelude.Init
 open import Prelude.Lists
+open import Prelude.Monoid
 
 private
   variable
@@ -27,10 +23,10 @@ instance
   Show-String .show x = x
 
   Show-Bool : Show Bool
-  Show-Bool .show = showᵇ
+  Show-Bool .show = B.show
 
   Show-ℕ : Show ℕ
-  Show-ℕ .show = showℕ
+  Show-ℕ .show = Nat.show
 
   Show-Name : Show Name
   Show-Name .show = showName
@@ -45,7 +41,7 @@ instance
   Show-Definition .show = showDefinition
 
   Show-List : {{_ : Show A}} → Show (List A)
-  Show-List .show = braces ∘ join show
+  Show-List .show = braces ∘ Str.intersperse ", " ∘ map show
 
   Show-Arg : {{_ : Show A}} → Show (Arg A)
   Show-Arg .show = show ∘ unArg

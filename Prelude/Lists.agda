@@ -5,63 +5,21 @@
 
 module Prelude.Lists where
 
-open import Level            using (0ℓ)
-open import Function         using (_∘_; _∋_; case_of_; id; _$_)
-open import Function.Bundles using (_↔_)
-
-open import Data.Empty    using (⊥; ⊥-elim)
-open import Data.Unit     using (⊤; tt)
-open import Data.Product  using (_×_; _,_; map₁; map₂; proj₁; proj₂; <_,_>; ∃; ∃-syntax; Σ; Σ-syntax)
-open import Data.Sum      using (_⊎_; inj₁; inj₂; isInj₁; isInj₂)
-open import Data.String as Str using (String)
-
-open import Data.Maybe using (Maybe; just; nothing; Is-just; Is-nothing)
-import Data.Maybe.Properties as Maybe
-
-open import Data.Nat
-  hiding (_^_)
+open import Function using (id)
+open import Data.Fin using (fromℕ<; inject≤; cast; inject₁)
 open import Data.Nat.Properties
+open import Data.List.Properties
+open import Data.List.NonEmpty using (toList) renaming ([_] to [_]⁺)
+open import Data.List.Membership.Propositional.Properties
+open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭)
+import Data.List.Relation.Binary.Pointwise as PW
 
-open import Data.Fin            using (Fin; toℕ; fromℕ<; inject≤; cast; inject₁)
-  renaming (zero to fzero; suc to fsuc; _≟_ to _≟ᶠ_)
-open import Data.Fin.Properties using ()
-  renaming (suc-injective to fsuc-injective)
-
-open import Data.List
+open import Prelude.Init
   renaming (sum to ∑ℕ)
-open import Data.List.Properties using (length-map; map-tabulate; filter-none; ++-identityˡ; ++-identityʳ)
-open import Data.List.NonEmpty   using (List⁺; _∷_; toList; _⁺++_; last; _∷⁺_)
-  renaming ([_] to [_]⁺; map to map⁺)
-
-open import Data.List.Membership.Propositional                  using (_∈_; _∉_; mapWith∈; find)
-open import Data.List.Membership.Propositional.Properties       using (∈-map⁺; ∈-map⁻; ∈-filter⁺; ∈-++⁺ʳ)
-open import Data.List.Relation.Unary.Any as Any                 using (Any; here; there)
-import Data.List.Relation.Unary.Any.Properties as Any
-open import Data.List.Relation.Unary.All as All                 using (All; []; _∷_)
-import Data.List.Relation.Unary.All.Properties as All
-open import Data.List.Relation.Unary.Unique.Propositional       using (Unique)
-open import Data.List.Relation.Unary.AllPairs as AllPairs       using ([]; _∷_)
-open import Data.List.Relation.Binary.Subset.Propositional      using (_⊆_)
-open import Data.List.Relation.Binary.Prefix.Heterogeneous      using (Prefix; []; _∷_)
-open import Data.List.Relation.Binary.Pointwise as PW           using (Pointwise; []; _∷_)
-open import Data.List.Relation.Binary.Suffix.Heterogeneous      using (Suffix; here; there)
-open import Data.List.Relation.Binary.Permutation.Propositional using ( _↭_; prep; ↭-sym; ↭-reflexive
-                                                                      ; module PermutationReasoning )
-
-open import Relation.Nullary           using (¬_; Dec; yes; no)
-open import Relation.Nullary.Decidable using (True)
-open import Relation.Unary as Unary    using (Pred)
-open import Relation.Binary            using (Decidable)
-
-open import Relation.Binary.PropositionalEquality as Eq using (_≡_; _≢_; refl; cong; sym; trans; module ≡-Reasoning)
-open import Algebra using (Op₂; Identity; Commutative)
-
+open L.NE using (last) renaming (map to map⁺)
 open import Prelude.General
-
-
--- Re-export common list operations
-open import Data.List using (List; []; _∷_; [_]; length; map) public
-open import Data.List.NonEmpty using (List⁺; _∷_) public
+open import Prelude.ToN
+open import Prelude.Bifunctor
 
 private
   variable
@@ -87,7 +45,7 @@ Index = Fin ∘ length
 
 infix 3 _‼_
 _‼_ : (vs : List A) → Index vs → A
-_‼_ = lookup
+_‼_ = L.lookup
 
 infix 3 _⁉_
 _⁉_ : List A → ℕ → Maybe A
@@ -116,7 +74,7 @@ indices : List A → List ℕ
 indices xs = upTo (length xs)
 
 fin-indices : (xs : List A) → List (Index xs)
-fin-indices = allFin ∘ length
+fin-indices = L.allFin ∘ length
 
 enumerate : (xs : List A) → List (Index xs × A)
 enumerate xs = zip (fin-indices xs) xs
@@ -144,12 +102,12 @@ enum∈-∷ : {x y : A} {xs : List A} {i : Index xs}
 enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
   with ∈-map⁺ (map₁ fsuc) ix∈
 ... | ix∈′
-  rewrite map-map₁-zip {xs = tabulate {n = length xs} id} {ys = xs} fsuc
+  rewrite map-map₁-zip {xs = L.tabulate {n = length xs} id} {ys = xs} fsuc
         | map-tabulate {n = length xs} (λ x → x) fsuc
         = there ix∈′
 
 x∈→ix∈ : {xs : List A} {x : A}
-  → (x∈ : x ∈ xs) → ((Any.index x∈ , x) ∈ enumerate xs)
+  → (x∈ : x ∈ xs) → ((L.Any.index x∈ , x) ∈ enumerate xs)
 x∈→ix∈ (here refl) = here refl
 x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
 
@@ -168,7 +126,7 @@ mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (i
 ‼-map {xs = x ∷ xs} (fsuc i) = fsuc (‼-map {xs = xs} i)
 
 map-‼ : ∀ {xs : List A} {x : A} {f : A → B} (x∈ : x ∈ xs)
-  → (map f xs ‼ ‼-map {xs = xs} {f = f} (Any.index x∈)) ≡ f x
+  → (map f xs ‼ ‼-map {xs = xs} {f = f} (L.Any.index x∈)) ≡ f x
 map-‼ (here refl) = refl
 map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x∈ = refl
 
@@ -188,10 +146,10 @@ map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x
 ⁉→‼ {A} {x ∷ xs} {.x ∷ ys} {fzero}   len≡ refl = refl
 ⁉→‼ {A} {x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
   rewrite ‼-suc {A} {x} {xs} {ix}
-        = ⁉→‼ {A} {xs} {ys} {ix} (suc-injective len≡) eq
+        = ⁉→‼ {A} {xs} {ys} {ix} (Nat.suc-injective len≡) eq
 
 ‼-index : (x∈xs : x ∈ xs)
-        → (xs ‼ Any.index x∈xs) ≡ x
+        → (xs ‼ L.Any.index x∈xs) ≡ x
 ‼-index (here refl) = refl
 ‼-index (there x∈)  rewrite ‼-index x∈ = refl
 
@@ -228,7 +186,7 @@ proj₁∘find (there x∈)  = proj₁∘find x∈
 just-⁉⇒∈ : ∀ {i : ℕ}
   → (xs ⁉ i) ≡ just x
   → x ∈ xs
-just-⁉⇒∈ {xs = _ ∷ _}  {i = zero}  ⁉≡just = here (Maybe.just-injective (sym ⁉≡just))
+just-⁉⇒∈ {xs = _ ∷ _}  {i = zero}  ⁉≡just = here (M.just-injective (sym ⁉≡just))
 just-⁉⇒∈ {xs = _ ∷ xs} {i = suc i} ⁉≡just = there (just-⁉⇒∈ {xs = xs} {i = i} ⁉≡just)
 
 ------------------------------------------------------------------------
@@ -277,11 +235,31 @@ map-proj₁-map₁ {xs = x ∷ xs} {f = f}
   rewrite map-proj₁-map₁ {xs = xs} {f = f}
         = refl
 
+findElem : ∀ {P : Pred A 0ℓ} → Decidable¹ P → List A → Maybe (A × List A)
+findElem P? xs with L.Any.any P? xs
+... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
+... | no  _  = nothing
+
 -- concat
 
-concat-∷ : {x : List A} {xs : List (List A)}
+concat-∷ : ∀ {x : List A} {xs : List (List A)}
   → concat (x ∷ xs) ≡ x ++ concat xs
-concat-∷ = {!!}
+concat-∷ {xs = []}    = refl
+concat-∷ {xs = _ ∷ _} = refl
+
+concat-++ : ∀ (xs : List (List A)) (ys : List (List A))
+  → concat (xs ++ ys) ≡ concat xs ++ concat ys
+concat-++ []         _          = refl
+concat-++ (xs ∷ xss) []         rewrite ++-identityʳ xss = sym (++-identityʳ _)
+concat-++ (xs ∷ xss) (ys ∷ yss) =
+  begin concat ((xs ∷ xss) ++ (ys ∷ yss))       ≡⟨⟩
+        concat (xs ∷ (xss ++ (ys ∷ yss)))       ≡⟨ concat-∷ {x = xs}{xss ++ (ys ∷ yss)} ⟩
+        xs ++ concat (xss ++ (ys ∷ yss))        ≡⟨ cong (xs ++_) (concat-++ xss (ys ∷ yss)) ⟩
+        xs ++ (concat xss ++ concat (ys ∷ yss)) ≡⟨ sym $ ++-assoc xs (concat xss) (concat (ys ∷ yss)) ⟩
+        (xs ++ concat xss) ++ concat (ys ∷ yss) ≡⟨ cong (_++ _) (sym $ concat-∷ {x = xs}{xss}) ⟩
+        concat (xs ∷ xss) ++ concat (ys ∷ yss)
+  ∎
+  where open ≡-Reasoning
 
 -- concatMap
 
@@ -291,9 +269,38 @@ concatMap-∷ {x = x}{xs}{f} rewrite concat-∷ {x = f x}{map f xs} = refl
 
 concatMap-++ : ∀ {A B : Set} {xs ys : List A} {f : A → List B}
   → concatMap f (xs ++ ys) ≡ concatMap f xs ++ concatMap f ys
-concatMap-++ = {!!}
+concatMap-++ {xs = xs}{ys}{f} =
+  begin concatMap f (xs ++ ys)                 ≡⟨⟩
+        concat (map f (xs ++ ys))              ≡⟨ cong concat (map-++-commute f xs ys) ⟩
+        concat (map f xs ++ map f ys)          ≡⟨ concat-++ (map f xs) (map f ys) ⟩
+        concat (map f xs) ++ concat (map f ys) ≡⟨⟩
+        concatMap f xs ++ concatMap f ys ∎
+  where open ≡-Reasoning
 
 -- mapWith∈
+_↦_ : List A → Set → Set
+xs ↦ B = ∀ {x} → x ∈ xs → B
+
+_↦⟨_⟩_ : List B → (A → B) → Set → Set
+ys ↦⟨ f ⟩ C = ∀ {x} → f x ∈ ys → C
+
+dom : ∀ {xs : List A} → xs ↦ B → List A
+dom {xs = xs} _ = xs
+
+codom : xs ↦ B → List B
+codom = mapWith∈ _
+
+weaken-↦ : xs ↦ B → ys ⊆ xs → ys ↦ B
+weaken-↦ f ys⊆xs = f ∘ ys⊆xs
+
+extend-↦ : ∀ {xs ys zs : List A}
+  → zs ↭ xs ++ ys
+  → xs ↦ B
+  → ys ↦ B
+  → zs ↦ B
+extend-↦ zs↭ xs↦ ys↦ p∈ with ∈-++⁻ _ (∈-resp-↭ zs↭ p∈)
+... | inj₁ x∈ = xs↦ x∈
+... | inj₂ y∈ = ys↦ y∈
 
 -- Any-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {P : B → Set} → Any P (mapWith∈ xs f) → Any (P ∘ f) xs
 -- Any-mapWith∈⁻ {xs = x ∷ xs} (here p)  = here p
@@ -308,8 +315,8 @@ concatMap-++ = {!!}
 mapWith∈-∀ : ∀ {A B : Set} {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Set}
   → (∀ {x} x∈ → P (f {x} x∈))
   → (∀ {y} → y ∈ mapWith∈ xs f → P y)
-mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (Any.here refl)
-mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ Any.there) y∈
+mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (L.Any.here refl)
+mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ L.Any.there) y∈
 
 postulate
   mapWith∈-id : ∀ {xs : List A} → mapWith∈ xs (λ {x} _ → x) ≡ xs
@@ -340,13 +347,13 @@ mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)
   → mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆)
   ↭ filter ((_∈? xs) ∘ f) ys
 mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = []}     {ys = ys} p⊆ uniq =
-  ↭-sym (↭-reflexive $ filter-none ((_∈? []) ∘ f) (All.universal (λ _ ()) ys))
+  ↭-sym (↭-reflexive $ filter-none ((_∈? []) ∘ f) (L.All.universal (λ _ ()) ys))
 mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {ys = ys} p⊆ uniq =
   begin
     mapWith∈ (x ∷ xs) get
   ≡⟨⟩
     get {x} _ ∷ mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆ ∘ there)
-  ↭⟨ prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
+  ↭⟨ ↭-prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
     get {x} _ ∷ filter ((_∈? xs) ∘ f) ys
   ↭⟨ ↭-sym (filter-exists {_∈?_ = _∈?_} (p⊆ (here refl)) uniq) ⟩
     filter ((_∈? (x ∷ xs)) ∘ f) ys
@@ -355,20 +362,20 @@ mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {y
           get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
 
 ↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
-  → Identity _≡_ x₀ _⊕_
-  → Commutative _≡_ _⊕_
+  → Identity x₀ _⊕_
+  → Commutative _⊕_
   → xs ↭ ys
   → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
 ↭⇒≡ = {!!}
 
 -- Unique
 Unique-mapWith∈ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
-  → (∀ {x x′} {x∈ : x ∈ xs} {x∈′ : x′ ∈ xs} → f x∈ ≡ f x∈′ → Any.index x∈ ≡ Any.index x∈′)
+  → (∀ {x x′} {x∈ : x ∈ xs} {x∈′ : x′ ∈ xs} → f x∈ ≡ f x∈′ → L.Any.index x∈ ≡ L.Any.index x∈′)
   → Unique (mapWith∈ xs f)
 Unique-mapWith∈ {xs = []}     {f = f} f≡ = []
 Unique-mapWith∈ {xs = x ∷ xs} {f = f} f≡
-  = All.tabulate (mapWith∈-∀ {P = f (Any.here refl) ≢_} λ _ eq → case f≡ eq of λ () )
-  ∷ Unique-mapWith∈ {xs = xs} (fsuc-injective ∘ f≡)
+  = L.All.tabulate (mapWith∈-∀ {P = f (L.Any.here refl) ≢_} λ _ eq → case f≡ eq of λ () )
+  ∷ Unique-mapWith∈ {xs = xs} (F.suc-injective ∘ f≡)
 
 -- Empty lists
 Null : List A → Set
@@ -377,11 +384,11 @@ Null xs = xs ≡ []
 ¬Null : List A → Set
 ¬Null xs = xs ≢ []
 
-null? : Unary.Decidable (Null {A})
+null? : Decidable¹ (Null {A})
 null? []      = yes refl
 null? (_ ∷ _) = no  λ ()
 
-¬null? : Unary.Decidable (¬Null {A})
+¬null? : Decidable¹ (¬Null {A})
 ¬null? []      = no  λ ¬p → ¬p refl
 ¬null? (_ ∷ _) = yes λ ()
 
@@ -434,9 +441,9 @@ mapWith∈≡[] {xs = []} _ = refl
   → ¬ (Null xs)
   → ¬ (All Null $ mapWith∈ xs f)
 ∀mapWith∈≡[] {xs = []}     {f} _  xs≢[]  _    = xs≢[] refl
-∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (All.lookup ∀≡[] (here refl))
+∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (L.All.lookup ∀≡[] (here refl))
 
-filter≡[] : {P : A → Set} {P? : Unary.Decidable P} {xs : List A}
+filter≡[] : {P : A → Set} {P? : Decidable¹ P} {xs : List A}
   → filter P? xs ≡ []
   → All (¬_ ∘ P) xs
 filter≡[] {P = P} {P?} {[]}     _  = []
@@ -469,38 +476,38 @@ postulate
     → Null (mapMaybe f xs)
 
 -- count
-count : ∀ {P : A → Set} → Unary.Decidable P → List A → ℕ
+count : ∀ {P : A → Set} → Decidable¹ P → List A → ℕ
 count P? = length ∘ filter P?
 
-count-single : ∀ {P : A → Set} {P? : Unary.Decidable P} {x xs}
+count-single : ∀ {P : A → Set} {P? : Decidable¹ P} {x xs}
   → count P? (x ∷ xs) ≡ 1
   → P x
   → All (x ≢_) xs
 count-single {P = P} {P?} {x} {xs} count≡1 px
   with P? x
 ... | no ¬px = ⊥-elim $ ¬px px
-... | yes _  = All.¬Any⇒All¬ xs h
+... | yes _  = L.All.¬Any⇒All¬ xs h
   where
     h : x ∉ xs
     h x∈ = {!!}
 
 postulate
   ⊆⇒count≤ : ∀ {xs ys : List A} {P : Pred A 0ℓ}
-    → (P? : Unary.Decidable P)
+    → (P? : Decidable¹ P)
     → xs ⊆ ys
     → count P? xs ≤ count P? ys
 
   count≡0⇒null-filter : ∀ {xs : List A} {P : Pred A 0ℓ}
-    → (P? : Unary.Decidable P)
+    → (P? : Decidable¹ P)
     → count P? xs ≡ 0
     → Null $ filter P? xs
 
   count≡0⇒All¬ : ∀ {xs : List A} {P : Pred A 0ℓ}
-    → (P? : Unary.Decidable P)
+    → (P? : Decidable¹ P)
     → count P? xs ≡ 0
     → All (¬_ ∘ P) xs
 
-  count-map⁺ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Unary.Decidable P}
+  count-map⁺ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Decidable¹ P}
     → count (P? ∘ f) xs
     ≡ count P? (map f xs)
 
@@ -535,23 +542,23 @@ All⁺-last {xs = x ∷ y ∷ xs} (_  ∷ ∀p) rewrite last-∷ {x = x}{y ∷ x
 postulate
   lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
     → (p : Any P (map f xs))
-    → Any.lookup p ≡ f (proj₁ $ find $ Any.map⁻ p)
+    → L.Any.lookup p ≡ f (proj₁ $ find $ L.Any.map⁻ p)
 
   Any-lookup∘map : ∀ {P Q : Pred A 0ℓ}
     → (P⊆Q : ∀ {x} → P x → Q x)
     → (p : Any P xs)
-    → Any.lookup (Any.map P⊆Q p) ≡ Any.lookup p
+    → L.Any.lookup (L.Any.map P⊆Q p) ≡ L.Any.lookup p
 
   lookup∘∈-map⁺ : ∀ {f : A → B}
     → (x∈ : x ∈ xs)
-    → Any.lookup (∈-map⁺ f x∈) ≡ f x
+    → L.Any.lookup (∈-map⁺ f x∈) ≡ f x
 
 All-Any-refl : ∀ {xs : List A} {f : A → B}
   → All (λ x → Any (λ x′ → f x ≡ f x′) xs) xs
 All-Any-refl {xs = []}     = []
-All-Any-refl {xs = _ ∷ xs} = here refl ∷ All.map there (All-Any-refl {xs = xs})
+All-Any-refl {xs = _ ∷ xs} = here refl ∷ L.All.map there (All-Any-refl {xs = xs})
 
-all-filter⁺ : ∀ {P Q : A → Set} {P? : Unary.Decidable P} {xs : List A}
+all-filter⁺ : ∀ {P Q : A → Set} {P? : Decidable¹ P} {xs : List A}
   → All (λ x → P x → Q x) xs
   → All Q (filter P? xs)
 all-filter⁺ {xs = _} [] = []
@@ -564,7 +571,7 @@ All-map : ∀ {P : Pred A 0ℓ} {Q : Pred A 0ℓ} {xs : List A}
   → (∀ x → P x → Q x)
   → All P xs
   → All Q xs
-All-map P⇒Q = All.map (λ {x} → P⇒Q x)
+All-map P⇒Q = L.All.map (λ {x} → P⇒Q x)
 
 -- Prefix relation, instantiated for propositional equality.
 Prefix≡ : List A → List A → Set _
@@ -581,13 +588,13 @@ suffix-refl xs = here (PW.≡⇒Pointwise-≡ refl)
   → x ∈ ys
   → ∃[ xs ] Suffix≡ (x ∷ xs) ys
 ∈⇒Suffix {ys = x ∷ xs}  (here refl) = xs , here (refl ∷ PW.refl refl)
-∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂ there (∈⇒Suffix x∈)
+∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂′ there (∈⇒Suffix x∈)
 
 postulate
   Suffix⇒⊆ : {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
 
   proj₁∘∈⇒Suffix≡ : {xs : List⁺ A} {ys zs : List A} (∀x∈ : All⁺ (_∈ ys) xs) (ys≼ : Suffix≡ ys zs)
-    → (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last ∘ All.map (Suffix⇒⊆ ys≼)) ∀x∈
+    → (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last ∘ L.All.map (Suffix⇒⊆ ys≼)) ∀x∈
     ≡ (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last) ∀x∈
 
 -- Finite sets.
@@ -595,23 +602,17 @@ Finite : Set → Set
 Finite A = ∃[ n ] (A ↔ Fin n)
 
 finList : Finite A → List A
-finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)
+finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (L.allFin n)
 
-_≟_∶-_ : (x : A) → (y : A) → Finite A → Dec (x ≡ y)
-x ≟ y ∶- (_ , record { f       = toFin
-                     ; f⁻¹     = fromFin
-                     ; cong₂   = cong′
-                     ; inverse = _ , invˡ })
-  with toFin x ≟ᶠ toFin y
+≡-findec : Finite A → Decidable² {A = A} _≡_
+≡-findec (_ , record { f = toFin; f⁻¹ = fromFin; cong₂ = cong′; inverse = _ , invˡ }) x y
+  with toFin x F.≟ toFin y
 ... | yes x≡y = yes (begin x                 ≡⟨ sym (invˡ x) ⟩
                            fromFin (toFin x) ≡⟨ cong′ x≡y ⟩
                            fromFin (toFin y) ≡⟨ invˡ y ⟩
                            y ∎)
                 where open ≡-Reasoning
 ... | no  x≢y = no λ{ refl → x≢y refl }
-
-≡-findec : Finite A → Decidable {A = A} _≡_
-≡-findec A↔fin = _≟_∶- A↔fin
 
 -- Sums of nat lists.
 private
@@ -656,7 +657,7 @@ postulate
   ∑ℕ-⊆ : ∀ {xs ys} → xs ⊆ ys → ∑ℕ xs ≤ ∑ℕ ys
 
   ∑₁-map₂ : ∀ {xs : List (∃ X)} {f : ∀ {n} → X n → Y n}
-    → ∑₁ (map (map₂ f) xs)
+    → ∑₁ (map (map₂′ f) xs)
     ≡ ∑₁ xs
 
   ∑₁-single : ∀ {x : ∃ X} → ∑₁ [ n , x ] ≡ n
@@ -750,7 +751,7 @@ ams-∈ {xs = []}        _  ()
 ams-∈ {xs = x ∷ []}    _  (here refl) = refl
 ams-∈ {xs = _ ∷ _ ∷ _} () _
 
-ams-filter⁺ : ∀ {xs : List A} {P : A → Set} {P? : Unary.Decidable P}
+ams-filter⁺ : ∀ {xs : List A} {P : A → Set} {P? : Decidable¹ P}
   → AtMostSingleton xs
   → AtMostSingleton (filter P? xs)
 ams-filter⁺ {xs = []}                  tt = tt
@@ -760,18 +761,18 @@ ams-filter⁺ {xs = x ∷ []}    {P? = P?} tt with P? x
 ams-filter⁺ {xs = _ ∷ _ ∷ _}           ()
 
 postulate
-  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Unary.Decidable P}
+  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Decidable¹ P}
     → AtMostSingleton $ filter P? (map f xs)
     → AtMostSingleton $ filter (P? ∘ f) xs
 
   ams-filter-reject : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
-    → (P? : Unary.Decidable P)
+    → (P? : Decidable¹ P)
     → ¬ P x
     → AtMostSingleton $ filter P? xs
     → AtMostSingleton $ filter P? (x ∷ xs)
 
   ams-filter-accept : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
-    → (P? : Unary.Decidable P)
+    → (P? : Decidable¹ P)
     → P x
     → Null $ filter P? xs
     → AtMostSingleton $ filter P? (x ∷ xs)
@@ -780,7 +781,7 @@ postulate
     → length xs ≤ 1
     → AtMostSingleton xs
 
-  ams-count : ∀ {P : Pred A 0ℓ} {P? : Unary.Decidable P} {xs : List A} {f : A → Maybe B}
+  ams-count : ∀ {P : Pred A 0ℓ} {P? : Decidable¹ P} {xs : List A} {f : A → Maybe B}
     → (∀ x → P x → Is-just (f x))
     → count P? xs ≤ 1
     → AtMostSingleton (mapMaybe f xs)
@@ -855,9 +856,3 @@ singleton-concat⁺ {xss = []          ∷ []}    (_    , () ∷ _)
 singleton-concat⁺ {xss = (_ ∷ [])    ∷ []}    (_    , _)      = tt
 singleton-concat⁺ {xss = (_ ∷ _ ∷ _) ∷ []}    (_    , () ∷ _)
 singleton-concat⁺ {xss = _           ∷ _ ∷ _} (()   , _)
-
-------------------------------------------------------------------------
--- String utilities.
-
-join : (A → String) → (List A → String)
-join f = Str.intersperse ", " ∘ map f

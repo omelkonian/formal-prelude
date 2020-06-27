@@ -4,33 +4,11 @@
 
 module Prelude.General where
 
-open import Level          using (0ℓ)
-open import Function       using (case_of_)
-open import Category.Monad using (RawMonad)
-
-open import Data.Empty   using (⊥; ⊥-elim)
-open import Data.Unit    using (⊤; tt)
-open import Data.Product using (_×_; _,_; ∃; ∃-syntax)
-open import Data.Bool    using (Bool; true; false; T ; _∧_; if_then_else_)
-open import Data.Nat
-  hiding (_^_)
 open import Data.Nat.Properties
-open import Data.Maybe   using (Maybe; just; nothing; fromMaybe; Is-just)
-open import Data.List    using (List; []; _∷_; [_]; foldr; filter)
-
-
 import Data.Maybe.Relation.Unary.Any as M
-import Data.Maybe.Categorical as MaybeCat
-open RawMonad {f = 0ℓ} MaybeCat.monad renaming (_⊛_ to _<*>_)
 
-open import Data.List.Membership.Propositional using (_∈_; mapWith∈)
-open import Data.List.Relation.Unary.Any       using (here; there)
-
-open import Relation.Nullary           using (yes; no; does; ¬_)
-open import Relation.Nullary.Decidable using (isYes≗does)
-import Relation.Unary  as Un
-import Relation.Binary as Bi
-open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym; trans)
+open import Prelude.Init
+open import Prelude.Monad
 
 private
   variable
@@ -115,7 +93,7 @@ postulate
 x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
 x≤0⇒x≡0′ refl = x≤0⇒x≡0
 
-≥-trans : Bi.Transitive _≥_
+≥-trans : Transitive _≥_
 ≥-trans x≥y y≥z = ≤-trans y≥z x≥y
 
 -- ** Maybes
@@ -160,7 +138,7 @@ destruct-Is-just {mx = just _}  _ = _ , refl
 
 -- ** Decidable
 
-≟-refl : ∀ {A : Set} (_≟_ : Bi.Decidable {A = A} _≡_) (x : A)
+≟-refl : ∀ {A : Set} (_≟_ : Decidable² {A = A} _≡_) (x : A)
   → x ≟ x ≡ yes refl
 ≟-refl _≟_ x with x ≟ x
 ... | no ¬p    = ⊥-elim (¬p refl)
@@ -183,10 +161,10 @@ mapWith∈⁺ {x = x} {xs = .x ∷ xs} (here refl) = (_ , here refl , refl)
 mapWith∈⁺ {x = x} {xs = x′ ∷ xs} (there x∈) with mapWith∈⁺ x∈
 ... | y , y∈ , refl = y , there y∈ , refl
 
-filter-singleton : ∀ {P : A → Set} {P? : Un.Decidable P} {px : P x}
+filter-singleton : ∀ {P : A → Set} {P? : Decidable¹ P} {px : P x}
   → P? x ≡ yes px
   → filter P? [ x ] ≡ [ x ]
-filter-singleton {P? = P?} p rewrite p = refl -- (trans (sym (isYes≗does (P? _))) p) = refl
+filter-singleton {P? = P?} p rewrite p = refl
 
 case-singleton : ∀ {x xs} {f : A → B} {g : B}
   → xs ≡ [ x ]
@@ -199,6 +177,5 @@ case-singleton refl = refl
 do-pure : ∀ {x : A} {mx : Maybe A} {f : A → Bool}
   → mx ≡ just x
   → f x ≡ true
-  → (fromMaybe false do x ← mx
-                        pure (f x)) ≡ true
+  → M.fromMaybe false (mx >>= pure ∘ f) ≡ true
 do-pure refl f≡ rewrite f≡ = refl

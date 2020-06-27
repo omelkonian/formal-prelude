@@ -1,4 +1,3 @@
-{-# OPTIONS --postfix-projections #-}
 module Prelude.Measurable where
 
 open import Function

@@ -1,27 +1,15 @@
 {- Meta-programming utilities -}
 module Prelude.Generics where
 
-open import Function
-open import Reflection
-open import Reflection.TypeChecking.MonadSyntax using (pure; _<*>_; _<$>_) -- for idiom brackets to work
+open import Reflection hiding (return; _>>_; _>>=_)
 open import Reflection.Term
 open import Reflection.Argument using (unArg)
 
-open import Data.Unit
-open import Data.Product hiding (map)
-open import Data.Bool
-open import Data.String hiding (show; length) renaming (_++_ to _<>_)
-open import Data.Maybe hiding (map; _>>=_)
-open import Data.List
-open import Data.Fin using (toℕ)
-open import Data.Nat
-
-open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality
-  hiding ([_])
-
+open import Prelude.Init
 open import Prelude.Lists
 open import Prelude.Show
+open import Prelude.ToN
+open import Prelude.Monad
 
 private
   variable
@@ -39,14 +27,12 @@ print s = debugPrint "Prelude.Generics" 5 [ strErr s ]
 -- ** Smart constructors
 
 -- arguments
-pattern vArg x = arg (arg-info visible relevant) x
-pattern hArg x = arg (arg-info hidden relevant) x
-pattern hArg?  = hArg unknown
+pattern hArg? = hArg unknown
 
 -- variables
-pattern # n = var n []
-pattern #_⟦_⟧ n x = var n (vArg x ∷ [])
-pattern #_⟦_∣_⟧ n x y = var n (vArg x ∷ vArg y ∷ [])
+pattern ♯ n = var n []
+pattern ♯_⟦_⟧ n x = var n (vArg x ∷ [])
+pattern ♯_⟦_∣_⟧ n x y = var n (vArg x ∷ vArg y ∷ [])
 
 -- patterns
 pattern `_ x = Pattern.var x
@@ -104,7 +90,7 @@ mapVariables f (Pattern.con c args) = Pattern.con c $ map (λ{ (arg i p) → arg
 mapVariables _ p                    = p
 
 viewTy : Type → List (Arg Type) × Type
-viewTy (Π[ _ ∶ a ] ty) = map₁ (a ∷_) (viewTy ty)
+viewTy (Π[ _ ∶ a ] ty) = Product.map₁ (a ∷_) (viewTy ty)
 viewTy ty              = [] , ty
 
 argTys : Type → List (Arg Type)
@@ -125,7 +111,7 @@ args (con _ xs)  = xs
 args _           = []
 
 args′ : Term → List Term
-args′ = map unArg ∘ args
+args′ = unArgs ∘ args
 
 mapVars : (ℕ → ℕ) → (Type → Type)
 mapVars′ : (ℕ → ℕ) → (List (Arg Type) → List (Arg Type))
@@ -174,7 +160,7 @@ hide a        = a
 ∀indices⋯ (i ∷ is) ty = Π[ "_" ∶ hide i ] (∀indices⋯ is ty)
 
 apply⋯ : List (Arg Type) → Name → Type
-apply⋯ is n = def n $ remove-iArgs (map (λ{ (n , arg i _) → arg i (# (length is ∸ suc (toℕ n)))}) (enumerate is))
+apply⋯ is n = def n $ remove-iArgs (map (λ{ (n , arg i _) → arg i (♯ (length is ∸ suc (toℕ n)))}) (enumerate is))
 
 mkPattern : Name → TC ( Pattern         -- ^ generated pattern for given constructor
                       × ℕ               -- ^ # of introduced variables
@@ -183,9 +169,9 @@ mkPattern : Name → TC ( Pattern         -- ^ generated pattern for given const
 mkPattern c = do
   tys ← (vArgs ∘ argTys) <$> getType c
   let n = length tys
-  return $ Pattern.con c (applyUpTo (λ i → vArg (` ("x" <> show i))) n)
+  return $ Pattern.con c (applyUpTo (λ i → vArg (` ("x" Str.++ show i))) n)
          , n
-         , map (map₁ ((n ∸_) ∘ suc ∘ toℕ)) (enumerate tys)
+         , map (Product.map₁ ((n ∸_) ∘ suc ∘ toℕ)) (enumerate tys)
 
 -- *** Deriving
 Derivation = List ( Name -- name of the type to derive an instance for
