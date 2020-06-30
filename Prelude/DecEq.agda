@@ -9,7 +9,7 @@ open import Reflection.Term renaming (_≟_ to _≟ₜ_)
 open import Prelude.Init
 open import Prelude.Generics
 open import Prelude.Generics using (DERIVE) public
-open import Prelude.Lists hiding (⟦_⟧)
+open import Prelude.Lists
 open import Prelude.Show
 open import Prelude.Monoid
 open import Prelude.Monad

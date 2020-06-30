@@ -6,9 +6,6 @@ open import Prelude.Init
 -- ** General properties of standard types
 open import Prelude.General
 
--- ** List utilities
-open import Prelude.Lists
-
 -- ** Metaprogramming utilities
 open import Prelude.Generics
 
@@ -24,10 +21,18 @@ open import Prelude.Functor
 open import Prelude.Bifunctor
 open import Prelude.Applicative
 open import Prelude.Monad
+open import Prelude.Semigroup
 open import Prelude.Monoid
+
+-- ** List utilities
+open import Prelude.Lists
+open import Prelude.Nary
 
 -- ** Sets as unique lists
 open import Prelude.Set'
+
+-- ** Utilities for cryptography.
+open import Prelude.Bitstring
 
 -- ** Unsafe operations
 open import Prelude.Unsafe

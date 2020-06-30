@@ -2,7 +2,9 @@ module Prelude.Decidable where
 
 open import Prelude.Init
 open import Prelude.DecEq
-open import Prelude.Lists
+open import Prelude.Semigroup
+open import Prelude.Applicative
+open import Prelude.Nary
 
 record Decidable {p} (P : Set p) : Set p where
   field

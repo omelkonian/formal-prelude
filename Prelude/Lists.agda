@@ -14,12 +14,13 @@ open import Data.List.Membership.Propositional.Properties
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭)
 import Data.List.Relation.Binary.Pointwise as PW
 
-open import Prelude.Init
-  renaming (sum to ∑ℕ)
-open L.NE using (last) renaming (map to map⁺)
-open import Prelude.General
+open import Prelude.Init renaming (sum to ∑ℕ)
+open L.NE using (last)
 open import Prelude.ToN
 open import Prelude.Bifunctor
+open import Prelude.Applicative hiding (zip)
+open import Prelude.Semigroup
+open import Prelude.Nary
 
 private
   variable
@@ -31,17 +32,13 @@ private
     m n : ℕ
 
 ------------------------------------------------------------------------
--- N-ary notation.
-
-⟦_⟧ : ∀ {n} → A ^ n → List A
-⟦_⟧ {n = zero}  x        = [ x ]
-⟦_⟧ {n = suc n} (x , xs) = x ∷ ⟦ xs ⟧
-
-------------------------------------------------------------------------
 -- Indexed operations.
 
 Index : List A → Set
 Index = Fin ∘ length
+
+Index⁺ : List A → Set
+Index⁺ = Fin ∘ suc ∘ length
 
 infix 3 _‼_
 _‼_ : (vs : List A) → Index vs → A
@@ -74,7 +71,7 @@ indices : List A → List ℕ
 indices xs = upTo (length xs)
 
 fin-indices : (xs : List A) → List (Index xs)
-fin-indices = L.allFin ∘ length
+fin-indices = allFin ∘ length
 
 enumerate : (xs : List A) → List (Index xs × A)
 enumerate xs = zip (fin-indices xs) xs
@@ -88,6 +85,24 @@ zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (there xy∈) with zip-∈ xy∈
 ix∈→x∈ : ∀ {xs : List A} {i : Index xs} {x : A}
   → (i , x) ∈ enumerate xs → x ∈ xs
 ix∈→x∈ = proj₂ ∘ zip-∈
+
+splitAt : ∀ (xs : List A) → Index⁺ xs → List A × List A
+splitAt xs       fzero    = [] , xs
+splitAt (x ∷ xs) (fsuc i) = map₁ (x ∷_) (splitAt xs i)
+
+splitAt⁺ʳ : ∀ (xs : List A) → Index xs
+  → Σ[ xsˡ ∈ List⁺ A ] Σ[ xsʳ ∈ List A ]
+      L.NE.length xsˡ + length xsʳ ≡ length xs
+splitAt⁺ʳ (x ∷ xs) fzero    = x ∷ [] , xs , refl
+splitAt⁺ʳ (x ∷ xs) (fsuc i) = let xsˡ , xsʳ , p = splitAt⁺ʳ xs i
+                              in  x ∷⁺ xsˡ , xsʳ , cong suc p
+
+private
+  _ : splitAt⁺ʳ ⟦ 0 , 1 ⟧ (# 0) ≡ (L.NE.[ 0 ] , [ 1 ] , refl)
+  _ = refl
+
+  _ : splitAt⁺ʳ ⟦ 0 , 1 ⟧ (# 1) ≡ (0 ∷ ⟦ 1 ⟧ , [] , refl)
+  _ = refl
 
 map-map₁-zip : ∀ {A B C : Set} {xs : List A} {ys : List B} (f : A → C)
   → map (map₁ f) (zip xs ys)
@@ -278,29 +293,37 @@ concatMap-++ {xs = xs}{ys}{f} =
   where open ≡-Reasoning
 
 -- mapWith∈
+private
+  variable
+    P : A → Set
+
+_↦′_ : List A → (A → Set) → Set
+xs ↦′ P = ∀ {x} → x ∈ xs → P x
+
+map↦ = _↦′_
+
 _↦_ : List A → Set → Set
-xs ↦ B = ∀ {x} → x ∈ xs → B
+xs ↦ B = xs ↦′ const B
 
-_↦⟨_⟩_ : List B → (A → B) → Set → Set
-ys ↦⟨ f ⟩ C = ∀ {x} → f x ∈ ys → C
-
-dom : ∀ {xs : List A} → xs ↦ B → List A
+dom : ∀ {xs : List A} → xs ↦′ P → List A
 dom {xs = xs} _ = xs
 
 codom : xs ↦ B → List B
 codom = mapWith∈ _
 
-weaken-↦ : xs ↦ B → ys ⊆ xs → ys ↦ B
+weaken-↦ : xs ↦′ P → ys ⊆ xs → ys ↦′ P
 weaken-↦ f ys⊆xs = f ∘ ys⊆xs
 
 extend-↦ : ∀ {xs ys zs : List A}
   → zs ↭ xs ++ ys
-  → xs ↦ B
-  → ys ↦ B
-  → zs ↦ B
+  → xs ↦′ P
+  → ys ↦′ P
+  → zs ↦′ P
 extend-↦ zs↭ xs↦ ys↦ p∈ with ∈-++⁻ _ (∈-resp-↭ zs↭ p∈)
 ... | inj₁ x∈ = xs↦ x∈
 ... | inj₂ y∈ = ys↦ y∈
+
+syntax map↦ xs (λ x → f) = ∀[ x ∈ xs ] f
 
 -- Any-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {P : B → Set} → Any P (mapWith∈ xs f) → Any (P ∘ f) xs
 -- Any-mapWith∈⁻ {xs = x ∷ xs} (here p)  = here p
@@ -602,7 +625,7 @@ Finite : Set → Set
 Finite A = ∃[ n ] (A ↔ Fin n)
 
 finList : Finite A → List A
-finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (L.allFin n)
+finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)
 
 ≡-findec : Finite A → Decidable² {A = A} _≡_
 ≡-findec (_ , record { f = toFin; f⁻¹ = fromFin; cong₂ = cong′; inverse = _ , invˡ }) x y
@@ -829,7 +852,7 @@ singleton⇒singleton⁺ : ∀ {xs : List A} {xs≢[] : ¬ Null xs}
 singleton⇒singleton⁺ p rewrite proj₂ $ destruct-Singleton p = tt
 
 postulate
-  singleton⁺-map⁺ : ∀ {xs : List⁺ A} {f : A → B} → Singleton⁺ xs → Singleton⁺ (map⁺ f xs)
+  singleton⁺-map⁺ : ∀ {xs : List⁺ A} {f : A → B} → Singleton⁺ xs → Singleton⁺ (L.NE.map f xs)
 
 ---
 

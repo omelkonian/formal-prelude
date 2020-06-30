@@ -43,10 +43,6 @@ _⊆′_ : Set' → Set' → Set
 singleton : A → Set'
 singleton a = ⟨ [ a ] ⟩∶- ([] ∷ [])
 
-instance
-  Measurable-Set : Measurable Set'
-  Measurable-Set = record {∣_∣ = length ∘ list}
-
 infixr 5 _─_
 _─_ : Set' → Set' → Set'
 ⟨ xs ⟩∶- pxs ─ ⟨ ys ⟩∶- pys = ⟨ filter (_∉? ys) xs ⟩∶- filter⁺ (_∉? ys) pxs
@@ -232,4 +228,18 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 ... | (here refl) = here refl
 ... | (there x∈′) = there (∈-nub x∈′)
 
+-----------------------------------------------------
+-- Instances
+instance
+  Measurable-Set : Measurable Set'
+  Measurable-Set = record {∣_∣ = length ∘ list}
+
+  DecEq-Set : DecEq Set'
+  DecEq-Set ._≟_ s s′
+    with list s ≟ list s′
+  ... | no ¬p    = no λ{ refl → ¬p refl }
+  ... | yes refl = yes refl
+
+-----------------------------------------------------
+-- Syntactic sugar
 syntax Set' {A = A} = Set⟨ A ⟩

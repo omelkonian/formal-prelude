@@ -1,21 +1,25 @@
 module Prelude.Monoid where
 
 open import Prelude.Init
+open import Prelude.Semigroup public
 
 record Monoid (A : Set) : Set where
-  infixr 5 _◇_ _<>_
   field
     ε : A
-    _◇_ : A → A → A
-  _<>_ = _◇_
+    overlap {{smₐ}} : Semigroup A
 
-open Monoid {{...}} public
+open Monoid {{...}} public hiding (smₐ)
+
+private
+  variable
+    A : Set
 
 instance
-  Monoid-List : ∀ {A : Set} → Monoid (List A)
-  Monoid-List .ε   = []
-  Monoid-List ._◇_ = _++_
+  Monoid-List : Monoid (List A)
+  Monoid-List .ε = []
+
+  Monoid-Vec : Monoid (∃ (Vec A))
+  Monoid-Vec .ε = 0 , []
 
   Monoid-String : Monoid String
   Monoid-String .ε   = ""
-  Monoid-String ._◇_ = Str._++_

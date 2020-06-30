@@ -34,7 +34,7 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; uncurry)
+  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry)
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -120,10 +120,15 @@ module V where
 
 open import Data.List public
   using ( List; _∷_; []; [_]; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
-        ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null )
+        ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null; allFin )
 module L where
   open import Data.List public
   open import Data.List.Properties public
+  module NE where
+    open import Data.List.NonEmpty public
+    open import Data.List.NonEmpty.Properties public
+    module Cat where
+      open import Data.List.NonEmpty.Categorical public
   module All where
     open import Data.List.Relation.Unary.All public
     open import Data.List.Relation.Unary.All.Properties public
@@ -132,12 +137,9 @@ module L where
     open import Data.List.Relation.Unary.Any.Properties public
   module Cat where
     open import Data.List.Categorical public
-  module NE where
-    open import Data.List.NonEmpty public
-    open import Data.List.NonEmpty.Properties public
 
 open import Data.List.NonEmpty public
-  using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_)
+  using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
   renaming ([_] to [_]⁺)
 open import Data.List.Membership.Propositional public
   using (_∈_; _∉_; mapWith∈; find; lose)
