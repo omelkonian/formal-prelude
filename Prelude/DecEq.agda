@@ -110,6 +110,24 @@ module _ {A : Set} {{_ : DecEq A}} where
   unique? : (xs : List A) → Dec (Unique xs)
   unique? xs = allPairs? (λ x y → ¬? (x ≟ y)) xs
 
+  nub : List A → List A
+  nub [] = []
+  nub (x ∷ xs) with x ∈? xs
+  ... | yes _ = nub xs
+  ... | no  _ = x ∷ nub xs
+
+  nub-all : ∀ {xs : List A} {P : A → Set} → All P xs → All P (nub xs)
+  nub-all {xs = []}     []       = []
+  nub-all {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
+  ... | yes _ = nub-all ps
+  ... | no  _ = p ∷ nub-all ps
+
+  nub-unique : ∀ {xs : List A} → Unique (nub xs)
+  nub-unique {xs = []} = []
+  nub-unique {xs = x ∷ xs} with x ∈? xs
+  ... | yes _ = nub-unique {xs = xs}
+  ... | no x∉ = nub-all {xs = xs} {P = _≢_ x} (L.All.¬Any⇒All¬ xs x∉) ∷ (nub-unique {xs = xs})
+
 -------------------------------
 -- ** Generic deriving of DecEq
 

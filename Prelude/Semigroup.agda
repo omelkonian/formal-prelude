@@ -2,7 +2,7 @@ module Prelude.Semigroup where
 
 open import Prelude.Init
 
-record Semigroup (A : Set) : Set where
+record Semigroup {a} (A : Set a) : Set a where
   infixr 5 _◇_ _<>_
   field
     _◇_ : A → A → A
@@ -12,7 +12,8 @@ open Semigroup {{...}} public
 
 private
   variable
-    A : Set
+    a : Level
+    A : Set a
 
 instance
   Semigroup-List : Semigroup (List A)

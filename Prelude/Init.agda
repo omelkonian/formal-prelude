@@ -7,7 +7,7 @@ open import Level public
 
 -- ** Functions
 open import Function public
-  using (_∘_; _$_; case_of_; _∋_; flip; _on_; const)
+  using (_∘_; _$_; case_of_; _∋_; flip; _on_; const; it)
 open import Function.Definitions public
   using (Injective)
 open import Function.Bundles public
@@ -34,7 +34,7 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry)
+  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry; -,_)
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -185,10 +185,10 @@ open import Relation.Unary public
   using (Pred)
   renaming (Decidable to Decidable¹)
 open import Relation.Binary public
-  using (Rel; Transitive; StrictTotalOrder)
+  using (Rel; Transitive; StrictTotalOrder; DecidableEquality)
   renaming (Decidable to Decidable²)
 open import Relation.Binary.PropositionalEquality public
-  using ( _≡_; _≢_; refl; sym; trans; cong; subst; inspect
+  using ( _≡_; _≢_; refl; sym; trans; cong; subst; inspect; _≗_
         ; module ≡-Reasoning)
   renaming ([_] to ≡[_])
 
@@ -223,3 +223,9 @@ open import Reflection public
 open import Reflection.Argument public
   using (unArg)
 -}
+
+
+-- ** Shorthands
+Pred₀ Rel₀ : Set → Set₁
+Pred₀ A = Pred A 0ℓ
+Rel₀  A = Rel  A 0ℓ

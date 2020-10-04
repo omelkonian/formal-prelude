@@ -485,11 +485,22 @@ postulate
   Null-++⁻ : ∀ {xs ys : List A} → Null (xs ++ ys) → Null xs × Null ys
 
 -- mapMaybe
-postulate
-  ∈-mapMaybe⁻ : ∀ {xs : List A} {f : A → Maybe B} {y : B}
-    → y ∈ mapMaybe f xs
-    → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
+module _ (f : A → Maybe B) where
+  postulate
+    ∈-mapMaybe⁻ : ∀ {y xs}
+      → y ∈ mapMaybe f xs
+      → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
 
+    ∈-mapMaybe⁺ : ∀ {x y xs}
+      → x ∈ xs
+      → f x ≡ just y
+      → y ∈ mapMaybe f xs
+
+    mapMaybe-⊆ : ∀ {xs ys}
+      → xs ⊆ ys
+      → mapMaybe f xs ⊆ mapMaybe f ys
+
+postulate
   mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}
     → Null (mapMaybe f xs)
     → All (Is-nothing ∘ f) xs
@@ -562,6 +573,11 @@ All⁺-last {xs = x ∷ []}     (px ∷ []) = px
 All⁺-last {xs = x ∷ y ∷ xs} (_  ∷ ∀p) rewrite last-∷ {x = x}{y ∷ xs} = All⁺-last ∀p
 
 -- Any/All
+Any-tail : ∀ {A : Set} {P : Pred A 0ℓ} {xs : List A} → Any P xs → List A
+Any-tail {xs = xs} x∈ = drop (suc $ toℕ $ L.Any.index x∈) xs
+-- Any-tail {xs = _ ∷ xs}     (here _)   = xs
+-- Any-tail {xs = _ ∷ _ ∷ xs} (there x∈) = ∈-tail x∈
+
 postulate
   lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
     → (p : Any P (map f xs))

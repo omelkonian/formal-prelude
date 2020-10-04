@@ -31,6 +31,9 @@ open import Prelude.Nary
 -- ** Sets as unique lists
 open import Prelude.Set'
 
+-- ** Maps as pairs of sets with a (total) valuation function
+open import Prelude.Map'
+
 -- ** Utilities for cryptography.
 open import Prelude.Bitstring
 
