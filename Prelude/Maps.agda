@@ -1,3 +1,6 @@
+------------------------------------------------------------------------
+-- Maps with list witness, paired with a total function.
+------------------------------------------------------------------------
 module Prelude.Maps where
 
 open import Prelude.Init

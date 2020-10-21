@@ -32,7 +32,10 @@ open import Prelude.Nary
 open import Prelude.Set'
 
 -- ** Maps as pairs of sets with a (total) valuation function
+open import Prelude.Maps
 open import Prelude.Map'
+open import Prelude.Map''
+open import Prelude.PartialMaps
 
 -- ** Utilities for cryptography.
 open import Prelude.Bitstring

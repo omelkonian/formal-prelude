@@ -2,8 +2,8 @@ module Prelude.Nary where
 
 open import Prelude.Init
 open import Prelude.General
-open import Prelude.Semigroup
-open import Prelude.Applicative
+open import Prelude.Semigroup public
+open import Prelude.Applicative public
 
 ⟦_⟧ : ∀ {n A} {F : Set → Set} {{_ : Semigroup (F A)}} {{_ : Applicative F}} → A ^ n → F A
 ⟦_⟧ {n = zero}  x        = pure x

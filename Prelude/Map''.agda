@@ -1,56 +1,47 @@
 ------------------------------------------------------------------------
--- Maps with set witness, paired with a total function.
+-- Maps as functions from a Listable type to a Maybe type.
 ------------------------------------------------------------------------
 open import Prelude.Init
 open import Prelude.DecEq
-open import Prelude.Default
-open import Prelude.Set'
+open import Prelude.Listable
+open import Prelude.Functor
 
-module Prelude.Map' {K V : Set} {{_ : DecEq K}} where
+module Prelude.Map'' {K V : Set} {{_ : DecEq K}} {{_ : Listable K}} where
 
-_↦_ : Set⟨ K ⟩ → Set → Set
-ks ↦ V = ∀ {k} → k ∈′ ks → V
+Map : Set
+Map = K → Maybe V
+syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩
 
-map↦ = _↦_
-syntax map↦ ks (λ k → f) = ∀[ k ∈ ks ] f
+dom : Map → List K
+dom m = mapMaybe (λ k → const k <$> m k) witness
 
-dom′ : ∀ {ks} → ks ↦ V → Set⟨ K ⟩
-dom′ {ks = ks} _ = ks
+codom : Map → List V
+codom m = mapMaybe m witness
 
-codom′ : ∀ {ks} → ks ↦ V → List V
-codom′ = mapWith∈ _
+set : Map → K → V → Map
+set m k v k′ =
+  if k == k′ then
+    just v
+  else
+    m k′
+syntax set m k v = m [ k ≔ v ]
 
-weaken-↦ : ∀ {ks ys} → ks ↦ V → ys ⊆′ ks → ys ↦ V
-weaken-↦ f ys⊆ks = f ∘ ys⊆ks
+-- update : Map → K → (V → V) → Map'
+-- update m k f k′ with
+--   m k′
+-- ... | just v  = ?
+-- ... | nothing = ?
+  -- if k == k′ then
 
--- extend-↦ : ∀ {ks ys zs : List K}
---   → zs ↭ ks ++ ys
---   → ks ↦′ P
---   → ys ↦′ P
---   → zs ↦′ P
--- extend-↦ zs↭ ks↦ ys↦ p∈ with ∈-++⁻ _ (∈-resp-↭ zs↭ p∈)
--- ... | inj₁ k∈ = ks↦ k∈
--- ... | inj₂ y∈ = ys↦ y∈
+  -- else
+  --   ∘ m
 
-Map' : Set
-Map' = ∃ (_↦ V)
+-- with m k
+-- ... | just v  = ?
+-- ... | nothing = just v
 
-dom : Map' → Set⟨ K ⟩
-dom = proj₁
-
-codom : Map' → List V
-codom (ks , m) = codom′ {ks} m
-
-lookup : ∀ {k} → (m : Map') → k ∈′ dom m → V
-lookup (_ , k↦) k∈ = k↦ k∈
-
-lookup′ : Map' → K → Maybe V
-lookup′ m k with k ∈′? dom m
-... | yes k∈ = just (lookup m k∈)
-... | no  _  = nothing
-
-update : Map' → K → (V → V) → Map'
-update m@(ks , k↦) k′ f = ks , λ {k} → (if k == k′ then f else (λ x → x)) ∘ k↦
+  -- ks , λ {k} → (if k == k′ then f else (λ x → x)) ∘ k↦
+{-
 
 update-const : ∀ {m k f} → dom m ≡ dom (update m k f)
 update-const = refl
@@ -65,13 +56,6 @@ module _ {{_ : Default V}} where
   update-with-def : Map' → K → (V → V) → Map'
   update-with-def m k f = updateWith m k def f
 
-union : Map' → Map' → Map'
-union (xs , X) (ys , Y) = (xs ∪ ys) , X∪Y
-  where
-    X∪Y : (xs ∪ ys) ↦ V
-    X∪Y xy∈ with ∈-∪ {xs = xs} {ys = ys} xy∈
-    ... | inj₁ x∈ = X x∈
-    ... | inj₂ y∈ = Y y∈
 
 _≡ᵐ_ : Map' → Map' → Set
 m ≡ᵐ m′ = (dom m ≡ dom m′) × (codom m ≡ codom m′)
@@ -133,7 +117,4 @@ postulate
 --   with x ∈ xs
 -- ... | yes x∈ = f x∈
 -- ... | no  x∉ =
-
------------------------------------------------------
--- Syntactic sugar
-syntax Map' {K = K} {V = V} = Map⟨ K ↦ V ⟩
+-}
