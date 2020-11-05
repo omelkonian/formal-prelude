@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------
 open import Prelude.Init
 open import Prelude.DecEq
+open import Prelude.Decidable
 open import Prelude.Listable
 open import Prelude.Functor
 
@@ -32,6 +33,33 @@ _∪_∶-_ : ∀ m m′ → m ♯ m′ → Map
 
 _∪_≡_ : Map → Map → Map → Set
 m ∪ m′ ≡ m″ = Σ[ p ∈ m ♯ m′ ] (∀ k → (m ∪ m′ ∶- p) k ≡ m″ k)
+
+-- Lemmas
+private
+  variable
+    s s₁ s₂ : Map
+    k : K
+    v : V
+
+mk∈ : s k ≡ just v → k ∈ᵈ s
+mk∈ {s = s}{k}{v} eq with s k | eq
+... | just .v | refl = auto
+
+mk∉ : s k ≡ nothing → k ∉ᵈ s
+mk∉ {s = s}{k} eq with s k | eq
+... | nothing | refl = auto
+
+∪-chooseₗ : (p : s₁ ♯ s₂) → (∀ {k} → k ∉ᵈ s₂ → (s₁ ∪ s₂ ∶- p) k ≡ s₁ k)
+∪-chooseₗ {s₁}{s₂} _ {k} k∉ with s₁ k
+... | just _ = refl
+... | nothing with s₂ k | k∉
+... | just _  | M.All.just ()
+... | nothing | _ = refl
+
+∪-chooseᵣ : (p : s₁ ♯ s₂) → (∀ {k} → k ∈ᵈ s₂ → (s₁ ∪ s₂ ∶- p) k ≡ s₂ k)
+∪-chooseᵣ {s₁}{s₂} p {k} k∈ with s₁ k | proj₂ (p k) k∈
+... | nothing | _ = refl
+... | just _  | M.All.just ()
 
 -- _[_↝⟨_⟩_] : Map → K → V → K → Map
 -- m [ k₁ ↝⟨ v ⟩ k₂ ]
