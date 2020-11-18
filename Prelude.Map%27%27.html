@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Map&#39;&#39;</title><link rel="stylesheet" href="css/Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Maps as functions from a Listable type to a Maybe type.</a>
+<a id="133" class="Comment">------------------------------------------------------------------------</a>
+<a id="206" class="Keyword">open</a> <a id="211" class="Keyword">import</a> <a id="218" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="231" class="Keyword">open</a> <a id="236" class="Keyword">import</a> <a id="243" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+<a id="257" class="Keyword">open</a> <a id="262" class="Keyword">import</a> <a id="269" href="Prelude.Listable.html" class="Module">Prelude.Listable</a>
+<a id="286" class="Keyword">open</a> <a id="291" class="Keyword">import</a> <a id="298" href="Prelude.Functor.html" class="Module">Prelude.Functor</a>
+
+<a id="315" class="Keyword">module</a> <a id="322" href="Prelude.Map%2527%2527.html" class="Module">Prelude.Map&#39;&#39;</a> <a id="336" class="Symbol">{</a><a id="337" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a> <a id="339" href="Prelude.Map%2527%2527.html#339" class="Bound">V</a> <a id="341" class="Symbol">:</a> <a id="343" class="PrimitiveType">Set</a><a id="346" class="Symbol">}</a> <a id="348" class="Symbol">{{</a><a id="350" href="Prelude.Map%2527%2527.html#350" class="Bound">_</a> <a id="352" class="Symbol">:</a> <a id="354" href="Prelude.DecEq.html#494" class="Record">DecEq</a> <a id="360" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a><a id="361" class="Symbol">}}</a> <a id="364" class="Symbol">{{</a><a id="366" href="Prelude.Map%2527%2527.html#366" class="Bound">_</a> <a id="368" class="Symbol">:</a> <a id="370" href="Prelude.Listable.html#365" class="Record">Listable</a> <a id="379" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a><a id="380" class="Symbol">}}</a> <a id="383" class="Keyword">where</a>
+
+<a id="Map"></a><a id="390" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="394" class="Symbol">:</a> <a id="396" class="PrimitiveType">Set</a>
+<a id="400" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="404" class="Symbol">=</a> <a id="406" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a> <a id="408" class="Symbol">→</a> <a id="410" href="Data.Maybe.Base.html#838" class="Datatype">Maybe</a> <a id="416" href="Prelude.Map%2527%2527.html#339" class="Bound">V</a>
+<a id="418" class="Keyword">syntax</a> <a id="425" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="429" class="Symbol">{</a>K <a id="432" class="Symbol">=</a> <a id="434" class="Bound">K</a><a id="435" class="Symbol">}</a> <a id="437" class="Symbol">{</a>V <a id="440" class="Symbol">=</a> <a id="442" class="Bound">V</a><a id="443" class="Symbol">}</a> <a id="445" class="Symbol">=</a> <a id="447" class="Function">Map⟨</a> <a id="452" class="Bound">K</a> <a id="454" class="Function">↦</a> <a id="456" class="Bound">V</a> <a id="458" class="Function">⟩</a>
+
+<a id="dom"></a><a id="461" href="Prelude.Map%2527%2527.html#461" class="Function">dom</a> <a id="465" class="Symbol">:</a> <a id="467" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="471" class="Symbol">→</a> <a id="473" href="Agda.Builtin.List.html#148" class="Datatype">List</a> <a id="478" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a>
+<a id="480" href="Prelude.Map%2527%2527.html#461" class="Function">dom</a> <a id="484" href="Prelude.Map%2527%2527.html#484" class="Bound">m</a> <a id="486" class="Symbol">=</a> <a id="488" href="Data.List.Base.html#1582" class="Function">mapMaybe</a> <a id="497" class="Symbol">(λ</a> <a id="500" href="Prelude.Map%2527%2527.html#500" class="Bound">k</a> <a id="502" class="Symbol">→</a> <a id="504" href="Function.Base.html#636" class="Function">const</a> <a id="510" href="Prelude.Map%2527%2527.html#500" class="Bound">k</a> <a id="512" href="Category.Functor.html#590" class="Field Operator">&lt;$&gt;</a> <a id="516" href="Prelude.Map%2527%2527.html#484" class="Bound">m</a> <a id="518" href="Prelude.Map%2527%2527.html#500" class="Bound">k</a><a id="519" class="Symbol">)</a> <a id="521" href="Prelude.Listable.html#416" class="Field">witness</a>
+
+<a id="codom"></a><a id="530" href="Prelude.Map%2527%2527.html#530" class="Function">codom</a> <a id="536" class="Symbol">:</a> <a id="538" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="542" class="Symbol">→</a> <a id="544" href="Agda.Builtin.List.html#148" class="Datatype">List</a> <a id="549" href="Prelude.Map%2527%2527.html#339" class="Bound">V</a>
+<a id="551" href="Prelude.Map%2527%2527.html#530" class="Function">codom</a> <a id="557" href="Prelude.Map%2527%2527.html#557" class="Bound">m</a> <a id="559" class="Symbol">=</a> <a id="561" href="Data.List.Base.html#1582" class="Function">mapMaybe</a> <a id="570" href="Prelude.Map%2527%2527.html#557" class="Bound">m</a> <a id="572" href="Prelude.Listable.html#416" class="Field">witness</a>
+
+<a id="set"></a><a id="581" href="Prelude.Map%2527%2527.html#581" class="Function">set</a> <a id="585" class="Symbol">:</a> <a id="587" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a> <a id="591" class="Symbol">→</a> <a id="593" href="Prelude.Map%2527%2527.html#337" class="Bound">K</a> <a id="595" class="Symbol">→</a> <a id="597" href="Prelude.Map%2527%2527.html#339" class="Bound">V</a> <a id="599" class="Symbol">→</a> <a id="601" href="Prelude.Map%2527%2527.html#390" class="Function">Map</a>
+<a id="605" href="Prelude.Map%2527%2527.html#581" class="Function">set</a> <a id="609" href="Prelude.Map%2527%2527.html#609" class="Bound">m</a> <a id="611" href="Prelude.Map%2527%2527.html#611" class="Bound">k</a> <a id="613" href="Prelude.Map%2527%2527.html#613" class="Bound">v</a> <a id="615" href="Prelude.Map%2527%2527.html#615" class="Bound">k′</a> <a id="618" class="Symbol">=</a>
+  <a id="622" href="Data.Bool.Base.html#1283" class="Function Operator">if</a> <a id="625" href="Prelude.Map%2527%2527.html#611" class="Bound">k</a> <a id="627" href="Prelude.DecEq.html#566" class="Function Operator">==</a> <a id="630" href="Prelude.Map%2527%2527.html#615" class="Bound">k′</a> <a id="633" href="Data.Bool.Base.html#1283" class="Function Operator">then</a>
+    <a id="642" href="Data.Maybe.Base.html#892" class="InductiveConstructor">just</a> <a id="647" href="Prelude.Map%2527%2527.html#613" class="Bound">v</a>
+  <a id="651" href="Data.Bool.Base.html#1283" class="Function Operator">else</a>
+    <a id="660" href="Prelude.Map%2527%2527.html#609" class="Bound">m</a> <a id="662" href="Prelude.Map%2527%2527.html#615" class="Bound">k′</a>
+<a id="665" class="Keyword">syntax</a> <a id="672" href="Prelude.Map%2527%2527.html#581" class="Function">set</a> <a id="676" class="Bound">m</a> <a id="678" class="Bound">k</a> <a id="680" class="Bound">v</a> <a id="682" class="Symbol">=</a> <a id="684" class="Bound">m</a> <a id="686" class="Function">[</a> <a id="688" class="Bound">k</a> <a id="690" class="Function">≔</a> <a id="692" class="Bound">v</a> <a id="694" class="Function">]</a>
+
+<a id="697" class="Comment">-- update : Map → K → (V → V) → Map&#39;</a>
+<a id="734" class="Comment">-- update m k f k′ with</a>
+<a id="758" class="Comment">--   m k′</a>
+<a id="768" class="Comment">-- ... | just v  = ?</a>
+<a id="789" class="Comment">-- ... | nothing = ?</a>
+  <a id="812" class="Comment">-- if k == k′ then</a>
+
+  <a id="834" class="Comment">-- else</a>
+  <a id="844" class="Comment">--   ∘ m</a>
+
+<a id="854" class="Comment">-- with m k</a>
+<a id="866" class="Comment">-- ... | just v  = ?</a>
+<a id="887" class="Comment">-- ... | nothing = just v</a>
+
+  <a id="916" class="Comment">-- ks , λ {k} → (if k == k′ then f else (λ x → x)) ∘ k↦</a>
+<a id="972" class="Comment">{-
+
+update-const : ∀ {m k f} → dom m ≡ dom (update m k f)
+update-const = refl
+
+updateWith : Map&#39; → K → V → (V → V) → Map&#39;
+updateWith m@(ks , k↦) k k-def f with k ∈′? ks
+... | yes k∈ = ks           , f ∘ k↦
+... | no  k∉ = k ∷ ks ∶- k∉ , λ{ (here refl) → f k-def; (there k∈′) → k↦ k∈′ }
+
+-- we get extra utilities if we can get a default value when there is no entry for a particular key
+module _ {{_ : Default V}} where
+  update-with-def : Map&#39; → K → (V → V) → Map&#39;
+  update-with-def m k f = updateWith m k def f
+
+
+_≡ᵐ_ : Map&#39; → Map&#39; → Set
+m ≡ᵐ m′ = (dom m ≡ dom m′) × (codom m ≡ codom m′)
+
+postulate
+  union-comm : ∀ {m m′} → union m m′ ≡ᵐ union m′ m
+  ≡ᵐ-trans : ∀ {m m′ m″} → m ≡ᵐ m′ → m′ ≡ᵐ m″ → m ≡ᵐ m″
+-- union-comm {m = xs , X} {m′ = ys , Y}
+--   with _ , X∪Y ← union (xs , X) (ys , Y)
+--   with _ , Y∪X ← union (ys , Y) (xs , X)
+--   rewrite ∪-comm {xs = xs}{ys}
+--     = refl , p
+--     where
+--       p : codom (_ , X∪Y) ≡ codom (_ , Y∪X)
+--       p = ?
+
+-- update-comm : ∀ {m k f k′ f′}
+--   → [T0D0] f ∘ f&#39; = f&#39; ∘ f
+--   → update (update m k f) k′ f′
+--   ≡ update (update m k′ f′) k f
+-- update-comm {m@(ks , k↦)}{k}{f}{k′}{f′}
+--   with k ∈′? ks | k′ ∈′? ks
+-- ... | yes k∈ | yes k∈′ = {!!}
+-- ... | yes k∈ | no  k∉′ = {!!}
+-- ... | no  k∉ | yes k∈′ = {!!}
+-- ... | no  k∉ | no  k∉′ = {!!}
+
+
+-- update m k f
+-- m ∥ k ≔ f
+-- m
+
+-- update : ∀ {K V : Set} {{_ : DecEq K}} {ks : List K} {k : K}
+--   → ks ↦ V
+--   → (k ∈ ks) × (V → V)
+--   → ks ↦ V
+-- update {k = k} m (k∈ , f) {k′} k∈′
+--   with v ← m k∈′
+--   with k ≟ k′
+-- ... | yes refl = f v
+-- ... | no  ¬p   = v
+
+-- updateˢ : S → Part × ℤ × (ℤ → ℤ) → S
+-- updateˢ (ps , s) (p , pz , f)
+--   with p ∈? ps
+-- ... | yes p∈ = _ , update s (p∈ , f)
+-- ... | no  p∉ = p ∷ ps , s′
+--   where
+--     s′ : (p ∷ ps) ↦ ℤ
+--     s′ (here refl) = f pz
+--     s′ (there p∈′) = s p∈′
+
+-- update : ∀ {K V : Set} {xs : List K}
+--   → ∃ (
+--   → K
+--   → (V → V)
+--   → ∃ (_↦ V)
+-- update {K}{V}{xs} (xs , f) x mod
+--   with x ∈ xs
+-- ... | yes x∈ = f x∈
+-- ... | no  x∉ =
+-}</a>
+</pre></body></html>
