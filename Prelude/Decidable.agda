@@ -21,6 +21,9 @@ open Decidable {{...}} public
 
 syntax Decidable A = A ⁇
 
+¿_¿ : ∀ {ℓ} (X : Set ℓ) {{_ : Decidable X}} → Dec X
+¿ _ ¿ = dec
+
 private
   variable
     a b : Level

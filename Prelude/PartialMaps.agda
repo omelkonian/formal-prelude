@@ -19,6 +19,12 @@ k ∈ᵈ m = Is-just (m k)
 _∉ᵈ_ : K → Map → Set
 k ∉ᵈ m = Is-nothing (m k)
 
+_⊆ᵈ_ : Rel₀ Map
+m ⊆ᵈ m′ = ∀ k → k ∈ᵈ m → k ∈ᵈ m′
+
+_⊈ᵈ_ : Rel₀ Map
+m ⊈ᵈ m′ = ¬ m ⊆ᵈ m′
+
 _[_↦_] : Map → K → V → Set
 m [ k ↦ v ] = m k ≡ just v
 
@@ -37,7 +43,7 @@ m ∪ m′ ≡ m″ = Σ[ p ∈ m ♯ m′ ] (∀ k → (m ∪ m′ ∶- p) k �
 -- Lemmas
 private
   variable
-    s s₁ s₂ : Map
+    s s₁ s₂ s₃ : Map
     k : K
     v : V
 

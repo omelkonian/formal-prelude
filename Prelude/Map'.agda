@@ -69,7 +69,7 @@ union : Map' → Map' → Map'
 union (xs , X) (ys , Y) = (xs ∪ ys) , X∪Y
   where
     X∪Y : (xs ∪ ys) ↦ V
-    X∪Y xy∈ with ∈-∪ {xs = xs} {ys = ys} xy∈
+    X∪Y xy∈ with ∈-∪⁻ {xs = xs} {ys = ys} xy∈
     ... | inj₁ x∈ = X x∈
     ... | inj₂ y∈ = Y y∈
 

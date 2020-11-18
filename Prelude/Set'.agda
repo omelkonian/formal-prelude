@@ -2,11 +2,13 @@
 -- Sets as unique lists.
 ------------------------------------------------------------------------
 open import Data.List.Properties using (filter-all)
-open import Data.List.Membership.Propositional.Properties using (∈-filter⁻; ∈-++⁻)
+open import Data.List.Membership.Propositional.Properties
+  using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open import Data.List.Relation.Unary.Any using (index)
 open import Data.List.Relation.Unary.All.Properties using (¬Any⇒All¬; All¬⇒¬Any)
 open import Data.List.Relation.Unary.Unique.Propositional.Properties using (filter⁺; ++⁺; map⁺)
-open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭; drop-∷; drop-mid)
+open import Data.List.Relation.Binary.Permutation.Propositional.Properties
+  using (∈-resp-↭; drop-∷; drop-mid)
 
 open import Prelude.Init
 open import Prelude.Lists
@@ -65,6 +67,9 @@ count′ P? = count P? ∘ list
 singleton : A → Set'
 singleton a = ⟨ [ a ] ⟩∶- ([] ∷ [])
 
+fromList : List A → Set'
+fromList xs = ⟨ nub xs ⟩∶- (nub-unique {xs = xs})
+
 infixr 5 _─_
 _─_ : Set' → Set' → Set'
 x ─ y = filter′ (_∉′? y) x
@@ -85,11 +90,18 @@ infixr 4 _∩_
 _∩_ : Set' → Set' → Set'
 x ∩ y = filter′ (_∈′? y) x
 
-_♯_ : Set' → Set' → Set
+------------------------------------------------------------------------
+-- Disjointness.
+
+_♯_ : Rel₀ Set'
 xs ♯ ys = (xs ∩ ys) ≡ ∅
 
-fromList : List A → Set'
-fromList xs = ⟨ nub xs ⟩∶- (nub-unique {xs = xs})
+_♯′_ : Rel₀ Set'
+xs ♯′ ys = ∀ x → x ∈′ xs → x ∉′ ys
+
+postulate
+  ♯→♯′ : ∀ {xs ys} → xs ♯ ys → xs ♯′ ys
+  ♯′→♯ : ∀ {xs ys} → xs ♯′ ys → xs ♯ ys
 
 ------------------------------------------------------------------------
 -- Deletion/Non-membership.
@@ -231,26 +243,71 @@ from↔to Uxs rewrite nub-from∘to Uxs = refl
   → x ∈′ xs
 ∈-─ {x} {xs} {ys} x∈ = proj₁ (∈-filter⁻ (_∉? list ys) x∈)
 
-∈-∪ : ∀ {x : A} {xs ys : Set'}
+∈-∪⁻ : ∀ {x : A} {xs ys : Set'}
   → x ∈′ (xs ∪ ys)
   → x ∈′ xs ⊎ x ∈′ ys
-∈-∪ {x} {xs} {ys} x∈ = map₂ (∈-─ {x} {ys} {xs}) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
+∈-∪⁻ {x} {xs} {ys} x∈ = map₂ (∈-─ {x} {ys} {xs}) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
+
+∈-∪⁺ˡ : ∀ {x : A} {xs ys : Set'}
+  → x ∈′ xs
+  → x ∈′ (xs ∪ ys)
+∈-∪⁺ˡ {x} {xs} {ys} x∈ = ∈-++⁺ˡ x∈
+
+∈-∪⁺ʳ : ∀ {x : A} {xs ys : Set'}
+  → x ∈′ ys
+  → x ∈′ (xs ∪ ys)
+∈-∪⁺ʳ {x} {xs} {ys} x∈ with x ∈′? xs
+... | yes x∈′ = ∈-∪⁺ˡ {x}{xs}{ys} x∈′
+... | no  x∉  = ∈-++⁺ʳ (list xs) (∈-filter⁺ (_∉′? xs) x∈ x∉)
+
+∈-∪⁺ : ∀ {x xs ys}
+  → (x ∈′ xs) ⊎ (x ∈′ ys)
+  → x ∈′ (xs ∪ ys)
+∈-∪⁺ {xs = xs}{ys} (inj₁ x∈) = ∈-∪⁺ˡ {xs = xs}{ys} x∈
+∈-∪⁺ {xs = xs}{ys} (inj₂ x∈) = ∈-∪⁺ʳ {xs = xs}{ys} x∈
+
+postulate
+  ∈-∩⁺ : ∀ {x xs ys}
+    → x ∈′ xs
+    → x ∈′ ys
+    → x ∈′ (xs ∩ ys)
+
+  ∈-∩⁻ : ∀ {x xs ys}
+    → x ∈′ (xs ∩ ys)
+    → (x ∈′ xs) × (x ∈′ ys)
+
+  ∈-∩⇒¬♯ : ∀ {x xs ys}
+    → x ∈′ (xs ∩ ys)
+    → ¬ (xs ♯ ys)
 
 unique-nub-∈ : ∀ {x : A} {xs : List A}
   → Unique xs
   → (x ∈ nub xs) ≡ (x ∈ xs)
 unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 
-∈-nub : ∀ {x : A} {xs : List A}
+∈-nub⁻ : ∀ {x : A} {xs : List A}
   → x ∈ nub xs
   → x ∈ xs
-∈-nub {x = x} {xs = x′ ∷ xs} x∈
+∈-nub⁻ {x = x} {xs = x′ ∷ xs} x∈
   with x′ ∈? xs
-... | yes _ = there (∈-nub x∈)
+... | yes _ = there (∈-nub⁻ x∈)
 ... | no ¬p
   with x∈
 ... | (here refl) = here refl
-... | (there x∈′) = there (∈-nub x∈′)
+... | (there x∈′) = there (∈-nub⁻ x∈′)
+
+∈-nub⁺ : ∀ {x : A} {xs : List A}
+  → x ∈ xs
+  → x ∈ nub xs
+∈-nub⁺ {x = x} {xs = .x ∷ xs} (here refl)
+  with x ∈? xs
+... | yes x∈ = ∈-nub⁺ x∈
+... | no  _  = here refl
+∈-nub⁺ {x = x} {xs = x′ ∷ xs} (there x∈)
+  with x′ ∈? xs
+... | yes x∈′ = ∈-nub⁺ x∈
+... | no  _   = there $ ∈-nub⁺ x∈
+
 
 -- commutativity
 

@@ -1,4 +1,3 @@
-{-# OPTIONS -v Prelude.Generics:10 #-}
 module Prelude.DecEq where
 
 open import Reflection hiding (_≟_; _>>_; _>>=_; return)
