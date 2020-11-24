@@ -61,6 +61,7 @@ private
     P² : Rel A 0ℓ
 
 instance
+  -- Basics
   Dec-⊥ : ⊥ ⁇
   Dec-⊥ .dec = no λ()
 
@@ -70,9 +71,7 @@ instance
   Dec-T : T bx ⁇
   Dec-T .dec = T? _
 
-  Dec-⊆ : {A : Set} {{da : DecEq A}} {xs ys : List A} → (xs ⊆ ys) ⁇
-  Dec-⊆ .dec = _ ⊆? _
-
+  -- Data.Maybe
   Dec-All : {{_ : ∀ {xs} → P¹ xs ⁇}} → All P¹ xs ⁇
   Dec-All .dec = all? (λ _ → dec) _
 
@@ -88,6 +87,17 @@ instance
   Dec-MAny : {{_ : ∀ {mx} → P¹ mx ⁇}} → M.Any.Any P¹ mx ⁇
   Dec-MAny .dec = M.Any.dec (λ _ → dec) _
 
+  -- Data.List
+  Dec-⊆ : {A : Set} {{da : DecEq A}} {xs ys : List A} → (xs ⊆ ys) ⁇
+  Dec-⊆ .dec = _ ⊆? _
+
+{-
+  open import Data.List.Relation.Ternary.Interleaving
+
+  Dec-Interleave : {{_ : DecEq A}} {xs ys zs : List A} → (Interleaving _≡_ _≡_ xs ys zs) ⁇
+  Dec-Interleave {xs = xs} {ys = ys} {zs = []}     .dec = {!!}
+  Dec-Interleave {xs = xs} {ys = ys} {zs = z ∷ zs} .dec = {!!}
+-}
 
 private
   _ : (¬ ¬ ((true , true) ≡ (true , true)))

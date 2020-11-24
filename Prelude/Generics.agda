@@ -1,4 +1,6 @@
-{- Meta-programming utilities -}
+------------------------------------------------------------------------
+-- Meta-programming utilities
+------------------------------------------------------------------------
 module Prelude.Generics where
 
 open import Reflection hiding (return; _>>_; _>>=_)
@@ -14,15 +16,6 @@ open import Prelude.Monad
 private
   variable
     A B : Set
-
--- ** Errors, debugging
-
-error : String → TC A
-error s = typeError [ strErr s ]
-
-print : String → TC ⊤
-print s = debugPrint "Prelude.Generics" 5 [ strErr s ]
--- e.g. set {-# OPTIONS -v Prelude.Generics:10 #-} to enable messages.
 
 -- ** Smart constructors
 
@@ -186,3 +179,22 @@ open Derivable {{...}} public
 
 DERIVE : ∀ F {{_ : Derivable F}} → Derivation
 DERIVE F = DERIVE' {F = F}
+
+-- ** Errors, debugging
+
+error : String → TC A
+error s = typeError [ strErr s ]
+
+module Debug (v : String × ℕ) where
+  -- i.e. set {-# OPTIONS -v v₁:v₂ #-} to enable such messages in the **debug** buffer.
+
+  print : String → TC ⊤
+  print s = debugPrint (v .proj₁) (v .proj₂) [ strErr s ]
+
+  printS : {{_ : Show A}} → A → TC ⊤
+  printS = print ∘ show
+    where open import Prelude.Show
+
+module DebugI (v : String) where
+  -- i.e. set {-# OPTIONS -v ⟨v⟩:0 #-} to enable messages in the **info** buffer.
+  open Debug (v , 0) public
