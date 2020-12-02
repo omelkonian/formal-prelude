@@ -15,13 +15,9 @@ open import Prelude.Lists
 open import Prelude.DecEq
 open import Prelude.Measurable
 open import Prelude.Bifunctor
+open import Prelude.Decidable
 
 module Prelude.Set' {A : Set} {{_ : DecEq A}} where
-
-private
-  variable
-    x : A
-    xs ys : List A
 
 -- Sets as lists with no duplicates.
 record Set' : Set where
@@ -30,6 +26,43 @@ record Set' : Set where
     list  : List A
     .uniq : Unique list
 open Set' public
+
+private
+  variable
+    x : A
+    xs ys zs : List A
+    Xs Ys Zs : Set'
+
+-----------------------------------------------------------------------
+-- Lifting from list predicates/relations to set predicates/relations.
+
+record Lift (F : Set → Set₁) : Set₁ where
+  field
+    ↑ : F (List A) → F Set'
+open Lift {{...}}
+
+instance
+  Lift-Pred : Lift Pred₀
+  Lift-Pred .↑ P = P ∘ list
+
+  Lift-Rel : Lift Rel₀
+  Lift-Rel .↑ _~_ xs ys = list xs ~ list ys
+
+-- e.g. All/Any predicates for sets
+All' Any' : Pred₀ A → Pred₀ Set'
+All' = ↑ ∘ All
+Any' = ↑ ∘ Any
+
+infix 4 _♯_ _⊆′_
+_♯_  _⊆′_ : Rel₀ Set'
+_♯_  = ↑ Disjoint
+_⊆′_ = ↑ _⊆_
+
+_♯?_ : Decidable² _♯_
+xs ♯? ys = disjoint? (list xs) (list ys)
+
+--------------------------------------------
+-- Basics.
 
 infix 4 _∈′_ _∉′_ _∈′?_ _∉′?_
 _∈′_ _∉′_ : A → Set' → Set
@@ -41,10 +74,6 @@ o ∈′? ⟨ os ⟩∶- _ = o ∈? os
 _∉′?_ : Decidable² _∉′_
 o ∉′? ⟨ os ⟩∶- _ = o ∉? os
 
-infix 4 _⊆′_
-_⊆′_ : Set' → Set' → Set
-⟨ x ⟩∶- _ ⊆′ ⟨ y ⟩∶- _ = x ⊆ y
-
 _∷_∶-_ : (x : A) → (xs : Set') → x ∉′ xs → Set'
 x ∷ (⟨ xs ⟩∶- p) ∶- x∉ = ⟨ x ∷ xs ⟩∶- (¬Any⇒All¬ _ x∉ ∷ p)
 
@@ -54,7 +83,7 @@ f <$> (⟨ xs ⟩∶- p) ∶- inj = ⟨ map f xs ⟩∶- map⁺ inj p
 filter′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Set' → Set'
 filter′ P? (⟨ xs ⟩∶- p) = ⟨ filter P? xs ⟩∶- filter⁺ P? p
 
-_++_∶-_ : (x : Set') → (y : Set') → Disjoint (list x) (list y) → Set'
+_++_∶-_ : ∀ x y → x ♯ y → Set'
 (⟨ xs ⟩∶- pxs) ++ (⟨ ys ⟩∶- pys) ∶- dsj =
   ⟨ xs ++ ys ⟩∶- ++⁺ pxs pys dsj
 
@@ -71,37 +100,23 @@ fromList : List A → Set'
 fromList xs = ⟨ nub xs ⟩∶- (nub-unique {xs = xs})
 
 infixr 5 _─_
-_─_ : Set' → Set' → Set'
+infixr 4 _∪_ _∩_
+_∪_ _∩_ _─_ : Set' → Set' → Set'
 x ─ y = filter′ (_∉′? y) x
-
-disjoint-─ : Disjoint xs (filter (_∉? xs) ys)
-disjoint-─ {xs = xs} {ys = ys} (x∈ , x∈′)
-  = let _ , x∉ = ∈-filter⁻ (_∉? xs) {xs = ys} x∈′
-    in  x∉ x∈
-
-infixr 4 _∪_
-_∪_ : Set' → Set' → Set'
+x ∩ y = filter′ (_∈′? y) x
 x ∪ y = x ++ (filter′ (_∉′? x) y) ∶- disjoint-─ {xs = list x} {ys = list y}
+  where
+    disjoint-─ : Disjoint xs (filter (_∉? xs) ys)
+    disjoint-─ {xs = xs} {ys = ys} (x∈ , x∈′)
+      = let _ , x∉ = ∈-filter⁻ (_∉? xs) {xs = ys} x∈′
+        in  x∉ x∈
 
 ⋃ : (A → Set') → Set' → Set'
 ⋃ f = foldr _∪_ ∅ ∘ map f ∘ list
 
-infixr 4 _∩_
-_∩_ : Set' → Set' → Set'
-x ∩ y = filter′ (_∈′? y) x
-
-------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 -- Disjointness.
 
-_♯_ : Rel₀ Set'
-xs ♯ ys = (xs ∩ ys) ≡ ∅
-
-_♯′_ : Rel₀ Set'
-xs ♯′ ys = ∀ x → x ∈′ xs → x ∉′ ys
-
-postulate
-  ♯→♯′ : ∀ {xs ys} → xs ♯ ys → xs ♯′ ys
-  ♯′→♯ : ∀ {xs ys} → xs ♯′ ys → xs ♯ ys
 
 ------------------------------------------------------------------------
 -- Deletion/Non-membership.
@@ -140,7 +155,7 @@ xs \\ (x ∷ ys) with x ∈? xs
 ------------------------------------------------------------------------
 -- Permutation relation.
 
-¬[]↭ : ∀ {x : A} {xs : List A} → ¬ ([] ↭ x ∷ xs)
+¬[]↭ : ¬ ([] ↭ x ∷ xs)
 ¬[]↭ (↭-trans {.[]} {[]}     {.(_ ∷ _)} []↭ []↭₁) = ¬[]↭ []↭₁
 ¬[]↭ (↭-trans {.[]} {x ∷ ys} {.(_ ∷ _)} []↭ []↭₁) = ¬[]↭ []↭
 
@@ -194,16 +209,6 @@ _↭?_ : (xs : List A) → (ys : List A) → Dec (xs ↭ ys)
 
 
 -----------------------------------------------------
--- Lifting from list predicates to set predicates.
-↑_ : Pred₀ (List A) → Pred₀ Set'
-↑ P = P ∘ list
-
--- e.g. All/Any predicates for sets
-All' Any' : Pred₀ A → Pred₀ Set'
-All' = ↑_ ∘ All
-Any' = ↑_ ∘ Any
-
------------------------------------------------------
 -- Properties
 
 ≡-Set' : ∀ .{px : Unique xs} .{py : Unique ys}
@@ -211,7 +216,7 @@ Any' = ↑_ ∘ Any
        → ⟨ xs ⟩∶- px ≡ ⟨ ys ⟩∶- py
 ≡-Set' refl = refl
 
-All∉[] : ∀ {ys : List A} → All (_∉ []) ys
+All∉[] : All (_∉ []) ys
 All∉[] {ys = []}     = []
 All∉[] {ys = y ∷ ys} = (λ ()) ∷ All∉[] {ys = ys}
 
@@ -238,22 +243,22 @@ nub-from∘to {x ∷ xs} u@(_ ∷ Uxs) with x ∈? xs
 from↔to : Unique xs → list (fromList xs) ≡ xs
 from↔to Uxs rewrite nub-from∘to Uxs = refl
 
-∈-─ : ∀ {x : A} {xs ys : Set'}
+∈-─ : ∀ {x xs ys}
   → x ∈′ (xs ─ ys)
   → x ∈′ xs
 ∈-─ {x} {xs} {ys} x∈ = proj₁ (∈-filter⁻ (_∉? list ys) x∈)
 
-∈-∪⁻ : ∀ {x : A} {xs ys : Set'}
+∈-∪⁻ : ∀ {x xs ys}
   → x ∈′ (xs ∪ ys)
   → x ∈′ xs ⊎ x ∈′ ys
 ∈-∪⁻ {x} {xs} {ys} x∈ = map₂ (∈-─ {x} {ys} {xs}) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
 
-∈-∪⁺ˡ : ∀ {x : A} {xs ys : Set'}
+∈-∪⁺ˡ : ∀ {x xs ys}
   → x ∈′ xs
   → x ∈′ (xs ∪ ys)
 ∈-∪⁺ˡ {x} {xs} {ys} x∈ = ∈-++⁺ˡ x∈
 
-∈-∪⁺ʳ : ∀ {x : A} {xs ys : Set'}
+∈-∪⁺ʳ : ∀ {x xs ys}
   → x ∈′ ys
   → x ∈′ (xs ∪ ys)
 ∈-∪⁺ʳ {x} {xs} {ys} x∈ with x ∈′? xs
@@ -279,6 +284,9 @@ postulate
   ∈-∩⇒¬♯ : ∀ {x xs ys}
     → x ∈′ (xs ∩ ys)
     → ¬ (xs ♯ ys)
+
+  ♯-skipˡ : ∀ {xs ys zs} → (xs ∪ ys) ♯ zs → ys ♯ zs
+  ♯-skipʳ : ∀ {xs ys zs} → xs ♯ (ys ∪ zs) → xs ♯ zs
 
 unique-nub-∈ : ∀ {x : A} {xs : List A}
   → Unique xs
@@ -314,6 +322,7 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 postulate
   ∩-comm : ∀ {xs ys} → (xs ∩ ys) ≡ (ys ∩ xs)
   ∪-comm : ∀ {xs ys} → (xs ∪ ys) ≡ (ys ∪ xs)
+  ♯-comm : ∀ {xs ys} → xs ♯ ys → ys ♯ xs
 
 {-
 cong' : ∀ {xs ys}
@@ -342,10 +351,11 @@ cong' refl = refl
 -- ... | no  x∉ | _
 --     -- rewrite L.filter-reject (_∈? ys′) {xs = xs} x∉
 --     = {!!}
+--
+-- ♯-comm : ∀ {xs ys} → xs ♯ ys → ys ♯ xs
+-- ♯-comm {xs}{ys} = {!sym!} -- subst (_≡ ∅) (∩-comm {xs}{ys})
 -}
 
-♯-comm : ∀ {xs ys} → xs ♯ ys → ys ♯ xs
-♯-comm {xs}{ys} = subst (_≡ ∅) (∩-comm {xs}{ys})
 
 -----------------------------------------------------
 -- Instances
@@ -358,6 +368,12 @@ instance
     with list s ≟ list s′
   ... | no ¬p    = no λ{ refl → ¬p refl }
   ... | yes refl = yes refl
+
+  Dec-∈′ : (x ∈′ Ys) ⁇
+  Dec-∈′ {x}{Ys} .dec = _∈′?_ x Ys
+
+  Dec-♯ : (Xs ♯ Ys) ⁇
+  Dec-♯ {Xs}{Ys} .dec = _♯?_ Xs Ys
 
 -----------------------------------------------------
 -- Syntactic sugar

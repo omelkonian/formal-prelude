@@ -13,6 +13,9 @@ Map : Set
 Map = K → Maybe V
 syntax Map {K} {V} = Map⟨ K ↦ V ⟩
 
+∅′ : Map
+∅′ = const nothing
+
 _∈ᵈ_ : K → Map → Set
 k ∈ᵈ m = Is-just (m k)
 

@@ -220,7 +220,7 @@ subsequences-refl {xs = x ∷ xs} = ∈-++⁺ʳ (subsequences xs) (∈-map⁺ (x
 
 -- e.g. combinations [[1,2,3],[4,5]] ≡ [[1,4],[1,5],[2,4],[2,5],[3,4],[3,5]]
 combinations : List (List A) → List (List A)
-combinations []         = []
+combinations []         = [ [] ]
 combinations (xs ∷ xss) = concatMap (λ x → map (x ∷_) xss′) xs
   where xss′ = combinations xss
 
