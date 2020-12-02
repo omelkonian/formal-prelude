@@ -1,12 +1,12 @@
-{-# OPTIONS -v DecEq:100 #-}
+-- {-# OPTIONS -v DecEq:100 #-}
 module Prelude.DecEq where
 
-open import Reflection hiding (_≟_; _>>_; _>>=_; return)
-open import Reflection.Argument as RArg using (unArg)
+open import Prelude.Init
+open Meta
+import Reflection.Argument as RArg
 open import Reflection.Name renaming (_≟_ to _≟ₙ_)
 open import Reflection.Term renaming (_≟_ to _≟ₜ_)
 
-open import Prelude.Init
 open import Prelude.Generics
 open import Prelude.Generics using (DERIVE) public
 open Debug ("DecEq" , 100)
@@ -103,10 +103,19 @@ module _ {A : Set} {{_ : DecEq A}} where
   ... | yes x∈ys  with xs ⊆? ys
   ... | no  xs⊈ys = no λ xs⊆ys → xs⊈ys (λ {x} z → xs⊆ys (there z))
   ... | yes xs⊆ys = yes λ{ (here refl) → x∈ys
-                       ; (there x∈)  → xs⊆ys x∈ }
+                         ; (there x∈)  → xs⊆ys x∈ }
 
-  postulate
-    disjoint? : (xs : List A) → (ys : List A) → Dec (Disjoint xs ys)
+  ¬∉⇒∈ : ∀ {x} {xs : List A} → ¬ (x ∉ xs) → x ∈ xs
+  ¬∉⇒∈ {x}{xs = []}      ¬x∉ = ⊥-elim $ ¬x∉ λ ()
+  ¬∉⇒∈ {x}{xs = x′ ∷ xs} ¬x∉ with x ≟ x′
+  ... | yes refl = here refl
+  ... | no ¬p    = there (¬∉⇒∈ (λ x∉ → ¬x∉ (λ { (here refl) → ⊥-elim $ ¬p refl; (there x∈) → x∉ x∈})))
+
+  disjoint? : Decidable² {A = List A} Disjoint
+  disjoint? xs ys with all? (_∉? ys) xs
+  ... | yes p = yes (λ {v} (v∈ , v∈′) → L.All.lookup p v∈ v∈′ )
+  ... | no ¬p = let (x , x∈ , Px) = find $ L.All.¬All⇒Any¬ (_∉? ys) _ ¬p
+                in no λ p → p {x} (x∈ , ¬∉⇒∈ Px)
 
   unique? : (xs : List A) → Dec (Unique xs)
   unique? xs = allPairs? (λ x y → ¬? (x ≟ y)) xs
@@ -116,6 +125,12 @@ module _ {A : Set} {{_ : DecEq A}} where
   nub (x ∷ xs) with x ∈? xs
   ... | yes _ = nub xs
   ... | no  _ = x ∷ nub xs
+
+  nubBy : ∀ {B : Set} → (B → A) → List B → List B
+  nubBy f [] = []
+  nubBy f (x ∷ xs) with f x ∈? map f xs
+  ... | yes _ = nubBy f xs
+  ... | no  _ = x ∷ nubBy f xs
 
   nub-all : ∀ {xs : List A} {P : A → Set} → All P xs → All P (nub xs)
   nub-all {xs = []}     []       = []
@@ -137,8 +152,8 @@ pattern ``yes x = quote _because_ ◇⟦ quote true ◇  ∣ quote ofʸ ◇⟦ x
 pattern `no x   = quote _because_ ◆⟦ quote false ◆ ∣ quote ofⁿ ◆⟦ x ⟧ ⟧
 pattern ``no x  = quote _because_ ◇⟦ quote false ◇ ∣ quote ofⁿ ◇⟦ x ⟧ ⟧
 
-compatible? : List Type → Type → Type → TC Bool
-compatible? ctx ty ty′ = do
+compatible? : Type → Type → TC Bool
+compatible? ty ty′ = do
   print $ show ty ◇ " ≈? " ◇ show ty′
   b ← runSpeculative $ (_, false) <$>
     catchTC (unify (varsToUnknown ty) (varsToUnknown ty′) >> return true)
@@ -151,7 +166,7 @@ derive-DecEq : (Name × Name) → Definition → TC Term
 derive-DecEq _              (data-type _ []) = return `λ∅
 derive-DecEq (this , ≟-rec) (data-type pars cs) = do
   print $ "DATATYPE {pars = " ◇ show pars ◇ "; cs = " ◇ show cs ◇ "}"
-  cls ← concatMap L.fromMaybe <$> traverse f (allPairs cs)
+  cls ← concatMap L.fromMaybe <$> mapM f (allPairs cs)
   return $ pat-lam cls []
   where
     go : ℕ → List (ℕ × Type) → Term
@@ -168,7 +183,7 @@ derive-DecEq (this , ≟-rec) (data-type pars cs) = do
       (pc′ , n , _)   ← mkPattern c′
       ty  ← getType c
       ty′ ← getType c′
-      b   ← compatible? (unArgs $ argTys ty) (resultTy ty) (resultTy ty′)
+      b   ← compatible? (resultTy ty) (resultTy ty′)
       return $
         if b then
           just (if c == c′ then ⟦ pc ∣ mapVariables (_<> "′") pc ⇒ go n pvs ⟧
