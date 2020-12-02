@@ -19,6 +19,9 @@ record Show (A : Set) : Set where
 open Show {{...}} public
 
 instance
+  Show-⊤ : Show ⊤
+  Show-⊤ .show tt = "tt"
+
   Show-String : Show String
   Show-String .show x = x
 

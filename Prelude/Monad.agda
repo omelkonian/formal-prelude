@@ -1,6 +1,7 @@
 module Prelude.Monad where
 
 open import Prelude.Init
+import Reflection as R
 
 private
   variable
@@ -19,4 +20,4 @@ instance
   Monad-List = L.Cat.monad
 
   Monad-TC : Monad {ℓ} Meta.TC
-  Monad-TC = record {return = Meta.return; _>>=_ = Meta.bindTC}
+  Monad-TC = record {return = R.return; _>>=_ = R.bindTC}

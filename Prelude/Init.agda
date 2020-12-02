@@ -189,7 +189,8 @@ open import Relation.Binary public
   renaming (Decidable to Decidable²)
 open import Relation.Binary.PropositionalEquality public
   using ( _≡_; _≢_; refl; sym; trans; cong; subst; inspect; _≗_
-        ; module ≡-Reasoning)
+        ; module ≡-Reasoning
+        ; setoid )
   renaming ([_] to ≡[_])
 
 -- ** Algebra
@@ -207,23 +208,13 @@ module WF where
 
 -- ** Reflection
 module Meta where
-  open import Reflection public
-{-
-open import Agda.Builtin.Reflection public
-  using ( TC; returnTC; bindTC; unify; typeError; inferType; checkType ; normalise; reduce
-        ; catchTC; quoteTC; unquoteTC; getContext; extendContext; inContext; freshName
-        ; declareDef; declarePostulate; defineFun; getType; getDefinition
-        ; blockOnMeta; commitTC; isMacro; withNormalisation
-        ; debugPrint; noConstraints; runSpeculative; ErrorPart; strErr; termErr; nameErr )
-open import Reflection public
-  using ( Term; Abs; abs; Arg; arg; Args; vArg; hArg; iArg; Definition
-        ; Meta; Name; Names; Literal; Pattern; {-Type;-} Clause; Clauses; Sort
-        ; var; lam; pat-lam; visible; def; con; data-type; record-type
-        ; newMeta; unknown )
-open import Reflection.Argument public
-  using (unArg)
--}
-
+  open import Reflection hiding (_≟_; _>>_; _>>=_; return) public
+  open import Reflection.Term public
+    hiding (_≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_; _≟-Clauses_; _≟_; _≟-Sort_)
+  open import Reflection.Argument public
+    using (unArg)
+  open import Reflection.Abstraction public
+    using (unAbs)
 
 -- ** Shorthands
 Pred₀ Rel₀ : Set → Set₁
