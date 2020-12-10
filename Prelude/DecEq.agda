@@ -6,6 +6,7 @@ open Meta
 import Reflection.Argument as RArg
 open import Reflection.Name renaming (_≟_ to _≟ₙ_)
 open import Reflection.Term renaming (_≟_ to _≟ₜ_)
+open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 
 open import Prelude.Generics
 open import Prelude.Generics using (DERIVE) public
@@ -85,6 +86,9 @@ instance
 
   DecEq-Arg : {{_ : DecEq A}} → DecEq (Arg A)
   DecEq-Arg ._≟_ = RArg.≡-dec _≟_
+
+  DecEq-Vis : DecEq Visibility
+  DecEq-Vis ._≟_ = _≟ᵥ_
 
 
 module _ {A : Set} {{_ : DecEq A}} where

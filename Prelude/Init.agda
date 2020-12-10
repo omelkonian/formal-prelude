@@ -7,7 +7,7 @@ open import Level public
 
 -- ** Functions
 open import Function public
-  using (_∘_; _$_; case_of_; _∋_; flip; _on_; const; it)
+  using (_∘_; _$_; case_of_; _∋_; flip; _on_; const; it; id)
 open import Function.Definitions public
   using (Injective)
 open import Function.Bundles public
@@ -117,6 +117,8 @@ module V where
     open import Data.Vec.Relation.Unary.Any.Properties public
   module Cat where
     open import Data.Vec.Categorical public
+  module Mem where
+    open import Data.Vec.Membership.Propositional public
 
 open import Data.List public
   using ( List; _∷_; []; [_]; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
@@ -137,6 +139,8 @@ module L where
     open import Data.List.Relation.Unary.Any.Properties public
   module Cat where
     open import Data.List.Categorical public
+  module Mem where
+    open import Data.List.Membership.Propositional public
 
 open import Data.List.NonEmpty public
   using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
