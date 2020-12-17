@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 ------------------------------------------------------------------------
 -- List utilities
 ------------------------------------------------------------------------
@@ -27,8 +26,8 @@ private
     B : Set b
     C : Set c
 
-    x y : A
-    xs ys : List A
+    x y z : A
+    xs ys zs : List A
 
     m n : ℕ
 
@@ -349,22 +348,22 @@ postulate
   map∘mapWith∈ : ∀ {xs : List A} {f : B → C} {g : ∀ {x} → x ∈ xs → B} → map f (mapWith∈ xs g) ≡ mapWith∈ xs (f ∘ g)
 
 -- mapWith∈/filter
-filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
-                  {x : A} {xs : List A} {ys : List B}
-  → (x∈ : x ∈ map f ys)
-  → Unique ys
-  → filter ((_∈? (x ∷ xs)) ∘ f) ys
-  ↭ (proj₁ ∘ ∈-map⁻ f) x∈ ∷ filter ((_∈? xs) ∘ f) ys
-filter-exists {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {x = x} {xs = xs} {ys = ys} x∈ uniq
-  with ∈-map⁻ f x∈
-... | y , y∈ , refl -- y∈  : y ∈ ys
-  with ∈-filter⁺ (_∈? (x ∷ xs) ∘ f) y∈ (here refl)
-... | y∈′           -- y∈′ : y ∈ filter _ ys
-    = begin
-        filter ((_∈? (x ∷ xs)) ∘ f) ys
-      ↭⟨ {!!} ⟩
-        y ∷ filter ((_∈? xs) ∘ f) ys
-      ∎ where open PermutationReasoning
+postulate
+  filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A} {x : A} {xs : List A} {ys : List B}
+    → (x∈ : x ∈ map f ys)
+    → Unique ys
+    → filter ((_∈? (x ∷ xs)) ∘ f) ys
+    ↭ (proj₁ ∘ ∈-map⁻ f) x∈ ∷ filter ((_∈? xs) ∘ f) ys
+-- filter-exists {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {x = x} {xs = xs} {ys = ys} x∈ uniq
+--   with ∈-map⁻ f x∈
+-- ... | y , y∈ , refl -- y∈  : y ∈ ys
+--   with ∈-filter⁺ (_∈? (x ∷ xs) ∘ f) y∈ (here refl)
+-- ... | y∈′           -- y∈′ : y ∈ filter _ ys
+--     = begin
+--         filter ((_∈? (x ∷ xs)) ∘ f) ys
+--       ↭⟨ {!!} ⟩
+--         y ∷ filter ((_∈? xs) ∘ f) ys
+--       ∎ where open PermutationReasoning
 
 mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
                     {xs : List A} {ys : List B}
@@ -387,12 +386,13 @@ mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {y
           get : ∀ {x′} → x′ ∈ x ∷ xs → B
           get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
 
-↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
-  → Identity x₀ _⊕_
-  → Commutative _⊕_
-  → xs ↭ ys
-  → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
-↭⇒≡ = {!!}
+postulate
+  ↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
+    → Identity x₀ _⊕_
+    → Commutative _⊕_
+    → xs ↭ ys
+    → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
+-- ↭⇒≡ = {!!}
 
 -- Unique
 Unique-mapWith∈ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
@@ -487,21 +487,41 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
 postulate
   Null-++⁻ : ∀ {xs ys : List A} → Null (xs ++ ys) → Null xs × Null ys
 
+-- drop
+∈-drop⁻ : ∀ {n} {A : Set} {x : A} {xs : List A}
+  → x ∈ drop n xs
+  → x ∈ xs
+∈-drop⁻ {n = 0} x∈ = x∈
+∈-drop⁻ {n = suc n} {xs = _ ∷ xs} x∈ = there $ ∈-drop⁻ {n = n} x∈
+
 -- mapMaybe
 module _ (f : A → Maybe B) where
-  postulate
-    ∈-mapMaybe⁻ : ∀ {y xs}
-      → y ∈ mapMaybe f xs
-      → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
+  ∈-mapMaybe⁻ : y ∈ mapMaybe f xs
+              → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
+  ∈-mapMaybe⁻ {y = y} {xs = x ∷ xs} y∈
+    with f x | inspect f x
+  ... | nothing | _ = map₂′ (map₁′ there) (∈-mapMaybe⁻ y∈)
+  ... | just y′ | ≡[ fx ]
+    with y∈
+  ... | here refl = x , here refl , fx
+  ... | there y∈′ = map₂′ (map₁′ there) (∈-mapMaybe⁻ y∈′)
 
-    ∈-mapMaybe⁺ : ∀ {x y xs}
-      → x ∈ xs
-      → f x ≡ just y
-      → y ∈ mapMaybe f xs
+  ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y
+              → y ∈ mapMaybe f xs
+  ∈-mapMaybe⁺ {xs = x ∷ xs} x∈ eq
+    with x∈
+  ... | here refl rewrite eq = here refl
+  ... | there x∈′
+    with y∈ ← ∈-mapMaybe⁺ x∈′ eq
+    with f x
+  ... | nothing = y∈
+  ... | just _  = there y∈
 
-    mapMaybe-⊆ : ∀ {xs ys}
-      → xs ⊆ ys
-      → mapMaybe f xs ⊆ mapMaybe f ys
+  mapMaybe-⊆ : xs ⊆ ys → mapMaybe f xs ⊆ mapMaybe f ys
+  mapMaybe-⊆ {xs = x ∷ xs} {ys = ys} xs⊆ fx∈ =
+    let x , x∈ , fx≡ = ∈-mapMaybe⁻ fx∈
+    in  ∈-mapMaybe⁺ (xs⊆ x∈) fx≡
+
 
 postulate
   mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}
@@ -516,17 +536,18 @@ postulate
 count : ∀ {P : A → Set} → Decidable¹ P → List A → ℕ
 count P? = length ∘ filter P?
 
-count-single : ∀ {P : A → Set} {P? : Decidable¹ P} {x xs}
-  → count P? (x ∷ xs) ≡ 1
-  → P x
-  → All (x ≢_) xs
-count-single {P = P} {P?} {x} {xs} count≡1 px
-  with P? x
-... | no ¬px = ⊥-elim $ ¬px px
-... | yes _  = L.All.¬Any⇒All¬ xs h
-  where
-    h : x ∉ xs
-    h x∈ = {!!}
+postulate
+  count-single : ∀ {P : A → Set} {P? : Decidable¹ P} {x xs}
+    → count P? (x ∷ xs) ≡ 1
+    → P x
+    → All (x ≢_) xs
+-- count-single {P = P} {P?} {x} {xs} count≡1 px
+--   with P? x
+-- ... | no ¬px = ⊥-elim $ ¬px px
+-- ... | yes _  = L.All.¬Any⇒All¬ xs h
+--   where
+--     h : x ∉ xs
+--     h x∈ = {!!}
 
 postulate
   ⊆⇒count≤ : ∀ {xs ys : List A} {P : Pred A 0ℓ}
@@ -600,7 +621,7 @@ All-Any-refl : ∀ {xs : List A} {f : A → B}
 All-Any-refl {xs = []}     = []
 All-Any-refl {xs = _ ∷ xs} = here refl ∷ L.All.map there (All-Any-refl {xs = xs})
 
-all-filter⁺ : ∀ {P Q : A → Set _} {P? : Decidable¹ P} {xs : List A}
+all-filter⁺ : ∀ {P Q : A → Set a} {P? : Decidable¹ P} {xs : List A}
   → All (λ x → P x → Q x) xs
   → All Q (filter P? xs)
 all-filter⁺ {xs = _} [] = []

@@ -130,6 +130,24 @@ module _ {A : Set} {{_ : DecEq A}} where
   ... | yes _ = nub xs
   ... | no  _ = x ∷ nub xs
 
+  nub-⊆⁺ : ∀ {xs : List A} → xs ⊆ nub xs
+  nub-⊆⁺ {xs = x ∷ xs} (here refl)
+    with x ∈? xs
+  ... | yes x∈ = nub-⊆⁺ {xs = xs} x∈
+  ... | no  _  = here refl
+  nub-⊆⁺ {xs = x ∷ xs} (there y∈)
+    with x ∈? xs
+  ... | yes _ = nub-⊆⁺ {xs = xs} y∈
+  ... | no  _ = there $ nub-⊆⁺ {xs = xs} y∈
+
+  nub-⊆⁻ : ∀ {xs} → nub xs ⊆ xs
+  nub-⊆⁻ {xs = x ∷ xs}
+    with x ∈? xs
+  ... | yes x∈ = there ∘ nub-⊆⁻ {xs = xs}
+  ... | no  _  = λ where
+    (here refl) → here refl
+    (there y∈)  → there $ nub-⊆⁻ {xs = xs} y∈
+
   nubBy : ∀ {B : Set} → (B → A) → List B → List B
   nubBy f [] = []
   nubBy f (x ∷ xs) with f x ∈? map f xs

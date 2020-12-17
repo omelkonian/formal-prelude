@@ -243,11 +243,6 @@ nub-from∘to {x ∷ xs} u@(_ ∷ Uxs) with x ∈? xs
 from↔to : Unique xs → list (fromList xs) ≡ xs
 from↔to Uxs rewrite nub-from∘to Uxs = refl
 
-postulate
-  nub-⊆⁻ : nub xs ⊆ xs
-  nub-⊆⁺ : xs ⊆ nub xs
-  \\-⊆ : xs \\ ys ⊆ xs
-
 ∈-─ : ∀ {x xs ys}
   → x ∈′ (xs ─ ys)
   → x ∈′ xs
@@ -292,6 +287,8 @@ postulate
 
   ♯-skipˡ : ∀ {xs ys zs} → (xs ∪ ys) ♯ zs → ys ♯ zs
   ♯-skipʳ : ∀ {xs ys zs} → xs ♯ (ys ∪ zs) → xs ♯ zs
+
+  \\-⊆ : xs \\ ys ⊆ xs
 
 unique-nub-∈ : ∀ {x : A} {xs : List A}
   → Unique xs
