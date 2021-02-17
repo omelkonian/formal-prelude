@@ -11,15 +11,20 @@ private
 record _has_ (A : Set) (B : Set) : Set where
   field
     collect : A → List B
-open _has_ {{...}} public
+open _has_ ⦃...⦄ public
 
-instance
-  H-List : ∀ {{_ : X has Y}} → List X has Y
-  H-List .collect []       = []
-  H-List .collect (x ∷ xs) = collect x ++ collect xs
+collectFromList : ∀ ⦃ _ : X has Y ⦄ → List X has Y
+collectFromList .collect = concatMap collect
+-- collectFromList .collect = go
+--   where
+--     go : ⦃ _ : X has Y ⦄ → List X → List Y
+--     go []       = []
+--     go (x ∷ xs) = collect x ++ go xs
 
-  -- H-×ˡ : ∀ {{_ : X has Z}} → (X × Y) has Z
-  -- H-×ˡ .collect (x , _) = collect x
+collectFromPairˡ : ∀ ⦃ _ : X has Z ⦄ → (X × Y) has Z
+collectFromPairˡ .collect (x , _) = collect x
 
-  H-×ʳ : ∀ {{_ : Y has Z}} → (X × Y) has Z
-  H-×ʳ .collect (_ , y) = collect y
+collectFromPairʳ : ∀ ⦃ _ : Y has Z ⦄ → (X × Y) has Z
+collectFromPairʳ .collect (_ , y) = collect y
+
+-- NB: do not expose instances, let user decide

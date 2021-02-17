@@ -19,23 +19,17 @@ open import Prelude.Collections
 
 open import Prelude.Functor
 open import Prelude.Bifunctor
+open import Prelude.PointedFunctor
 open import Prelude.Applicative
 open import Prelude.Monad
 open import Prelude.Semigroup
 open import Prelude.Monoid
-
--- ** List utilities
-open import Prelude.Lists
 open import Prelude.Nary
 
--- ** Sets as unique lists
-open import Prelude.Set'
-
--- ** Maps as pairs of sets with a (total) valuation function
+-- ** Data structures
+open import Prelude.Lists
+open import Prelude.Sets
 open import Prelude.Maps
-open import Prelude.Map'
-open import Prelude.Map''
-open import Prelude.PartialMaps
 
 -- ** Utilities for cryptography.
 open import Prelude.Bitstring

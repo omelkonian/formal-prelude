@@ -18,6 +18,11 @@ private
     x : A
     xs : List A
 
+-- ** Functions
+infix -1 _↔_
+_↔_ : Set a → Set b → Set (a ⊔ₗ b)
+A ↔ B = (A → B) × (B → A)
+
 -- ** N-ary tuples
 _^_ : Set a → ℕ → Set a
 A ^ 0     = A

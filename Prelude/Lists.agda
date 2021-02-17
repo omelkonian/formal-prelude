@@ -15,9 +15,13 @@ import Data.List.Relation.Binary.Pointwise as PW
 
 open import Prelude.Init renaming (sum to ∑ℕ)
 open L.NE using (last)
+open import Prelude.General
 open import Prelude.ToN
 open import Prelude.Bifunctor
-open import Prelude.Nary hiding (zip)
+open import Prelude.Semigroup
+open import Prelude.PointedFunctor
+open import Prelude.Nary
+open Alg≡
 
 private
   variable
@@ -394,7 +398,17 @@ postulate
     → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
 -- ↭⇒≡ = {!!}
 
+-- All
+All∉[] : All (_∉ []) ys
+All∉[] {ys = []}     = []
+All∉[] {ys = y ∷ ys} = (λ ()) ∷ All∉[] {ys = ys}
+
 -- Unique
+unique-∈ : Unique (x ∷ xs) → x ∉ xs
+unique-∈ {xs = []} u ()
+unique-∈ {xs = x ∷ xs} ((x≢x ∷ _) ∷ _) (here refl) = x≢x refl
+unique-∈ {xs = x ∷ xs} ((_ ∷ p) ∷ _)   (there x∈)  = L.All.All¬⇒¬Any p x∈
+
 Unique-mapWith∈ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
   → (∀ {x x′} {x∈ : x ∈ xs} {x∈′ : x′ ∈ xs} → f x∈ ≡ f x∈′ → L.Any.index x∈ ≡ L.Any.index x∈′)
   → Unique (mapWith∈ xs f)
@@ -402,6 +416,12 @@ Unique-mapWith∈ {xs = []}     {f = f} f≡ = []
 Unique-mapWith∈ {xs = x ∷ xs} {f = f} f≡
   = L.All.tabulate (mapWith∈-∀ {P = f (L.Any.here refl) ≢_} λ _ eq → case f≡ eq of λ () )
   ∷ Unique-mapWith∈ {xs = xs} (F.suc-injective ∘ f≡)
+
+∈-irr : Unique xs → Irrelevant (x ∈ xs)
+∈-irr (x∉ ∷ _)  (here refl) (here refl) = refl
+∈-irr (x∉ ∷ _)  (here refl) (there x∈)  = ⊥-elim $ L.All.lookup x∉ x∈ refl
+∈-irr (x∉ ∷ _)  (there x∈)  (here refl) = ⊥-elim $ L.All.lookup x∉ x∈ refl
+∈-irr (_  ∷ un) (there p)   (there q)   = cong there $ ∈-irr un p q
 
 -- Empty lists
 Null : List A → Set _
@@ -662,7 +682,7 @@ postulate
 
 -- Finite sets.
 Finite : Set a → Set a
-Finite A = ∃[ n ] (A ↔ Fin n)
+Finite A = ∃[ n ] (A Fun.↔ Fin n)
 
 finList : Finite A → List A
 finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)

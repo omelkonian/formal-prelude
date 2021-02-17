@@ -8,7 +8,7 @@ record Semigroup {a} (A : Set a) : Set a where
     _◇_ : A → A → A
   _<>_ = _◇_
 
-open Semigroup {{...}} public
+open Semigroup ⦃ ... ⦄ public
 
 private
   variable

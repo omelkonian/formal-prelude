@@ -4,6 +4,10 @@ module Prelude.Init where
 open import Level public
   using (Level; 0ℓ)
   renaming (suc to lsuc; _⊔_ to _⊔ₗ_)
+1ℓ = lsuc 0ℓ
+2ℓ = lsuc 1ℓ
+3ℓ = lsuc 2ℓ
+4ℓ = lsuc 3ℓ
 
 -- ** Functions
 open import Function public
@@ -11,9 +15,18 @@ open import Function public
 open import Function.Definitions public
   using (Injective)
 open import Function.Bundles public
-  using (_↔_; module Injection; _↣_)
+  using (module Injection; _↣_)
 open import Function.Equivalence public
   using (_⇔_)
+module Fun where
+  open import Function public
+  module Inv where
+    open import Function.Inverse public
+  module Eq where
+    open import Function.Equality public
+  module Equiv where
+    open import Function.Equivalence public
+
 
 -- ** Categories
 open import Category.Functor public
@@ -34,7 +47,7 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry; -,_)
+  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry; -,_; swap)
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -119,6 +132,7 @@ module V where
     open import Data.Vec.Categorical public
   module Mem where
     open import Data.Vec.Membership.Propositional public
+    open import Data.Vec.Membership.Propositional.Properties public
 
 open import Data.List public
   using ( List; _∷_; []; [_]; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
@@ -141,6 +155,10 @@ module L where
     open import Data.List.Categorical public
   module Mem where
     open import Data.List.Membership.Propositional public
+    open import Data.List.Membership.Propositional.Properties public
+  module Uniq where
+    open import Data.List.Relation.Unary.Unique.Propositional public
+    open import Data.List.Relation.Unary.Unique.Propositional.Properties public
 
 open import Data.List.NonEmpty public
   using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
@@ -158,7 +176,7 @@ open import Data.List.Relation.Unary.AllPairs public
 open import Data.List.Relation.Unary.Unique.Propositional public
   using (Unique)
 open import Data.List.Relation.Binary.Subset.Propositional public
-  using (_⊆_)
+  using (_⊆_; _⊈_)
 open import Data.List.Relation.Binary.Disjoint.Propositional public
   using (Disjoint)
 open import Data.List.Relation.Binary.Permutation.Propositional public
@@ -174,7 +192,7 @@ open import Data.List.Relation.Binary.Suffix.Heterogeneous public
 
 -- ** Relations
 open import Relation.Nullary public
-  using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ)
+  using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
 open import Relation.Nullary.Negation public
   using (¬?; contradiction)
 open import Relation.Nullary.Decidable public
@@ -189,20 +207,24 @@ open import Relation.Unary public
   using (Pred)
   renaming (Decidable to Decidable¹)
 open import Relation.Binary public
-  using (Rel; Transitive; StrictTotalOrder; DecidableEquality)
+  using (Rel; Reflexive; Symmetric; Transitive; StrictTotalOrder; DecidableEquality; IsEquivalence; Setoid )
   renaming (Decidable to Decidable²)
 open import Relation.Binary.PropositionalEquality public
-  using ( _≡_; _≢_; refl; sym; trans; cong; subst; inspect; _≗_
+  using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_
         ; module ≡-Reasoning
         ; setoid )
   renaming ([_] to ≡[_])
+module PropEq where
+  open import Relation.Binary.PropositionalEquality public
 
 -- ** Algebra
 open import Algebra public
   using (Op₁; Op₂; Opₗ; Opᵣ)
-module _ {a} {A : Set a} where
-  open import Algebra.Definitions {a} {a} {A} _≡_ public
-    using (LeftIdentity; RightIdentity; Identity; Commutative; Associative)
+module Alg {a ℓ} {A : Set a} (_~_ : Rel A ℓ) where
+  open import Algebra.Definitions {A = A} _~_ public
+import Algebra.Definitions as A
+module Alg≡ {a} {A : Set a} where
+  open import Algebra.Definitions {A = A} _≡_ public
 
 -- ** Induction
 open import Induction.WellFounded public
@@ -221,6 +243,6 @@ module Meta where
     using (unAbs)
 
 -- ** Shorthands
-Pred₀ Rel₀ : Set → Set₁
+Pred₀ Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)
 Pred₀ A = Pred A 0ℓ
 Rel₀  A = Rel  A 0ℓ
