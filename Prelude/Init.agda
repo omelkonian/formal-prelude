@@ -16,8 +16,6 @@ open import Function.Definitions public
   using (Injective)
 open import Function.Bundles public
   using (module Injection; _↣_)
-open import Function.Equivalence public
-  using (_⇔_)
 module Fun where
   open import Function public
   module Inv where
@@ -177,6 +175,8 @@ open import Data.List.Relation.Unary.Unique.Propositional public
   using (Unique)
 open import Data.List.Relation.Binary.Subset.Propositional public
   using (_⊆_; _⊈_)
+open import Data.List.Relation.Binary.Subset.Propositional.Properties public
+  using (module ⊆-Reasoning)
 open import Data.List.Relation.Binary.Disjoint.Propositional public
   using (Disjoint)
 open import Data.List.Relation.Binary.Permutation.Propositional public
