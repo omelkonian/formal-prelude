@@ -16,6 +16,7 @@ open import Prelude.Show
 open import Prelude.DecEq
 open import Prelude.Measurable
 open import Prelude.Collections
+open import Prelude.Ord
 
 open import Prelude.Functor
 open import Prelude.Bifunctor
