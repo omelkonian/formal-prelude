@@ -515,6 +515,12 @@ postulate
 ∈-drop⁻ {n = suc n} {xs = _ ∷ xs} x∈ = there $ ∈-drop⁻ {n = n} x∈
 
 -- mapMaybe
+mapMaybe-++ : ∀ (f : A → Maybe B) xs ys → mapMaybe f (xs ++ ys) ≡ mapMaybe f xs ++ mapMaybe f ys
+mapMaybe-++ f []       ys = refl
+mapMaybe-++ f (x ∷ xs) ys with f x
+... | just _  = cong (_ ∷_) (mapMaybe-++ f xs ys)
+... | nothing = mapMaybe-++ f xs ys
+
 module _ (f : A → Maybe B) where
   ∈-mapMaybe⁻ : y ∈ mapMaybe f xs
               → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
