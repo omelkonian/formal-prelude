@@ -12,16 +12,28 @@ open import Prelude.Monad
 
 private
   variable
-    a b : Level
+    ℓ ℓ′ ℓ″ a b : Level
     A : Set a
     B : Set b
     x : A
     xs : List A
 
--- ** Functions
+-- ** Functions and predicates
 infix -1 _↔_
+infix -1 _⇔_
+infix -1 _⊢_
+
 _↔_ : Set a → Set b → Set (a ⊔ₗ b)
 A ↔ B = (A → B) × (B → A)
+
+_⇔_ : Set ℓ → Set ℓ′ → Set _
+A ⇔ B = (A → B) × (B → A)
+
+_⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+P ⊢ Q = ∀ {x} → P x → Q x
+
+_⊣⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
 
 -- ** N-ary tuples
 _^_ : Set a → ℕ → Set a
@@ -142,6 +154,9 @@ destruct-Is-just : ∀ {A : Set} {mx : Maybe A}
   → ∃ λ x → mx ≡ just x
 destruct-Is-just {mx = nothing} ()
 destruct-Is-just {mx = just _}  _ = _ , refl
+
+MAll⇒¬MAny : ∀ {m : Maybe A} → M.All.All (const ⊥) m → ¬ M.Any.Any (const ⊤) m
+MAll⇒¬MAny {m = nothing} M.All.nothing ()
 
 -- ** Decidable
 
