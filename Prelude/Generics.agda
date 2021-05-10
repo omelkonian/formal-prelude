@@ -9,6 +9,8 @@ open import Prelude.Lists
 open import Prelude.Show
 open import Prelude.ToN
 open import Prelude.Semigroup
+open import Prelude.Functor
+open import Prelude.Applicative
 open import Prelude.Monad
 
 private
@@ -193,9 +195,9 @@ Derivation = List ( Name -- name of the type to derive an instance for
 record Derivable (F : Set → Set) : Set where
   field
     DERIVE' : Derivation
-open Derivable {{...}} public
+open Derivable ⦃ ... ⦄ public
 
-DERIVE : ∀ F {{_ : Derivable F}} → Derivation
+DERIVE : ∀ F ⦃ _ : Derivable F ⦄ → Derivation
 DERIVE F = DERIVE' {F = F}
 
 -------------------------------------------------
@@ -210,7 +212,7 @@ module Debug (v : String × ℕ) where
   print : String → TC ⊤
   print s = debugPrint (v .proj₁) (v .proj₂) [ strErr s ]
 
-  printS : {{_ : Show A}} → A → TC ⊤
+  printS : ⦃ _ : Show A ⦄ → A → TC ⊤
   printS = print ∘ show
     where open import Prelude.Show
 
@@ -220,6 +222,53 @@ module DebugI (v : String) where
 
 -- set {-# OPTIONS -v trace:100 #-} when tracing
 macro
-  trace : ∀ {A : Set} {{_ : Show A}} → A → Term → Term → TC ⊤
+  trace : ∀ {A : Set} ⦃ _ : Show A ⦄ → A → Term → Term → TC ⊤
   trace x t hole = print ("trace: " ◇ show x) >> unify hole t
     where open Debug ("trace" , 100)
+
+-- private
+--   open Debug ("rewrite" , 10)
+
+--   {-# TERMINATING #-}
+--   rewrite◆ : Term → TC Term
+--   rewrite◆ t = do
+--     let t′ = go 0 t
+--     print $ show t ◇ " ———→ " ◇ show t′
+--     return t′
+--     where
+--       go : ℕ → Term → Term
+--       go λs (lam v e) = lam v $ fmap (go (suc λs)) e
+--       go λs (def n xs) = def n $ map (fmap $ go λs) xs
+--       go λs (var n xs) = var n $ map (fmap $ go λs) xs
+--       go λs (meta m xs) = meta m $ map (fmap $ go λs) xs
+--       go λs (pi a b) = pi (fmap (go λs) a) (fmap (go λs) b)
+--       -- go λs (var n xs) =
+--       --   if n Nat.≡ᵇ 666 then
+--       --     ♯ λs
+--       --   else
+--       --     var n (map (fmap $ go λs) xs)
+--       go λs e@(lit (char c)) =
+--         if c Ch.== '◆' then
+--           ♯ λs
+--         else
+--           e
+--       -- go λs (lit (char '◆')) = ♯ λs
+--       go _ e = e
+
+--   macro
+--     λ◆ : Term → Term → TC ⊤
+--     λ◆ t hole = do
+--       t′ ← normalise t
+--       t″ ← rewrite◆ t′
+--       return tt
+--       -- unify hole (`λ "◆" ⇒ t′)
+
+--   import Reflection.Literal as Lit
+
+--   ∣◆∣ : Term
+--   -- ∣◆∣ = ♯ 666
+--   ∣◆∣ = Meta.lit (Lit.char '◆')
+
+--   f : ℕ → ℕ
+--   -- f = λ ◆ → ◆ + 1
+--   f = λ◆ (quote _+_ ∙⟦ ∣◆∣ ∣ Meta.lit (Lit.nat 1) ⟧)
