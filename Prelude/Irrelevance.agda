@@ -24,20 +24,27 @@ record Squashed (A : Set a) : Set a where
 
   _∀≡↝_ : ∀ {P : A → Set p} → ∃ P → (x : A) → P x
   _∀≡↝_ (y , p) x rewrite ∀≡ y x = p
-open Squashed {{...}} public
+open Squashed ⦃ ... ⦄ public
 
 instance
   Squashed-⊤ : Squashed ⊤
   Squashed-⊤ .∀≡ tt tt = refl
 
-  Dec-Σ : {{_ : Squashed A}} {{_ : A ⁇}} {{_ : ∀ {x} → B x ⁇}} → Σ A B ⁇
+  Dec-Σ : ⦃ _ : Squashed A ⦄ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → B x ⁇ ⦄ → Σ A B ⁇
   Dec-Σ .dec
     with dec
-  ... | no ¬x = no (¬x ∘ proj₁)
+  ... | no ¬x = no $ ¬x ∘ proj₁
   ... | yes x
     with dec
-  ... | no ¬Px = no (¬Px ∘ (_∀≡↝ x))
+  ... | no ¬Px = no $ ¬Px ∘ (_∀≡↝ x)
   ... | yes Px = yes (x , Px)
+
+-- open import Prelude.Lists
+-- private variable xs ys : List A
+
+-- Squashed-Unique×⊆ : Unique xs → Unique ys → Squashed (xs ⊆ ys)
+-- Squashed-Unique×⊆ {xs = xs} {ys = ys} ∀xs≡ ∀ys≡ .∀≡ xs⊆ xs⊆′ = {!!}
+-- -- need extensionality...
 
 
 {-
@@ -51,13 +58,13 @@ open Squash public
 ¬squash ¬x (squash x) = {!¬x x!}
 
 instance
-  Dec-Squash : {{_ : A ⁇}} → Squash A ⁇
+  Dec-Squash : ⦃ _ : A ⁇ ⦄ → Squash A ⁇
   Dec-Squash .dec
     with dec
   ... | no ¬p = no (¬squash ¬p)
   ... | yes p = yes (squash p)
 
-  Dec-Σ : ∀ {{_ : A ⁇}} {{_ : ∀ {x} → B x ⁇}} → Σ (Squash A) B ⁇
+  Dec-Σ : ∀ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → B x ⁇ ⦄ → Σ (Squash A) B ⁇
   Dec-Σ .dec
     with dec
   ... | no ¬x = no (¬x ∘ proj₁)
