@@ -3,12 +3,14 @@ module Prelude.Monoid where
 open import Prelude.Init
 open import Prelude.Semigroup public
 
-record Monoid (A : Set) : Set where
+private variable ℓ : Level
+
+record Monoid (A : Set ℓ) : Set ℓ where
   field
     ε : A
-    overlap {{smₐ}} : Semigroup A
+    overlap ⦃ smₐ ⦄ : Semigroup A
 
-open Monoid {{...}} public hiding (smₐ)
+open Monoid ⦃ ... ⦄ public hiding (smₐ)
 
 private
   variable

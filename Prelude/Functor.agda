@@ -26,3 +26,11 @@ instance
   Functor-TC : Functor {ℓ} Meta.TC
   Functor-TC ._<$>_ = M._<$>_
     where import Reflection.TypeChecking.MonadSyntax as M
+
+  Functor-Abs : Functor Meta.Abs
+  Functor-Abs ._<$>_ = A.map
+    where import Reflection.Abstraction as A
+
+  Functor-Arg : Functor {ℓ} Meta.Arg
+  Functor-Arg ._<$>_ = A.map
+    where import Reflection.Argument as A

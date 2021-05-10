@@ -3,14 +3,12 @@ module Prelude.Monad where
 open import Prelude.Init
 import Reflection as R
 
-private
-  variable
-    ℓ : Level
+private variable ℓ : Level
 
 Monad : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
 Monad {ℓ = ℓ} = RawMonad {f = ℓ}
-open RawMonad {{...}} public
-  renaming (_⊛_ to _<*>_)
+open RawMonad ⦃ ... ⦄ public
+  using (return; _>>=_; _>>_; _=<<_; _>=>_; _<=<_; join)
 
 instance
   Monad-Maybe : Monad {ℓ} Maybe

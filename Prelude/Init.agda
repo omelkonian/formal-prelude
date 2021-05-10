@@ -131,6 +131,7 @@ module V where
   module Mem where
     open import Data.Vec.Membership.Propositional public
     open import Data.Vec.Membership.Propositional.Properties public
+    -- open import Data.Vec.Membership.DecPropositional public
 
 open import Data.List public
   using ( List; _∷_; []; [_]; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
@@ -153,6 +154,8 @@ module L where
     open import Data.List.Categorical public
   module Mem where
     open import Data.List.Membership.Propositional public
+    -- module Dec where
+    --   open import Data.List.Membership.DecPropositional public
     open import Data.List.Membership.Propositional.Properties public
   module Uniq where
     open import Data.List.Relation.Unary.Unique.Propositional public
@@ -162,7 +165,7 @@ open import Data.List.NonEmpty public
   using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
   renaming ([_] to [_]⁺)
 open import Data.List.Membership.Propositional public
-  using (_∈_; _∉_; mapWith∈; find; lose)
+  using ({-mapWith∈;-} find; lose)
 open import Data.List.Relation.Unary.Any public
   using (Any; here; there)
   renaming (any to any?)

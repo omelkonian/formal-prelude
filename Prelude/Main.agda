@@ -21,11 +21,15 @@ open import Prelude.Ord
 open import Prelude.Functor
 open import Prelude.Bifunctor
 open import Prelude.PointedFunctor
-open import Prelude.Applicative
-open import Prelude.Monad
 open import Prelude.Semigroup
 open import Prelude.Monoid
+open import Prelude.Foldable
+open import Prelude.Applicative
+open import Prelude.Traversable
+open import Prelude.Monad
 open import Prelude.Nary
+
+open import Prelude.Membership
 
 -- ** Data structures
 open import Prelude.Lists
