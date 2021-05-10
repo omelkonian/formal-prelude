@@ -7,7 +7,6 @@ open import Prelude.Init
 open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
-open import Prelude.Listable
 open import Prelude.Functor
 open import Prelude.Maps.Interface
 

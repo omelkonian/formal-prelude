@@ -2,6 +2,7 @@ module Prelude.Sets.Interface where
 
 open import Prelude.Init
 open import Prelude.General
+open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.Measurable
@@ -146,12 +147,12 @@ record ListSetᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     toList : Set' → List A
     fromList : List A → Set'
     from↔to : ∀ xs → Unique xs → toList (fromList xs) ≡ xs
-    ∈ˢ-fromList : ∀ {x xs} → x ∈ xs ↔ x ∈ˢ fromList xs
+    ∈ˢ-fromList : ∀ {x : A} {xs : List A} → x ∈ xs ↔ x ∈ˢ fromList xs
 
-  ∈ˢ-fromList⁺ : ∀ {x xs} → x ∈ xs → x ∈ˢ fromList xs
+  ∈ˢ-fromList⁺ : ∀ {x : A} {xs : List A} → x ∈ xs → x ∈ˢ fromList xs
   ∈ˢ-fromList⁺ = proj₁ ∈ˢ-fromList
 
-  ∈ˢ-fromList⁻ : ∀ {x xs} → x ∈ˢ fromList xs → x ∈ xs
+  ∈ˢ-fromList⁻ : ∀ {x : A} {xs : List A} → x ∈ˢ fromList xs → x ∈ xs
   ∈ˢ-fromList⁻ = proj₂ ∈ˢ-fromList
 
   instance

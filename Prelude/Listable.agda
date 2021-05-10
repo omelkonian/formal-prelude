@@ -1,20 +1,23 @@
 ------------------------------------------------------------------------
--- Finite types with a (finite) list witness. 
+-- Finite types with a (finite) list witness.
 ------------------------------------------------------------------------
 module Prelude.Listable where
 
 open import Prelude.Init
-open import Prelude.Decidable
-open import Prelude.DecEq
 open import Prelude.Nary
 open import Prelude.Lists
+open import Prelude.Membership
+open import Prelude.Decidable
+open import Prelude.DecEq
 
-record Listable {ℓ} (A : Set ℓ) : Set ℓ where
+private variable ℓ : Level
+
+record Listable {ℓ : Level} (A : Set ℓ) : Set ℓ where
   field
     witness : List A
-    finite  : ∀ x → x ∈ witness
+    finite  : ∀ (x : A) → x ∈ witness
 
-open Listable {{...}} public
+open Listable ⦃ ... ⦄ public
 
 private
   variable

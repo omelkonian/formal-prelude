@@ -9,6 +9,10 @@ import Prelude.Sets.AsUniqueLists as S₁
 import Prelude.Sets.AsPredicates  as S₂
 
 open import Prelude.DecEq
+open import Prelude.Membership
+
+-- open Setᴵ (Setᴵ A _ ∋ record {S₂}) public
+--   renaming (_≈_ to _≈ˢ_)
 
 module _ ⦃ _ : DecEq A ⦄ where
   open Setᴵ (Setᴵ A _ ∋ record {S₁}) public

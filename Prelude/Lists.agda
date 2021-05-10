@@ -13,8 +13,9 @@ open import Data.List.Membership.Propositional.Properties
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭)
 import Data.List.Relation.Binary.Pointwise as PW
 
-open import Prelude.Init renaming (sum to ∑ℕ)
+open import Prelude.Init
 open L.NE using (last)
+open L.Mem using (_∈_; _∉_; mapWith∈)
 open import Prelude.General
 open import Prelude.ToN
 open import Prelude.Bifunctor
@@ -31,7 +32,7 @@ private
     C : Set c
 
     x y z : A
-    xs ys zs : List A
+    xs xs′ xs″ ys ys′ ys″ zs zs′ zs″ : List A
 
     m n : ℕ
 
@@ -132,6 +133,12 @@ x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
 
 mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
 mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
+
+map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate : ∀ {A B : Set} {m : ℕ} (xs : List A) {P : Fin (suc m) × A → B} {f : Index xs → Fin m}
+ → map P (zip (L.tabulate {n = length xs} (fsuc ∘ f)) xs)
+ ≡ map (P ∘ map₁ fsuc) (zip (L.tabulate {n = length xs} f) xs)
+map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate [] = refl
+map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate {A}{B}{m} (x ∷ xs) {P = P} {f = f} = cong (_ ∷_) $ map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate {A}{B}{m} xs {P = P} {f = f ∘ fsuc}
 
 ‼-suc : ∀ {x : A} {xs : List A} {i : Index xs}
   → (x ∷ xs ‼ fsuc i)
@@ -245,6 +252,24 @@ allPairs xs = cartesianProduct xs xs
 unzip₃ : List (A × B × C) → List A × List B × List C
 unzip₃ = map₂ unzip ∘ unzip
 
+length-unzip₃ : ∀ (xyzs : List (A × B × C)) → let xs , ys , zs = unzip₃ xyzs in
+    (length xs ≡ length xyzs)
+  × (length ys ≡ length xyzs)
+  × (length zs ≡ length xyzs)
+length-unzip₃ [] = refl , refl , refl
+length-unzip₃ (_ ∷ xyzs) =
+  let xs≡ , ys≡ , zs≡ = length-unzip₃ xyzs
+  in cong suc xs≡ , cong suc ys≡ , cong suc zs≡
+
+length-unzip₃₁ : ∀ (xyzs : List (A × B × C)) → length (proj₁ $ unzip₃ xyzs) ≡ length xyzs
+length-unzip₃₁ = proj₁ ∘ length-unzip₃
+
+length-unzip₃₂ : ∀ (xyzs : List (A × B × C)) → length (proj₁ $ proj₂ $ unzip₃ xyzs) ≡ length xyzs
+length-unzip₃₂ = proj₁ ∘ proj₂ ∘ length-unzip₃
+
+length-unzip₃₃ : ∀ (xyzs : List (A × B × C)) → length (proj₂ $ proj₂ $ unzip₃ xyzs) ≡ length xyzs
+length-unzip₃₃ = proj₂ ∘ proj₂ ∘ length-unzip₃
+
 filter₁ : List (A ⊎ B) → List A
 filter₁ = mapMaybe isInj₁
 
@@ -304,6 +329,8 @@ private
   variable
     P : Pred₀ A
 
+infixr 0 _↦′_ _↦_
+
 _↦′_ : List A → (A → Set b) → Set _
 xs ↦′ P = ∀ {x} → x ∈ xs → P x
 
@@ -322,6 +349,10 @@ codom = mapWith∈ _
 weaken-↦ : xs ↦′ P → ys ⊆ xs → ys ↦′ P
 weaken-↦ f ys⊆xs = f ∘ ys⊆xs
 
+cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ xs) ↦′ P
+cons-↦ _ y _ (here refl) = y
+cons-↦ _ _ f (there x∈)  = f x∈
+
 extend-↦ : ∀ {xs ys zs : List A}
   → zs ↭ xs ++ ys
   → xs ↦′ P
@@ -330,6 +361,9 @@ extend-↦ : ∀ {xs ys zs : List A}
 extend-↦ zs↭ xs↦ ys↦ p∈ with ∈-++⁻ _ (∈-resp-↭ zs↭ p∈)
 ... | inj₁ x∈ = xs↦ x∈
 ... | inj₂ y∈ = ys↦ y∈
+
+cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P
+cong-↦ f refl = f
 
 -- Any-mapWith∈⁻ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B} {P : B → Set} → Any P (mapWith∈ xs f) → Any (P ∘ f) xs
 -- Any-mapWith∈⁻ {xs = x ∷ xs} (here p)  = here p
@@ -707,6 +741,9 @@ finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)
 private
   variable
     X Y : ℕ → Set
+
+∑ℕ : List ℕ → ℕ
+∑ℕ = sum
 
 ∑⁺ : List⁺ ℕ → ℕ
 ∑⁺ = ∑ℕ ∘ toList

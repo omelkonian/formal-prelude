@@ -7,7 +7,6 @@
 open import Prelude.Init
 open import Prelude.DecEq
 open import Prelude.Decidable
-open import Prelude.Listable
 open import Prelude.Functor
 
 module Prelude.AsPartialFunctions3 {K V : Set} where

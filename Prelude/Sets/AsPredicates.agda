@@ -11,7 +11,7 @@ open import Prelude.Sets.Interface
 
 import Relation.Unary as U
 
-module Prelude.Sets.AsPredicates {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Sets.AsPredicates {A : Set} where
 
 abstract
 

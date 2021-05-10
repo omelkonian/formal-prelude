@@ -2,6 +2,7 @@ module Prelude.Decidable where
 
 open import Prelude.Init
 open import Prelude.DecEq
+open import Prelude.DecLists
 open import Prelude.Nary
 
 record Decidable {p} (P : Set p) : Set p where
@@ -15,11 +16,11 @@ record Decidable {p} (P : Set p) : Set p where
   -- ¬auto : ∀ {pr : False dec} → ¬ P
   -- ¬auto {pr} = toWitnessFalse pr
 
-open Decidable {{...}} public
+open Decidable ⦃ ... ⦄ public
 
 syntax Decidable A = A ⁇
 
-¿_¿ : ∀ {ℓ} (X : Set ℓ) {{_ : Decidable X}} → Dec X
+¿_¿ : ∀ {ℓ} (X : Set ℓ) ⦃ _ : Decidable X ⦄ → Dec X
 ¿ _ ¿ = dec
 
 private
@@ -29,20 +30,20 @@ private
     B : Set b
 
 instance
-  Dec-→ : {{_ : A ⁇}} {{_ : B ⁇}} → (A → B) ⁇
+  Dec-→ : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A → B) ⁇
   Dec-→ .dec = dec →-dec dec
 
   -- NB: Already covered by implication
-  -- Dec-¬ : {{_ : A ⁇}} → (¬ A) ⁇
+  -- Dec-¬ : ⦃ _ : A ⁇ ⦄ → (¬ A) ⁇
   -- Dec-¬ .dec = ¬? dec
 
-  Dec-× : {{_ : A ⁇}} {{_ : B ⁇}} → (A × B) ⁇
+  Dec-× : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A × B) ⁇
   Dec-× .dec = dec ×-dec dec
 
-  Dec-⊎ : {{_ : A ⁇}} {{_ : B ⁇}} → (A ⊎ B) ⁇
+  Dec-⊎ : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A ⊎ B) ⁇
   Dec-⊎ .dec = dec ⊎-dec dec
 
-  DecEq⇒Dec : {{_ : DecEq A}} {x y : A} → (x ≡ y) ⁇
+  DecEq⇒Dec : ⦃ _ : DecEq A ⦄ {x y : A} → (x ≡ y) ⁇
   DecEq⇒Dec .dec = _ ≟ _
 
 --
@@ -70,29 +71,29 @@ instance
   Dec-T .dec = T? _
 
   -- Data.Maybe
-  Dec-All : {{_ : ∀ {xs} → P¹ xs ⁇}} → All P¹ xs ⁇
+  Dec-All : ⦃ _ : ∀ {xs} → P¹ xs ⁇ ⦄ → All P¹ xs ⁇
   Dec-All .dec = all? (λ _ → dec) _
 
-  Dec-Any : {{_ : ∀ {xs} → P¹ xs ⁇}} → Any P¹ xs ⁇
+  Dec-Any : ⦃ _ : ∀ {xs} → P¹ xs ⁇ ⦄ → Any P¹ xs ⁇
   Dec-Any .dec = any? (λ _ → dec) _
 
-  Dec-AllPairs : {{_ : ∀ {x y} → P² x y ⁇}} → AllPairs P² xs ⁇
+  Dec-AllPairs : ⦃ _ : ∀ {x y} → P² x y ⁇ ⦄ → AllPairs P² xs ⁇
   Dec-AllPairs .dec = allPairs? (λ _ _ → dec) _
 
-  Dec-MAll : {{_ : ∀ {mx} → P¹ mx ⁇}} → M.All.All P¹ mx ⁇
+  Dec-MAll : ⦃ _ : ∀ {mx} → P¹ mx ⁇ ⦄ → M.All.All P¹ mx ⁇
   Dec-MAll .dec = M.All.dec (λ _ → dec) _
 
-  Dec-MAny : {{_ : ∀ {mx} → P¹ mx ⁇}} → M.Any.Any P¹ mx ⁇
+  Dec-MAny : ⦃ _ : ∀ {mx} → P¹ mx ⁇ ⦄ → M.Any.Any P¹ mx ⁇
   Dec-MAny .dec = M.Any.dec (λ _ → dec) _
 
   -- Data.List
-  Dec-⊆ : {A : Set} {{da : DecEq A}} {xs ys : List A} → (xs ⊆ ys) ⁇
+  Dec-⊆ : {A : Set} ⦃ da : DecEq A ⦄ {xs ys : List A} → (xs ⊆ ys) ⁇
   Dec-⊆ .dec = _ ⊆? _
 
 {-
   open import Data.List.Relation.Ternary.Interleaving
 
-  Dec-Interleave : {{_ : DecEq A}} {xs ys zs : List A} → (Interleaving _≡_ _≡_ xs ys zs) ⁇
+  Dec-Interleave : ⦃ _ : DecEq A ⦄ {xs ys zs : List A} → (Interleaving _≡_ _≡_ xs ys zs) ⁇
   Dec-Interleave {xs = xs} {ys = ys} {zs = []}     .dec = {!!}
   Dec-Interleave {xs = xs} {ys = ys} {zs = z ∷ zs} .dec = {!!}
 -}
@@ -106,7 +107,7 @@ private
         × (8 ≡ 17 ∸ 10) )
   _ = auto
 
-  _ : ∀ {{da : DecEq A}} {m : Maybe (List A)} {x₁ x₂ : A}
+  _ : ∀ ⦃ da : DecEq A ⦄ {m : Maybe (List A)} {x₁ x₂ : A}
     → Dec
     $ M.Any.Any (λ xs → ( (xs ≡ ⟦ x₁ , x₂ ⟧)
                         × (Any (const ⊤) xs)
@@ -152,17 +153,17 @@ private
 
 {-
   -- ** Dependent records (advanced)
-  record Valid {{da : DecEq A}} (m : Maybe (List A)) (x₁ x₂ : A) : Set where
+  record Valid ⦃ da : DecEq A ⦄ (m : Maybe (List A)) (x₁ x₂ : A) : Set where
     field
       p₁ : M.Any.Any (λ xs → ( (xs ≡ ⟦ x₁ , x₂ ⟧)
                             × (Any (const ⊤) xs)
-                            ⊎ (_⊆_ (_≟_ {{da}}) ⟦ x₁ , x₂ ⟧ xs)
+                            ⊎ (_⊆_ (_≟_ ⦃ da ⦄) ⟦ x₁ , x₂ ⟧ xs)
                             )) m
 
       p₂ : proj₁ (M.Any.satisfied p₁) ≡ ⟦ x₁ , x₂ ⟧
   open Valid
 
-  t : ∀ {{_ : DecEq A}} {m : Maybe (List A)} {x₁ x₂} → (Valid m x₁ x₂) ⁇
+  t : ∀ ⦃ _ : DecEq A ⦄ {m : Maybe (List A)} {x₁ x₂} → (Valid m x₁ x₂) ⁇
   t .dec
     with dec
   ... | no ¬p₁ = no  (¬p₁ ∘ p₁)

@@ -196,7 +196,9 @@ open import Relation.Nullary public
 open import Relation.Nullary.Negation public
   using (¬?; contradiction)
 open import Relation.Nullary.Decidable public
-  using (⌊_⌋; toWitness; fromWitness; True; False)
+  using ( ⌊_⌋; toWitness; fromWitness; True; False
+        ; dec-yes; dec-no; dec-true; dec-false
+        )
 open import Relation.Nullary.Implication public
   using (_→-dec_)
 open import Relation.Nullary.Sum public

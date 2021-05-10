@@ -2,6 +2,7 @@ module Prelude.Measurable where
 
 open import Function
 open import Level renaming (suc to lsuc)
+open import Induction
 open import Induction.WellFounded
 open import Data.Sum
 open import Data.Product
@@ -58,6 +59,9 @@ module _ {{_ : Measurable A}} where
 
   ≺-wf : WellFounded _≺_
   ≺-wf = InverseImage.wellFounded ∣_∣ <-wellFounded
+
+  ≺-rec : Recursor (WfRec _≺_)
+  ≺-rec = All.wfRec ≺-wf 0ℓ
 
 _≺ᵐ_ : ∀ {A B : Set} {{_ : Measurable A}} {{_ : Measurable B}} → A → B → Set
 x ≺ᵐ y = toMeasure x ≺ toMeasure y

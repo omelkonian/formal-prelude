@@ -7,6 +7,8 @@ open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++�
 open L.Uniq using (filter⁺; ++⁺; map⁺)
 open import Prelude.General
 open import Prelude.Lists
+open import Prelude.DecLists
+open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.Measurable
 open import Prelude.Bifunctor
@@ -180,7 +182,7 @@ abstract
   from↔to : ∀ xs → Unique xs → toList (fromList xs) ≡ xs
   from↔to _ Uxs rewrite nub-from∘to Uxs = refl
 
-  ∈ˢ-fromList : ∀ {x xs} → x ∈ xs ↔ x ∈ˢ fromList xs
+  ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
   ∈ˢ-fromList = ∈-nub⁺ , ∈-nub⁻
 
 
