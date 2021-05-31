@@ -6,8 +6,6 @@ open import Prelude.Foldable
 open import Prelude.Applicative
 open import Prelude.Monad
 
-private variable ℓ : Level
-
 record TraversableA (F : Set ℓ → Set ℓ) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Set (lsuc ℓ) where
   field
     sequenceA : ∀ {A} {M : Set ℓ → Set ℓ} ⦃ _ : Applicative M ⦄ → F (M A) → M (F A)

@@ -13,9 +13,8 @@ open import Prelude.Monad
 
 private
   variable
-    ℓ ℓ′ ℓ″ a b : Level
-    A : Set a
-    B : Set b
+    A : Set ℓ₁
+    B : Set ℓ₂
     x y : A
     xs ys : List A
 
@@ -24,7 +23,7 @@ infix -1 _↔_
 infix -1 _⇔_
 infix -1 _⊢_
 
-_↔_ : Set a → Set b → Set (a ⊔ₗ b)
+_↔_ : Set ℓ → Set ℓ′ → Set (ℓ ⊔ₗ ℓ′)
 A ↔ B = (A → B) × (B → A)
 
 _⇔_ : Set ℓ → Set ℓ′ → Set _
@@ -95,7 +94,7 @@ private
         :~ sym (+-identityʳ _) ⟪ ◆ ∣ P ◆ × P (0 + m) ⟫
 
 -- ** N-ary tuples
-_^_ : Set a → ℕ → Set a
+_^_ : Set ℓ → ℕ → Set ℓ
 A ^ 0     = A
 A ^ suc n = A × (A ^ n)
 
@@ -185,7 +184,7 @@ toMaybe-≡ : ∀ {x : A} {xs : List A}
   → ∃[ ys ] (xs ≡ x ∷ ys)
 toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
 
-ap-nothing : ∀ {B : Set b} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
+ap-nothing : ∀ {B : Set ℓ₂} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
 ap-nothing {m = nothing} ()
 ap-nothing {m = just _ } ()
 

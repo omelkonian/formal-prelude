@@ -3,8 +3,6 @@ module Prelude.Foldable where
 open import Prelude.Init
 open import Prelude.Monoid
 
-private variable ℓ : Level
-
 record Foldable (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
   field
     foldMap : ∀ {A : Set ℓ} {M : Set} ⦃ _ : Monoid M ⦄ → (A → M) → F A → M

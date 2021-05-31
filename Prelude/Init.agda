@@ -8,10 +8,19 @@ open import Level public
 2ℓ = lsuc 1ℓ
 3ℓ = lsuc 2ℓ
 4ℓ = lsuc 3ℓ
+variable ℓ ℓ′ ℓ″ ℓ‴ ℓ₀ ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level
 
 -- ** Functions
 open import Function public
-  using (_∘_; _$_; case_of_; _∋_; flip; _on_; const; it; id)
+  using ( id; const
+        ; _∘_; flip; _$_; _$!_; _$-; _|>_; case_return_of_
+        ; _∘′_; _$′_; _$!′_; _|>′_; case_of_
+        ; _∋_; _on_; typeOf; it
+        )
+-- forward composition (= kleene composition of `Monad Id`)
+_>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
+f >≡> g = g ∘ f
+
 open import Function.Definitions public
   using (Injective)
 open import Function.Bundles public
@@ -85,7 +94,7 @@ open import Data.Fin public
   using (Fin; #_)
   renaming (suc to fsuc; zero to fzero)
 open import Data.Fin.Patterns public
-  using (0F; 1F)
+  using (0F; 1F; 2F; 3F; 4F; 5F; 6F; 7F; 8F; 9F)
 module F where
   open import Data.Fin public
   open import Data.Fin.Properties public
@@ -134,7 +143,7 @@ module V where
     -- open import Data.Vec.Membership.DecPropositional public
 
 open import Data.List public
-  using ( List; _∷_; []; [_]; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
+  using ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
         ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null; allFin )
 module L where
   open import Data.List public
@@ -160,6 +169,9 @@ module L where
   module Uniq where
     open import Data.List.Relation.Unary.Unique.Propositional public
     open import Data.List.Relation.Unary.Unique.Propositional.Properties public
+  module Perm where
+    open import Data.List.Relation.Binary.Permutation.Propositional public
+    open import Data.List.Relation.Binary.Permutation.Propositional.Properties public
 
 open import Data.List.NonEmpty public
   using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
@@ -199,8 +211,9 @@ open import Relation.Nullary public
 open import Relation.Nullary.Negation public
   using (¬?; contradiction)
 open import Relation.Nullary.Decidable public
-  using ( ⌊_⌋; toWitness; fromWitness; True; False
-        ; dec-yes; dec-no; dec-true; dec-false
+  using ( ⌊_⌋; isNo; isYes; True; False
+        ; toWitness; fromWitness; toWitnessFalse; fromWitnessFalse
+        ; dec-yes; dec-no; dec-true; dec-false; dec-yes-irr
         )
 open import Relation.Nullary.Implication public
   using (_→-dec_)
@@ -239,13 +252,16 @@ module WF where
 
 -- ** Reflection
 module Meta where
-  open import Reflection hiding (_≟_; _>>_; _>>=_; return) public
+  open import Reflection public
+    hiding (_≟_; _>>_; _>>=_; return)
   open import Reflection.Term public
     hiding (_≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_; _≟-Clauses_; _≟_; _≟-Sort_)
   open import Reflection.Argument public
     using (unArg)
   open import Reflection.Abstraction public
     using (unAbs)
+  open import Reflection.Argument.Visibility public
+    using (Visibility)
 
 -- ** Shorthands
 Pred₀ Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)

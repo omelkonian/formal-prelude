@@ -10,9 +10,7 @@ open import Prelude.Membership
 open import Prelude.Decidable
 open import Prelude.DecEq
 
-private variable ℓ : Level
-
-record Listable {ℓ : Level} (A : Set ℓ) : Set ℓ where
+record Listable (A : Set ℓ) : Set ℓ where
   field
     witness : List A
     finite  : ∀ (x : A) → x ∈ witness

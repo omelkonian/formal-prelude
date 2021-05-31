@@ -2,8 +2,6 @@ module Prelude.Functor where
 
 open import Prelude.Init
 
-private variable ℓ : Level
-
 Functor : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
 Functor {ℓ = ℓ} = RawFunctor {ℓ = ℓ} {ℓ′ = ℓ}
 open RawFunctor ⦃ ... ⦄ public

@@ -2,8 +2,6 @@ module Prelude.Semigroup where
 
 open import Prelude.Init
 
-private variable ℓ : Level
-
 record Semigroup (A : Set ℓ) : Set ℓ where
   infixr 5 _◇_ _<>_
   field

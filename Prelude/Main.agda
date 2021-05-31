@@ -8,10 +8,12 @@ open import Prelude.General
 
 -- ** Metaprogramming utilities
 open import Prelude.Generics
+open import Prelude.Match
 
 -- ** Typeclasses
 open import Prelude.Default
 open import Prelude.ToN
+open import Prelude.ToList
 open import Prelude.Show
 open import Prelude.DecEq
 open import Prelude.Measurable
@@ -30,6 +32,9 @@ open import Prelude.Monad
 open import Prelude.Nary
 
 open import Prelude.Membership
+
+-- ** Closures
+open import Prelude.Closures
 
 -- ** Data structures
 open import Prelude.Lists

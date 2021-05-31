@@ -2,8 +2,7 @@ module Prelude.PointedFunctor where
 
 open import Prelude.Init
 open import Prelude.Functor
-
-private variable ℓ : Level
+open import Prelude.Applicative
 
 record PointedFunctor (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
   field
@@ -13,6 +12,10 @@ record PointedFunctor (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
 open PointedFunctor ⦃ ... ⦄ public
 
 instance
+  -- [ISSUE] leads to unresolved metavariables
+  -- Applicative⇒PFunctor : ∀ {F : Set ℓ → Set ℓ} ⦃ _ : Functor F ⦄ ⦃ _ : Applicative F ⦄ → PointedFunctor F
+  -- Applicative⇒PFunctor .point = pure
+
   PFunctor-Maybe : PointedFunctor {ℓ} Maybe
   PFunctor-Maybe .point = just
 

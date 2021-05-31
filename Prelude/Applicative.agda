@@ -2,8 +2,6 @@ module Prelude.Applicative where
 
 open import Prelude.Init
 
-private variable ℓ : Level
-
 Applicative : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
 Applicative {ℓ = ℓ} = RawApplicative {f = ℓ}
 open RawApplicative ⦃ ... ⦄ public
