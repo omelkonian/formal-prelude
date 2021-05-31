@@ -3,7 +3,7 @@ open import Prelude.Membership
 open import Prelude.Lists
 open import Prelude.DecEq
 
-module Prelude.DecLists {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.DecLists {a} {A : Set a} ⦃ _ : DecEq A ⦄ where
   private
     variable
       x y z : A
@@ -64,7 +64,7 @@ module Prelude.DecLists {A : Set} ⦃ _ : DecEq A ⦄ where
   ... | yes _ = nubBy f xs
   ... | no  _ = x ∷ nubBy f xs
 
-  nub-all : ∀ {P : A → Set} → All P xs → All P (nub xs)
+  nub-all : ∀ {p}{P : Pred A p} → All P xs → All P (nub xs)
   nub-all {xs = []}     []       = []
   nub-all {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
   ... | yes _ = nub-all ps
