@@ -3,8 +3,6 @@ module Prelude.Monoid where
 open import Prelude.Init
 open import Prelude.Semigroup public
 
-private variable ℓ : Level
-
 record Monoid (A : Set ℓ) : Set ℓ where
   field
     ε : A

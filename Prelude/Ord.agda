@@ -1,8 +1,7 @@
 module Prelude.Ord where
 
 open import Prelude.Init hiding (_≤_; _≤?_; _≥_; _≥?_)
-
-private variable ℓ : Level
+open import Prelude.Lists
 
 record Ord (A : Set ℓ) : Set (lsuc ℓ) where
   field
@@ -43,3 +42,7 @@ instance
   DecOrd-ℕ : DecOrd ℕ
   DecOrd.super DecOrd-ℕ = it
   DecOrd-ℕ ._≤?_ = Nat._≤?_
+
+postulate
+  ∀≤max⁺ : ∀ (ts : List⁺ ℕ) → All⁺ (_≤ maximum⁺ ts) ts
+  ∀≤max : ∀ t₀ (ts : List ℕ) → All (_≤ maximum t₀ ts) ts
