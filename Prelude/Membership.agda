@@ -8,13 +8,12 @@ import Data.Vec.Membership.DecPropositional as DV
 
 private
   variable
-    a b ℓ : Level
-    A : Set a
-    B : Set b
+    A : Set ℓ₁
+    B : Set ℓ₂
     n : ℕ
 
 record HasMembership (F : Set ℓ → Set ℓ) : Set (lsuc $ lsuc ℓ) where
-  infix 4 _∈_ _∉_
+  infix 4 _∈_ _∉_ _∈?_ _∉?_
   field
     _∈_ : A → F A → Set ℓ
     _∈?_ : ⦃ _ : DecEq A ⦄ → Decidable² {A = A} _∈_
