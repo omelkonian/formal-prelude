@@ -80,7 +80,7 @@ concatForM : List A → (A → TC (List B)) → TC (List B)
 concatForM xs f = concat <$> forM xs f
 
 return⊤ : TC A → TC ⊤
-return⊤ k = k >> return tt
+return⊤ k = k ≫ return tt
 
 filterM : (A → TC Bool) → List A → TC (List A)
 filterM _ [] = return []
@@ -100,15 +100,37 @@ mapVariables f (Pattern.var s)      = Pattern.var (f s)
 mapVariables f (Pattern.con c args) = Pattern.con c $ map (λ{ (arg i p) → arg i (mapVariables f p) }) args
 mapVariables _ p                    = p
 
-viewTy : Type → Args Type × Type
-viewTy (Π[ _ ∶ a ] ty) = Product.map₁ (a ∷_) (viewTy ty)
+-- alternative view of function types as a pair of a list of arguments and a return type
+TypeView = List (Abs (Arg Type)) × Type
+
+viewTy : Type → TypeView
+viewTy (Π[ s ∶ a ] ty) = Product.map₁ ((abs s a) ∷_) (viewTy ty)
 viewTy ty              = [] , ty
 
+tyView : TypeView → Type
+tyView ([] , ty) = ty
+tyView (abs s a ∷ as , ty) = Π[ s ∶ a ] tyView (as , ty)
+
+argumentWise : (Type → Type) → Type → Type
+argumentWise f ty =
+  let
+    as , r = viewTy ty
+    as′ = map (fmap $ fmap f) as
+  in tyView (as′ , r)
+
+viewTy′ : Type → Args Type × Type
+viewTy′ (Π[ _ ∶ a ] ty) = Product.map₁ (a ∷_) (viewTy′ ty)
+viewTy′ ty              = [] , ty
+
+-- mkTy : Args Type × Type → Type
+-- mkTy ([] , ty) = ty
+-- mkTy (a ∷ as , ty) = Π[ _ ∶ a ] mkTy (as , ty)
+
 argTys : Type → Args Type
-argTys = proj₁ ∘ viewTy
+argTys = proj₁ ∘ viewTy′
 
 resultTy : Type → Type
-resultTy = proj₂ ∘ viewTy
+resultTy = proj₂ ∘ viewTy′
 
 tyName : Type → Maybe Name
 tyName (con n _) = just n
