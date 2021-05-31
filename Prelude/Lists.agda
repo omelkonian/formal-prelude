@@ -249,6 +249,20 @@ allPairs xs = cartesianProduct xs xs
 ------------------------------------------------------------------------
 -- General utilities.
 
+proj₁∘unzip≡map∘proj₁ : (xys : List (A × B)) → proj₁ (unzip xys) ≡ map proj₁ xys
+proj₁∘unzip≡map∘proj₁ [] = refl
+proj₁∘unzip≡map∘proj₁ (_ ∷ xys) rewrite proj₁∘unzip≡map∘proj₁ xys = refl
+
+proj₂∘unzip≡map∘proj₂ : (xys : List (A × B)) → proj₂ (unzip xys) ≡ map proj₂ xys
+proj₂∘unzip≡map∘proj₂ [] = refl
+proj₂∘unzip≡map∘proj₂ (_ ∷ xys) rewrite proj₂∘unzip≡map∘proj₂ xys = refl
+
+∈-unzip⁻ˡ : (xys : List (A × B)) → x ∈ proj₁ (unzip xys) → ∃ λ xy → xy ∈ xys × x ≡ proj₁ xy
+∈-unzip⁻ˡ xys rewrite proj₁∘unzip≡map∘proj₁ xys = ∈-map⁻ proj₁
+
+∈-unzip⁻ʳ : (xys : List (A × B)) → y ∈ proj₂ (unzip xys) → ∃ λ xy → xy ∈ xys × y ≡ proj₂ xy
+∈-unzip⁻ʳ xys rewrite proj₂∘unzip≡map∘proj₂ xys = ∈-map⁻ proj₂
+
 unzip₃ : List (A × B × C) → List A × List B × List C
 unzip₃ = map₂ unzip ∘ unzip
 
