@@ -30,4 +30,4 @@ instance
 
   PFunctor-TC : PointedFunctor {ℓ} Meta.TC
   PFunctor-TC .point = M.pure
-    where import Reflection.TypeChecking.MonadSyntax as M
+    where import Reflection.TypeChecking.Monad.Syntax as M

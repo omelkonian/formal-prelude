@@ -179,11 +179,9 @@ open import Data.List.NonEmpty public
 open import Data.List.Membership.Propositional public
   using ({-mapWith∈;-} find; lose)
 open import Data.List.Relation.Unary.Any public
-  using (Any; here; there)
-  renaming (any to any?)
+  using (Any; here; there; any?)
 open import Data.List.Relation.Unary.All public
-  using (All; _∷_; [])
-  renaming (all to all?)
+  using (All; _∷_; []; all?)
 open import Data.List.Relation.Unary.AllPairs public
   using (AllPairs; _∷_; []; allPairs?)
 open import Data.List.Relation.Unary.Unique.Propositional public

@@ -297,7 +297,7 @@ map-proj₁-map₁ {xs = []} = refl
 map-proj₁-map₁ {xs = x ∷ xs} {f = f} rewrite map-proj₁-map₁ {xs = xs} {f = f} = refl
 
 findElem : ∀ {P : Pred A 0ℓ} → Decidable¹ P → List A → Maybe (A × List A)
-findElem P? xs with L.Any.any P? xs
+findElem P? xs with L.Any.any? P? xs
 ... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
 ... | no  _  = nothing
 
@@ -308,19 +308,19 @@ concat-∷ : ∀ {x : List A} {xs : List (List A)}
 concat-∷ {xs = []}    = refl
 concat-∷ {xs = _ ∷ _} = refl
 
-concat-++ : ∀ (xs : List (List A)) (ys : List (List A))
-  → concat (xs ++ ys) ≡ concat xs ++ concat ys
-concat-++ []         _          = refl
-concat-++ (xs ∷ xss) []         rewrite ++-identityʳ xss = sym (++-identityʳ _)
-concat-++ (xs ∷ xss) (ys ∷ yss) =
-  begin concat ((xs ∷ xss) ++ (ys ∷ yss))       ≡⟨⟩
-        concat (xs ∷ (xss ++ (ys ∷ yss)))       ≡⟨ concat-∷ {x = xs}{xss ++ (ys ∷ yss)} ⟩
-        xs ++ concat (xss ++ (ys ∷ yss))        ≡⟨ cong (xs ++_) (concat-++ xss (ys ∷ yss)) ⟩
-        xs ++ (concat xss ++ concat (ys ∷ yss)) ≡⟨ sym $ ++-assoc xs (concat xss) (concat (ys ∷ yss)) ⟩
-        (xs ++ concat xss) ++ concat (ys ∷ yss) ≡⟨ cong (_++ _) (sym $ concat-∷ {x = xs}{xss}) ⟩
-        concat (xs ∷ xss) ++ concat (ys ∷ yss)
-  ∎
-  where open ≡-Reasoning
+-- concat-++ : ∀ (xs : List (List A)) (ys : List (List A))
+--   → concat (xs ++ ys) ≡ concat xs ++ concat ys
+-- concat-++ []         _          = refl
+-- concat-++ (xs ∷ xss) []         rewrite ++-identityʳ xss = sym (++-identityʳ _)
+-- concat-++ (xs ∷ xss) (ys ∷ yss) =
+--   begin concat ((xs ∷ xss) ++ (ys ∷ yss))       ≡⟨⟩
+--         concat (xs ∷ (xss ++ (ys ∷ yss)))       ≡⟨ concat-∷ {x = xs}{xss ++ (ys ∷ yss)} ⟩
+--         xs ++ concat (xss ++ (ys ∷ yss))        ≡⟨ cong (xs ++_) (concat-++ xss (ys ∷ yss)) ⟩
+--         xs ++ (concat xss ++ concat (ys ∷ yss)) ≡⟨ sym $ ++-assoc xs (concat xss) (concat (ys ∷ yss)) ⟩
+--         (xs ++ concat xss) ++ concat (ys ∷ yss) ≡⟨ cong (_++ _) (sym $ concat-∷ {x = xs}{xss}) ⟩
+--         concat (xs ∷ xss) ++ concat (ys ∷ yss)
+--   ∎
+--   where open ≡-Reasoning
 
 -- concatMap
 
@@ -333,7 +333,7 @@ concatMap-++ : ∀ {A B : Set} {xs ys : List A} {f : A → List B}
 concatMap-++ {xs = xs}{ys}{f} =
   begin concatMap f (xs ++ ys)                 ≡⟨⟩
         concat (map f (xs ++ ys))              ≡⟨ cong concat (map-++-commute f xs ys) ⟩
-        concat (map f xs ++ map f ys)          ≡⟨ concat-++ (map f xs) (map f ys) ⟩
+        concat (map f xs ++ map f ys)          ≡⟨ sym (concat-++ (map f xs) (map f ys)) ⟩
         concat (map f xs) ++ concat (map f ys) ≡⟨⟩
         concatMap f xs ++ concatMap f ys ∎
   where open ≡-Reasoning

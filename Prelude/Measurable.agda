@@ -10,6 +10,7 @@ open import Data.List
 open import Data.Nat hiding (_⊔_)
 open import Data.Nat.Induction
 open import Relation.Binary
+import Relation.Binary.Construct.On as On
 
 open import Prelude.General
 
@@ -58,7 +59,7 @@ module _ {{_ : Measurable A}} where
   _≺_ = _<_ on ∣_∣
 
   ≺-wf : WellFounded _≺_
-  ≺-wf = InverseImage.wellFounded ∣_∣ <-wellFounded
+  ≺-wf = On.wellFounded ∣_∣ <-wellFounded
 
   ≺-rec : Recursor (WfRec _≺_)
   ≺-rec = All.wfRec ≺-wf 0ℓ

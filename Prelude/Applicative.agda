@@ -23,7 +23,7 @@ instance
 
   Applicative-TC : Applicative {ℓ} Meta.TC
   Applicative-TC = record {pure = M.pure; _⊛_ = M._<*>_}
-    where import Reflection.TypeChecking.MonadSyntax as M
+    where import Reflection.TypeChecking.Monad.Syntax as M
 
   -- Applicative-∃Vec : Applicative {ℓ} (∃ ∘ Vec)
   -- Applicative-∃Vec = record { pure = λ x → 1 , pure x ; _⊛_ = λ{ (_ , v) (_ , v′) → _ , (V._⊛_ v v′) } }

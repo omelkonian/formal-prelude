@@ -16,7 +16,7 @@ record HasMembership (F : Set ℓ → Set ℓ) : Set (lsuc $ lsuc ℓ) where
   infix 4 _∈_ _∉_ _∈?_ _∉?_
   field
     _∈_ : A → F A → Set ℓ
-    _∈?_ : ⦃ _ : DecEq A ⦄ → Decidable² {A = A} _∈_
+    _∈?_ : ⦃ DecEq A ⦄ → Decidable² {A = A} _∈_
 
   _∉_ : A → F A → Set ℓ
   x ∉ xs = ¬ x ∈ xs
@@ -38,6 +38,10 @@ instance
   M-List⁺ : HasMembership {ℓ} List⁺
   M-List⁺ ._∈_ x xs = x ∈ L.NE.toList xs
   M-List⁺ ._∈?_ x xs = x ∈? L.NE.toList xs
+
+  M-Maybe : HasMembership {ℓ} Maybe
+  M-Maybe ._∈_ x mx = M.Any.Any (_≡ x) mx
+  M-Maybe ._∈?_ x mx = M.Any.dec (_≟ x) mx
 
 record Functor∈ (F : Set ℓ → Set ℓ) ⦃ _ : HasMembership F ⦄ : Set (lsuc ℓ) where
   field
