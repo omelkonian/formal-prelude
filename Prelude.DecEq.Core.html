@@ -5,9 +5,9 @@
 
 <a id="60" class="Keyword">private</a>
   <a id="70" class="Keyword">variable</a>
-    <a id="83" href="Prelude.DecEq.Core.html#83" class="Generalizable">A</a> <a id="85" href="Prelude.DecEq.Core.html#85" class="Generalizable">B</a> <a id="87" class="Symbol">:</a> <a id="89" class="PrimitiveType">Set</a> <a id="93" href="Prelude.Init.html#188" class="Generalizable">ℓ</a>
+    <a id="83" href="Prelude.DecEq.Core.html#83" class="Generalizable">A</a> <a id="85" href="Prelude.DecEq.Core.html#85" class="Generalizable">B</a> <a id="87" class="Symbol">:</a> <a id="89" class="PrimitiveType">Set</a> <a id="93" href="Prelude.Init.html#194" class="Generalizable">ℓ</a>
 
-<a id="96" class="Keyword">record</a> <a id="DecEq"></a><a id="103" href="Prelude.DecEq.Core.html#103" class="Record">DecEq</a> <a id="109" class="Symbol">(</a><a id="110" href="Prelude.DecEq.Core.html#110" class="Bound">A</a> <a id="112" class="Symbol">:</a> <a id="114" class="PrimitiveType">Set</a> <a id="118" href="Prelude.Init.html#188" class="Generalizable">ℓ</a><a id="119" class="Symbol">)</a> <a id="121" class="Symbol">:</a> <a id="123" class="PrimitiveType">Set</a> <a id="127" href="Prelude.DecEq.Core.html#118" class="Bound">ℓ</a> <a id="129" class="Keyword">where</a>
+<a id="96" class="Keyword">record</a> <a id="DecEq"></a><a id="103" href="Prelude.DecEq.Core.html#103" class="Record">DecEq</a> <a id="109" class="Symbol">(</a><a id="110" href="Prelude.DecEq.Core.html#110" class="Bound">A</a> <a id="112" class="Symbol">:</a> <a id="114" class="PrimitiveType">Set</a> <a id="118" href="Prelude.Init.html#194" class="Generalizable">ℓ</a><a id="119" class="Symbol">)</a> <a id="121" class="Symbol">:</a> <a id="123" class="PrimitiveType">Set</a> <a id="127" href="Prelude.DecEq.Core.html#118" class="Bound">ℓ</a> <a id="129" class="Keyword">where</a>
   <a id="137" class="Keyword">field</a>
     <a id="DecEq._≟_"></a><a id="147" href="Prelude.DecEq.Core.html#147" class="Field Operator">_≟_</a> <a id="151" class="Symbol">:</a> <a id="153" href="Relation.Binary.Definitions.html#4575" class="Function">Decidable²</a> <a id="164" class="Symbol">{</a><a id="165" class="Argument">A</a> <a id="167" class="Symbol">=</a> <a id="169" href="Prelude.DecEq.Core.html#110" class="Bound">A</a><a id="170" class="Symbol">}</a> <a id="172" href="Agda.Builtin.Equality.html#151" class="Datatype Operator">_≡_</a>
 
@@ -74,7 +74,7 @@
   <a id="1550" href="Prelude.DecEq.Core.html#1500" class="Function">DecEq-Maybe</a> <a id="1562" class="Symbol">.</a><a id="1563" href="Prelude.DecEq.Core.html#147" class="Field Operator">_≟_</a> <a id="1567" class="Symbol">=</a> <a id="1569" href="Data.Maybe.Properties.html#1028" class="Function">M.≡-dec</a> <a id="1577" href="Prelude.DecEq.Core.html#147" class="Field Operator">_≟_</a>
 
   <a id="1584" class="Comment">-- ** reflection</a>
-  <a id="1603" class="Keyword">open</a> <a id="1608" href="Prelude.Init.html#8561" class="Module">Meta</a>
+  <a id="1603" class="Keyword">open</a> <a id="1608" href="Prelude.Init.html#9181" class="Module">Meta</a>
 
   <a id="DecEq-Name"></a><a id="1616" href="Prelude.DecEq.Core.html#1616" class="Function">DecEq-Name</a> <a id="1627" class="Symbol">:</a> <a id="1629" href="Prelude.DecEq.Core.html#103" class="Record">DecEq</a> <a id="1635" href="Agda.Builtin.Reflection.html#462" class="Postulate">Name</a>
   <a id="1642" href="Prelude.DecEq.Core.html#1616" class="Function">DecEq-Name</a> <a id="1653" class="Symbol">.</a><a id="1654" href="Prelude.DecEq.Core.html#147" class="Field Operator">_≟_</a> <a id="1658" class="Symbol">=</a> <a id="1660" href="Reflection.Name.html#1403" class="Function Operator">RName._≟_</a>

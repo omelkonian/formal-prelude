@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Traces</title><link rel="stylesheet" href="css/Agda.css"></head><body><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.Traces.html" class="Module">Prelude.Traces</a> <a id="23" class="Keyword">where</a>
+
+<a id="30" class="Keyword">open</a> <a id="35" class="Keyword">import</a> <a id="42" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="55" class="Keyword">open</a> <a id="60" class="Keyword">import</a> <a id="67" href="Prelude.Closures.html" class="Module">Prelude.Closures</a>
+<a id="84" class="Keyword">open</a> <a id="89" class="Keyword">import</a> <a id="96" href="Prelude.Decidable.html" class="Module">Prelude.Decidable</a>
+<a id="114" class="Keyword">open</a> <a id="119" class="Keyword">import</a> <a id="126" href="Prelude.Setoid.html" class="Module">Prelude.Setoid</a>
+<a id="141" class="Keyword">open</a> <a id="146" class="Keyword">import</a> <a id="153" href="Prelude.General.html" class="Module">Prelude.General</a>
+<a id="169" class="Keyword">open</a> <a id="174" class="Keyword">import</a> <a id="181" href="Prelude.Validity.html" class="Module">Prelude.Validity</a>
+
+<a id="199" class="Comment">-- Well-rooted traces.</a>
+
+<a id="223" class="Keyword">record</a> <a id="HasInitial"></a><a id="230" href="Prelude.Traces.html#230" class="Record">HasInitial</a> <a id="241" class="Symbol">(</a><a id="242" href="Prelude.Traces.html#242" class="Bound">A</a> <a id="244" class="Symbol">:</a> <a id="246" class="PrimitiveType">Set</a> <a id="250" href="Prelude.Init.html#194" class="Generalizable">ℓ</a><a id="251" class="Symbol">)</a> <a id="253" class="Symbol">:</a> <a id="255" class="PrimitiveType">Set</a> <a id="259" class="Symbol">(</a><a id="260" href="Prelude.Init.html#133" class="Function">1ℓ</a> <a id="263" href="Prelude.Init.html#127" class="Primitive Operator">⊔ₗ</a> <a id="266" href="Prelude.Traces.html#250" class="Bound">ℓ</a><a id="267" class="Symbol">)</a> <a id="269" class="Keyword">where</a>
+  <a id="277" class="Keyword">field</a> <a id="HasInitial.Initial"></a><a id="283" href="Prelude.Traces.html#283" class="Field">Initial</a> <a id="291" class="Symbol">:</a> <a id="293" href="Prelude.Init.html#9627" class="Function">Pred₀</a> <a id="299" href="Prelude.Traces.html#242" class="Bound">A</a>
+
+  <a id="HasInitial.Initial?"></a><a id="304" href="Prelude.Traces.html#304" class="Function">Initial?</a> <a id="313" class="Symbol">:</a> <a id="315" class="Symbol">⦃</a> <a id="317" href="Prelude.Traces.html#283" class="Field">Initial</a> <a id="325" href="Prelude.Decidable.html#504" class="Function Operator">⁇¹</a> <a id="328" class="Symbol">⦄</a> <a id="330" class="Symbol">→</a> <a id="332" href="Relation.Unary.html#3536" class="Function">Decidable¹</a> <a id="343" href="Prelude.Traces.html#283" class="Field">Initial</a>
+  <a id="353" href="Prelude.Traces.html#304" class="Function">Initial?</a> <a id="362" class="Symbol">=</a> <a id="364" href="Prelude.Decidable.html#580" class="Function">dec¹</a>
+<a id="369" class="Keyword">open</a> <a id="374" href="Prelude.Traces.html#230" class="Module">HasInitial</a> <a id="385" class="Symbol">⦃</a> <a id="387" class="Symbol">...</a> <a id="391" class="Symbol">⦄</a> <a id="393" class="Keyword">public</a>
+
+<a id="401" class="Keyword">module</a> <a id="408" href="Prelude.Traces.html#408" class="Module">_</a> <a id="410" class="Symbol">{</a><a id="411" href="Prelude.Traces.html#411" class="Bound">A</a> <a id="413" class="Symbol">:</a> <a id="415" class="PrimitiveType">Set</a> <a id="419" href="Prelude.Init.html#194" class="Generalizable">ℓ</a><a id="420" class="Symbol">}</a> <a id="422" class="Symbol">⦃</a> <a id="424" href="Prelude.Traces.html#424" class="Bound">_</a> <a id="426" class="Symbol">:</a> <a id="428" href="Prelude.Traces.html#230" class="Record">HasInitial</a> <a id="439" href="Prelude.Traces.html#411" class="Bound">A</a> <a id="441" class="Symbol">⦄</a> <a id="443" class="Symbol">(</a><a id="444" href="Prelude.Traces.html#444" class="Bound Operator">_—↠_</a> <a id="449" class="Symbol">:</a> <a id="451" href="Relation.Binary.Core.html#882" class="Function">Rel</a> <a id="455" href="Prelude.Traces.html#411" class="Bound">A</a> <a id="457" href="Prelude.Init.html#196" class="Generalizable">ℓ′</a><a id="459" class="Symbol">)</a> <a id="461" class="Keyword">where</a>
+
+  <a id="470" class="Keyword">record</a> <a id="477" href="Prelude.Traces.html#477" class="Record">Trace</a> <a id="483" class="Symbol">:</a> <a id="485" class="PrimitiveType">Set</a> <a id="489" class="Symbol">(</a><a id="490" href="Prelude.Traces.html#419" class="Bound">ℓ</a> <a id="492" href="Prelude.Init.html#127" class="Primitive Operator">⊔ₗ</a> <a id="495" href="Prelude.Traces.html#457" class="Bound">ℓ′</a><a id="497" class="Symbol">)</a> <a id="499" class="Keyword">where</a>
+    <a id="509" class="Keyword">field</a>
+      <a id="521" href="Prelude.Traces.html#521" class="Field">start</a> <a id="527" href="Prelude.Traces.html#527" class="Field">end</a> <a id="531" class="Symbol">:</a> <a id="533" href="Prelude.Traces.html#411" class="Bound">A</a>
+      <a id="541" href="Prelude.Traces.html#541" class="Field">trace</a> <a id="547" class="Symbol">:</a> <a id="549" href="Prelude.Traces.html#521" class="Field">start</a> <a id="555" href="Prelude.Traces.html#444" class="Bound Operator">—↠</a> <a id="558" href="Prelude.Traces.html#527" class="Field">end</a>
+      <a id="568" class="Comment">-- .init : Initial start</a>
+      <a id="599" href="Prelude.Traces.html#599" class="Field">init</a> <a id="604" class="Symbol">:</a> <a id="606" href="Prelude.Traces.html#283" class="Field">Initial</a> <a id="614" href="Prelude.Traces.html#521" class="Field">start</a>
+  <a id="622" class="Keyword">open</a> <a id="627" href="Prelude.Traces.html#477" class="Module">Trace</a> <a id="633" class="Keyword">public</a>
+
+  <a id="643" class="Comment">-- mapTrace : (A → A) → (L → L)</a>
+
+
+<a id="677" class="Comment">{-
+module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ (_—[_]↠_ : LRel (A , List L) ℓ′) where
+
+  record Trace : Set (ℓ ⊔ₗ ℓ′) where
+    field
+      start end : A
+      labels : List L
+      trace : start —[ labels ]↠ end
+      .init : Initial start
+  open Trace public
+-}</a>
+
+<a id="944" class="Comment">{-
+record Traceable (R : ∀ {ℓ} → Set ℓ → (ℓ′ : Level) → Set (ℓ ⊔ₗ lsuc ℓ′)) : Set ? where
+  field
+  --     {ℓ′} : Level
+  --     Trace : Set ℓ
+
+instance
+  TRel : Traceable Rel
+  TRel = ?
+
+  TLRel : Traceable (λ A → LRel (A , L)
+  TLRel = ?
+
+
+module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ where
+
+  record Trace : Set (ℓ ⊔ₗ ℓ′) where
+    field
+      start end : A
+      labels : List L
+      trace : ?
+      .init : Initial start
+  open Trace public
+-}</a>
+
+<a id="1396" class="Comment">{-
+module ReflTrans {A : Set ℓ} ⦃ _ : HasInitial A ⦄ (_—→_ : Rel A ℓ) where
+
+  open ReflexiveTransitiveClosure _—→_
+
+  record Trace : Set ℓ where
+    field
+      start end : A
+      trace : start —↠ end
+      .init : Initial start
+
+  open Trace public
+
+module LReflTrans {A : Set ℓ} {L : Set} ⦃ _ : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) where
+
+  open LabelledReflexiveTransitiveClosure _—[_]→_
+
+  record Trace : Set ℓ where
+    field
+      start end : A
+      trace : start —↠ end
+      .init : Initial start
+
+  open Trace public
+
+module UpToLReflTrans {A : Set ℓ} {L : Set} ⦃ i : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
+
+  open UpToLabelledReflexiveTransitiveClosure _—[_]→_
+
+  record Trace : Set ℓ where
+    field
+      start end : A
+      trace : start —↠ end
+      .init : Initial start
+  open Trace public
+
+  -- data Trace′ : Set ℓ where
+  --     _∙     : (x : A) → Trace′
+  --     _∷⟦_⟧_ : A → L → Trace′ → Trace′
+
+  -- end′ : Trace′ → A
+  -- end′ (x ∙) = x
+  -- end′ (_ ∷⟦ _ ⟧ tr) = end′ tr
+
+  -- instance
+  --   𝕍Trace : Validable Trace′
+  --   𝕍Trace .Valid = λ where
+  --     (x ∙) → Initial x
+  --     (x ∷⟦ α ⟧ tr) → {!!} × Valid tr
+
+  -- Trace∼Trace′ : Trace ↔ Σ Trace′ Valid
+  -- Trace∼Trace′ = h , {!!}
+  --   where
+  --     h : Trace → Σ Trace′ Valid
+  --     h (record {start = s; end = e; trace = tr; init = init}) = case tr of λ where
+  --       (.[]      , (.s ∎)) → (s ∙) , {!init!}
+  --       (.(_ ∷ _) , (.s —→⟨ x ⟩ x₁ ⊢ snd)) → {!!}
+
+-}</a>
+</pre></body></html>
