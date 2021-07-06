@@ -2,7 +2,7 @@ module Prelude.Init where
 
 -- ** Universes
 open import Level public
-  using (Level; 0ℓ)
+  using (Level; 0ℓ; Setω)
   renaming (suc to lsuc; _⊔_ to _⊔ₗ_)
 1ℓ = lsuc 0ℓ
 2ℓ = lsuc 1ℓ
@@ -14,7 +14,7 @@ variable ℓ ℓ′ ℓ″ ℓ‴ ℓ₀ ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level
 open import Function public
   using ( id; const
         ; _∘_; flip; _$_; _$!_; _$-; _|>_; case_return_of_
-        ; _∘′_; _$′_; _$!′_; _|>′_; case_of_
+        ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_
         ; _∋_; _on_; typeOf; it
         )
 -- forward composition (= kleene composition of `Monad Id`)
@@ -75,14 +75,15 @@ module B where
   open import Data.Bool.Show public
 
 open import Data.Nat public
-  using ( ℕ; suc; zero; _+_; _*_; _∸_; _⊔_; _⊓_
-        ; _≤_; s≤s; z≤n; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_ )
+  using ( ℕ; suc; zero; _+_; _*_; _∸_; _⊔_; _⊓_; s≤s; z≤n)
 open import Data.Nat.Properties public
   using (module ≤-Reasoning)
 module Nat where
   open import Data.Nat public
   open import Data.Nat.Properties public
   open import Data.Nat.Show public
+  module Ord where
+    open import Data.Nat public using (_≤_; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_)
 
 open import Data.Integer public
   using (ℤ; +_)
@@ -174,7 +175,7 @@ module L where
     open import Data.List.Relation.Binary.Permutation.Propositional.Properties public
 
 open import Data.List.NonEmpty public
-  using (List⁺; _∷_; _∷⁺_; _⁺++_; _++⁺_; _⁺++⁺_)
+  using (List⁺; _∷_; _∷⁺_; _⁺∷ʳ_ ; _⁺++_; _++⁺_; _⁺++⁺_)
   renaming ([_] to [_]⁺)
 open import Data.List.Membership.Propositional public
   using ({-mapWith∈;-} find; lose)
@@ -204,6 +205,9 @@ open import Data.List.Relation.Binary.Suffix.Heterogeneous public
 
 
 -- ** Relations
+module Nullary where
+  open import Relation.Nullary public
+  open import Relation.Nullary.Negation public
 open import Relation.Nullary public
   using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
 open import Relation.Nullary.Negation public
@@ -219,12 +223,18 @@ open import Relation.Nullary.Sum public
   using (_⊎-dec_)
 open import Relation.Nullary.Product public
   using (_×-dec_)
+
+module Unary where
+  open import Relation.Unary public
 open import Relation.Unary public
   using (Pred)
-  renaming (Decidable to Decidable¹)
+  renaming (Decidable to Decidable¹; _⇒_ to _⇒¹_)
+
 open import Relation.Binary public
-  using (Rel; Reflexive; Symmetric; Transitive; StrictTotalOrder; DecidableEquality; IsEquivalence; Setoid )
-  renaming (Decidable to Decidable²)
+  using ( Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric; Transitive; Total
+        ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
+        ; DecidableEquality; IsEquivalence; Setoid )
+  renaming (Decidable to Decidable²; _⇒_ to _⇒²_; _⇔_ to _⇔²_)
 open import Relation.Binary.PropositionalEquality public
   using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_
         ; module ≡-Reasoning
@@ -232,6 +242,12 @@ open import Relation.Binary.PropositionalEquality public
   renaming ([_] to ≡[_])
 module PropEq where
   open import Relation.Binary.PropositionalEquality public
+module Binary where
+  open import Relation.Binary.Core public
+  open import Relation.Binary.Definitions public
+  module _ {A : Set ℓ} where
+    open import Relation.Binary.Structures (_≡_ {A = A}) public
+  open import Relation.Binary.Bundles public
 
 -- ** Algebra
 open import Algebra public

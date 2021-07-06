@@ -10,16 +10,11 @@ open import Prelude.General
 open import Prelude.Generics
 open import Prelude.Match
 
--- ** Typeclasses
-open import Prelude.Default
-open import Prelude.ToN
-open import Prelude.ToList
-open import Prelude.Show
+-- ** Decidability
 open import Prelude.DecEq
-open import Prelude.Measurable
-open import Prelude.Collections
-open import Prelude.Ord
+open import Prelude.Decidable
 
+-- ** Typeclasses
 open import Prelude.Functor
 open import Prelude.Bifunctor
 open import Prelude.PointedFunctor
@@ -29,12 +24,32 @@ open import Prelude.Foldable
 open import Prelude.Applicative
 open import Prelude.Traversable
 open import Prelude.Monad
+
 open import Prelude.Nary
 
+open import Prelude.Default
+open import Prelude.Show
+open import Prelude.Measurable
+
+open import Prelude.ToN
+open import Prelude.ToList
+
+open import Prelude.Orders
+open import Prelude.Ord
+
+open import Prelude.Setoid
+open import Prelude.Equivalence
+
+open import Prelude.Collections
 open import Prelude.Membership
+
+open import Prelude.Coercions
+
+open import Prelude.Validity
 
 -- ** Closures
 open import Prelude.Closures
+open import Prelude.Traces
 
 -- ** Data structures
 open import Prelude.Lists

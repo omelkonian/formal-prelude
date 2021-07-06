@@ -16,6 +16,7 @@ import Data.List.Relation.Binary.Pointwise as PW
 open import Prelude.Init
 open L.NE using (last)
 open L.Mem using (_∈_; _∉_; mapWith∈)
+open Nat.Ord
 open import Prelude.General
 open import Prelude.ToN
 open import Prelude.Bifunctor
@@ -301,12 +302,16 @@ findElem P? xs with L.Any.any? P? xs
 ... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
 ... | no  _  = nothing
 
--- concat
+-- concat/concatMap
 
 concat-∷ : ∀ {x : List A} {xs : List (List A)}
   → concat (x ∷ xs) ≡ x ++ concat xs
 concat-∷ {xs = []}    = refl
 concat-∷ {xs = _ ∷ _} = refl
+
+concatMap-∷ : ∀ {A B : Set} {x : A} {xs : List A} {f : A → List B}
+  → concatMap f (x ∷ xs) ≡ f x ++ concatMap f xs
+concatMap-∷ {x = x}{xs}{f} rewrite concat-∷ {x = f x}{map f xs} = refl
 
 -- concat-++ : ∀ (xs : List (List A)) (ys : List (List A))
 --   → concat (xs ++ ys) ≡ concat xs ++ concat ys
@@ -322,21 +327,27 @@ concat-∷ {xs = _ ∷ _} = refl
 --   ∎
 --   where open ≡-Reasoning
 
--- concatMap
-
-concatMap-∷ : ∀ {A B : Set} {x : A} {xs : List A} {f : A → List B}
-  → concatMap f (x ∷ xs) ≡ f x ++ concatMap f xs
-concatMap-∷ {x = x}{xs}{f} rewrite concat-∷ {x = f x}{map f xs} = refl
-
-concatMap-++ : ∀ {A B : Set} {xs ys : List A} {f : A → List B}
+concatMap-++ : ∀ {A B : Set} (f : A → List B) (xs ys : List A)
   → concatMap f (xs ++ ys) ≡ concatMap f xs ++ concatMap f ys
-concatMap-++ {xs = xs}{ys}{f} =
+concatMap-++ f xs ys =
   begin concatMap f (xs ++ ys)                 ≡⟨⟩
         concat (map f (xs ++ ys))              ≡⟨ cong concat (map-++-commute f xs ys) ⟩
         concat (map f xs ++ map f ys)          ≡⟨ sym (concat-++ (map f xs) (map f ys)) ⟩
         concat (map f xs) ++ concat (map f ys) ≡⟨⟩
-        concatMap f xs ++ concatMap f ys ∎
+        concatMap f xs ++ concatMap f ys       ∎
   where open ≡-Reasoning
+
+↭-concat⁺ : ∀ {xss yss : List (List A)} → xss ↭ yss → concat xss ↭ concat yss
+↭-concat⁺ ↭-refl = ↭-refl
+↭-concat⁺ (↭-prep xs p) = L.Perm.++⁺ˡ xs (↭-concat⁺ p)
+↭-concat⁺ {xss = _ ∷ _ ∷ xss}{_ ∷ _ ∷ yss} (↭-swap xs ys p) = begin
+  xs ++ ys ++ concat xss ↭⟨ L.Perm.shifts xs ys ⟩
+  ys ++ xs ++ concat xss ↭⟨ L.Perm.++⁺ˡ ys $ L.Perm.++⁺ˡ xs $ ↭-concat⁺ p ⟩
+  ys ++ xs ++ concat yss ∎ where open PermutationReasoning
+↭-concat⁺ (↭-trans xs↭ys ys↭zs) = ↭-trans (↭-concat⁺ xs↭ys) (↭-concat⁺ ys↭zs)
+
+↭-concatMap⁺ : (f : A → List B) → xs ↭ ys → concatMap f xs ↭ concatMap f ys
+↭-concatMap⁺ f = ↭-concat⁺ ∘ L.Perm.map⁺ f
 
 -- mapWith∈
 private
@@ -367,14 +378,16 @@ cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ xs) ↦′ P
 cons-↦ _ y _ (here refl) = y
 cons-↦ _ _ f (there x∈)  = f x∈
 
-extend-↦ : ∀ {xs ys zs : List A}
-  → zs ↭ xs ++ ys
-  → xs ↦′ P
-  → ys ↦′ P
-  → zs ↦′ P
-extend-↦ zs↭ xs↦ ys↦ p∈ with ∈-++⁻ _ (∈-resp-↭ zs↭ p∈)
-... | inj₁ x∈ = xs↦ x∈
-... | inj₂ y∈ = ys↦ y∈
+permute-↦ : xs ↭ ys → xs ↦′ P → ys ↦′ P
+permute-↦ xs↭ys xs↦ = xs↦ ∘ ∈-resp-↭ (↭-sym xs↭ys)
+
+_++/↦_ : xs ↦′ P → ys ↦′ P → xs ++ ys ↦′ P
+xs↦ ++/↦ ys↦ = ∈-++⁻ _ >≡> λ where
+  (inj₁ x∈) → xs↦ x∈
+  (inj₂ y∈) → ys↦ y∈
+
+extend-↦ : zs ↭ xs ++ ys → xs ↦′ P → ys ↦′ P → zs ↦′ P
+extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)
 
 cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P
 cong-↦ f refl = f
@@ -596,6 +609,21 @@ module _ (f : A → Maybe B) where
     let x , x∈ , fx≡ = ∈-mapMaybe⁻ fx∈
     in  ∈-mapMaybe⁺ (xs⊆ x∈) fx≡
 
+  mapMaybe-↭ : xs ↭ ys → mapMaybe f xs ↭ mapMaybe f ys
+  mapMaybe-↭ {xs = xs} {ys = .xs} ↭-refl = ↭-refl
+  mapMaybe-↭ {xs = .(x ∷ _)} {ys = .(x ∷ _)} (↭-prep x xs↭ys)
+    with IH ← mapMaybe-↭ xs↭ys
+    with f x
+  ... | nothing = IH
+  ... | just y  = ↭-prep y IH
+  mapMaybe-↭ {xs = .(x ∷ y ∷ _)} {ys = .(y ∷ x ∷ _)} (↭-swap x y xs↭ys)
+    with IH ← mapMaybe-↭ xs↭ys
+    with f x | inspect f x | f y | inspect f y
+  ... | nothing | ≡[ fx ] | nothing | ≡[ fy ] rewrite fx | fy = IH
+  ... | nothing | ≡[ fx ] | just y′ | ≡[ fy ] rewrite fx | fy = ↭-prep y′ IH
+  ... | just x′ | ≡[ fx ] | nothing | ≡[ fy ] rewrite fx | fy = ↭-prep x′ IH
+  ... | just x′ | ≡[ fx ] | just y′ | ≡[ fy ] rewrite fx | fy = ↭-swap x′ y′ IH
+  mapMaybe-↭ {xs = xs} {ys = ys} (↭-trans xs↭ ↭ys) = ↭-trans (mapMaybe-↭ xs↭) (mapMaybe-↭ ↭ys)
 
 postulate
   mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}

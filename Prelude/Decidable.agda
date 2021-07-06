@@ -5,10 +5,9 @@ open import Prelude.DecEq
 open import Prelude.DecLists
 open import Prelude.Nary
 
-record Decidable (P : Set ℓ) : Set ℓ where
+record _⁇ (P : Set ℓ) : Set ℓ where
   constructor ⁇_
-  field
-    dec : Dec P
+  field dec : Dec P
 
   auto : {True dec} → P
   auto {pr} = toWitness pr
@@ -18,13 +17,23 @@ record Decidable (P : Set ℓ) : Set ℓ where
   -- ¬auto {pr} = toWitnessFalse pr
 
   contradict : ∀ {X : Set} {pr : False dec} → P → X
-  contradict {pr = pr} x = ⊥-elim (toWitnessFalse pr x)
+  contradict {pr = pr} = ⊥-elim ∘ toWitnessFalse pr
 
-open Decidable ⦃ ... ⦄ public
+open _⁇ ⦃ ... ⦄ public
 
-syntax Decidable A = A ⁇
+_⁇¹ : ∀ {A : Set ℓ} → (P : Pred A ℓ′) → Set (ℓ ⊔ₗ ℓ′)
+P ⁇¹ = ∀ {x} → P x ⁇
 
-¿_¿ : ∀ (X : Set ℓ) ⦃ _ : Decidable X ⦄ → Dec X
+dec¹ : ∀ {A : Set ℓ} {P : Pred A ℓ′} → ⦃ P ⁇¹ ⦄ → Decidable¹ P
+dec¹ _ = dec
+
+_⁇² : ∀ {A : Set ℓ} → (P : Rel A ℓ′) → Set (ℓ ⊔ₗ ℓ′)
+_~_ ⁇² = ∀ {x y} → (x ~ y) ⁇
+
+dec² : ∀ {A : Set ℓ} {_~_ : Rel A ℓ′} → ⦃ _~_ ⁇² ⦄ → Decidable² _~_
+dec² _ _ = dec
+
+¿_¿ : ∀ (X : Set ℓ) ⦃ _ : X ⁇ ⦄ → Dec X
 ¿ _ ¿ = dec
 
 private
@@ -32,7 +41,6 @@ private
     a b : Level
     A : Set a
     B : Set b
-
 
 instance
   -- Basics
@@ -42,20 +50,20 @@ instance
   Dec-⊤ : ⊤ ⁇
   Dec-⊤ .dec = yes tt
 
-  Dec-→ : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A → B) ⁇
+  Dec-→ : ⦃ A ⁇ ⦄ → ⦃ B ⁇ ⦄ → (A → B) ⁇
   Dec-→ .dec = dec →-dec dec
 
   -- NB: Already covered by implication
   -- Dec-¬ : ⦃ _ : A ⁇ ⦄ → (¬ A) ⁇
   -- Dec-¬ .dec = ¬? dec
 
-  Dec-× : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A × B) ⁇
+  Dec-× : ⦃ A ⁇ ⦄ → ⦃ B ⁇ ⦄ → (A × B) ⁇
   Dec-× .dec = dec ×-dec dec
 
-  Dec-⊎ : ⦃ _ : A ⁇ ⦄ ⦃ _ : B ⁇ ⦄ → (A ⊎ B) ⁇
+  Dec-⊎ : ⦃ A ⁇ ⦄ → ⦃ B ⁇ ⦄ → (A ⊎ B) ⁇
   Dec-⊎ .dec = dec ⊎-dec dec
 
-  DecEq⇒Dec : ⦃ _ : DecEq A ⦄ {x y : A} → (x ≡ y) ⁇
+  DecEq⇒Dec : ⦃ DecEq A ⦄ → _≡_ {A = A} ⁇²
   DecEq⇒Dec .dec = _ ≟ _
 
 --
@@ -77,31 +85,27 @@ instance
   Dec-T .dec = T? _
 
   -- Maybe
-  Dec-All : ⦃ _ : ∀ {xs} → P¹ xs ⁇ ⦄ → All P¹ xs ⁇
-  Dec-All .dec = all? (λ _ → dec) _
+  Dec-All : ⦃ P¹ ⁇¹ ⦄ → All P¹ ⁇¹
+  Dec-All .dec = all? dec¹ _
 
-  Dec-Any : ⦃ _ : ∀ {xs} → P¹ xs ⁇ ⦄ → Any P¹ xs ⁇
-  Dec-Any .dec = any? (λ _ → dec) _
+  Dec-Any : ⦃ P¹ ⁇¹ ⦄ → Any P¹ ⁇¹
+  Dec-Any .dec = any? dec¹ _
 
-  Dec-AllPairs : ⦃ _ : ∀ {x y} → P² x y ⁇ ⦄ → AllPairs P² xs ⁇
-  Dec-AllPairs .dec = allPairs? (λ _ _ → dec) _
+  Dec-AllPairs : ⦃ P² ⁇² ⦄ → AllPairs P² ⁇¹
+  Dec-AllPairs .dec = allPairs? dec² _
 
-  Dec-MAll : ⦃ _ : ∀ {mx} → P¹ mx ⁇ ⦄ → M.All.All P¹ mx ⁇
-  Dec-MAll .dec = M.All.dec (λ _ → dec) _
+  Dec-MAll : ⦃ P¹ ⁇¹ ⦄ → M.All.All P¹ ⁇¹
+  Dec-MAll .dec = M.All.dec dec¹ _
 
-  Dec-MAny : ⦃ _ : ∀ {mx} → P¹ mx ⁇ ⦄ → M.Any.Any P¹ mx ⁇
-  Dec-MAny .dec = M.Any.dec (λ _ → dec) _
+  Dec-MAny : ⦃ _ : P¹ ⁇¹ ⦄ → M.Any.Any P¹ ⁇¹
+  Dec-MAny .dec = M.Any.dec dec¹ _
 
   -- List
-  Dec-⊆ : ∀ {A : Set} ⦃ _ : DecEq A ⦄ {xs ys : List A} → (xs ⊆ ys) ⁇
+  Dec-⊆ : ⦃ DecEq A ⦄ → _⊆_ {A = A} ⁇²
   Dec-⊆ .dec = _ ⊆? _
 
-  Dec-↭ : ∀ {A : Set} ⦃ _ : DecEq A ⦄ {xs ys : List A} → (xs ↭ ys) ⁇
+  Dec-↭ : ⦃ DecEq A ⦄ → _↭_ {A = A} ⁇²
   Dec-↭ .dec = _ ↭? _
-
-  -- ℕ
-  Dec-≤ : ∀ {x y} → (x ≤ y) ⁇
-  Dec-≤ .dec = _ ≤? _
 
 {-
   open import Data.List.Relation.Ternary.Interleaving
@@ -120,7 +124,7 @@ private
         × (8 ≡ 17 ∸ 10) )
   _ = auto
 
-  _ : ∀ ⦃ da : DecEq A ⦄ {m : Maybe (List A)} {x₁ x₂ : A}
+  _ : ⦃ DecEq A ⦄ → {m : Maybe (List A)} {x₁ x₂ : A}
     → Dec
     $ M.Any.Any (λ xs → ( (xs ≡ ⟦ x₁ , x₂ ⟧)
                         × (Any (const ⊤) xs)

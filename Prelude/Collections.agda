@@ -1,30 +1,45 @@
 module Prelude.Collections where
 
-open import Data.Unit
-open import Data.Product
-open import Data.List
-
-private
-  variable
-    X Y Z : Set
+open import Prelude.Init
+open import Prelude.General
+open import Prelude.Lists
 
 record _has_ (A : Set) (B : Set) : Set where
-  field
-    collect : A → List B
+  field collect : A → List B
+  syntax collect {A = A} = collect[ A ]
 open _has_ ⦃...⦄ public
 
-collectFromList : ∀ ⦃ _ : X has Y ⦄ → List X has Y
-collectFromList .collect = concatMap collect
--- collectFromList .collect = go
---   where
---     go : ⦃ _ : X has Y ⦄ → List X → List Y
---     go []       = []
---     go (x ∷ xs) = collect x ++ go xs
+-- NB: do not expose list/pair instances, let user decide
+private variable X Y Z : Set
 
-collectFromPairˡ : ∀ ⦃ _ : X has Z ⦄ → (X × Y) has Z
-collectFromPairˡ .collect (x , _) = collect x
+collectFromList : (X → List Y) → (List X → List Y)
+collectFromList = concatMap
 
-collectFromPairʳ : ∀ ⦃ _ : Y has Z ⦄ → (X × Y) has Z
-collectFromPairʳ .collect (_ , y) = collect y
+collectFromPairˡ : (X → List Z) → (X × Y) → List Z
+collectFromPairˡ = _∘ proj₁
 
--- NB: do not expose instances, let user decide
+collectFromPairʳ : (Y → List Z) → (X × Y) → List Z
+collectFromPairʳ = _∘ proj₂
+
+--
+
+relateOn : ∀ {ℓ} {Z A B : Set} {Z′ : Set ℓ} → ⦃ A has Z ⦄ → ⦃ B has Z ⦄
+  → Rel₀ Z′
+  → A
+  → (∀ {X} → ⦃ X has Z ⦄ → X → Z′)
+  → B → Set
+relateOn _~_ a f b = f a ~ f b
+syntax relateOn _~_ a f b = a ⦅ _~_ on f ⦆ b
+
+module _ {Z}{A}{B}⦃ ia ⦄ ⦃ ib ⦄ where
+  _→⦅_⦆_ = relateOn {Z = Z}{A}{B}{Set}⦃ ia ⦄ ⦃ ib ⦄ _`→`_
+  module _ {Z′} where
+    _≡⦅_⦆_ = relateOn {Z = Z}{A}{B}{Z′}⦃ ia ⦄ ⦃ ib ⦄ _≡_
+    _↭⦅_⦆_ = relateOn {Z = Z}{A}{B}{List Z′}⦃ ia ⦄ ⦃ ib ⦄ _↭_
+    _⊆⦅_⦆_ = relateOn {Z = Z}{A}{B}{List Z′}⦃ ia ⦄ ⦃ ib ⦄ _⊆_
+
+collectFromList↭ : ∀ {xs ys : List X}
+  → (f : X → List Y)
+  → xs ↭ ys
+  → collectFromList f xs ↭ collectFromList f ys
+collectFromList↭ = ↭-concatMap⁺

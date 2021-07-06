@@ -15,13 +15,14 @@ private
   variable
     A : Set ℓ₁
     B : Set ℓ₂
-    x y : A
+    x y x′ y′ : A
     xs ys : List A
 
 -- ** Functions and predicates
-infix -1 _↔_
-infix -1 _⇔_
-infix -1 _⊢_
+infix -1 _`→`_ _↔_ _⇔_ _⊢_
+
+_`→`_ : Op₂ Set
+A `→` B = A → B
 
 _↔_ : Set ℓ → Set ℓ′ → Set (ℓ ⊔ₗ ℓ′)
 A ↔ B = (A → B) × (B → A)
@@ -149,6 +150,7 @@ refl ∧-× refl = refl
 x+y+0≡y+x+0 : ∀ x y → x + (y + 0) ≡ (y + x) + 0
 x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
 
+open Nat.Ord
 postulate
   ¬x>0⇒x≡0 : ∀ {x} → ¬ (x > 0) → x ≡ 0
   x≡0⇒¬x>0 : ∀ {x} → x ≡ 0 → ¬ (x > 0)
@@ -166,6 +168,7 @@ postulate
   x<x+1 : ∀ x → x < x + 1
   +-helper : ∀ {x y z} → x ≡ y + z → y > 0 → z > 0 → (y < x) × (z < x)
   x<x+y : ∀ {y} x → y > 0 → x < x + y
+  juxtapose-+/< : x < x′ → y < y′ → x + y < x′ + y′
 
 x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
 x≤0⇒x≡0′ refl = x≤0⇒x≡0
