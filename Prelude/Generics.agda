@@ -52,7 +52,7 @@ pattern `λ⟦_⇒_∣_⇒_⟧ p₁ k₁ p₂ k₂ = pat-lam (⟦ p₁ ⇒ k₁ 
 pattern _∙ n = def n []
 pattern _∙⟦_⟧ n x = def n (vArg x ∷ [])
 pattern _∙⟦_∣_⟧ n x y = def n (vArg x ∷ vArg y ∷ [])
-pattern _∙⟦_∣_∣⟧ n x y = def n (vArg x ∷ vArg y ∷ [])
+pattern _∙⟦_∣_∣_⟧ n x y z = def n (vArg x ∷ vArg y ∷ vArg z ∷ [])
 
 pattern _◆ n = con n []
 pattern _◆⟦_⟧ n x = con n (vArg x ∷ [])
