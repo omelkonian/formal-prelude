@@ -349,6 +349,12 @@ concatMap-++ f xs ys =
 ↭-concatMap⁺ : (f : A → List B) → xs ↭ ys → concatMap f xs ↭ concatMap f ys
 ↭-concatMap⁺ f = ↭-concat⁺ ∘ L.Perm.map⁺ f
 
+⊆-concatMap⁺ : ∀ {xss : List (List A)}
+  → xs ∈ xss
+  → xs ⊆ concat xss
+⊆-concatMap⁺ (here refl) = L.Mem.∈-++⁺ˡ
+⊆-concatMap⁺ (there xs∈) = L.Mem.∈-++⁺ʳ _ ∘ ⊆-concatMap⁺ xs∈
+
 -- mapWith∈
 private
   variable
@@ -624,6 +630,22 @@ module _ (f : A → Maybe B) where
   ... | just x′ | ≡[ fx ] | nothing | ≡[ fy ] rewrite fx | fy = ↭-prep x′ IH
   ... | just x′ | ≡[ fx ] | just y′ | ≡[ fy ] rewrite fx | fy = ↭-swap x′ y′ IH
   mapMaybe-↭ {xs = xs} {ys = ys} (↭-trans xs↭ ↭ys) = ↭-trans (mapMaybe-↭ xs↭) (mapMaybe-↭ ↭ys)
+
+  ∈-mapMaybe-++⁻ : ∀ xs {ys} {x : B}
+    → x ∈ mapMaybe f (xs ++ ys)
+    → x ∈ mapMaybe f xs
+    ⊎ x ∈ mapMaybe f ys
+  ∈-mapMaybe-++⁻ xs {ys} rewrite mapMaybe-++ f xs ys = L.Mem.∈-++⁻ _
+
+  ∈-mapMaybe-++⁺ˡ : ∀ {xs ys} {x : B}
+    → x ∈ mapMaybe f xs
+    → x ∈ mapMaybe f (xs ++ ys)
+  ∈-mapMaybe-++⁺ˡ {xs}{ys} rewrite mapMaybe-++ f xs ys = L.Mem.∈-++⁺ˡ
+
+  ∈-mapMaybe-++⁺ʳ : ∀ xs {ys} {y : B}
+    → y ∈ mapMaybe f ys
+    → y ∈ mapMaybe f (xs ++ ys)
+  ∈-mapMaybe-++⁺ʳ xs {ys} rewrite mapMaybe-++ f xs ys = L.Mem.∈-++⁺ʳ _
 
 postulate
   mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}
