@@ -68,7 +68,7 @@ open import Prelude.Irrelevance
 
 -- ** Tactics
 open import Prelude.Tactics.Intro
--- open import Prelude.Tactics.Try
+open import Prelude.Tactics.Try
 
 -- ** Automatical solvers
 open import Prelude.Solvers
