@@ -9,6 +9,8 @@ import Data.Maybe.Relation.Unary.Any as M
 
 open import Prelude.Init
 open import Prelude.Applicative
+open import Prelude.Functor
+open import Prelude.Bifunctor
 open import Prelude.Monad
 
 private
@@ -187,7 +189,7 @@ toMaybe-≡ : ∀ {x : A} {xs : List A}
   → ∃[ ys ] (xs ≡ x ∷ ys)
 toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
 
-ap-nothing : ∀ {B : Set ℓ₂} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
+ap-nothing : ∀ {A : Set ℓ} {B : Set ℓ′} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
 ap-nothing {m = nothing} ()
 ap-nothing {m = just _ } ()
 
@@ -258,8 +260,59 @@ case-singleton refl = refl
 
 -- ** Maybe-Bool
 
-do-pure : ∀ {x : A} {mx : Maybe A} {f : A → Bool}
+do-pure : ∀ {A : Set ℓ} {x : A} {mx : Maybe A} {f : A → Bool}
   → mx ≡ just x
   → f x ≡ true
   → M.fromMaybe false (mx >>= pure ∘ f) ≡ true
 do-pure refl f≡ rewrite f≡ = refl
+
+-- ** Strings
+
+String∗ = List Char
+
+apply∗ : (String∗ → String∗) → (String → String)
+apply∗ f = Str.fromList ∘ f ∘ Str.toList
+
+{-# TERMINATING #-}
+words∗ : String∗ → List (String∗ × String∗)
+words∗ [] = []
+words∗ s  =
+  let
+    ws , s′ = L.span (T? ∘ Ch.isSpace) s
+    w , s″ = L.span (T? ∘ not ∘ Ch.isSpace) s′
+  in
+    (ws , w) ∷ words∗ s″
+words = map (map₁₂ Str.fromList) ∘ words∗ ∘ Str.toList
+
+unwords∗ : List (String∗ × String∗) → String∗
+unwords∗ = concatMap (uncurry _++_)
+
+_ : words "a horse  and a    sheep" ≡
+  ( ("" , "a")
+  ∷ (" " , "horse")
+  ∷ ("  " , "and")
+  ∷ (" " , "a")
+  ∷ ("    " , "sheep")
+  ∷ [])
+_ = refl
+
+mapWords∗ : (String∗ → String∗) → String∗ → String∗
+mapWords∗ f = unwords∗ ∘ map (map₂ f) ∘ words∗
+
+mapWords : (String∗ → String∗) → String → String
+mapWords = apply∗ ∘ mapWords∗
+
+removeQualifiers∗ : String∗ → String∗
+removeQualifiers∗ = L.reverse ∘ go ∘ L.reverse
+  where
+    go : String∗ → String∗
+    go s = case takeWhile (¬? ∘ ('.' Ch.≟_)) s of λ where
+      []         → s
+      s′@(_ ∷ _) → s′
+
+removeQualifiers : String → String
+removeQualifiers = mapWords removeQualifiers∗
+
+_ : removeQualifiers "open import Agda.Builtin.Char public -- hmm..."
+  ≡ "open import Char public -- hmm..."
+_ = refl

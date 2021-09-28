@@ -3,7 +3,7 @@ module Prelude.Match where
 open import Prelude.Init
 open Meta
 open import Prelude.Generics
-  hiding (`_)
+  hiding (`_; Hole)
 open import Prelude.DecEq
 open import Prelude.Applicative
 

@@ -10,9 +10,15 @@ open import Level public
 4ℓ = lsuc 3ℓ
 variable ℓ ℓ′ ℓ″ ℓ‴ ℓ₀ ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level
 
+Set[_↝_] : ∀ ℓ ℓ′ → Set (lsuc ℓ ⊔ₗ lsuc ℓ′)
+Set[ ℓ ↝ ℓ′ ] = Set ℓ → Set ℓ′
+
+Set↑ : Setω
+Set↑ = ∀ {ℓ} → Set[ ℓ ↝ ℓ ]
+
 -- ** Functions
 open import Function public
-  using ( id; const
+  using ( id; const; constᵣ
         ; _∘_; flip; _$_; _$!_; _$-; _|>_; case_return_of_
         ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_
         ; _∋_; _on_; typeOf; it
@@ -75,7 +81,7 @@ module B where
   open import Data.Bool.Show public
 
 open import Data.Nat public
-  using ( ℕ; suc; zero; _+_; _*_; _∸_; _⊔_; _⊓_; s≤s; z≤n)
+  using (ℕ; suc; zero; _+_; _*_; _∸_; _⊔_; _⊓_; s≤s; z≤n)
 open import Data.Nat.Properties public
   using (module ≤-Reasoning)
 module Nat where
@@ -91,6 +97,12 @@ module Integer where
   open import Data.Integer public
   open import Data.Integer.Properties public
 
+open import Data.Float public
+  using (Float)
+module Float where
+  open import Data.Float public
+  open import Data.Float.Properties public
+
 open import Data.Fin public
   using (Fin; #_)
   renaming (suc to fsuc; zero to fzero)
@@ -99,6 +111,12 @@ open import Data.Fin.Patterns public
 module F where
   open import Data.Fin public
   open import Data.Fin.Properties public
+
+open import Data.Word public
+  using (Word64)
+module Word where
+  open import Data.Word public
+  open import Data.Word.Properties public
 
 open import Data.Char public
   using (Char)
@@ -144,8 +162,10 @@ module V where
     -- open import Data.Vec.Membership.DecPropositional public
 
 open import Data.List public
-  using ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length; _++_; take; drop; foldl; foldr
-        ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null; allFin )
+  using ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length; _++_; foldl; foldr
+        ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null; allFin
+        ; take; drop; takeWhile; dropWhile
+        )
 module L where
   open import Data.List public
   open import Data.List.Properties public
@@ -268,14 +288,33 @@ module WF where
 module Meta where
   open import Reflection public
     hiding (_≟_; _>>_; _>>=_; return)
+
   open import Reflection.Term public
-    hiding (_≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_; _≟-Clauses_; _≟_; _≟-Sort_)
+    hiding ( _≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_
+           ; _≟-Clauses_; _≟_; _≟-Sort_ )
+
   open import Reflection.Argument public
     using (unArg)
-  open import Reflection.Abstraction public
-    using (unAbs)
   open import Reflection.Argument.Visibility public
     using (Visibility)
+  module Argument where
+    open import Reflection.Argument public
+    open import Reflection.Argument.Visibility public
+    open import Reflection.Argument.Information public hiding (_≟_)
+
+  open import Reflection.Abstraction public
+    using (unAbs)
+  module Abstraction where
+    open import Reflection.Abstraction public
+
+  open import Reflection.Meta public
+    using (Meta)
+  module Meta where
+    open import Reflection.Meta public
+
+  module Show where
+    open import Reflection.Show public
+
 
 -- ** Shorthands
 Pred₀ Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)

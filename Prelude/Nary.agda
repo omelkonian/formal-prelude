@@ -6,7 +6,7 @@ open import Prelude.Semigroup public
 open import Prelude.PointedFunctor public
 -- NB: re-export Semigroup/PointedFunctor for convenience
 
-⟦_⟧ : ∀ {n A} {F : Set ℓ → Set ℓ} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : PointedFunctor F ⦄ → A ^ n → F A
+⟦_⟧ : ∀ {n} {A : Set ℓ} {F : Set↑} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : PointedFunctor F ⦄ → A ^ n → F A
 ⟦_⟧ {n = zero}  x        = point x
 ⟦_⟧ {n = suc n} (x , xs) = point x ◇ ⟦ xs ⟧
 

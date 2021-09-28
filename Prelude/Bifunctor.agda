@@ -23,7 +23,7 @@ record BifunctorI (F : (A : Set a) → (B : A → Set b) → Set (a ⊔ₗ b)) :
   map₂′ : (∀ {x} → B x → B′ x) → F A B → F A B′
   map₂′ g = bimap′ id g
 
-open BifunctorI {{...}} public
+open BifunctorI ⦃...⦄ public
 
 instance
   Bifunctor-Σ : BifunctorI {a}{b} Σ
@@ -40,7 +40,10 @@ record Bifunctor (F : Set a → Set b → Set (a ⊔ₗ b)) : Set (lsuc a ⊔ₗ
   map₂ : ∀ {A : Set a} {B B′ : Set b} → (B → B′) → F A B → F A B′
   map₂ g = bimap id g
 
-open Bifunctor {{...}} public
+open Bifunctor ⦃...⦄ public
+
+map₁₂ : ∀ {F : Set a → Set a → Set a} {A B : Set a} → ⦃ Bifunctor F ⦄ → (A → B) → F A A → F B B
+map₁₂ f = bimap f f
 
 instance
   Bifunctor-× : Bifunctor {a}{b} _×_
