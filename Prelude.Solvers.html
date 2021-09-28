@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Solvers</title><link rel="stylesheet" href="css/Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">-v</a> <a id="16" class="Pragma">Generics.Solvers:100</a> <a id="37" class="Symbol">#-}</a>
+<a id="41" class="Keyword">module</a> <a id="48" href="Prelude.Solvers.html" class="Module">Prelude.Solvers</a> <a id="64" class="Keyword">where</a>
+
+<a id="71" class="Keyword">open</a> <a id="76" class="Keyword">import</a> <a id="83" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="96" class="Keyword">open</a> <a id="101" class="Keyword">import</a> <a id="108" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+<a id="122" class="Keyword">open</a> <a id="127" class="Keyword">import</a> <a id="134" href="Prelude.Functor.html" class="Module">Prelude.Functor</a>
+<a id="150" class="Keyword">open</a> <a id="155" class="Keyword">import</a> <a id="162" href="Prelude.Semigroup.html" class="Module">Prelude.Semigroup</a>
+<a id="180" class="Keyword">open</a> <a id="185" class="Keyword">import</a> <a id="192" href="Prelude.Applicative.html" class="Module">Prelude.Applicative</a>
+<a id="212" class="Keyword">open</a> <a id="217" class="Keyword">import</a> <a id="224" href="Prelude.Monad.html" class="Module">Prelude.Monad</a>
+<a id="238" class="Keyword">open</a> <a id="243" class="Keyword">import</a> <a id="250" href="Prelude.Show.html" class="Module">Prelude.Show</a>
+<a id="263" class="Keyword">open</a> <a id="268" class="Keyword">import</a> <a id="275" href="Prelude.Nary.html" class="Module">Prelude.Nary</a>
+
+<a id="289" class="Keyword">open</a> <a id="294" class="Keyword">import</a> <a id="301" href="Prelude.Generics.html" class="Module">Prelude.Generics</a>
+<a id="318" class="Keyword">open</a> <a id="323" href="Prelude.Init.html#9623" class="Module">Meta</a>
+<a id="328" class="Keyword">open</a> <a id="333" href="Prelude.Generics.html#7033" class="Module">Debug</a> <a id="339" class="Symbol">(</a><a id="340" class="String">&quot;Generics.Solvers&quot;</a> <a id="359" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="361" class="Number">100</a><a id="364" class="Symbol">)</a>
+
+<a id="367" class="Keyword">open</a> <a id="372" class="Keyword">import</a> <a id="379" href="Prelude.Solvers.Base.html" class="Module">Prelude.Solvers.Base</a>
+<a id="400" class="Keyword">open</a> <a id="405" class="Keyword">import</a> <a id="412" href="Prelude.Tactics.Intro.html" class="Module">Prelude.Tactics.Intro</a>
+
+<a id="435" class="Keyword">mutual</a>
+  <a id="newGoal"></a><a id="444" href="Prelude.Solvers.html#444" class="Function">newGoal</a> <a id="452" class="Symbol">:</a> <a id="454" href="Prelude.Solvers.Base.html#630" class="Function">Hints</a> <a id="460" class="Symbol">→</a> <a id="462" href="Agda.Builtin.Reflection.html#4764" class="Function">Type</a> <a id="467" class="Symbol">→</a> <a id="469" href="Agda.Builtin.Reflection.html#7356" class="Postulate">TC</a> <a id="472" href="Prelude.Generics.html#6116" class="Function">Hole</a>
+  <a id="479" href="Prelude.Solvers.html#444" class="Function">newGoal</a> <a id="487" href="Prelude.Solvers.html#487" class="Bound">hints</a> <a id="493" href="Prelude.Solvers.html#493" class="Bound">ty</a> <a id="496" class="Symbol">=</a> <a id="498" href="Prelude.Generics.html#6275" class="Function">withHole</a> <a id="507" href="Prelude.Solvers.html#493" class="Bound">ty</a> <a id="510" class="Symbol">(</a><a id="511" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="518" href="Prelude.Solvers.html#487" class="Bound">hints</a><a id="523" class="Symbol">)</a>
+
+  <a id="528" class="Symbol">{-#</a> <a id="532" class="Keyword">TERMINATING</a> <a id="544" class="Symbol">#-}</a>
+  <a id="solve′"></a><a id="550" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="557" class="Symbol">:</a> <a id="559" href="Prelude.Solvers.Base.html#630" class="Function">Hints</a> <a id="565" class="Symbol">→</a> <a id="567" href="Prelude.Generics.html#6116" class="Function">Hole</a> <a id="572" class="Symbol">→</a> <a id="574" href="Agda.Builtin.Reflection.html#7356" class="Postulate">TC</a> <a id="577" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+  <a id="581" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="588" href="Prelude.Solvers.html#588" class="Bound">hints</a> <a id="594" href="Prelude.Solvers.html#594" class="Bound">hole</a> <a id="599" class="Symbol">=</a> <a id="601" class="Keyword">do</a>
+    <a id="608" href="Prelude.Generics.html#7153" class="Function">print</a> <a id="614" class="String">&quot;****************************&quot;</a>
+    <a id="649" href="Prelude.Generics.html#7159" class="Function">printLn</a> <a id="657" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="659" class="String">&quot;Hints: &quot;</a> <a id="669" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="671" href="Prelude.Show.html#315" class="Field">show</a> <a id="676" href="Prelude.Solvers.html#588" class="Bound">hints</a>
+    <a id="686" href="Prelude.Generics.html#8047" class="Function">printCurrentContext</a>
+    <a id="710" href="Prelude.Generics.html#7153" class="Function">print</a> <a id="716" class="String">&quot;****************************&quot;</a>
+    <a id="751" href="Prelude.Solvers.html#751" class="Bound">ty</a> <a id="754" href="Prelude.Monad.html#496" class="Field Operator">←</a> <a id="756" href="Agda.Builtin.Reflection.html#7632" class="Postulate">inferType</a> <a id="766" href="Prelude.Solvers.html#594" class="Bound">hole</a>
+    <a id="775" class="Keyword">let</a> <a id="779" href="Prelude.Solvers.html#779" class="Bound">holeInfo</a> <a id="788" class="Symbol">=</a> <a id="790" href="Prelude.Show.html#315" class="Field">show</a> <a id="795" href="Prelude.Solvers.html#594" class="Bound">hole</a> <a id="800" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="802" class="String">&quot; : &quot;</a> <a id="808" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="810" href="Prelude.Show.html#315" class="Field">show</a> <a id="815" href="Prelude.Solvers.html#751" class="Bound">ty</a>
+    <a id="822" href="Prelude.Generics.html#7159" class="Function">printLn</a> <a id="830" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="832" class="String">&quot;≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫≫ &quot;</a> <a id="856" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="858" href="Prelude.Solvers.html#779" class="Bound">holeInfo</a>
+    <a id="871" href="Prelude.Applicative.html#3030" class="Function Operator">⋃⁺</a> <a id="874" href="Prelude.Solvers.html#962" class="Function">callSolver</a> <a id="885" href="Prelude.Functor.html#299" class="Field Operator">&lt;$&gt;</a> <a id="889" href="Prelude.Solvers.html#1398" class="Function">solvers</a>
+    <a id="901" href="Prelude.Generics.html#7159" class="Function">printLn</a> <a id="909" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="911" class="String">&quot;≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪≪ &quot;</a> <a id="935" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="937" href="Prelude.Solvers.html#779" class="Bound">holeInfo</a>
+    <a id="950" class="Keyword">where</a>
+      <a id="962" href="Prelude.Solvers.html#962" class="Function">callSolver</a> <a id="973" class="Symbol">:</a> <a id="975" href="Agda.Builtin.String.html#274" class="Postulate">String</a> <a id="982" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="984" href="Prelude.Solvers.Base.html#288" class="Record">Solver</a> <a id="991" class="Symbol">→</a> <a id="993" href="Agda.Builtin.Reflection.html#7356" class="Postulate">TC</a> <a id="996" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+      <a id="1004" href="Prelude.Solvers.html#962" class="Function">callSolver</a> <a id="1015" class="Symbol">(</a><a id="1016" href="Prelude.Solvers.html#1016" class="Bound">n</a> <a id="1018" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="1020" href="Prelude.Solvers.html#1020" class="Bound">s</a><a id="1021" class="Symbol">)</a> <a id="1023" class="Symbol">=</a> <a id="1025" class="Keyword">do</a>
+        <a id="1036" href="Prelude.Generics.html#7159" class="Function">printLn</a> <a id="1044" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="1046" class="String">&quot;&gt;solve&quot;</a> <a id="1055" href="Prelude.Semigroup.html#134" class="Field Operator">◇</a> <a id="1057" href="Prelude.Show.html#315" class="Field">show</a> <a id="1062" href="Prelude.Solvers.html#1016" class="Bound">n</a>
+        <a id="1072" href="Prelude.Solvers.Base.html#399" class="Function">solveM</a> <a id="1079" href="Prelude.Solvers.html#1020" class="Bound">s</a> <a id="1081" href="Prelude.Solvers.html#594" class="Bound">hole</a>
+
+      <a id="1093" href="Prelude.Solvers.html#1093" class="Function">newGoalRec</a> <a id="1104" class="Symbol">=</a> <a id="1106" href="Prelude.Solvers.html#444" class="Function">newGoal</a> <a id="1114" href="Prelude.Solvers.html#588" class="Bound">hints</a>
+      <a id="1126" href="Prelude.Solvers.html#1126" class="Function Operator">_:=_∋_</a>     <a id="1137" class="Symbol">=</a> <a id="1139" href="Prelude.Solvers.Base.html#1157" class="Function Operator">_:=_∋_via</a> <a id="1149" class="Symbol">(</a><a id="1150" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="1157" href="Prelude.Solvers.html#588" class="Bound">hints</a><a id="1162" class="Symbol">)</a>
+      <a id="1170" href="Prelude.Solvers.html#1170" class="Function Operator">_:=_∣_∋_</a>   <a id="1181" class="Symbol">=</a> <a id="1183" href="Prelude.Solvers.Base.html#1417" class="Function Operator">_:=_∣_∋_via</a> <a id="1195" class="Symbol">(</a><a id="1196" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="1203" href="Prelude.Solvers.html#588" class="Bound">hints</a><a id="1208" class="Symbol">)</a>
+
+      <a id="1217" class="Keyword">open</a> <a id="1222" class="Keyword">import</a> <a id="1229" href="Prelude.Solvers.Any.html" class="Module">Prelude.Solvers.Any</a> <a id="1249" href="Prelude.Solvers.html#1093" class="Function">newGoalRec</a> <a id="1260" href="Prelude.Solvers.html#1126" class="Function Operator">_:=_∋_</a>
+      <a id="1273" class="Keyword">open</a> <a id="1278" class="Keyword">import</a> <a id="1285" href="Prelude.Solvers.Eq.html" class="Module">Prelude.Solvers.Eq</a>  <a id="1305" href="Prelude.Solvers.html#1093" class="Function">newGoalRec</a> <a id="1316" href="Prelude.Solvers.html#1126" class="Function Operator">_:=_∋_</a>
+      <a id="1329" class="Keyword">open</a> <a id="1334" class="Keyword">import</a> <a id="1341" href="Prelude.Solvers.Choice.html" class="Module">Prelude.Solvers.Choice</a> <a id="1364" href="Prelude.Solvers.html#1093" class="Function">newGoalRec</a> <a id="1375" href="Prelude.Solvers.html#1126" class="Function Operator">_:=_∋_</a> <a id="1382" href="Prelude.Solvers.html#1170" class="Function Operator">_:=_∣_∋_</a>
+
+      <a id="1398" href="Prelude.Solvers.html#1398" class="Function">solvers</a> <a id="1406" class="Symbol">=</a>
+        <a id="1416" class="Symbol">(</a> <a id="1418" class="Symbol">(</a><a id="1419" class="String">&quot;Eq&quot;</a> <a id="1424" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="1426" href="Prelude.Solvers.Eq.html#1552" class="Function">Solver-Eq</a><a id="1435" class="Symbol">)</a>
+        <a id="1445" href="Data.List.NonEmpty.Base.html#1125" class="InductiveConstructor Operator">∷</a> <a id="1447" class="Symbol">(</a><a id="1448" class="String">&quot;Any&quot;</a> <a id="1454" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="1456" href="Prelude.Solvers.Any.html#1803" class="Function">Solver-Any</a><a id="1466" class="Symbol">)</a>
+        <a id="1476" href="Agda.Builtin.List.html#200" class="InductiveConstructor Operator">∷</a> <a id="1478" class="Symbol">(</a><a id="1479" class="String">&quot;Hints&quot;</a> <a id="1487" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="1489" href="Prelude.Solvers.Base.html#881" class="Function">hintSolver</a> <a id="1500" href="Prelude.Solvers.html#588" class="Bound">hints</a><a id="1505" class="Symbol">)</a>
+        <a id="1515" class="Comment">-- ∷ (&quot;Choices&quot; , choiceSolver)</a>
+        <a id="1555" href="Agda.Builtin.List.html#200" class="InductiveConstructor Operator">∷</a> <a id="1557" href="Agda.Builtin.List.html#185" class="InductiveConstructor">[]</a><a id="1559" class="Symbol">)</a>
+
+<a id="1562" class="Keyword">macro</a>
+  <a id="solve"></a><a id="1570" href="Prelude.Solvers.html#1570" class="Function">solve</a> <a id="1576" class="Symbol">:</a> <a id="1578" href="Prelude.Generics.html#6116" class="Function">Hole</a> <a id="1583" class="Symbol">→</a> <a id="1585" href="Agda.Builtin.Reflection.html#7356" class="Postulate">TC</a> <a id="1588" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+  <a id="1592" href="Prelude.Solvers.html#1570" class="Function">solve</a> <a id="1598" href="Prelude.Solvers.html#1598" class="Bound">hole</a> <a id="1603" class="Symbol">=</a> <a id="1605" href="Prelude.Tactics.Intro.html#658" class="Function">intros</a> <a id="1612" href="Prelude.Solvers.html#1598" class="Bound">hole</a> <a id="1617" class="Symbol">(</a><a id="1618" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="1625" href="Agda.Builtin.List.html#185" class="InductiveConstructor">[]</a><a id="1627" class="Symbol">)</a>
+
+  <a id="solveWith"></a><a id="1632" href="Prelude.Solvers.html#1632" class="Function">solveWith</a> <a id="1642" class="Symbol">:</a> <a id="1644" href="Prelude.Solvers.Base.html#630" class="Function">Hints</a> <a id="1650" class="Symbol">→</a> <a id="1652" href="Prelude.Generics.html#6116" class="Function">Hole</a> <a id="1657" class="Symbol">→</a> <a id="1659" href="Agda.Builtin.Reflection.html#7356" class="Postulate">TC</a> <a id="1662" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+  <a id="1666" href="Prelude.Solvers.html#1632" class="Function">solveWith</a> <a id="1676" href="Prelude.Solvers.html#1676" class="Bound">hints</a> <a id="1682" href="Prelude.Solvers.html#1682" class="Bound">hole</a> <a id="1687" class="Symbol">=</a> <a id="1689" href="Prelude.Tactics.Intro.html#658" class="Function">intros</a> <a id="1696" href="Prelude.Solvers.html#1682" class="Bound">hole</a> <a id="1701" class="Symbol">(</a><a id="1702" href="Prelude.Solvers.html#550" class="Function">solve′</a> <a id="1709" href="Prelude.Solvers.html#1676" class="Bound">hints</a><a id="1714" class="Symbol">)</a>
+
+<a id="1717" class="Comment">{-
+open L.Mem
+
+macro
+  `∈-++⁺ʳ : ∀ {A : Set} {x : A} {xs} → x ∈ xs → Tactic
+  `∈-++⁺ʳ x∈ hole = do
+    ty ← inferType hole
+    `x∈ ← quoteTC x∈
+    let err = error $ &quot;`∈-++⁺ʳ: expression &quot; ◇ show ty ◇ &quot; is not of the form _ ∈ _ ++ _&quot;
+    case ty of λ where
+      (def (quote L.Mem._∈_) as) → case vArgs as of λ where
+        (x ∷ xs₀ ∷ []) → case xs₀ of λ where
+          (def (quote _++_) args) → case vArgs args of λ where
+            (xs ∷ ys ∷ []) → unifyStrict (hole , ty) $ def (quote L.Mem.∈-++⁺ʳ) (vArg xs ∷ hArg ys ∷ vArg `x∈ ∷ [])
+            _ → err
+          _ → err
+        _ → err
+      _ → err
+
+f : ∀ (x y z : ℕ) xs ys → x ∈ xs ++ ys ++ (z ∷ y ∷ x ∷ [])
+-- f x y z xs ys = ∈-++⁺ʳ xs (∈-++⁺ʳ _ (there (there (here refl))))
+f x y z xs ys = `∈-++⁺ʳ (`∈-++⁺ʳ ((x ∈ (z ∷ y ∷ x ∷ [])) ∋ there (there (here refl))))
+-}</a>
+
+<a id="2545" class="Comment">{-
+private
+  _ : 5 ≡ 5
+  _ = solveWith []
+
+  _ : 5 ≡ 1 + 1 + 0 + 2 + 0 + 1
+  _ = solve
+
+  _ : ∀ {x : ℕ} → x ≡ x
+  _ = solve
+
+  _ : ∀ {x} → suc x ≡ suc x
+  _ = solve
+-}</a>
+
+<a id="2714" class="Keyword">private</a>
+  <a id="2724" class="Keyword">variable</a>
+    <a id="2737" href="Prelude.Solvers.html#2737" class="Generalizable">x</a> <a id="2739" href="Prelude.Solvers.html#2739" class="Generalizable">y</a> <a id="2741" href="Prelude.Solvers.html#2741" class="Generalizable">z</a> <a id="2743" class="Symbol">:</a> <a id="2745" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
+    <a id="2751" href="Prelude.Solvers.html#2751" class="Generalizable">xs</a> <a id="2754" href="Prelude.Solvers.html#2754" class="Generalizable">ys</a> <a id="2757" href="Prelude.Solvers.html#2757" class="Generalizable">zs</a> <a id="2760" class="Symbol">:</a> <a id="2762" href="Agda.Builtin.List.html#148" class="Datatype">List</a> <a id="2767" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
+<a id="2769" class="Comment">{-
+  _ : Any (_≡ 0) (0 ∷ [])
+  _ = solve
+
+  _ : Any (_≡ 0) [ 0 ]
+  _ = solve
+
+  _ : Any (_≡ 0) ⟦ 0 ⟧
+  _ = solve
+
+  _ : Any (_≡ 0) (1 ∷ 0 ∷ [])
+  _ = solve
+
+  _ : Any (_≡ 0) (2 ∷ 1 ∷ 0 ∷ [])
+  _ = solve
+
+  _ : Any (_≡ 0) (0 ∷ xs)
+  _ = solve
+
+  _ : Any (_≡ 0) ((0 ∷ []) ++ xs)
+  _ = solve
+
+  _ : Any (_≡ 0) (xs ++ (0 ∷ []))
+  _ = solve
+
+  _ : Any (_≡ 0) (xs ++ (0 ∷ []))
+  _ = solve
+
+  _ : Any (_≡ 0) (xs ++ ys ++ (0 ∷ []))
+  _ = solve
+
+  _ : Any (_≡ 0) (xs ++ ys ++ (1 ∷ 125 ∷ 0 ∷ []))
+  _ = solve
+-}</a>
+  <a id="3273" class="Keyword">module</a> <a id="3280" href="Prelude.Solvers.html#3280" class="Module">_</a> <a id="3282" class="Keyword">where</a>
+    <a id="3292" class="Keyword">open</a> <a id="3297" href="Prelude.Init.html#5562" class="Module">L.Mem</a>
+
+    <a id="3308" href="Prelude.Solvers.html#3308" class="Function">_</a> <a id="3310" class="Symbol">:</a> <a id="3312" class="Number">0</a> <a id="3314" href="Data.List.Membership.Setoid.html#887" class="Function Operator">∈</a> <a id="3316" class="Symbol">(</a><a id="3317" class="Number">0</a> <a id="3319" href="Agda.Builtin.List.html#200" class="InductiveConstructor Operator">∷</a> <a id="3321" class="Number">1</a> <a id="3323" href="Agda.Builtin.List.html#200" class="InductiveConstructor Operator">∷</a> <a id="3325" href="Prelude.Solvers.html#2751" class="Generalizable">xs</a><a id="3327" class="Symbol">)</a>
+    <a id="3333" class="Symbol">_</a> <a id="3335" class="Symbol">=</a> <a id="3337" href="Prelude.Solvers.html#1570" class="Macro">solve</a>
+
+
+    <a id="3349" class="Comment">-- _ : 0 ∈ xs ++ (0 ∷ 1 ∷ xs)</a>
+    <a id="3383" class="Comment">-- _ = solve</a>
+
+    <a id="3401" class="Comment">-- _ : x ∈ ys → x ∈ xs ++ ys</a>
+    <a id="3434" class="Comment">-- _ = solve</a>
+
+    <a id="3452" class="Comment">-- _ : x ∈ xs → x ∈ xs ++ ys ++ zs</a>
+    <a id="3491" class="Comment">-- _ = solve</a>
+
+<a id="3505" class="Comment">{-
+    _ : x ∈ xs ⊎ x ∈ ys → x ∈ xs ++ ys
+    -- _ = solve
+    -- _ = λ where
+    --   (inj₁ x∈) → solve
+    --   (inj₂ x∈) → solve
+    _ = λ x∈ →
+          Sum.[ (λ x → {!!}) -- solve -- (λ x∈l → solve)
+              , {!!} -- solve -- (λ x∈r → solve)
+              ] x∈
+-}</a>
+
+    <a id="3785" class="Comment">-- f : x ∈ xs ++ ys → x ∈ xs ++ ys ++ zs</a>
+    <a id="3830" class="Comment">-- f {x}{xs}{ys}{zs} = λ x∈ → case L.Mem.∈-++⁻ xs {ys} x∈ of λ where</a>
+    <a id="3903" class="Comment">--   (inj₁ x∈xs) → solve -- (_ ∈ _ ++ ys ++ _ ∋ solve)</a>
+    <a id="3962" class="Comment">--   (inj₂ x∈ys) → ? -- (_ ∈ xs ++ _ ++ _ ∋ solve)</a>
+
+  <a id="4016" class="Comment">-- module _ where</a>
+  <a id="4036" class="Comment">--   open import Prelude.Membership</a>
+
+  <a id="4075" class="Comment">--   -- _ : 0 ∈ (List ℕ ∋ 0 ∷ 1 ∷ xs)</a>
+  <a id="4115" class="Comment">--   -- _ = solve</a>
+
+  <a id="4136" class="Comment">--   -- _ : 0 ∈ ys ++ (0 ∷ 1 ∷ xs)</a>
+  <a id="4173" class="Comment">--   -- _ = solve</a>
+
+  <a id="4194" class="Comment">--   -- _ : x ∈ ys → x ∈ xs ++ ys</a>
+  <a id="4230" class="Comment">--   -- _ = solve</a>
+
+  <a id="4251" class="Comment">--   _ : x ∈ xs → x ∈ xs ++ ys ++ zs</a>
+  <a id="4290" class="Comment">--   _ = solve</a>
+
+  <a id="4308" class="Comment">--   g : x ∈ xs ++ ys → x ∈ xs ++ ys ++ zs</a>
+  <a id="4353" class="Comment">--   g {x}{xs}{ys}{zs} = λ x∈ → case L.Mem.∈-++⁻ xs {ys} x∈ of λ where</a>
+  <a id="4426" class="Comment">--     (inj₁ x∈xs) → (_ L.Mem.∈ _ ++ ys ++ _ ∋ solve)</a>
+  <a id="4482" class="Comment">--     (inj₂ x∈ys) → (_ L.Mem.∈ xs ++ _ ++ _ ∋ solve)</a>
+
+  <a id="4539" class="Comment">-- T0D0: solver for _⊆_</a>
+  <a id="4565" class="Comment">-- _ : (0 ∷ 1 ∷ xs) ⊆ (0 ∷ 2 ∷ 1 ∷ 2 ∷ 2 ∷ [])</a>
+  <a id="4614" class="Comment">-- _ = {!!} -- solve</a>
+</pre></body></html>
