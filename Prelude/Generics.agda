@@ -1,10 +1,12 @@
 ------------------------------------------------------------------------
+
 -- Meta-programming utilities
 ------------------------------------------------------------------------
 module Prelude.Generics where
 
 open import Prelude.Init
 open Meta
+open import Prelude.General
 open import Prelude.Lists
 open import Prelude.Show
 open import Prelude.ToN
@@ -12,10 +14,11 @@ open import Prelude.Semigroup
 open import Prelude.Functor
 open import Prelude.Applicative
 open import Prelude.Monad
+open import Prelude.Foldable
+open import Prelude.Traversable
+open import Prelude.Nary
 
-private
-  variable
-    A B : Set
+private variable A B : Set ℓ
 
 -------------------------------------------------
 -- ** Smart constructors
@@ -43,6 +46,8 @@ pattern ⟦_∣_⇒_⟧ x y k = Clause.clause (vArg x ∷ vArg y ∷ []) k
 -- lambdas
 pattern `λ_⇒_     x k   = lam visible (abs x k)
 pattern `λ⟦_∣_⇒_⟧ x y k = `λ x ⇒ `λ y ⇒ k
+pattern `λ⟅_⟆⇒_     x k   = lam hidden (abs x k)
+pattern `λ⦃_⦄⇒_     x k   = lam instance′ (abs x k)
 
 pattern `λ∅ = pat-lam (⟦∅⟧ ∷ []) []
 pattern `λ⟦_⇒_⟧ p k = pat-lam (⟦ p ⇒ k ⟧ ∷ []) []
@@ -61,32 +66,6 @@ pattern _◆⟦_∣_⟧ n x y = con n (vArg x ∷ vArg y ∷ [])
 pattern _◇ n = Pattern.con n []
 pattern _◇⟦_⟧ n x = Pattern.con n (vArg x ∷ [])
 pattern _◇⟦_∣_⟧ n x y = Pattern.con n (vArg x ∷ vArg y ∷ [])
-
--------------------------------------------------
--- ** Monadic utilities
-
-mapM : (A → TC B) → List A → TC (List B)
-mapM f []       = return []
-mapM f (x ∷ xs) = ⦇ f x ∷ mapM f xs ⦈
-
-concatMapM : (A → TC (List B)) → List A → TC (List B)
-concatMapM f xs = concat <$> mapM f xs
-
-forM : List A → (A → TC B) → TC (List B)
-forM []       _ = return []
-forM (x ∷ xs) f = ⦇ f x ∷ forM xs f ⦈
-
-concatForM : List A → (A → TC (List B)) → TC (List B)
-concatForM xs f = concat <$> forM xs f
-
-return⊤ : TC A → TC ⊤
-return⊤ k = k ≫ return tt
-
-filterM : (A → TC Bool) → List A → TC (List A)
-filterM _ [] = return []
-filterM p (x ∷ xs) = do
-  b ← p x
-  ((if b then [ x ] else []) ++_) <$> filterM p xs
 
 -------------------------------------------------
 -- ** Other utilities
@@ -146,16 +125,33 @@ args _           = []
 args′ : Term → List Term
 args′ = unArgs ∘ args
 
+
+mapFreeVars : ℕ → (ℕ → ℕ) → (Type → Type)
+mapFreeVars′ : ℕ → (ℕ → ℕ) → Args Type → Args Type
+
+mapFreeVars bound f = λ where
+  (var x args) → var (if ⌊ bound Nat.≤? x ⌋ then f x else x) (mapFreeVars′ bound f args)
+  (def c args) → def c (mapFreeVars′ bound f args)
+  (con c args) → con c (mapFreeVars′ bound f args)
+  (lam v (abs x t)) → lam v (abs x (mapFreeVars (suc bound) f t))
+  ty → ty
+
+mapFreeVars′ _ _ []              = []
+mapFreeVars′ b f (arg i ty ∷ xs) = arg i (mapFreeVars b f ty) ∷ mapFreeVars′ b f xs
+
 mapVars : (ℕ → ℕ) → (Type → Type)
-mapVars′ : (ℕ → ℕ) → Args Type → Args Type
+mapVars = mapFreeVars 0
 
-mapVars f (var x args) = var (f x) (mapVars′ f args)
-mapVars f (def c args) = def c (mapVars′ f args)
-mapVars f (con c args) = con c (mapVars′ f args)
-mapVars _ ty           = ty
+-- mapVars′ : (ℕ → ℕ) → Args Type → Args Type
 
-mapVars′ f []              = []
-mapVars′ f (arg i ty ∷ xs) = arg i (mapVars f ty) ∷ mapVars′ f xs
+-- mapVars f (var x args) = var (f x) (mapVars′ f args)
+-- mapVars f (def c args) = def c (mapVars′ f args)
+-- mapVars f (con c args) = con c (mapVars′ f args)
+-- mapVars f (lam v (abs x t)) = lam v (abs x t′)
+-- mapVars _ ty           = ty
+
+-- mapVars′ f []              = []
+-- mapVars′ f (arg i ty ∷ xs) = arg i (mapVars f ty) ∷ mapVars′ f xs
 
 varsToUnknown : Type → Type
 varsToUnknown′ : Args Type → Args Type
@@ -206,6 +202,22 @@ mkPattern c = do
          , n
          , map (Product.map₁ ((n ∸_) ∘ suc ∘ toℕ)) (enumerate tys)
 
+TTerm = Term × Type
+Hole  = Term
+THole = Hole × Type
+
+Context = List (Arg Type)
+Tactic  = Hole → TC ⊤
+
+fresh-level : TC Level
+fresh-level = unquoteTC =<< newMeta (quote Level ∙)
+
+withHole : Type → Tactic → TC Hole
+withHole ty k = do
+  hole′ ← newMeta ty
+  k hole′
+  return hole′
+
 -------------------------------------------------
 -- *** Deriving
 
@@ -217,9 +229,9 @@ Derivation = List ( Name -- name of the type to derive an instance for
 record Derivable (F : Set → Set) : Set where
   field
     DERIVE' : Derivation
-open Derivable ⦃ ... ⦄ public
+open Derivable ⦃...⦄ public
 
-DERIVE : ∀ F ⦃ _ : Derivable F ⦄ → Derivation
+DERIVE : ∀ F → ⦃ Derivable F ⦄ → Derivation
 DERIVE F = DERIVE' {F = F}
 
 -------------------------------------------------
@@ -228,15 +240,53 @@ DERIVE F = DERIVE' {F = F}
 error : String → TC A
 error s = typeError [ strErr s ]
 
+_IMPOSSIBLE_ : TC A
+_IMPOSSIBLE_ = error "IMPOSSIBLE"
+
 module Debug (v : String × ℕ) where
   -- i.e. set {-# OPTIONS -v v₁:v₂ #-} to enable such messages in the **debug** buffer.
 
-  print : String → TC ⊤
+  print printLn : String → TC ⊤
   print s = debugPrint (v .proj₁) (v .proj₂) [ strErr s ]
+  printLn = print ∘ (_<> "\n")
+  printLns = print ∘ Str.unlines
 
   printS : ⦃ _ : Show A ⦄ → A → TC ⊤
   printS = print ∘ show
     where open import Prelude.Show
+
+  errorP : String → TC A
+  errorP s = printLn s >> error s
+
+  Ap₀-TC : Applicative₀ TC
+  Ap₀-TC = λ where .ε₀ → errorP "∅ alternative"
+
+  infix -1 ⋃∗_
+  ⋃∗_ : List (TC A) → TC A
+  ⋃∗_ = foldr _<|>_ ε₀
+    where instance ap₀ = Ap₀-TC
+
+  printTerm : String → Term → TC ⊤
+  printTerm s t = do
+    ty ← inferType t
+    printLns
+      ⟦ s ◇ ": {"
+      , show ty
+      , " ∋ "
+      , show t
+      , "}\n"
+      ⟧
+
+  printContext : Context → TC ⊤
+  printContext ctx = do
+    print "\t----CTX----"
+    void $ traverseM go (enumerate ctx)
+    where
+      go : Index ctx × Arg Type → TC ⊤
+      go (i , ty) = print $ "\t" ◇ show i ◇ " : " ◇ show ty
+
+  printCurrentContext : TC ⊤
+  printCurrentContext = printContext =<< getContext
 
 module DebugI (v : String) where
   -- i.e. set {-# OPTIONS -v ⟨v⟩:0 #-} to enable messages in the **info** buffer.
@@ -248,49 +298,216 @@ macro
   trace x t hole = print ("trace: " ◇ show x) >> unify hole t
     where open Debug ("trace" , 100)
 
--- private
---   open Debug ("rewrite" , 10)
+-------------------------------------------------
+-- ** Utility macros
 
---   {-# TERMINATING #-}
---   rewrite◆ : Term → TC Term
---   rewrite◆ t = do
---     let t′ = go 0 t
---     print $ show t ◇ " ———→ " ◇ show t′
---     return t′
---     where
---       go : ℕ → Term → Term
---       go λs (lam v e) = lam v $ fmap (go (suc λs)) e
---       go λs (def n xs) = def n $ map (fmap $ go λs) xs
---       go λs (var n xs) = var n $ map (fmap $ go λs) xs
---       go λs (meta m xs) = meta m $ map (fmap $ go λs) xs
---       go λs (pi a b) = pi (fmap (go λs) a) (fmap (go λs) b)
---       -- go λs (var n xs) =
---       --   if n Nat.≡ᵇ 666 then
---       --     ♯ λs
---       --   else
---       --     var n (map (fmap $ go λs) xs)
---       go λs e@(lit (char c)) =
---         if c Ch.== '◆' then
---           ♯ λs
---         else
---           e
---       -- go λs (lit (char '◆')) = ♯ λs
---       go _ e = e
+-- newMeta_⦅ctx=_⦆ : Type → Context → TC Term
+-- newMeta ty ⦅ctx= ctx ⦆ = do
+--   hole@(meta m _) ← newMeta ty
+--     where _ → _IMPOSSIBLE_
+--   return $ meta m ctx
 
---   macro
---     λ◆ : Term → Term → TC ⊤
---     λ◆ t hole = do
---       t′ ← normalise t
---       t″ ← rewrite◆ t′
---       return tt
---       -- unify hole (`λ "◆" ⇒ t′)
+apply : Type → Term → List (Arg Term) → TC (Type × Term)
+apply A t []       = return (A , t)
+apply A t (a ∷ as) = do
+  A ← reduce A
+  A , t ← apply₁ A t a
+  apply A t as
+  where
+    apply₁ : Type → Term → Arg Term → TC (Type × Term)
+    apply₁ (pi (arg i₁@(arg-info k _) A) B) t₁ (arg i₂ t₂) = do
+      a ← fresh-level
+      b ← fresh-level
+      A ← unquoteTC {A = Set a} A
+      B ← unquoteTC {A = A → Set b} (lam visible B)
+      t₂ ← unquoteTC {A = A} t₂
+      Bt₂ ← quoteTC (B t₂)
+      case k of λ where
+        visible → do
+          t₁ ← unquoteTC {A = ∀ (x : A) → B x} t₁
+          Bt₂ ,_ <$> quoteTC (t₁ t₂)
+        hidden → do
+          t₁ ← unquoteTC {A = ∀ {x : A} → B x} t₁
+          Bt₂ ,_ <$> quoteTC (t₁ {x = t₂})
+        instance′ → do
+          t₁ ← unquoteTC {A = ∀ ⦃ x : A ⦄ → B x} t₁
+          Bt₂ ,_ <$> quoteTC (t₁ ⦃ x = t₂ ⦄)
+    apply₁ (meta x _) _ _ = blockOnMeta x
+    apply₁ A          _ _ = error "apply: not a Π-type"
 
---   import Reflection.Literal as Lit
+_-∙-_ : Term → Term → TC Term
+f -∙- x = do
+  ty ← inferType f
+  proj₂ <$> apply ty f [ vArg x ]
+{-
+_-∙-_ : Term → Term → TC Term
+f -∙- x = case f of λ where
+  (var x as) → return $ var x (as ∷v)
+  (con c as) → return $ con c (as ∷v)
+  (def f as) → return $ def f (as ∷v)
+  (meta x as) → return $ meta x (as ∷v)
+  (lam visible (abs _ t)) → go t
+  _ → error $ "cannot apply terms " ◇ show f ◇ " -∙- " ◇ show x
+   where
+     _∷v = _∷ʳ vArg x
+     go = λ where
+       (var x′ as) → return $ var x (as ∷v)
+       (con c as) → return $ con c (as ∷v)
+       (def f as) → return $ def f (as ∷v)
+       (meta x as) → return $ meta x (as ∷v)
+       (lam visible (abs x t)) → go t
+-}
 
---   ∣◆∣ : Term
---   -- ∣◆∣ = ♯ 666
---   ∣◆∣ = Meta.lit (Lit.char '◆')
+private
+  macro
+    test : Hole → TC ⊤
+    test hole = unify hole =<<
+      (proj₂ <$> apply (quoteTerm (ℕ → ℕ)) (quoteTerm suc) [ vArg (quoteTerm 5) ])
 
---   f : ℕ → ℕ
---   -- f = λ ◆ → ◆ + 1
---   f = λ◆ (quote _+_ ∙⟦ ∣◆∣ ∣ Meta.lit (Lit.nat 1) ⟧)
+  _ : test ≡ 6
+  _ = refl
+
+
+instantiate : Hole → TC Term
+-- instantiate  = reduce >=> onlyReducecDefs [] -- T0D0 added on v2.6.2
+instantiate = reduce >=> normalise
+
+module _ where -- ** unification
+  open Debug ("Generics.unifyStrict", 100)
+
+  ensureNoMetas : Term → TC ⊤
+  ensureNoMetas = λ where
+    (var x args) → noMetaArgs args
+    (con c args) → noMetaArgs args
+    (def f args) → noMetaArgs args
+    (lam v (abs _ t)) → ensureNoMetas t
+    (pat-lam cs args) → noMetaClauses cs *> noMetaArgs args
+    (pi a b) → noMetaArg a *> noMetaAbs b
+    (agda-sort s) → noMetaSort s
+    (lit l) → pure _
+    -- (meta x _) → errorP "meta found!"
+    (meta x _) → blockOnMeta x
+    unknown → pure _
+     where
+      noMetaArg : Arg Term → TC ⊤
+      noMetaArg (arg _ v) = ensureNoMetas v
+
+      noMetaArgs : List (Arg Term) → TC ⊤
+      noMetaArgs [] = pure _
+      noMetaArgs (v ∷ vs) = noMetaArg v *> noMetaArgs vs
+
+      noMetaClause : Clause → TC ⊤
+      noMetaClause (clause ps t) = ensureNoMetas t
+      noMetaClause (absurd-clause ps) = pure _
+
+      noMetaClauses : List Clause → TC ⊤
+      noMetaClauses [] = pure _
+      noMetaClauses (c ∷ cs) = noMetaClause c *> noMetaClauses cs
+
+      noMetaAbs : Abs Term → TC ⊤
+      noMetaAbs (abs _ v) = ensureNoMetas v
+
+      noMetaSort : Sort → TC ⊤
+      noMetaSort (set t) = ensureNoMetas t
+      noMetaSort _       = pure _
+
+  {-
+  {-# TERMINATING #-}
+  isSolved : Hole → Bool
+  isSolved = λ where
+    (meta _ _) → false
+    unknown    → false
+    (var _ xs) → all isSolved (unArgs xs)
+    (con _ xs) → all isSolved (unArgs xs)
+    (def _ xs) → all isSolved (unArgs xs)
+    (lam _ (abs _ t)) → isSolved t
+    (pat-lam cs xs) → all isSolved (unArgs xs)
+    (pi (arg _ t) (abs _ t′)) → isSolved t ∧ isSolved t′
+    _ → true
+  -}
+
+  module NewMeta where
+    unifyStrict : THole → Term → TC ⊤
+    unifyStrict (hole , ty) x = do
+      printLn $ show hole ◇ " :=? " ◇ show x
+      m ← newMeta ty
+      noConstraints $
+        unify m x >> unify hole m
+      printLn $ show hole ◇ " := " ◇ show x
+
+  module NoMeta where
+    unifyStrict : THole → Term → TC ⊤
+    unifyStrict (hole , ty) x = do
+      -- unify hole x
+      -- instantiate hole >>= ensureNoMetas
+
+      print "———————————————————————————————————————"
+      printTerm "x" x
+      unify hole x
+      hole ← normalise hole
+      printTerm "hole′" hole
+      -- (x ∷ hole ∷ []) ← mapM instantiate (x ∷ hole ∷ [])
+      --   where _ → _IMPOSSIBLE_
+      -- printTerm "x′" x
+      ensureNoMetas hole
+      printLn "No metas found :)"
+
+  open NewMeta public
+  -- open NoMeta public
+
+  unifyStricts : THole → List Term → TC ⊤
+  unifyStricts ht = L.NE.foldl₁ _<|>_
+                  ∘ (L.NE._∷ʳ error "∅")
+                  ∘ fmap ({-noConstraints ∘ -}unifyStrict ht)
+
+-----------------------------------------------------------------------
+
+
+{- experiment to allow subst syntax ⟪ x + ◆ ⟫ x≡ ~: ...
+private
+  open Debug ("rewrite" , 10)
+
+  {-# TERMINATING #-}
+  rewrite◆ : Term → TC Term
+  rewrite◆ t = do
+    let t′ = go 0 t
+    print $ show t ◇ " ———→ " ◇ show t′
+    return t′
+    where
+      go : ℕ → Term → Term
+      go λs (lam v e) = lam v $ fmap (go (suc λs)) e
+      go λs (def n xs) = def n $ map (fmap $ go λs) xs
+      go λs (var n xs) = var n $ map (fmap $ go λs) xs
+      go λs (meta m xs) = meta m $ map (fmap $ go λs) xs
+      go λs (pi a b) = pi (fmap (go λs) a) (fmap (go λs) b)
+      -- go λs (var n xs) =
+      --   if n Nat.≡ᵇ 666 then
+      --     ♯ λs
+      --   else
+      --     var n (map (fmap $ go λs) xs)
+      go λs e@(lit (char c)) =
+        if c Ch.== '◆' then
+          ♯ λs
+        else
+          e
+      -- go λs (lit (char '◆')) = ♯ λs
+      go _ e = e
+
+  macro
+    λ◆ : Term → Term → TC ⊤
+    λ◆ t hole = do
+      t′ ← normalise t
+      t″ ← rewrite◆ t′
+      return tt
+      -- unify hole (`λ "◆" ⇒ t′)
+
+  import Reflection.Literal as Lit
+
+  ∣◆∣ : Term
+  -- ∣◆∣ = ♯ 666
+  ∣◆∣ = Meta.lit (Lit.char '◆')
+
+  f : ℕ → ℕ
+  -- f = λ ◆ → ◆ + 1
+  f = λ◆ (quote _+_ ∙⟦ ∣◆∣ ∣ Meta.lit (Lit.nat 1) ⟧)
+-}

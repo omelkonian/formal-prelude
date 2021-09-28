@@ -32,6 +32,7 @@ open import Prelude.Show
 open import Prelude.Measurable
 
 open import Prelude.ToN
+open import Prelude.FromN
 open import Prelude.ToList
 
 open import Prelude.Orders
@@ -56,7 +57,7 @@ open import Prelude.Lists
 open import Prelude.Sets
 open import Prelude.Maps
 
--- ** Utilities for cryptography.
+-- ** Utilities for cryptography
 open import Prelude.Bitstring
 
 -- ** Unsafe operations
@@ -64,3 +65,10 @@ open import Prelude.Unsafe
 
 -- ** Utilities for working with irrelevance
 open import Prelude.Irrelevance
+
+-- ** Tactics
+open import Prelude.Tactics.Intro
+-- open import Prelude.Tactics.Try
+
+-- ** Automatical solvers
+open import Prelude.Solvers
