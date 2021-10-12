@@ -25,6 +25,7 @@ intro hole k = do
         k hole′
     _ → k hole
 
+{-# TERMINATING #-}
 intros : Hole → Tactic → TC ⊤
 intros hole k = do
   ty ← inferType hole
@@ -48,7 +49,7 @@ private
     ctx ← getContext
     printContext ctx
     let n = length ctx
-    let vs = flip var [] <$> upTo n
+    let vs = applyUpTo ♯ n
     unifyStricts (hole , ty) vs
 
   macro

@@ -78,15 +78,15 @@ instance
   N1 .focus₁ (a , b) = a , b
 
   -- also works for n-tuples for n > 1
-  N1⁺ : Focus₁ (A × B × C) ⟪ A ⟫ (B × C)
-  N1⁺ .focus₁ (a , b , c) = a , (b , c)
+  -- N1⁺ : Focus₁ (A × B × C) ⟪ A ⟫ (B × C)
+  -- N1⁺ .focus₁ (a , b , c) = a , (b , c)
 
 private
   t₂ = ℕ × ℕ ∋ (1 , 2)
   t₃ = ℕ × ℕ × ℕ ∋ (1 , 2 , 3)
   t₄ = ℕ × ℕ × ℕ × ℕ ∋ (1 , 2 , 3 , 4)
 
-  _ : select₁ t₂ ≡ 1 × (drop₁ t₂ ≡ 2)
+  _ : (select₁ t₂ ≡ 1) × (drop₁ t₂ ≡ 2)
   _ = refl , refl
 
   _ : (select₁ t₃ ≡ 1) × (drop₁ t₃ ≡ (2 , 3))

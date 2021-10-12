@@ -25,7 +25,7 @@ match a mx = M.fromMaybe true ⦇ pure a == mx ⦈
 
 -- convert a function type `A → B → ⋯ → R` to `Maybe A → Maybe B → ‌⋯ → R`
 macro
-  holify : Type → Term → TC ⊤
+  holify : Term → Term → TC ⊤
   holify ty hole = unify hole (argumentWise toMaybe ty)
     where
       toMaybe : Type → Type
@@ -47,7 +47,7 @@ private
   -- ... but we have to introduce a "holed" variant to model semi-equality
   data X∗ : Set where
     mkX[_,_] : holify (ℕ → String → X∗)
-  -- unquoteDecl DecEq-X∗ = DERIVE DecEq [ quote X∗ , DecEq-X∗ ]
+  unquoteDecl DecEq-X∗ = DERIVE DecEq [ quote X∗ , DecEq-X∗ ]
 
   -- and now we can connect them using `match`
   instance

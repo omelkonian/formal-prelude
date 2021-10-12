@@ -1,4 +1,4 @@
--- {-# OPTIONS -v DecEq:100 #-}
+{-# OPTIONS -v DecEq:100 #-}
 module Prelude.DecEq.Derive where
 
 open import Prelude.Init
@@ -8,6 +8,7 @@ open import Reflection.Name renaming (_≟_ to _≟ₙ_)
 open import Reflection.Term renaming (_≟_ to _≟ₜ_)
 open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 
+
 open import Prelude.Generics
 open import Prelude.Generics using (DERIVE) public
 open Debug ("DecEq" , 100)
@@ -15,8 +16,11 @@ open import Prelude.Lists
 open import Prelude.Show
 open import Prelude.Monoid
 open import Prelude.Functor
+open import Prelude.Bifunctor
 open import Prelude.Monad
+open import Prelude.ToN
 
+open import Prelude.DecEq.Core
 open import Prelude.DecEq.Core
 
 -------------------------------
@@ -29,58 +33,103 @@ pattern ``no x  = quote _because_ ◇⟦ quote false ◇ ∣ quote ofⁿ ◇⟦ 
 
 compatible? : Type → Type → TC Bool
 compatible? ty ty′ = do
-  print $ show ty ◇ " ≈? " ◇ show ty′
+  -- print $ show ty ◇ " ≈? " ◇ show ty′
   b ← runSpeculative $ (_, false) <$>
     catchTC (unify (varsToUnknown ty) (varsToUnknown ty′) >> return true)
             (return false)
-  print $ "  ——→ " ◇ show b
+  -- print $ "  ——→ " ◇ show b
   return b
 
-derive-DecEq : (Name × Name) → Definition → TC Term
+`λ∅∅ = `λ⦅ [ "()" , vArg? ] ⦆∅
 
-derive-DecEq _              (data-type _ []) = return `λ∅
-derive-DecEq (this , ≟-rec) (data-type pars cs) = do
-  print $ "DATATYPE {pars = " ◇ show pars ◇ "; cs = " ◇ show cs ◇ "}"
+derive-DecEq : ℕ → (Name × Name) → Definition → TC Term
+
+derive-DecEq _ _              (data-type _  []) = return `λ∅∅
+derive-DecEq toDrop (this , ≟-rec) (data-type ps cs) = do
+  print $ "DATATYPE {pars = " ◇ show ps ◇ "; cs = " ◇ show cs ◇ "}"
   cls ← concatMap L.fromMaybe <$> mapM f (allPairs cs)
   return $ pat-lam cls []
   where
-    go : ℕ → List (ℕ × Type) → Term
+    go : ℕ → List (ℕ × Arg Type) → Term
     go _ []              = `yes (quote refl ◆)
-    go n ((x , ty) ∷ xs) =
+    go n ((x , _) ∷ xs) =
+      let i = n ∸ suc x in
       quote case_of_
-        ∙⟦ quote _≟_ ∙⟦ ♯ (x + n) ∣ ♯ x ⟧
-         ∣ `λ⟦ ``no (Pattern.var "¬p") ⇒ `no (`λ⟦ (quote refl ◇) ⇒ (♯ 0 ⟦ quote refl ◆ ⟧) ⟧)
-             ∣ ``yes (quote refl ◇)    ⇒ go n xs ⟧ ⟧
+        ∙⟦ quote _≟_ ∙⟦ ♯ (i + n) ∣ ♯ i ⟧
+         ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
+               ⦅ [ "¬p" , vArg? ] ⦆⇒
+               `no (`λ⟦ (quote refl ◇)
+                        ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
+                      ⟧)
+             ∣ ``yes (quote refl ◇)
+               ⦅ [] ⦆⇒ go n xs
+             ⟧
+         ⟧
+
+    mkPattern : Name → TC
+      ( Pattern             -- ^ generated pattern for given constructor
+      × ℕ                   -- ^ # of introduced variables
+      × List (ℕ × Arg Type) -- ^ generated variables along with their type
+      -- × List (Arg Type)     -- ^ module telescope
+      )
+    mkPattern c = do
+      -- print $ "c: " ◇ show c
+      ty ← getType c
+      -- print $ "ty: " ◇ show ty
+      let tys  = drop toDrop (argTys ty)
+          n    = length tys
+          vars = map (map₁ toℕ) (enumerate tys)
+      return $ Pattern.con c (map (λ{ (i , arg x _) → arg x (` i) }) vars)
+             , n
+             , vars
+
+    bumpFreeVars : (ℕ → ℕ) → List (ℕ × Arg Type) → List (ℕ × Arg Type)
+    bumpFreeVars bump = go′ 0
+      where
+        go′ : ℕ → List (ℕ × Arg Type) → List (ℕ × Arg Type)
+        go′ _ []            = []
+        go′ x ((i , p) ∷ ps) = (bump i , fmap (mapFreeVars x bump) p) ∷ go′ (suc x) ps
 
     f : Name × Name → TC (Maybe Clause)
     f (c , c′) = do
-      (pc  , _ , pvs) ← mkPattern c
-      (pc′ , n , _)   ← mkPattern c′
+      (pc  , n , pvs) ← mkPattern c
+      -- print $ "pvs: " ◇ show pvs
+      (pc′ , n′ , pvs′)   ← mkPattern c′
+      -- print $ "pvs′: " ◇ show pvs′
+      let
+        tel = map (λ (i , argTy) → ("v" ◇ show i) , argTy) (pvs ++ bumpFreeVars (_+ n) pvs′)
+        PC  = mapVariables (λ i → n + n′ ∸ suc i) pc
+        PC′ = mapVariables (λ i → n′ ∸ suc i) pc′
+      -- print $ "tel: " ◇ show tel
+      -- print $ "pc: " ◇ show PC
+      -- print $ "pc′: " ◇ show PC′
       ty  ← getType c
       ty′ ← getType c′
       b   ← compatible? (resultTy ty) (resultTy ty′)
       return $
-        if b then
-          just (if c == c′ then ⟦ pc ∣ mapVariables (_<> "′") pc ⇒ go n pvs ⟧
-                           else ⟦ pc ∣ pc′ ⇒ `no `λ∅ ⟧)
-        else nothing
-derive-DecEq _ (record-type rn fs) = do
+        if b then just (⟦ PC ∣ PC′ ⦅ tel ⦆⇒ if c == c′ then go n (filter (isVisible? ∘ proj₂) pvs)
+                                                       else `no `λ∅∅ ⟧)
+             else nothing
+derive-DecEq _ _ (record-type rn fs) = do
   print $ "RECORD {name = " ◇ show rn ◇ "; fs = " ◇ show fs ◇ "}"
   return $ `λ⟦ "r" ∣ "r′" ⇒ go fs ⟧
   where
     go : List (Arg Name) → Term
     go [] = `yes (quote refl ◆)
-    go (arg (arg-info _ irrelevant) _ ∷ args) = go args
-    go (arg (arg-info _ relevant)   n ∷ args) =
+    go (arg (arg-info _ (modality relevant _)) n ∷ args) =
       quote case_of_
         ∙⟦ quote _≟_ ∙⟦ n ∙⟦ ♯ 1 ⟧ ∣ n ∙⟦ ♯ 0 ⟧ ⟧
-         ∣ `λ⟦ ``no (Pattern.var "¬p")
-             ⇒ `no (`λ⟦ (quote refl ◇) ⇒ (♯ 0 ⟦ quote refl ◆ ⟧) ⟧)
+         ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
+             ⦅ [ "¬p" , vArg? ] ⦆⇒
+                 `no (`λ⟦ (quote refl ◇)
+                        ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
+                        ⟧)
              ∣ ``yes (quote refl ◇)
-             ⇒ go args
+             ⦅ [] ⦆⇒ go args
              ⟧
          ⟧
-derive-DecEq _ _ = error "impossible"
+    go (arg (arg-info _ _) _ ∷ args) = go args
+derive-DecEq _ _ _ = error "impossible"
 
 instance
   Derivable-DecEq : Derivable DecEq
@@ -89,39 +138,52 @@ instance
     (record-type c _) ← getDefinition (quote DecEq)
       where _ → error "impossible"
 
-    -- ** Declare ⋯ fᵢ′ : Decidable² {A = Tᵢ} _≡_ ⋯
-    -- and define ⋯ instance
-    --                fᵢ : DecEq Tᵢ ⋯
-    --                fᵢ = ⋯
-    --            ⋯
-    ys ← forM xs λ{ (n , f) → do
+    ys ← forM xs λ (n , f) → do
       print $ "Deriving " ◇ parens (show f ◇ " : DecEq " ◇ show n)
       f′ ← freshName (show {A = Name} f)
       T ← getType n
       ctx ← getContext
       print $ "  Context: " ◇ show ctx
-      print $ "  n: " ◇ show n
       print $ "  Type: " ◇ show T
       d ← getDefinition n
-      let is = drop ({-parameters d-} length ctx) (argTys T)
+
+      let is = drop (length ctx) (argTys T)
       let n′ = apply⋯ is n
       print $ "  Parameters: " ◇ show (parameters d)
       print $ "  Indices: " ◇ show is
       print $ "  n′: " ◇ show n′
-      t ← derive-DecEq (n , f′) d
-      -- print $ "  Term: " ◇ show t
-      let ty′ = ∀indices⋯ is $ def (quote Decidable²) (hArg? ∷ hArg n′ ∷ hArg? ∷ hArg? ∷ vArg (quote _≡_ ∙) ∷ [])
+      let mctx = take (parameters d ∸ length ctx) (argTys T)
+          mtel = map ("_" ,_) mctx
+          pc = map (λ where (i , _) → hArg (` toℕ i) ) (enumerate mctx)
+      print $ "  Mctx: " ◇ show mctx
+
+      -- fᵢ′ : ∀ ⋯ → Decidable² {A = Tᵢ ⋯} _≡_
+      let ty′ = ∀indices⋯ is $ def (quote Decidable²) (hArg? ∷ hArg n′ ∷ vArg (quote _≡_ ∙) ∷ [])
       print $ "  Ty′: " ◇ show ty′
       declareDef (vArg f′) ty′
+
+      -- instance fᵢ : ∀ ⋯ → DecEq (Tᵢ ⋯)
       let ty = ∀indices⋯ is $ quote DecEq ∙⟦ n′ ⟧
       print $ "  Ty: " ◇ show ty
       declareDef (iArg f) ty
-      defineFun f (⟦⇒ c ◆⟦ f′ ∙ ⟧ ⟧ ∷ [])
-      return (f′ , t)
-      }
+      -- fᵢ ⋯ = λ where ._≟_ → fᵢ′
+      -- defineFun f [ ⟦⇒ c ◆⟦ f′ ∙ ⟧ ⟧ ]
+      defineFun f [ clause mtel pc (c ◆⟦ f′ ∙ ⟧) ]
 
-    -- ** Define ⋯ fᵢ′ : Decidable² {A = Tᵢ} _≡_ ⋯
-    return⊤ $ forM ys λ{ (f′ , t) → defineFun f′ (⟦⇒ t ⟧ ∷ []) }
+      -- fᵢ′ ⋯ = λ where
+      --    (c₀ x y) (c₀ x′ y′) → case x ≟ x′ of ⋯
+      --    ⋯
+      t ← inContext (ctx ++ L.reverse mctx) $ do
+        ctx ← getContext
+        print $ "  Context′: " ◇ show ctx
+        derive-DecEq (length ctx) (n , f′) d
+      -- print $ "  Term: " ◇ show t
+
+      return (f′ , (pc , mtel) , t)
+
+    return⊤ $ forM ys λ (f′ , (pc , mtel) , t) →
+      defineFun f′ [ clause mtel pc t ]
+      -- defineFun f′ [ ⟦⇒ t ⟧ ]
 
 --------------------------
 -- Example
@@ -158,8 +220,8 @@ private
   unquoteDecl x² = DERIVE DecEq [ quote X² , x² ]
 
   data XX : Set where
-    c₁ : X¹ → X² → XX
     c₂ : List X² → XX
+    c₁ : X¹ → X² → XX
   unquoteDecl xx = DERIVE DecEq [ quote XX , xx ]
 
 -- ** recursive datatypes
@@ -219,6 +281,10 @@ private
   _ : ∀ {n} → Decidable² {A = Fin′ n} _≡_
   _ = _≟_
 
+  data λExprℕ (n : ℕ) : Set where
+    ƛ_ : Fin n → λExprℕ n
+  unquoteDecl DecEq-λExprℕ = DERIVE DecEq [ quote λExprℕ , DecEq-λExprℕ ]
+
   data Boolℕ : Bool → ℕ → Set where
     O : Boolℕ true 0
   unquoteDecl DecEq-Boolℕ = DERIVE DecEq [ quote Boolℕ , DecEq-Boolℕ ]
@@ -232,21 +298,68 @@ private
   _ : ∀ {b n} → Decidable² {A = Boolℕ² b n} _≡_
   _ = _≟_
 
+  data Wrapℕ : Set where
+    Mk : ℕ → Wrapℕ
+  unquoteDecl DecEq-Wrapℕ = DERIVE DecEq [ quote Wrapℕ , DecEq-Wrapℕ ]
+
+  variable
+    n : ℕ
+    wn : Wrapℕ
+
+  data Exprℕ : Wrapℕ → Set where
+    var : Fin n → Exprℕ (Mk n)
+    ‵ : ∀ {x} → ℕ → Exprℕ x
+  unquoteDecl DecEq-Exprℕ = DERIVE DecEq [ quote Exprℕ , DecEq-Exprℕ ]
+
+  data Enum : Set where
+    I II : Enum
+  unquoteDecl DecEq-Enum = DERIVE DecEq [ quote Enum , DecEq-Enum ]
+
+  variable en : Enum
+
+  Time = ℕ
+
+  data Exprℕ′ : Wrapℕ → Enum → Set where
+    var : Fin n → Exprℕ′ (Mk n) I
+    ‵ : ℕ → Exprℕ′ wn II
+    _`+_ : Exprℕ′ wn II → Exprℕ′ wn II → Exprℕ′ wn II
+    _`-_ : Exprℕ′ wn II → Exprℕ′ wn II → Exprℕ′ wn II
+    _`=_ : Exprℕ′ wn II → Exprℕ′ wn II → Exprℕ′ wn I
+    _`<_ : Exprℕ′ wn II → Exprℕ′ wn II → Exprℕ′ wn I
+
+    `if_then_else_ : Exprℕ′ wn I → Exprℕ′ wn en → Exprℕ′ wn en → Exprℕ′ wn en
+
+    -- Size
+    ∣_∣ : Exprℕ′ wn II → Exprℕ′ wn II
+
+    -- Hashing
+    hash : Exprℕ′ wn II → Exprℕ′ wn II
+
+    -- Signature verification
+    versig : List ℕ → List (Fin n) → Exprℕ′ (Mk n) I
+
+    -- Temporal constraints
+    absAfter_⇒_ : Time → Exprℕ′ wn en → Exprℕ′ wn en
+    relAfter_⇒_ : Time → Exprℕ′ wn en → Exprℕ′ wn en
+
+  unquoteDecl DecEq-Exprℕ′ = DERIVE DecEq [ quote Exprℕ′ , DecEq-Exprℕ′ ]
+
 -- ** parametrized datatypes
+{-
+  data Expr (A : Set) : Set where
+    Con : A → Expr A
+    _⊕_ : Expr A → Expr A → Expr A
+  unquoteDecl DecEq-Expr  = DERIVE DecEq [ quote Expr , DecEq-Expr ]
+  _ : ∀ {A} ⦃ _ : DecEq A ⦄ → Decidable² {A = Expr A} _≡_
+  _ = _≟_
 
-  -- data Expr Set) : Set where
-  --   Con : A → Expr A
-  --   _⊕_ : Expr A → Expr A → Expr A
-  -- unquoteDecl DecEq-Expr  = DERIVE DecEq [ quote Expr , DecEq-Expr ]
-  -- _ : ∀ {A} ⦃ _ : DecEq A ⦄ → Decidable² {A = Expr A} _≡_
-  -- _ = _≟_
-
-  -- data Exprℕ : ℕ → Set where
-  --   Con : ∀ {n} → ℕ → Exprℕ n
-  --   _⊕_ : ∀ {x y z} → Exprℕ x → Exprℕ y → Exprℕ z
-  -- unquoteDecl DecEq-Exprℕ  = DERIVE DecEq [ quote Exprℕ , DecEq-Exprℕ ]
-  -- _ : ∀ {n} → Decidable² {A = Exprℕ A} _≡_
-  -- _ = _≟_
+  data Exprℤ : ℤ → Set where
+    Con : ∀ {n} → ℤ → Exprℤ n
+    _⊕_ : ∀ {x y z} → Exprℤ x → Exprℤ y → Exprℤ z
+  unquoteDecl DecEq-Exprℤ  = DERIVE DecEq [ quote Exprℤ , DecEq-Exprℤ ]
+  _ : ∀ {n} → Decidable² {A = Exprℤ n} _≡_
+  _ = _≟_
+-}
 
 -- ** indexed records
 
@@ -267,6 +380,7 @@ private
       fromA    : ∀ {n} → A → X n
       fromB    : ∀ {n} → B → X n
     unquoteDecl DecEq-Test1X = DERIVE DecEq [ quote X , DecEq-Test1X ]
+
     _ : ∀ {n} → Decidable² {A = X n} _≡_
     _ = _≟_
 
@@ -306,25 +420,12 @@ private
   --   → Decidable² {A = Test₁.R′ A B} _≡_
   -- _ = _≟_
 
-{-
-  module Test₂ (A : Set) ⦃ _ : DecEq A ⦄ (B : Set) ⦃ _ : DecEq B ⦄ where
+  data λExprℕ′ (mn : Wrapℕ) : Set where
+    ƛ_ : Exprℕ′ mn II → λExprℕ′ mn
+  unquoteDecl DecEq-λExprℕ′ = DERIVE DecEq [ quote λExprℕ′ , DecEq-λExprℕ′ ]
 
-    data X : ℕ → Set where
-      x₀ y₀ z₀ : X 0
-      x₁ y₁ z₁ : X 1
-      fromA    : ∀ {n} → A → X n
-      fromB    : ∀ {n} → B → X n
-    unquoteDecl DecEq-Test2X = DERIVE DecEq [ quote X , DecEq-Test2X ]
-    _ : ∀ {n} → Decidable² {A = X n} _≡_
-    _ = _≟_
 
-    record R : Set where
-      field
-        r₁ : X 1
-        r₂ : X 2
-
-  unquoteDecl DecEq-TestR = DERIVE DecEq [ quote Test₂.R , DecEq-TestR ]
-
-  _ : ∀ {A : Set} ⦃ _ : DecEq A ⦄ {B : Set} ⦃ _ : DecEq B ⦄ → Decidable² {A = Test₂.R {A} {B ⦄ _≡_
-  _ = _≟_
--}
+  module Test₂ (A : Set) ⦃ _ : DecEq A ⦄ where
+    data Label : Set where
+      auth-divide : A → ℕ → ℕ → ℕ → Label
+    unquoteDecl DecEq-Label = DERIVE DecEq [ quote Label , DecEq-Label ]

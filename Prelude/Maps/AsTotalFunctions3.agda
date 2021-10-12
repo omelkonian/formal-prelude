@@ -22,7 +22,7 @@ import Data.List.Relation.Binary.Disjoint.Setoid.Properties as Disjoint
 open import Data.List.Relation.Binary.BagAndSetEquality using (_∼[_]_; set)
 import Function.Equivalence as Equiv
 
-module Prelude.Maps.MapsSets3 {K V : Set} {{_ : DecEq K}} where
+module Prelude.Maps.AsTotalFunctions3 {K V : Set} {{_ : DecEq K}} where
 
 record Map : Set where
   constructor ⟨_⟩∶-_

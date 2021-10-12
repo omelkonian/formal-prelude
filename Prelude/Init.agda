@@ -286,17 +286,21 @@ module WF where
 
 -- ** Reflection
 module Meta where
+  open import Agda.Builtin.Reflection public
+    using (onlyReduceDefs; dontReduceDefs)
   open import Reflection public
-    hiding (_≟_; _>>_; _>>=_; return)
+    hiding (_≟_; _>>_; _>>=_; return; visibility)
 
   open import Reflection.Term public
     hiding ( _≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_
-           ; _≟-Clauses_; _≟_; _≟-Sort_ )
+           ; _≟-Clauses_; _≟_; _≟-Sort_; _≟-Pattern_ )
 
   open import Reflection.Argument public
     using (unArg)
   open import Reflection.Argument.Visibility public
     using (Visibility)
+  open import Reflection.Argument.Information public
+    using (visibility)
   module Argument where
     open import Reflection.Argument public
     open import Reflection.Argument.Visibility public

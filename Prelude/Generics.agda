@@ -13,10 +13,13 @@ open import Prelude.ToN
 open import Prelude.Semigroup
 open import Prelude.Functor
 open import Prelude.Applicative
+
 open import Prelude.Monad
 open import Prelude.Foldable
 open import Prelude.Traversable
 open import Prelude.Nary
+
+open import Prelude.DecEq.Core
 
 private variable A B : Set ℓ
 
@@ -35,23 +38,58 @@ pattern ♯_⟦_∣_⟧ n x y = var n (vArg x ∷ vArg y ∷ [])
 
 -- patterns
 pattern `_ x = Pattern.var x
-pattern `∅   = Pattern.absurd
+pattern `∅   = Pattern.absurd 0
 
 -- clauses
-pattern ⟦∅⟧           = Clause.absurd-clause (vArg `∅ ∷ [])
-pattern ⟦⇒_⟧    k     = Clause.clause [] k
-pattern ⟦_⇒_⟧   x k   = Clause.clause (vArg x ∷ []) k
-pattern ⟦_∣_⇒_⟧ x y k = Clause.clause (vArg x ∷ vArg y ∷ []) k
+PatTelescope = List (String × Arg Type)
+
+{-
+mutual
+  pats⇒tel : List (Arg Pattern) → PatTelescope
+  -- pats⇒tel = concatMap pat⇒tel
+  pats⇒tel [] = []
+  pats⇒tel (p ∷ ps) = pat⇒tel p ++ pats⇒tel ps
+
+  pat⇒tel : Arg Pattern → PatTelescope
+  pat⇒tel (arg i p) = case p of  λ where
+    (con _ ps) → pats⇒tel ps
+    (var n)    → [ "T0D0" , arg i unknown ]
+    (dot t)    → []
+    _          → []
+
+clause₀ : List (Arg Pattern) → Term → Clause
+clause₀ ps t = clause (pats⇒tel ps) ps t
+
+absurd-clause₀ : List (Arg Pattern) → Clause
+absurd-clause₀ ps = absurd-clause (pats⇒tel ps) ps
+-}
+
+pattern ⟦⦅_⦆∅⟧ tel = absurd-clause tel (vArg `∅ ∷ [])
+pattern ⟦∅⟧ = absurd-clause [] (vArg `∅ ∷ [])
+
+pattern ⟦⇒_⟧ k = clause [] [] k
+pattern ⟦⦅_⦆⇒_⟧ tel k = clause tel [] k
+
+pattern ⟦_⇒_⟧ x k = clause [] (vArg x ∷ []) k
+pattern ⟦_⦅_⦆⇒_⟧ x tel k = clause tel (vArg x ∷ []) k
+
+pattern ⟦_∣_⇒_⟧ x y k = clause [] (vArg x ∷ vArg y ∷ []) k
+pattern ⟦_∣_⦅_⦆⇒_⟧ x y tel k = clause tel (vArg x ∷ vArg y ∷ []) k
 
 -- lambdas
 pattern `λ_⇒_     x k   = lam visible (abs x k)
 pattern `λ⟦_∣_⇒_⟧ x y k = `λ x ⇒ `λ y ⇒ k
-pattern `λ⟅_⟆⇒_     x k   = lam hidden (abs x k)
-pattern `λ⦃_⦄⇒_     x k   = lam instance′ (abs x k)
+pattern `λ⟅_⟆⇒_     x k = lam hidden (abs x k)
+pattern `λ⦃_⦄⇒_     x k = lam instance′ (abs x k)
 
+pattern `λ⦅_⦆∅ tel = pat-lam (⟦⦅ tel ⦆∅⟧ ∷ []) []
 pattern `λ∅ = pat-lam (⟦∅⟧ ∷ []) []
+
 pattern `λ⟦_⇒_⟧ p k = pat-lam (⟦ p ⇒ k ⟧ ∷ []) []
+pattern `λ⟦_⦅_⦆⇒_⟧ p tel k = pat-lam (⟦ p ⦅ tel ⦆⇒ k ⟧ ∷ []) []
+
 pattern `λ⟦_⇒_∣_⇒_⟧ p₁ k₁ p₂ k₂ = pat-lam (⟦ p₁ ⇒ k₁ ⟧ ∷ ⟦ p₂ ⇒ k₂ ⟧ ∷ []) []
+pattern `λ⟦_⦅_⦆⇒_∣_⦅_⦆⇒_⟧ p₁ tel₁ k₁ p₂ tel₂ k₂ = pat-lam (⟦ p₁ ⦅ tel₁ ⦆⇒ k₁ ⟧ ∷ ⟦ p₂ ⦅ tel₂ ⦆⇒ k₂ ⟧ ∷ []) []
 
 -- function application
 pattern _∙ n = def n []
@@ -74,8 +112,8 @@ unArgs : Args A → List A
 unArgs = map unArg
 
 {-# TERMINATING #-}
-mapVariables : (String → String) → (Pattern → Pattern)
-mapVariables f (Pattern.var s)      = Pattern.var (f s)
+mapVariables : (ℕ → ℕ) → (Pattern → Pattern)
+mapVariables f (Pattern.var n)      = Pattern.var (f n)
 mapVariables f (Pattern.con c args) = Pattern.con c $ map (λ{ (arg i p) → arg i (mapVariables f p) }) args
 mapVariables _ p                    = p
 
@@ -173,6 +211,18 @@ vArgs [] = []
 vArgs (vArg x ∷ xs) = x ∷ vArgs xs
 vArgs (_      ∷ xs) = vArgs xs
 
+argInfo : Arg A → Argument.ArgInfo
+argInfo (arg i _) = i
+
+isVisible? : (a : Arg A) → Dec (visibility (argInfo a) ≡ visible)
+isVisible? a = visibility (argInfo a) ≟ visible
+
+isInstance? : (a : Arg A) → Dec (visibility (argInfo a) ≡ instance′)
+isInstance? a = visibility (argInfo a) ≟ instance′
+
+isHidden? : (a : Arg A) → Dec (visibility (argInfo a) ≡ hidden)
+isHidden? a = visibility (argInfo a) ≟ hidden
+
 remove-iArgs : Args A → Args A
 remove-iArgs [] = []
 remove-iArgs (iArg x ∷ xs) = remove-iArgs xs
@@ -190,17 +240,6 @@ hide a        = a
 
 apply⋯ : Args Type → Name → Type
 apply⋯ is n = def n $ remove-iArgs (map (λ{ (n , arg i _) → arg i (♯ (length is ∸ suc (toℕ n)))}) (enumerate is))
-
-mkPattern : Name → TC ( Pattern         -- ^ generated pattern for given constructor
-                      × ℕ               -- ^ # of introduced variables
-                      × List (ℕ × Type) -- ^ generated variables along with their type
-                      )
-mkPattern c = do
-  tys ← (vArgs ∘ argTys) <$> getType c
-  let n = length tys
-  return $ Pattern.con c (applyUpTo (λ i → vArg (` ("x" Str.++ show i))) n)
-         , n
-         , map (Product.map₁ ((n ∸_) ∘ suc ∘ toℕ)) (enumerate tys)
 
 TTerm = Term × Type
 Hole  = Term
@@ -397,8 +436,8 @@ module _ where -- ** unification
       noMetaArgs (v ∷ vs) = noMetaArg v *> noMetaArgs vs
 
       noMetaClause : Clause → TC ⊤
-      noMetaClause (clause ps t) = ensureNoMetas t
-      noMetaClause (absurd-clause ps) = pure _
+      noMetaClause (clause _ ps t) = ensureNoMetas t
+      noMetaClause (absurd-clause _ ps) = pure _
 
       noMetaClauses : List Clause → TC ⊤
       noMetaClauses [] = pure _

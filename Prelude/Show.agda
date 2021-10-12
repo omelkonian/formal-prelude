@@ -67,8 +67,12 @@ instance
     (name x)   → show x
     (meta x)   → show x
 
+  Show-Vis : Show Visibility
+  Show-Vis .show = λ where visible → "𝕧"; hidden → "𝕙"; instance′ → "𝕚"
+
   Show-Arg : ⦃ Show A ⦄ → Show (Arg A)
-  Show-Arg .show = show ∘ unArg
+  Show-Arg .show (arg (arg-info v _) x) = show v ◇ show x
+  -- Show-Arg .show = show ∘ unArg
 
   mutual
     {-# TERMINATING #-}
@@ -79,8 +83,8 @@ instance
       (def f args)         → show f <+> show args
       (lam v (abs s x))    → "λ" <+> visibilityParen v s <+> "→" <+> show x
       (pat-lam cs args)    → "λ {" <+> show cs <+> "}" <+> show args
-      (Π[ x ∶ arg i a ] b) → "Π (" Str.++ visibilityParen (Meta.Argument.visibility i) x <+> ":"
-                         <+> parensIfSpace (show a) Str.++ ")" <+> parensIfSpace (show b)
+      (Π[ x ∶ arg i a ] b) → "Π (" ◇ visibilityParen (Meta.Argument.visibility i) x <+> ":"
+                         <+> parensIfSpace (show a) ◇ ")" <+> parensIfSpace (show b)
       (sort s)             → show s
       (lit l)              → show l
       (meta x args)        → show x <+> show args
@@ -88,24 +92,27 @@ instance
 
     Show-Clause : Show Clause
     Show-Clause .show = λ where
-      (clause ps t)      → show ps <+> "→" <+> show t
-      (absurd-clause ps) → show ps
+      (clause _ ps t)      → show ps <+> "→" <+> show t
+      (absurd-clause _ ps) → show ps
 
     Show-Sort : Show Sort
     Show-Sort .show = λ where
-      (set t) → "Set" <+> parensIfSpace (show t)
-      (lit n) → "Set" Str.++ show n -- no space to disambiguate from set t
-      unknown → "unknown"
+      (set t)     → "Set" <+> parensIfSpace (show t)
+      (lit n)     → "Set" ◇ show n -- no space to disambiguate from set t
+      (prop t)    → "Prop" <+> parensIfSpace (show t)
+      (propLit n) → "Prop" ◇ show n -- no space to disambiguate from prop t
+      (inf n)     → "Setω" ◇ show n
+      unknown     → "unknown"
 
     ShowPattern : Show Pattern
     ShowPattern .show = λ where
       (Pattern.con c []) → show c
       (Pattern.con c ps) → parens (show c <+> show ps)
-      Pattern.dot        → "._"
-      (Pattern.var s)    → s
+      (Pattern.dot t)    → "." ◇ parens (show t)
+      (Pattern.var x)    → "pat-var" <+> show x
       (Pattern.lit l)    → show l
       (Pattern.proj f)   → show f
-      Pattern.absurd     → "()"
+      (Pattern.absurd _) → "()"
 
   open import Reflection.Definition
   Show-Definition : Show Definition
