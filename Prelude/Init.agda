@@ -23,6 +23,7 @@ open import Function public
         ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_
         ; _∋_; _on_; typeOf; it
         )
+
 -- forward composition (= kleene composition of `Monad Id`)
 _>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
 f >≡> g = g ∘ f
@@ -60,7 +61,7 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (_×_; _,_; proj₁; proj₂; ∃; ∃-syntax; Σ; Σ-syntax; <_,_>; curry; uncurry; -,_; swap)
+  using (Σ; Σ-syntax; _,_; proj₁; proj₂; ∃; ∃-syntax; _×_; _,′_; <_,_>; curry; uncurry; -,_; swap)
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -90,6 +91,8 @@ module Nat where
   open import Data.Nat.Show public
   module Ord where
     open import Data.Nat public using (_≤_; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_)
+  module Ind where
+    open import Data.Nat.Induction public
 
 open import Data.Integer public
   using (ℤ; +_)

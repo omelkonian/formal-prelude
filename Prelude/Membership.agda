@@ -62,3 +62,10 @@ private
 
   _ : mapWith∈ (List ℕ ∋ ⟦ 10 , 20 , 30 ⟧) (toℕ ∘ L.Any.index) ≡ ⟦ 0 , 1 , 2 ⟧
   _ = refl
+
+module _ {A B : Set} (f : A → B) where
+  ∈⁺-map⁺ : ∀ {x xs} → x ∈ xs → f x ∈ L.NE.map f xs
+  ∈⁺-map⁺ = L.Mem.∈-map⁺ f
+
+  ∈⁺-map⁻ : ∀ {y xs} → y ∈ L.NE.map f xs → ∃ λ x → x ∈ xs × y ≡ f x
+  ∈⁺-map⁻ = L.Mem.∈-map⁻ f
