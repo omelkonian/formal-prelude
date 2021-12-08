@@ -77,8 +77,10 @@ pattern ⟦_∣_⇒_⟧ x y k = clause [] (vArg x ∷ vArg y ∷ []) k
 pattern ⟦_∣_⦅_⦆⇒_⟧ x y tel k = clause tel (vArg x ∷ vArg y ∷ []) k
 
 -- lambdas
-pattern `λ_⇒_     x k   = lam visible (abs x k)
-pattern `λ⟦_∣_⇒_⟧ x y k = `λ x ⇒ `λ y ⇒ k
+pattern `λ_⇒_       x     k = lam visible (abs x k)
+pattern `λ⟦_∣_⇒_⟧   x y   k = `λ x ⇒ `λ y ⇒ k
+pattern `λ⟦_∣_∣_⇒_⟧ x y z k = `λ x ⇒ `λ y ⇒ `λ z ⇒ k
+
 pattern `λ⟅_⟆⇒_     x k = lam hidden (abs x k)
 pattern `λ⦃_⦄⇒_     x k = lam instance′ (abs x k)
 
@@ -265,12 +267,11 @@ Derivation = List ( Name -- name of the type to derive an instance for
                   )
            → TC ⊤ -- computed instance to unquote
 
-record Derivable (F : Set → Set) : Set where
-  field
-    DERIVE' : Derivation
+record Derivable (F : Set↑) : Set where
+  field DERIVE' : Derivation
 open Derivable ⦃...⦄ public
 
-DERIVE : ∀ F → ⦃ Derivable F ⦄ → Derivation
+DERIVE : ∀ (F : Set↑) → ⦃ Derivable F ⦄ → Derivation
 DERIVE F = DERIVE' {F = F}
 
 -------------------------------------------------

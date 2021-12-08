@@ -25,17 +25,18 @@ open import Prelude.PointedFunctor
 open import Prelude.Nary
 open Alg≡
 
-private
-  variable
-    a b c : Level
-    A : Set a
-    B : Set b
-    C : Set c
+private variable
+  a b c : Level
+  A : Set a
+  B : Set b
+  C : Set c
 
-    x y z : A
-    xs xs′ xs″ ys ys′ ys″ zs zs′ zs″ : List A
+  x y z : A
+  xs xs′ xs″ ys ys′ ys″ zs zs′ zs″ : List A
 
-    m n : ℕ
+  m n : ℕ
+
+  P : Pred₀ A
 
 ------------------------------------------------------------------------
 -- Indexed operations.
@@ -297,12 +298,22 @@ map-proj₁-map₁ : ∀ {A B C : Set} {xs : List (A × B)} {f : A → C}
 map-proj₁-map₁ {xs = []} = refl
 map-proj₁-map₁ {xs = x ∷ xs} {f = f} rewrite map-proj₁-map₁ {xs = xs} {f = f} = refl
 
-findElem : ∀ {P : Pred A 0ℓ} → Decidable¹ P → List A → Maybe (A × List A)
+findElem : ∀ {P : Pred₀ A} → Decidable¹ P → List A → Maybe (A × List A)
 findElem P? xs with L.Any.any? P? xs
 ... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
 ... | no  _  = nothing
 
 -- concat/concatMap
+
+∈-concatMap⁻ : ∀ {y : B} (f : A → List B)
+  → y ∈ concatMap f xs
+  → Any (λ x → y ∈ f x) xs
+∈-concatMap⁻ f = L.Any.map⁻ ∘ L.Mem.∈-concat⁻ (map f _)
+
+∈-concatMap⁺ : ∀ {y : B} {f : A → List B}
+  → Any (λ x → y ∈ f x) xs
+  → y ∈ concatMap f xs
+∈-concatMap⁺ = L.Mem.∈-concat⁺ ∘ L.Any.map⁺
 
 concat-∷ : ∀ {x : List A} {xs : List (List A)}
   → concat (x ∷ xs) ≡ x ++ concat xs
@@ -356,10 +367,6 @@ concatMap-++ f xs ys =
 ⊆-concatMap⁺ (there xs∈) = L.Mem.∈-++⁺ʳ _ ∘ ⊆-concatMap⁺ xs∈
 
 -- mapWith∈
-private
-  variable
-    P : Pred₀ A
-
 infixr 0 _↦′_ _↦_
 
 _↦′_ : List A → (A → Set b) → Set _
@@ -674,27 +681,27 @@ postulate
 --     h x∈ = {!!}
 
 postulate
-  ⊆⇒count≤ : ∀ {xs ys : List A} {P : Pred A 0ℓ}
+  ⊆⇒count≤ : ∀ {xs ys : List A} {P : Pred₀ A}
     → (P? : Decidable¹ P)
     → xs ⊆ ys
     → count P? xs ≤ count P? ys
 
-  count≡0⇒null-filter : ∀ {xs : List A} {P : Pred A 0ℓ}
+  count≡0⇒null-filter : ∀ {xs : List A} {P : Pred₀ A}
     → (P? : Decidable¹ P)
     → count P? xs ≡ 0
     → Null $ filter P? xs
 
-  count≡0⇒All¬ : ∀ {xs : List A} {P : Pred A 0ℓ}
+  count≡0⇒All¬ : ∀ {xs : List A} {P : Pred₀ A}
     → (P? : Decidable¹ P)
     → count P? xs ≡ 0
     → All (¬_ ∘ P) xs
 
-  count-map⁺ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Decidable¹ P}
+  count-map⁺ : ∀ {xs : List A} {f : A → B} {P : Pred₀ B} {P? : Decidable¹ P}
     → count (P? ∘ f) xs
     ≡ count P? (map f xs)
 
 -- List⁺
-All⁺ : Pred A 0ℓ → List⁺ A → Set _
+All⁺ : Pred₀ A → List⁺ A → Set _
 All⁺ P = All P ∘ toList
 
 toList⁺ : ∀ (xs : List A) → xs ≢ [] → List⁺ A
@@ -706,7 +713,7 @@ toList∘toList⁺ : ∀ (xs : List A) (xs≢[] : ¬Null xs)
 toList∘toList⁺ [] ¬n     = ⊥-elim $ ¬n refl
 toList∘toList⁺ (_ ∷ _) _ = refl
 
-All⇒All⁺ : ∀ {xs : List A} {p : ¬Null xs} {P : Pred A 0ℓ}
+All⇒All⁺ : ∀ {xs : List A} {p : ¬Null xs} {P : Pred₀ A}
   → All P xs
   → All⁺ P (toList⁺ xs p)
 All⇒All⁺ {xs = xs} {p} ∀P rewrite toList∘toList⁺ xs p = ∀P
@@ -714,24 +721,34 @@ All⇒All⁺ {xs = xs} {p} ∀P rewrite toList∘toList⁺ xs p = ∀P
 postulate
   last-∷ : ∀ {x : A} {xs : List⁺ A} → last (x ∷⁺ xs) ≡ last xs
 
-All⁺-last : {xs : List⁺ A} {P : Pred A 0ℓ}
+All⁺-last : {xs : List⁺ A} {P : Pred₀ A}
   → All⁺ P xs
   → P (last xs)
 All⁺-last {xs = x ∷ []}     (px ∷ []) = px
 All⁺-last {xs = x ∷ y ∷ xs} (_  ∷ ∀p) rewrite last-∷ {x = x}{y ∷ xs} = All⁺-last ∀p
 
 -- Any/All
-Any-tail : ∀ {-A : Set-} {P : Pred A 0ℓ} {xs : List A} → Any P xs → List A
+Any-tail : ∀ {-A : Set-} {P : Pred₀ A} {xs : List A} → Any P xs → List A
 Any-tail {xs = xs} x∈ = drop (suc $ toℕ $ L.Any.index x∈) xs
 -- Any-tail {xs = _ ∷ xs}     (here _)   = xs
 -- Any-tail {xs = _ ∷ _ ∷ xs} (there x∈) = ∈-tail x∈
 
+lookup∈ : (p : Any P xs) → L.Any.lookup p ∈ xs
+lookup∈ = λ where
+  (here _)  → here refl
+  (there p) → there $′ lookup∈ p
+
+⊆-resp-Any : _⊆_ Respects˘ (Any P)
+⊆-resp-Any xs⊆ = λ where
+  (here px) → L.Any.map (λ{ refl → px }) (xs⊆ $ here refl)
+  (there p) → ⊆-resp-Any (xs⊆ ∘ there) p
+
 postulate
-  lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ}
+  lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred₀ B}
     → (p : Any P (map f xs))
     → L.Any.lookup p ≡ f (proj₁ $ find $ L.Any.map⁻ p)
 
-  Any-lookup∘map : ∀ {P Q : Pred A 0ℓ}
+  Any-lookup∘map : ∀ {P Q : Pred₀ A}
     → (P⊆Q : ∀ {x} → P x → Q x)
     → (p : Any P xs)
     → L.Any.lookup (L.Any.map P⊆Q p) ≡ L.Any.lookup p
@@ -754,7 +771,7 @@ all-filter⁺ {P? = P?} {xs = x ∷ _} (Qx ∷ Qxs)
 ... | no  _  = all-filter⁺ Qxs
 ... | yes Px = Qx Px ∷ all-filter⁺ Qxs
 
-All-map : ∀ {P : Pred A 0ℓ} {Q : Pred A 0ℓ} {xs : List A}
+All-map : ∀ {P : Pred₀ A} {Q : Pred₀ A} {xs : List A}
   → (∀ x → P x → Q x)
   → All P xs
   → All Q xs
@@ -801,10 +818,19 @@ finList (n , record {f⁻¹ = Fin→A }) = map Fin→A (allFin n)
                 where open ≡-Reasoning
 ... | no  x≢y = no λ{ refl → x≢y refl }
 
+-- Adjacent pairs.
+pairs : List A → List (A × A)
+pairs = λ where
+  (x ∷ y ∷ xs) → (x , y) ∷ pairs (y ∷ xs)
+  _            → []
+
+∈-pairs⁻ : ∀ {x y : A} → (x , y) ∈ pairs xs → (x ∈ xs) × (y ∈ xs)
+∈-pairs⁻ {xs = _ ∷ _ ∷ _} = λ where
+  (here refl) → here refl , there (here refl)
+  (there x∈)  → map₁ there $ map₂ there $ ∈-pairs⁻ x∈
+
 -- Sums of nat lists.
-private
-  variable
-    X Y : ℕ → Set
+private variable X Y : ℕ → Set
 
 ∑ℕ : List ℕ → ℕ
 ∑ℕ = sum
@@ -922,7 +948,7 @@ All-singleton refl (Px ∷ []) = Px
 
 ---
 
-AtMostSingleton : Pred (List A) 0ℓ
+AtMostSingleton : Pred₀ (List A)
 AtMostSingleton []          = ⊤
 AtMostSingleton (_ ∷ [])    = ⊤
 AtMostSingleton (_ ∷ _ ∷ _) = ⊥
@@ -951,17 +977,17 @@ ams-filter⁺ {xs = x ∷ []}    {P? = P?} tt with P? x
 ams-filter⁺ {xs = _ ∷ _ ∷ _}           ()
 
 postulate
-  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred B 0ℓ} {P? : Decidable¹ P}
+  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred₀ B} {P? : Decidable¹ P}
     → AtMostSingleton $ filter P? (map f xs)
     → AtMostSingleton $ filter (P? ∘ f) xs
 
-  ams-filter-reject : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
+  ams-filter-reject : ∀ {x : A} {xs : List A} {P : Pred₀ A}
     → (P? : Decidable¹ P)
     → ¬ P x
     → AtMostSingleton $ filter P? xs
     → AtMostSingleton $ filter P? (x ∷ xs)
 
-  ams-filter-accept : ∀ {x : A} {xs : List A} {P : Pred A 0ℓ}
+  ams-filter-accept : ∀ {x : A} {xs : List A} {P : Pred₀ A}
     → (P? : Decidable¹ P)
     → P x
     → Null $ filter P? xs
@@ -971,7 +997,7 @@ postulate
     → length xs ≤ 1
     → AtMostSingleton xs
 
-  ams-count : ∀ {P : Pred A 0ℓ} {P? : Decidable¹ P} {xs : List A} {f : A → Maybe B}
+  ams-count : ∀ {P : Pred₀ A} {P? : Decidable¹ P} {xs : List A} {f : A → Maybe B}
     → (∀ x → P x → Is-just (f x))
     → count P? xs ≤ 1
     → AtMostSingleton (mapMaybe f xs)

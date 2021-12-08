@@ -38,6 +38,9 @@ P ⊢ Q = ∀ {x} → P x → Q x
 _⊣⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
 P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
 
+_Respects˘_ : Rel A ℓ → Pred A ℓ′ → Set _
+_~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
+
 -- ** Equality
 
 -- forward

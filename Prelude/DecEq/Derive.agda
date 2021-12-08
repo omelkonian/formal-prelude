@@ -21,7 +21,6 @@ open import Prelude.Monad
 open import Prelude.ToN
 
 open import Prelude.DecEq.Core
-open import Prelude.DecEq.Core
 
 -------------------------------
 -- ** Generic deriving of DecEq

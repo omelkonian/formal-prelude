@@ -2,9 +2,7 @@ module Prelude.DecEq.Core where
 
 open import Prelude.Init
 
-private
-  variable
-    A B : Set ℓ
+private variable A B : Set ℓ
 
 record DecEq (A : Set ℓ) : Set ℓ where
   field
