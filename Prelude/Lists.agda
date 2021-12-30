@@ -13,7 +13,7 @@ open import Data.List.Membership.Propositional.Properties
 open import Data.List.Relation.Binary.Permutation.Propositional.Properties using (∈-resp-↭)
 import Data.List.Relation.Binary.Pointwise as PW
 
-open import Prelude.Init
+open import Prelude.Init hiding (_∷ʳ_)
 open L.NE using (last)
 open L.Mem using (_∈_; _∉_; mapWith∈)
 open Nat.Ord
@@ -828,6 +828,15 @@ pairs = λ where
 ∈-pairs⁻ {xs = _ ∷ _ ∷ _} = λ where
   (here refl) → here refl , there (here refl)
   (there x∈)  → map₁ there $ map₂ there $ ∈-pairs⁻ x∈
+
+-- Interleaving
+open import Data.List.Relation.Ternary.Interleaving using (_∷ˡ_; _∷ʳ_)
+
+_∥_≡_ : 3Rel (List A) _
+_∥_≡_ = Interleaving _≡_ _≡_
+
+pattern keepˡ p = refl ∷ˡ p
+pattern keepʳ p = refl ∷ʳ p
 
 -- Sums of nat lists.
 private variable X Y : ℕ → Set

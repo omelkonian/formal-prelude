@@ -2,6 +2,7 @@ module Prelude.Decidable where
 
 open import Prelude.Init
 open import Prelude.DecEq
+open import Prelude.Lists
 open import Prelude.DecLists
 open import Prelude.Nary
 
@@ -32,6 +33,12 @@ _~_ ⁇² = ∀ {x y} → (x ~ y) ⁇
 
 dec² : ∀ {A : Set ℓ} {_~_ : Rel A ℓ′} → ⦃ _~_ ⁇² ⦄ → Decidable² _~_
 dec² _ _ = dec
+
+_⁇³ : ∀ {A : Set ℓ} → (P : 3Rel A ℓ′) → Set (ℓ ⊔ₗ ℓ′)
+_~_~_ ⁇³ = ∀ {x y z} → (x ~ y ~ z) ⁇
+
+dec³ : ∀ {A : Set ℓ} {_~_~_ : 3Rel A ℓ′} → ⦃ _~_~_ ⁇³ ⦄ → Decidable³ _~_~_
+dec³ _ _ _ = dec
 
 ¿_¿ : ∀ (X : Set ℓ) ⦃ _ : X ⁇ ⦄ → Dec X
 ¿ _ ¿ = dec
@@ -107,13 +114,8 @@ instance
   Dec-↭ : ⦃ DecEq A ⦄ → _↭_ {A = A} ⁇²
   Dec-↭ .dec = _ ↭? _
 
-{-
-  open import Data.List.Relation.Ternary.Interleaving
-
-  Dec-Interleave : ⦃ _ : DecEq A ⦄ {xs ys zs : List A} → (Interleaving _≡_ _≡_ xs ys zs) ⁇
-  Dec-Interleave {xs = xs} {ys = ys} {zs = []}     .dec = {!!}
-  Dec-Interleave {xs = xs} {ys = ys} {zs = z ∷ zs} .dec = {!!}
--}
+  Dec-Interleaving : ⦃ DecEq A ⦄ → _∥_≡_ {A = A} ⁇³
+  Dec-Interleaving .dec = _ ∥ _ ≟ _
 
 private
   _ : (¬ ¬ ((true , true) ≡ (true , true)))

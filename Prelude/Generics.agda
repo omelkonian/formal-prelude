@@ -166,21 +166,71 @@ args′ : Term → List Term
 args′ = unArgs ∘ args
 
 
-mapFreeVars : ℕ → (ℕ → ℕ) → (Type → Type)
-mapFreeVars′ : ℕ → (ℕ → ℕ) → Args Type → Args Type
+module _ (f : ℕ → ℕ) where
 
-mapFreeVars bound f = λ where
-  (var x args) → var (if ⌊ bound Nat.≤? x ⌋ then f x else x) (mapFreeVars′ bound f args)
-  (def c args) → def c (mapFreeVars′ bound f args)
-  (con c args) → con c (mapFreeVars′ bound f args)
-  (lam v (abs x t)) → lam v (abs x (mapFreeVars (suc bound) f t))
-  ty → ty
+  _⁇_ : ℕ → ℕ → ℕ
+  bound ⁇ x = if ⌊ bound Nat.≤? x ⌋ then f x else x
 
-mapFreeVars′ _ _ []              = []
-mapFreeVars′ b f (arg i ty ∷ xs) = arg i (mapFreeVars b f ty) ∷ mapFreeVars′ b f xs
+  mutual
+    mapFreeVars : ℕ → (Term → Term)
+    mapFreeVars bound = λ where
+      (var x as)
+        → var (bound ⁇ x) (mapFreeVars∗ bound as)
+      (def c as)
+        → def c (mapFreeVars∗ bound as)
+      (con c as)
+        → con c (mapFreeVars∗ bound as)
+      (lam v (abs x t))
+        → lam v (abs x (mapFreeVars (suc bound) t))
+      (pat-lam cs as)
+        → pat-lam (mapFreeVarsᶜ∗ bound cs) (mapFreeVars∗ bound as)
+      (pi (arg i t) (abs x t′))
+        → pi (arg i (mapFreeVars bound t)) (abs x (mapFreeVars (suc bound) t′))
+      (agda-sort s)
+        → agda-sort (mapFreeVarsˢ bound s)
+      (meta x as)
+        → meta x (mapFreeVars∗ bound as)
+      t → t
+    mapFreeVars∗ : ℕ → (Args Term → Args Term)
+    mapFreeVars∗ b = λ where
+      [] → []
+      (arg i t ∷ ts) → arg i (mapFreeVars b t) ∷ mapFreeVars∗ b ts
 
-mapVars : (ℕ → ℕ) → (Type → Type)
-mapVars = mapFreeVars 0
+    mapFreeVarsᵖ : ℕ → (Pattern → Pattern)
+    mapFreeVarsᵖ b = λ where
+      (con c ps) → con c (mapFreeVarsᵖ∗ b ps)
+      (dot t)    → dot (mapFreeVars b t)
+      (absurd x) → absurd (b ⁇ x)
+      p → p
+    mapFreeVarsᵖ∗ : ℕ → (Args Pattern → Args Pattern)
+    mapFreeVarsᵖ∗ b = λ where
+      [] → []
+      (arg i p ∷ ps) → arg i (mapFreeVarsᵖ b p) ∷ mapFreeVarsᵖ∗ (suc b) ps
+
+    mapFreeVarsᵗ : ℕ → (Telescope → Telescope)
+    mapFreeVarsᵗ b = λ where
+      [] → []
+      ((s , arg i t) ∷ ts) → (s , arg i (mapFreeVars b t)) ∷ mapFreeVarsᵗ (suc b) ts
+
+    mapFreeVarsᶜ : ℕ → (Clause → Clause)
+    mapFreeVarsᶜ b = λ where
+      -- clause        : (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern)) (t : Term) → Clause
+      (clause tel ps t) → clause (mapFreeVarsᵗ b tel) (mapFreeVarsᵖ∗ b ps) (mapFreeVars (length tel + b) t)
+      -- absurd-clause : (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern)) → Clause
+      (absurd-clause tel ps) → absurd-clause (mapFreeVarsᵗ b tel) (mapFreeVarsᵖ∗ b ps)
+    mapFreeVarsᶜ∗ : ℕ → (List Clause → List Clause)
+    mapFreeVarsᶜ∗ b = λ where
+      [] → []
+      (c ∷ cs) → mapFreeVarsᶜ b c ∷ mapFreeVarsᶜ∗ b cs
+
+    mapFreeVarsˢ : ℕ → (Sort → Sort)
+    mapFreeVarsˢ b = λ where
+      (set t) → set (mapFreeVars b t)
+      (prop t) → prop (mapFreeVars b t)
+      s → s
+
+  mapVars : Term → Term
+  mapVars = mapFreeVars 0
 
 -- mapVars′ : (ℕ → ℕ) → Args Type → Args Type
 

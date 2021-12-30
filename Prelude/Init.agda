@@ -225,6 +225,8 @@ open import Data.List.Relation.Binary.Prefix.Heterogeneous public
   using (Prefix; []; _∷_)
 open import Data.List.Relation.Binary.Suffix.Heterogeneous public
   using (Suffix; here; there)
+open import Data.List.Relation.Ternary.Interleaving public
+  using (Interleaving; [])
 
 
 -- ** Relations
@@ -272,6 +274,15 @@ module Binary where
     open import Relation.Binary.Structures (_≡_ {A = A}) public
   open import Relation.Binary.Bundles public
 
+module Ternary where
+  open import Relation.Ternary public
+open import Relation.Ternary public
+  renaming (_⇒_ to _⇒³_; _⇔_ to _⇔³_; _=[_]⇒_ to _=[_]⇒³_
+           ; _Preserves_⟶_ to _Preserves³_⟶_; _Preserves_⟶_⟶_ to _Preserves³_⟶_⟶_
+           ; Reflexive to Reflexive³; Decidable to Decidable³; WeaklyDecidable to WeaklyDecidable³
+           ; Irrelevant to Irrelevant³; Recomputable to Recomputable³; Universal to Universal³
+           ; NonEmpty to NonEmpty³
+           )
 -- ** Algebra
 open import Algebra public
   using (Op₁; Op₂; Opₗ; Opᵣ)
@@ -324,6 +335,7 @@ module Meta where
 
 
 -- ** Shorthands
-Pred₀ Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)
+Pred₀ Rel₀ 3Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)
 Pred₀ A = Pred A 0ℓ
 Rel₀  A = Rel  A 0ℓ
+3Rel₀ A = 3Rel A 0ℓ

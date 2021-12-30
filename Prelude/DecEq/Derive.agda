@@ -87,7 +87,7 @@ derive-DecEq toDrop (this , ≟-rec) (data-type ps cs) = do
       where
         go′ : ℕ → List (ℕ × Arg Type) → List (ℕ × Arg Type)
         go′ _ []            = []
-        go′ x ((i , p) ∷ ps) = (bump i , fmap (mapFreeVars x bump) p) ∷ go′ (suc x) ps
+        go′ x ((i , p) ∷ ps) = (bump i , fmap (mapFreeVars bump x) p) ∷ go′ (suc x) ps
 
     f : Name × Name → TC (Maybe Clause)
     f (c , c′) = do

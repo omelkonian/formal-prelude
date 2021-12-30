@@ -188,7 +188,7 @@ module Prelude.DecLists {a} {A : Set a} ⦃ _ : DecEq A ⦄ where
       h′ : x₁ ∷ x₂ ∷ ys ↭ x ∷ x₁ ∷ x₂ ∷ ys′
       h′ = ↭-trans (↭-prep x₁ h″) (↭-swap x₁ x ↭-refl)
 
-  _↭?_ : (xs : List A) → (ys : List A) → Dec (xs ↭ ys)
+  _↭?_ : ∀ (xs ys : List A) → Dec (xs ↭ ys)
   []       ↭? []       = yes ↭-refl
   []       ↭? (x ∷ ys) = no ¬[]↭
   (x ∷ xs) ↭? ys       with x ∈? ys
@@ -196,3 +196,34 @@ module Prelude.DecLists {a} {A : Set a} ⦃ _ : DecEq A ⦄ where
   ... | yes x∈         with xs ↭? remove ys (index x∈)
   ... | no ¬xs↭        = no (¬xs↭ ∘ ↭-helper′)
   ... | yes xs↭        = yes (↭-helper xs↭)
+
+  open import Data.List.Relation.Ternary.Interleaving
+
+  _∥_≟_ : ∀ (xs ys zs : List A) → Dec (xs ∥ ys ≡ zs)
+  xs ∥ ys ≟ zs
+    with xs | ys | zs
+  ... | []     | []     | []    = yes []
+  ... | []     | []     | _ ∷ _ = no λ ()
+  ... | _ ∷ _  | _      | []    = no λ ()
+  ... | _      | _ ∷ _  | []    = no λ ()
+  ... | xˡ ∷ l | []     | x ∷ l↔r
+      = case xˡ ≟ x of λ where
+          (yes refl) → case l ∥ [] ≟ l↔r of λ where
+            (yes p) → yes (keepˡ p)
+            (no ¬p) → no (λ where (keepˡ p) → ¬p p)
+          (no x≢) → no λ where (keepˡ _) → x≢ refl
+  ... | [] | xʳ ∷ r | x ∷ l↔r
+      = case xʳ ≟ x of λ where
+          (yes refl) → case [] ∥ r ≟ l↔r of λ where
+            (yes p) → yes (keepʳ p)
+            (no ¬p) → no (λ where (keepʳ p) → ¬p p)
+          (no x≢) → no λ where (keepʳ _) → x≢ refl
+  ... | xˡ ∷ l | xʳ ∷ r | x ∷ l↔r
+    with (xˡ ≟ x) ×-dec (l ∥ (xʳ ∷ r) ≟ l↔r)
+  ... | yes (refl , p) = yes (keepˡ p)
+  ... | no x≢×¬pˡ
+    with (xʳ ≟ x) ×-dec ((xˡ ∷ l) ∥ r ≟ l↔r)
+  ... | yes (refl , p) = yes (keepʳ p)
+  ... | no x≢×¬pʳ = no λ where
+      (keepˡ l↔r′) → x≢×¬pˡ (refl , l↔r′)
+      (keepʳ l↔r′) → x≢×¬pʳ (refl , l↔r′)

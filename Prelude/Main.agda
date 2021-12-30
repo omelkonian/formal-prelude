@@ -1,10 +1,16 @@
 module Prelude.Main where
 
+-- ** Ternary relations
+open import Relation.Ternary
+
 -- ** Re-exporting basic builtin/stdlib types
 open import Prelude.Init
 
 -- ** General properties of standard types
 open import Prelude.General
+
+-- ** Convenient syntax for inference rules
+open import Prelude.InferenceRules
 
 -- ** Metaprogramming utilities
 open import Prelude.Generics
