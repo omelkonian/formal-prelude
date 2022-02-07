@@ -74,6 +74,9 @@ instance
   Show-Arg .show (arg (arg-info v _) x) = show v ◇ show x
   -- Show-Arg .show = show ∘ unArg
 
+  Show-Abs : ⦃ Show A ⦄ → Show (Abs A)
+  Show-Abs .show (abs s x) = "abs " ◇ show s ◇ " " ◇ show x
+
   mutual
     {-# TERMINATING #-}
     Show-Term : Show Term

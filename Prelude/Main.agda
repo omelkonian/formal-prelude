@@ -40,6 +40,7 @@ open import Prelude.Measurable
 open import Prelude.ToN
 open import Prelude.FromN
 open import Prelude.ToList
+open import Prelude.Apartness
 
 open import Prelude.Orders
 open import Prelude.Ord

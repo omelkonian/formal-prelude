@@ -13,16 +13,23 @@ private
     n : ℕ
 
 record HasMembership (F : Set ℓ → Set ℓ) : Set (lsuc $ lsuc ℓ) where
-  infix 4 _∈_ _∉_ _∈?_ _∉?_
+  infix 4 _∈_ _∉_ _∈?_
   field
     _∈_ : A → F A → Set ℓ
     _∈?_ : ⦃ DecEq A ⦄ → Decidable² {A = A} _∈_
 
   _∉_ : A → F A → Set ℓ
-  x ∉ xs = ¬ x ∈ xs
+  _∉_ = ¬_ ∘₂ _∈_
 
-  _∉?_ : ⦃ _ : DecEq A ⦄ → Decidable² {A = A} _∉_
-  x ∉? xs = ¬? (x ∈? xs)
+  module _ {A} ⦃ _ : DecEq A ⦄ where
+    infix 4 _∉?_ _∈ᵇ_ _∉ᵇ_
+
+    _∉?_ : Decidable² {A = A} _∉_
+    _∉?_ = ¬? ∘₂ _∈?_
+
+    _∈ᵇ_ _∉ᵇ_ : A → F A → Bool
+    _∈ᵇ_ = isYes ∘₂ _∈?_
+    _∉ᵇ_ = isYes ∘₂ _∉?_
 
 open HasMembership ⦃ ... ⦄ public
 
