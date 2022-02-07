@@ -4,6 +4,9 @@ open import Prelude.Init
 open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
+open import Prelude.Applicative
+open import Prelude.Semigroup
+open import Prelude.Monoid
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
@@ -18,7 +21,7 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
     _⁉_ : Map → K → Maybe V
     _∈ᵈ_ : K → Map → Set
 
-    _♯_ : Rel₀ Map
+    _♯_ : Rel₀ Map -- T0D0: use Prelude.Apartness
 
   -- syntactic sugar
   syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩
@@ -27,6 +30,7 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
   infix  5 _⁉_
   infixr 4 _∪_
   infix  3 _≈_ _∈ᵈ_ _∉ᵈ_
+
   _∉ᵈ_ : K → Map → Set
   k ∉ᵈ m = ¬ (k ∈ᵈ m)
 
@@ -95,14 +99,26 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
 
     -- ⊎≈-assocʳ : ∀ {s₁}{s₂₃}{s}{s₂}{s₃} → ⟨ s₁ ⊎ s₂₃ ⟩≡ s → ⟨ s₂ ⊎ s₃  ⟩≡ s₂₃ → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s × (s₁ ♯ s₂)
     -- ⊎≈-assocˡ : ∀ {s₁₂}{s₃}{s}{s₁}{s₂} → ⟨ s₁₂ ⊎ s₃ ⟩≡ s → ⟨ s₁ ⊎ s₂  ⟩≡ s₁₂ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s × (s₂ ♯ s₃)
-  ⁉⇒∉ᵈ : ∀ {s k} → Is-nothing (s ⁉ k) → k ∉ᵈ s
-  ⁉⇒∉ᵈ {s}{k} p k∈ with s ⁉ k | p | ∈ᵈ⇒⁉ k∈
-  ... | just _ | M.All.just () | _
 
-  ∉ᵈ⇒⁉ : ∀ {s k} → k ∉ᵈ s → Is-nothing (s ⁉ k)
-  ∉ᵈ⇒⁉ {s}{k} k∉ with s ⁉ k | ⁉⇒∈ᵈ {s}{k}
-  ... | just _  | p = ⊥-elim $ k∉ (p auto)
-  ... | nothing | _ = auto
+  module _ {s k} where
+    ⁉⇒∉ᵈ : Is-nothing (s ⁉ k) → k ∉ᵈ s
+    ⁉⇒∉ᵈ p k∈ with s ⁉ k | p | ∈ᵈ⇒⁉ k∈
+    ... | just _ | M.All.just () | _
+
+    ∉ᵈ⇒⁉ : k ∉ᵈ s → Is-nothing (s ⁉ k)
+    ∉ᵈ⇒⁉ k∉ with s ⁉ k | ⁉⇒∈ᵈ {s}{k}
+    ... | just _  | p = ⊥-elim $ k∉ (p auto)
+    ... | nothing | _ = auto
+
+  module _ {s k v} where
+    ⁉⇒↦ : s ⁉ k ≡ just v → s [ k ↦ v ]
+    ⁉⇒↦ = id
+
+    ↦⇒⁉ : s [ k ↦ v ] → s ⁉ k ≡ just v
+    ↦⇒⁉ = id
+
+  ∉ᵈ-cong : ∀ {k s₁ s₂} → s₁ ≈ s₂ → k ∉ᵈ s₁ → k ∉ᵈ s₂
+  ∉ᵈ-cong s≈ k∉ = k∉ ∘ ∈ᵈ-cong (≈-sym s≈)
 
   ↦-∪⁺ʳ′ : ∀ {s₁ s₂ k v} → k ∉ᵈ s₁ → s₂ [ k ↦ v ] → (s₁ ∪ s₂) [ k ↦ v ]
   ↦-∪⁺ʳ′ {s₁}{s₂}{k}{v} k∉ sk≡ = trans (sym (↦-∪⁺ʳ k∉)) sk≡
@@ -125,11 +141,10 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
   m ⊆ᵈ m′ = ∀ k → k ∈ᵈ m → k ∈ᵈ m′
   k ⊈ᵈ m = ¬ (k ⊆ᵈ m)
 
-  private
-    variable
-      s s₁ s₂ s₃ s₁₂ s₂₃ : Map
-      k : K
-      v : V
+  private variable
+    s s₁ s₂ s₃ s₁₂ s₂₃ : Map
+    k : K
+    v : V
 
   ≈-cong : ∀ {P : K → Maybe V → Set}
     → s₁ ≈ s₂
@@ -190,11 +205,120 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
       ≡ss : ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
       ≡ss = s₁₂♯s₃′ , ≈-trans (∪-cong ≡s₁₂) ≡s
 
-record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : DecEq K ⦄ : Set (lsuc σ) where
-  constructor mkDecMapᴵ
-  open Mapᴵ ⦃...⦄
+record BuildMapᴵ (K V : Set) (σ : Level) ⦃ _ : Mapᴵ K V σ ⦄ : Set (lsuc σ) where
+  open Mapᴵ it
   field
-    ⦃ mapᴵ ⦄ : Mapᴵ K V σ
+    buildMap : (K → Maybe V) → Map
+    buildMap-sound : ∀ (f : K → Maybe V) → ∀ k → buildMap f ⁉ k ≡ f k
+
+  module _ ⦃ _ : SemigroupLaws V _≡_ ⦄ ⦃ _ : MonoidLaws V _≡_ ⦄ where
+    infix 5 _⁉ε_
+    _⁉ε_ : Map → K → V
+    m ⁉ε k = fromMaybe ε (m ⁉ k)
+
+    instance
+      Semigroup-Map : Semigroup Map
+      Semigroup-Map ._◇_ m m′ = buildMap λ k → just $ (m ⁉ε k) ◇ (m′ ⁉ε k)
+
+    open Alg (Rel₀ Map ∋ _≈_)
+
+    private variable
+      m m′ m₁ m₂ m₃ m₁₂ m₂₃ : Map
+      k k′ : K
+      v v′ : V
+
+    ◇-⁉ : ∀ m m′ → (m ◇ m′) ⁉ k ≡ just ((m ⁉ε k) ◇ (m′ ⁉ε k))
+    ◇-⁉  {k} m m′ = buildMap-sound (λ k → just $ (m ⁉ε k) ◇ (m′ ⁉ε k)) k
+
+    ⟨_◇_⟩≡_ : 3Rel Map 0ℓ
+    ⟨ m₁ ◇ m₂ ⟩≡ m = m₁ ◇ m₂ ≈ m
+
+    -- instance
+    --   CommutativeSemigroup-Map : CommutativeSemigroup Map _≈_
+    --   CommutativeSemigroup-Map = record {◇-comm = λ m m′ k →
+    --     let open ≡-Reasoning in
+    private
+      ◇ᵐ-comm : Commutative (_◇_ {A = Map})
+      ◇ᵐ-comm m m′ k =
+          begin
+            (buildMap λ k → just $ (m ⁉ε k) ◇ (m′ ⁉ε k)) ⁉ k
+          ≡⟨ buildMap-sound _ _ ⟩
+            just ((m ⁉ε k) ◇ (m′ ⁉ε k))
+          ≡⟨  cong just (◇-comm (m ⁉ε k) (m′ ⁉ε k)) ⟩
+            just ((m′ ⁉ε k) ◇ (m ⁉ε k))
+          ≡⟨ sym $ buildMap-sound _ _ ⟩
+            (buildMap λ k → just $ (m′ ⁉ε k) ◇ (m ⁉ε k)) ⁉ k
+          ∎ where open ≡-Reasoning
+    -- instance
+    --   CommutativeSemigroup-Map : CommutativeSemigroup Map _≈_
+    --   CommutativeSemigroup-Map = record {◇-comm = ◇ᵐ-comm}
+
+    ◇≡-comm : Symmetric (⟨_◇_⟩≡ m)
+    ◇≡-comm ≈m = ≈-trans (◇ᵐ-comm _ _) ≈m
+
+    ◇-cong : m₁ ≈ m₂ → (m₁ ◇ m₃) ≈ (m₂ ◇ m₃)
+    ◇-cong {m₁}{m₂}{m₃} m₁≈m₂ k =
+      begin
+        (m₁ ◇ m₃) ⁉ k
+      ≡⟨ buildMap-sound _ _ ⟩
+        just ((m₁ ⁉ε k) ◇ (m₃ ⁉ε k))
+      ≡⟨  cong (just ∘ (_◇ (m₃ ⁉ε k))) (cong (fromMaybe ε) (m₁≈m₂ k)) ⟩
+        just ((m₂ ⁉ε k) ◇ (m₃ ⁉ε k))
+      ≡⟨ sym $ buildMap-sound _ _ ⟩
+        (m₂ ◇ m₃) ⁉ k
+      ∎ where open ≡-Reasoning
+
+    ◇-congʳ : m₂ ≈ m₃ → (m₁ ◇ m₂) ≈ (m₁ ◇ m₃)
+    ◇-congʳ {m₂}{m₃}{m₁} m₂≈m₃ =
+      begin m₁ ◇ m₂ ≈⟨ ◇ᵐ-comm _ _ ⟩
+            m₂ ◇ m₁ ≈⟨ ◇-cong m₂≈m₃ ⟩
+            m₃ ◇ m₁ ≈⟨ ◇ᵐ-comm _ _ ⟩
+            m₁ ◇ m₃ ∎
+      where open ≈-Reasoning
+
+    private
+      ◇ᵐ-assocʳ : Associative (_◇_ {A = Map})
+      ◇ᵐ-assocʳ m₁ m₂ m₃ k =
+        begin
+          ((m₁ ◇ m₂) ◇ m₃) ⁉ k
+        ≡⟨ ◇-⁉ _ _ ⟩
+          just (((m₁ ◇ m₂) ⁉ε k) ◇ (m₃ ⁉ε k))
+        ≡⟨ cong just go ⟩
+          just ((m₁ ⁉ε k) ◇ ((m₂ ◇ m₃) ⁉ε k))
+        ≡⟨ sym $ ◇-⁉ _ _ ⟩
+          (m₁ ◇ m₂ ◇ m₃) ⁉ k
+        ∎ where
+          open ≡-Reasoning
+
+          go : ((m₁ ◇ m₂) ⁉ε k) ◇ (m₃ ⁉ε k)
+              ≡ (m₁ ⁉ε k) ◇ ((m₂ ◇ m₃) ⁉ε k)
+          go
+            rewrite ◇-⁉ {k} (m₁ ◇ m₂) m₃
+                  | ◇-⁉ {k} m₁ m₂
+                  | ◇-⁉ {k} m₁ (m₂ ◇ m₃)
+                  | ◇-⁉ {k} m₂ m₃
+            = ◇-assocʳ _ _ _
+    instance
+      AssociativeSemigroup-Map : SemigroupLaws Map _≈_
+      AssociativeSemigroup-Map = record {◇-comm = ◇ᵐ-comm; ◇-assocʳ = ◇ᵐ-assocʳ}
+
+    ◇≈-assocˡ :
+        ⟨ m₁₂ ◇ m₃ ⟩≡ m
+      → ⟨ m₁ ◇ m₂  ⟩≡ m₁₂
+        ---------------------
+      → ⟨ (m₁ ◇ m₂) ◇ m₃ ⟩≡ m
+    ◇≈-assocˡ ≡m ≡m₁₂ = ≈-trans (◇-cong ≡m₁₂) ≡m
+
+    ◇≈-assocʳ :
+        ⟨ m₁ ◇ m₂₃ ⟩≡ m
+      → ⟨ m₂ ◇ m₃  ⟩≡ m₂₃
+        ---------------------
+      → ⟨ (m₁ ◇ m₂) ◇ m₃ ⟩≡ m
+    ◇≈-assocʳ ≡m ≡m₂₃ = ≈-trans (≈-trans (◇-assocʳ _ _ _) (◇-congʳ ≡m₂₃)) ≡m
+
+record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : Mapᴵ K V σ ⦄ ⦃ _ : DecEq K ⦄ : Set (lsuc σ) where
+  open Mapᴵ it
+  field
     _∈ᵈ?_ : Decidable² _∈ᵈ_
 
     singleton : K × V → Map
@@ -272,15 +396,18 @@ record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : DecEq K ⦄ : Set (lsuc σ) wh
   data Cmd : Set₁ where
     _∶_ : Cmd → Cmd → Cmd
     _≔_ : K → V → Cmd
-    iff : ∀ {P : Set} → Dec P → Cmd → Cmd
+    iff⦅_⦆_ : ∀ {P : Set} → Dec P → Cmd → Cmd
     just? : K → (V → Cmd) → Cmd
 
   infix 4 _≔_
 
+  iff¿_¿_ : (P : Set) → ⦃ P ⁇ ⦄ → Cmd → Cmd
+  iff¿ P ¿ c = iff⦅ ¿ P ¿ ⦆ c
+
   run : Cmd → (Map → Map)
   run (k ≔ v) = update (k , v)
   run (cmd₁ ∶ cmd₂) = run cmd₂ ∘ run cmd₁
-  run (iff b cmd) with b
+  run (iff⦅ b ⦆ cmd) with b
   ... | yes _ = run cmd
   ... | no  _ = id
   run (just? k go) s with s ⁉ k
@@ -290,7 +417,7 @@ record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : DecEq K ⦄ : Set (lsuc σ) wh
   ≈-cong-cmd : ∀ {s₁ s₂} cmd → s₁ ≈ s₂ → run cmd s₁ ≈ run cmd s₂
   ≈-cong-cmd {s₁} {s₂} (cmd₁ ∶ cmd₂) s₁≈s₂ k = ≈-cong-cmd cmd₂ (≈-cong-cmd cmd₁ s₁≈s₂) k
   ≈-cong-cmd {s₁} {s₂} (_ ≔ _) s₁≈s₂ k = ≈-cong-update s₁≈s₂ k
-  ≈-cong-cmd {s₁} {s₂} (iff b cmd) s₁≈s₂ k
+  ≈-cong-cmd {s₁} {s₂} (iff⦅ b ⦆ cmd) s₁≈s₂ k
     with b
   ... | yes _ = ≈-cong-cmd cmd s₁≈s₂ k
   ... | no  _ = s₁≈s₂ k
@@ -302,7 +429,7 @@ record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : DecEq K ⦄ : Set (lsuc σ) wh
   cmd-mon : ∀ cmd → KeyMonotonic (run cmd)
   cmd-mon (cmd₁ ∶ cmd₂) s k = cmd-mon cmd₂ (run cmd₁ s) k ∘ cmd-mon cmd₁ s k
   cmd-mon (k′ ≔ v) = update-mon
-  cmd-mon (iff b cmd) with b
+  cmd-mon (iff⦅ b ⦆ cmd) with b
   ... | yes _ = cmd-mon cmd
   ... | no  _ = λ _ _ → id
   cmd-mon (just? k′ go) s with s ⁉ k′
@@ -324,17 +451,11 @@ record DecMapᴵ (K V : Set) (σ : Level) ⦃ _ : DecEq K ⦄ : Set (lsuc σ) wh
 
   iff-accept : ∀ {s cmd} {P : Set} {b : Dec P}
     → True b
-    → run (iff b cmd) s ≈ run cmd s
+    → run (iff⦅ b ⦆ cmd) s ≈ run cmd s
   iff-accept {b = b} ≡yes _ with b | ≡yes
   ... | yes _ | _ = refl
 
-
-record DecEqMapᴵ (K V : Set) ⦃ _ : DecEq K ⦄ (σ : Level) : Set (lsuc σ) where
-  constructor mkDecEqMapᴵ
-  open Mapᴵ ⦃...⦄
-  field
-    ⦃ mapᴵ ⦄ : Mapᴵ K V σ
-    deceq : DecEq Map
-  instance
-    DecEq-Map : DecEq Map
-    DecEq-Map = deceq
+record DecEqMapᴵ (K V : Set) (σ : Level) ⦃ _ : Mapᴵ K V σ ⦄ ⦃ _ : DecEq K ⦄ : Set (lsuc σ) where
+  open Mapᴵ it
+  field deceq : DecEq Map
+  instance DecEq-Map = deceq

@@ -8,6 +8,7 @@ open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.Functor
+open import Prelude.Applicative
 open import Prelude.Maps.Interface
 
 module Prelude.Maps.AsPartialFunctions4 {K V : Set} where
@@ -21,9 +22,7 @@ abstract
 
   infixr 4 _∪_
   _∪_ : Op₂ Map
-  (m ∪ m′) k with m k
-  ... | nothing = m′ k
-  ... | just v  = just v
+  (m ∪ m′) k = m k <|> m′ k
 
   infix 3 _∈ᵈ_
   _∈ᵈ_ : K → Map → Set
@@ -105,7 +104,7 @@ abstract
 
   -- Separation
   ♯-comm : Symmetric _♯_
-  ♯-comm s₁♯s₂ k = s₁♯s₂ k ∘ swap
+  ♯-comm s₁♯s₂ k = s₁♯s₂ k ∘ Product.swap
 
   ♯-cong : s₁ ≈ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
   ♯-cong eq s₁♯s₃ k
@@ -114,11 +113,11 @@ abstract
 
   ∪-comm : s₁ ♯ s₂ → (s₁ ∪ s₂) ≈ (s₂ ∪ s₁)
   ∪-comm {s₁}{s₂} s₁♯s₂ k
-     with s₁ k | inspect s₁ k | s₂ k | inspect s₂ k | s₁♯s₂ k
-  ... | nothing | ≡[ s₁≡ ] | nothing  | ≡[ s₂≡ ] | _ = trans s₂≡ (sym s₁≡)
-  ... | nothing | ≡[ _   ] | just y   | ≡[ s₂≡ ] | _ = s₂≡
-  ... | just x  | ≡[ s₁≡ ] | nothing  | ≡[ _   ] | _ = sym s₁≡
-  ... | just x  | ≡[ _   ] | just y   | ≡[ _   ] | p = ⊥-elim $ p (auto , auto)
+     with s₁ k | s₂ k | s₁♯s₂ k
+  ... | nothing | nothing  | _ = refl
+  ... | nothing | just _   | _ = refl
+  ... | just _  | nothing  | _ = refl
+  ... | just _  | just _   | p = ⊥-elim $ p (auto , auto)
 
   ∪-cong : s₁ ≈ s₂ → (s₁ ∪ s₃) ≈ (s₂ ∪ s₃)
   ∪-cong {s₁}{s₂}{s₃} eq k
@@ -270,5 +269,10 @@ module _ ⦃ _ : DecEq K ⦄ where
       → (s₁′ ∪ s₂′) ≈ f (s₁ ∪ s₂)
 -}
 
--- dmapᴵ : DecMapᴵ K V 0ℓ
--- dmapᴵ = mkDecMapᴵ _∈ᵈ?_ singleton singleton-law singleton∈ singleton♯
+-- BuildMapᴵ
+abstract
+  buildMap : (K → Maybe V) → Map
+  buildMap = id
+
+  buildMap-sound : ∀ (f : K → Maybe V) → ∀ k → buildMap f ⁉ k ≡ f k
+  buildMap-sound _ _ = refl

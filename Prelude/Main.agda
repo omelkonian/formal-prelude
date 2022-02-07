@@ -60,8 +60,12 @@ open import Prelude.Traces
 
 -- ** Data structures
 open import Prelude.Lists
+
 open import Prelude.Sets
+open import Prelude.Sets.Example
+
 open import Prelude.Maps
+open import Prelude.Maps.Example
 
 -- ** Utilities for cryptography
 open import Prelude.Bitstring
