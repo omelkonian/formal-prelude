@@ -5,40 +5,27 @@ open import Prelude.General
 open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.Decidable
-open import Prelude.Measurable
-
 open import Prelude.Semigroup
 open import Prelude.Applicative
+open import Prelude.Measurable
+open import Prelude.Apartness
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
 record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
-
   constructor mkSetᴵ
   field
     Set' : Set σ
-
     ∅ : Set'
     singleton : A → Set'
-
     _∈ˢ_ : A → Set' → Set
-
     _─_ _∪_ _∩_ : Op₂ Set'
 
-  -- syntactic sugar
   syntax Set' {A = A} = Set⟨ A ⟩
-
   infixr 8 _─_
   infixr 7 _∩_
   infixr 6 _∪_
-  infix 4 _♯_ _∈ˢ_ _∉ˢ_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
-
-  _♯_ : Rel₀ Set'
-  s ♯ s′ = ∀ {k} → ¬ ((k ∈ˢ s) × (k ∈ˢ s′))
-
-  -- ♯-comm : Symmetric _♯_
-  ♯-comm : ∀ x y → x ♯ y → y ♯ x
-  ♯-comm x y x♯y = x♯y ∘ swap
+  infix  4 _∈ˢ_ _∉ˢ_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
 
   _∉ˢ_ : A → Set' → Set _
   x ∉ˢ s = ¬ (x ∈ˢ s)
@@ -47,8 +34,8 @@ record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
   field
     singleton∈ˢ : ∀ {x x′} → x′ ∈ˢ singleton x ↔ x′ ≡ x
     -- congruences
-    -- ♯-cong : ∀ {s₁}{s₂}{s₃} → s₁ ≈ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
-    -- ∪-cong : ∀ {s₁}{s₂}{s₃} → s₁ ≈ s₂ → (s₁ ∪ s₃) ≈ (s₂ ∪ s₃)
+    -- ♯-cong : ∀ {s₁}{s₂}{s₃} → s₁ ≈ˢ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
+    -- ∪-cong : ∀ {s₁}{s₂}{s₃} → s₁ ≈ˢ s₂ → (s₁ ∪ s₃) ≈ˢ (s₂ ∪ s₃)
 
     ∈-∪⁻ : ∀ x xs ys → x ∈ˢ (xs ∪ ys) → x ∈ˢ xs ⊎ x ∈ˢ ys
     ∈-∪⁺ˡ : ∀ x xs ys → x ∈ˢ xs → x ∈ˢ (xs ∪ ys)
@@ -59,10 +46,21 @@ record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → x ∉ˢ ys → x ∈ˢ (xs ─ ys)
     ∉∅ : ∀ x → x ∉ˢ ∅
 
+  _♯ˢ_ : Rel₀ Set'
+  s ♯ˢ s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
+
+  instance
+    Apart-Set' : Set' // Set'
+    Apart-Set' ._♯_ = _♯ˢ_
+
+  -- ♯-comm : Symmetric _♯_
+  ♯-comm : ∀ (x y : Set') → x ♯ y → y ♯ x
+  ♯-comm x y x♯y = x♯y ∘ Product.swap
+
   ∈-∩⇒¬♯ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → ¬ (xs ♯ ys)
   ∈-∩⇒¬♯ x xs ys x∈ xs♯ys = xs♯ys $ ∈-∩⁻ _ xs ys x∈
 
-  ♯-skipˡ : ∀ xs ys zs → (xs ∪ ys) ♯ zs → ys ♯ zs
+  ♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
   ♯-skipˡ xs ys _ p (x∈ys , x∈zs) = p (∈-∪⁺ʳ _ xs ys x∈ys , x∈zs)
 
   _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
@@ -74,27 +72,27 @@ record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
   ⊆ˢ-trans : Transitive _⊆ˢ_
   ⊆ˢ-trans ij ji = ji ∘ ij
 
-  _≈_ : Rel₀ Set'
-  s ≈ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
+  _≈ˢ_ : Rel₀ Set'
+  s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
-  ≈-refl : Reflexive _≈_
-  ≈-refl = (id , id)
+  ≈ˢ-refl : Reflexive _≈ˢ_
+  ≈ˢ-refl = (id , id)
 
-  ≈-sym : Symmetric _≈_
-  ≈-sym = swap
+  ≈ˢ-sym : Symmetric _≈ˢ_
+  ≈ˢ-sym = Product.swap
 
-  ≈-trans : Transitive _≈_
-  ≈-trans = λ{ (ij , ji) (jk , kj) → ⊆ˢ-trans ij jk , ⊆ˢ-trans kj ji }
+  ≈ˢ-trans : Transitive _≈ˢ_
+  ≈ˢ-trans = λ{ (ij , ji) (jk , kj) → ⊆ˢ-trans ij jk , ⊆ˢ-trans kj ji }
 
-  ≈-equiv : IsEquivalence _≈_
-  ≈-equiv = record { refl = ≈-refl; sym = ≈-sym; trans = ≈-trans }
+  ≈ˢ-equiv : IsEquivalence _≈ˢ_
+  ≈ˢ-equiv = record { refl = ≈ˢ-refl; sym = ≈ˢ-sym; trans = ≈ˢ-trans }
 
-  ≈-setoid : Setoid σ 0ℓ
-  ≈-setoid = record { Carrier = Set'; _≈_ = _≈_; isEquivalence = ≈-equiv }
+  ≈ˢ-setoid : Setoid σ 0ℓ
+  ≈ˢ-setoid = record { Carrier = Set'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
 
-  module ≈-Reasoning = BinSetoid ≈-setoid
+  module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
 
-  open Alg _≈_
+  open Alg _≈ˢ_
 
   ∅─-identityʳ : RightIdentity ∅ _─_
   ∅─-identityʳ xs = (∈-─⁻ _ _ _) , (λ x∈ → ∈-─⁺ _ _ _ x∈ (∉∅ _))
@@ -117,14 +115,12 @@ record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     = (λ x∈ → case ∈-∪⁻ _ xs ys x∈ of λ{ (inj₁ x∈xs) → ∈-∪⁺ʳ _ ys xs x∈xs; (inj₂ x∈ys) → ∈-∪⁺ˡ _ ys xs x∈ys})
     , (λ x∈ → case ∈-∪⁻ _ ys xs x∈ of λ{ (inj₁ x∈ys) → ∈-∪⁺ʳ _ xs ys x∈ys; (inj₂ x∈xs) → ∈-∪⁺ˡ _ xs ys x∈xs})
 
-record DecSetᴵ (A : Set) (σ : Level) ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
-  constructor mkDecSetᴵ
-  open Setᴵ ⦃...⦄
+record DecSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
+  open Setᴵ it
   field
-    ⦃ setᴵ ⦄ : Setᴵ A σ
-    -- _≈?_ : Decidable² _≈_
+    -- _≈ˢ?_ : Decidable² _≈ˢ_
     _∈ˢ?_ : Decidable² _∈ˢ_
-    _♯?_ : Decidable² _♯_
+    _♯ˢ?_ : Decidable² _♯ˢ_
 
   infix 4 _∈ˢ?_ _∉ˢ?_
 
@@ -133,17 +129,14 @@ record DecSetᴵ (A : Set) (σ : Level) ⦃ _ : DecEq A ⦄ : Set (lsuc σ) wher
 
   instance
     Dec-∈ˢ : ∀ {x : A} {xs : Set'} → (x ∈ˢ xs) ⁇
-    Dec-∈ˢ .dec = _∈ˢ?_ _ _
+    Dec-∈ˢ .dec = _ ∈ˢ? _
 
-    Dec-♯ : ∀ {xs ys : Set'} → (xs ♯ ys) ⁇
-    Dec-♯ .dec = _♯?_ _ _
+    Dec-♯ : _♯ˢ_ ⁇²
+    Dec-♯ .dec = _ ♯ˢ? _
 
-record ListSetᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
-  constructor mkListSetᴵ
-  open Setᴵ ⦃...⦄
+record ListSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ : Set (lsuc σ) where
+  open Setᴵ it
   field
-    ⦃ setᴵ ⦄ : Setᴵ A σ
-
     toList : Set' → List A
     fromList : List A → Set'
     from↔to : ∀ xs → Unique xs → toList (fromList xs) ≡ xs
@@ -159,13 +152,7 @@ record ListSetᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     Measurable-Set : Measurable Set'
     Measurable-Set = record {∣_∣ = length ∘ toList}
 
-record DecEqSetᴵ (A : Set) (σ : Level) ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
-  constructor mkDecEqSetᴵ
-  open Setᴵ ⦃...⦄
-  field
-    ⦃ setᴵ ⦄ : Setᴵ A σ
-    deceq : DecEq Set'
-
-  instance
-    DecEq-Set' : DecEq Set'
-    DecEq-Set' = deceq
+record DecEqSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
+  open Setᴵ it
+  field deceq : DecEq Set'
+  instance DecEq-Set' = deceq

@@ -66,11 +66,6 @@ abstract
   o ∈ˢ ⟨ os ⟩∶- _ = o ∈ os
   o ∉ˢ s = ¬ (o ∈ˢ s)
 
-  _∈ˢ?_ : Decidable² _∈ˢ_
-  o ∈ˢ? ⟨ os ⟩∶- _ = o ∈? os
-  _∉ˢ?_ : Decidable² _∉ˢ_
-  o ∉ˢ? ⟨ os ⟩∶- _ = ¬? (o ∈? os)
-
   ∈ˢ-irr : Irrelevant (x ∈ˢ Xs)
   ∈ˢ-irr {Xs = ⟨ _ ⟩∶- un} = ∈-irr (recompute dec un)
 
@@ -85,6 +80,17 @@ abstract
 
 _♯_ : Rel₀ Set'
 s ♯ s′ = ∀ {k} → ¬ ((k ∈ˢ s) × (k ∈ˢ s′))
+
+-- ** decidability
+-- NB: by abstract, we lose support for 'proof-by-reflection' on closed terms
+-- T0D0: find a way to fix this
+abstract
+  _∈ˢ?_ : Decidable² _∈ˢ_
+  o ∈ˢ? ⟨ os ⟩∶- _ = o ∈? os
+  _∉ˢ?_ : Decidable² _∉ˢ_
+  o ∉ˢ? ⟨ os ⟩∶- _ = ¬? (o ∈? os)
+  _♯ˢ?_ : Decidable² _♯_
+  xs ♯ˢ? ys = disjoint? (list xs) (list ys)
 
 abstract
   _++_∶-_ : ∀ x y → x ♯ y → Set'
@@ -145,31 +151,20 @@ abstract
   ∈-∩⁻ _ xs ys = ∈-filter⁻ (_∈ˢ? ys) {xs = list xs}
 
 -- ** algebraic properties
-setᴵ : Setᴵ A 0ℓ
-setᴵ = mkSetᴵ Set' ∅ singleton _∈ˢ_ _─_ _∪_ _∩_
-              singleton∈ˢ ∈-∪⁻ ∈-∪⁺ˡ ∈-∪⁺ʳ ∈-∩⁺ ∈-∩⁻ ∈-─⁻ ∈-─⁺ ∉∅
-open Setᴵ setᴵ using (_≈_; ≈-refl; ≈-sym; ≈-trans; ≈-setoid; module ≈-Reasoning)
-open Alg _≈_
+open Setᴵ (mkSetᴵ Set' ∅ singleton _∈ˢ_ _─_ _∪_ _∩_ singleton∈ˢ ∈-∪⁻ ∈-∪⁺ˡ ∈-∪⁺ʳ ∈-∩⁺ ∈-∩⁻ ∈-─⁻ ∈-─⁺ ∉∅)
+  using (_≈ˢ_; ≈ˢ-refl; ≈ˢ-sym; ≈ˢ-trans; ≈ˢ-setoid; module ≈ˢ-Reasoning)
+open Alg _≈ˢ_
 
 abstract
   ∅─-identityʳ : RightIdentity ∅ _─_
-  ∅─-identityʳ s rewrite L.filter-all (_∉? []) {xs = list s} All∉[] = ≈-refl {x = s}
+  ∅─-identityʳ s rewrite L.filter-all (_∉? []) {xs = list s} All∉[] = ≈ˢ-refl {x = s}
 
   ∅∪-identityˡ : LeftIdentity ∅ _∪_
   ∅∪-identityˡ xs =
-    begin ∅ ∪ xs ≈⟨ ≈-refl {xs ─ ∅} ⟩
+    begin ∅ ∪ xs ≈⟨ ≈ˢ-refl {xs ─ ∅} ⟩
           xs ─ ∅ ≈⟨ ∅─-identityʳ xs ⟩
           xs ∎
-    where open ≈-Reasoning
-
--- ** decidability
--- NB: abstraction disallows automatically computing proofs for closed formulas :(
-abstract
-  _♯?_ : Decidable² _♯_
-  xs ♯? ys = disjoint? (list xs) (list ys)
-
-dsetᴵ : DecSetᴵ A 0ℓ
-dsetᴵ = mkDecSetᴵ ⦃ _ ⦄ ⦃ setᴵ ⦄ _∈ˢ?_ _♯?_
+    where open ≈ˢ-Reasoning
 
 -- ** list conversion
 abstract
@@ -185,10 +180,6 @@ abstract
   ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
   ∈ˢ-fromList = ∈-nub⁺ , ∈-nub⁻
 
-
-lsetᴵ : ListSetᴵ A 0ℓ
-lsetᴵ = mkListSetᴵ ⦃ setᴵ ⦄ toList fromList from↔to ∈ˢ-fromList
-
 -- ** decidability of set equality
 abstract
   deceq : DecEq Set'
@@ -196,9 +187,6 @@ abstract
     with list s ≟ list s′
   ... | no ¬p    = no λ{ refl → ¬p refl }
   ... | yes refl = yes refl
-
-dqsetᴵ : DecEqSetᴵ A 0ℓ
-dqsetᴵ = mkDecEqSetᴵ ⦃ _ ⦄ ⦃ setᴵ ⦄ deceq
 
 -- Functor-Set' : Functor {0ℓ} λ A {{_ : DecEq A}} → Set⟨ A ⟩
 -- Functor-Set' ._<$>_ f = (f <$>_) ∘ list

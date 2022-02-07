@@ -75,17 +75,17 @@ abstract
 setᴵ : Setᴵ A 1ℓ
 setᴵ = mkSetᴵ Set' ∅ singleton _∈ˢ_ _─_ _∪_ _∩_
               singleton∈ˢ ∈-∪⁻ ∈-∪⁺ˡ ∈-∪⁺ʳ ∈-∩⁺ ∈-∩⁻ ∈-─⁻ ∈-─⁺ ∉∅
-open Setᴵ setᴵ using (_∉ˢ_; _≈_; ≈-refl; ≈-sym; ≈-trans; ≈-setoid; module ≈-Reasoning)
-open Alg _≈_
+open Setᴵ setᴵ using (_∉ˢ_; _≈ˢ_; ≈ˢ-refl; ≈ˢ-sym; ≈ˢ-trans; ≈ˢ-setoid; module ≈ˢ-Reasoning)
+open Alg _≈ˢ_
 
 abstract
 
   ∅─-identityʳ : RightIdentity ∅ _─_
   ∅─-identityʳ xs =
-    begin xs ─ ∅   ≈⟨ ≈-refl ⟩
+    begin xs ─ ∅   ≈⟨ ≈ˢ-refl ⟩
           xs ∩ ∁ ∅ ≈⟨ (proj₁ ∘ ∈-∩⁻ _ xs (∁ ∅) , (λ {x} x∈ → ∈-∩⁺ _ xs (∁ ∅) x∈ (∉∅ x))) ⟩
           xs ∎
-    where open ≈-Reasoning
+    where open ≈ˢ-Reasoning
 
   ∅∪-identityˡ : LeftIdentity ∅ _∪_
   ∅∪-identityˡ xs = (λ x∈ → case ∈-∪⁻ _ ∅ xs x∈ of λ{ (inj₁ x∈∅) → case x∈∅ of λ (); (inj₂ x∈xs) → x∈xs} )
