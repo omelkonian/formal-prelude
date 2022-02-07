@@ -31,8 +31,6 @@ open import Prelude.Applicative
 open import Prelude.Traversable
 open import Prelude.Monad
 
-open import Prelude.Nary
-
 open import Prelude.Default
 open import Prelude.Show
 open import Prelude.Measurable
@@ -40,7 +38,6 @@ open import Prelude.Measurable
 open import Prelude.ToN
 open import Prelude.FromN
 open import Prelude.ToList
-open import Prelude.Apartness
 
 open import Prelude.Orders
 open import Prelude.Ord
@@ -50,10 +47,12 @@ open import Prelude.Equivalence
 
 open import Prelude.Collections
 open import Prelude.Membership
+open import Prelude.Apartness
 
+open import Prelude.Nary
 open import Prelude.Coercions
-
 open import Prelude.Validity
+open import Prelude.Accessors
 
 -- ** Closures
 open import Prelude.Closures
