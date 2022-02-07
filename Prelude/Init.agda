@@ -1,6 +1,8 @@
 module Prelude.Init where
 
 -- ** Universes
+module Lvl where
+  open import Level public
 open import Level public
   using (Level; 0ℓ; Setω)
   renaming (suc to lsuc; _⊔_ to _⊔ₗ_)
@@ -61,7 +63,7 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (Σ; Σ-syntax; _,_; proj₁; proj₂; ∃; ∃-syntax; _×_; _,′_; <_,_>; curry; uncurry; -,_; swap)
+  using (Σ; Σ-syntax; _,_; proj₁; proj₂; ∃; ∃-syntax; _×_; _,′_; <_,_>; curry; uncurry; -,_)
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -133,7 +135,7 @@ module Str where
   open import Data.String public
 
 open import Data.Maybe public
-  using (Maybe; just; nothing; Is-just; Is-nothing; maybe; maybe′)
+  using (Maybe; just; nothing; Is-just; Is-nothing; maybe; maybe′; fromMaybe)
 module M where
   open import Data.Maybe public
   open import Data.Maybe.Properties public
@@ -256,7 +258,7 @@ open import Relation.Unary public
   renaming (Decidable to Decidable¹; _⇒_ to _⇒¹_)
 
 open import Relation.Binary public
-  using ( Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric; Transitive; Total
+  using ( REL; Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric; Trans; Transitive; Total
         ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
         ; DecidableEquality; IsEquivalence; Setoid )
   renaming (Decidable to Decidable²; _⇒_ to _⇒²_; _⇔_ to _⇔²_)
