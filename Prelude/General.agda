@@ -280,12 +280,36 @@ data Is {A : Set ℓ} : A → Set ℓ where
 infix -100 ⟫_
 
 -- NB: can be used to pattern match on module parameters
-private
-  module _ (n : ℕ) where
-    f : (n ≡ 0) ⊎ (∃ λ n′ → n ≡ suc n′)
-    f with ⟫ n
-    ... | ⟫ 0     = inj₁ refl
-    ... | ⟫ suc _ = inj₂ $ -, refl
+private module _ (n : ℕ) where
+  f : (n ≡ 0) ⊎ (∃ λ n′ → n ≡ suc n′)
+  f with ⟫ n
+  ... | ⟫ 0     = inj₁ refl
+  ... | ⟫ suc _ = inj₂ $ -, refl
+
+-- ** Testing
+
+-- single case
+_ = ∃ (_≤ 3)
+  ∋ 3 , ≤-refl
+
+-- syntactic sugar for giving multiple terms of the same type
+module MultiTest where
+  -- only the first is actually returned, but all are type-checked
+  _∋⋮_ : (A : Set ℓ) → List⁺ A → A
+  _∋⋮_ _ (x ∷ _) = x
+  pattern _⋮_ x xs = x L.NE.∷ xs
+  pattern _⋮_ x xs = x ∷ xs
+  pattern _⋮∅ x = x ∷ []
+  infixl -10 _∋⋮_
+  infixr -9  _⋮_
+  infix  -8  _⋮∅
+
+  _ = ∃ (_≤ 3)
+   ∋⋮ 3 , ≤-refl
+    ⋮ 2 , ≤-step ≤-refl
+    ⋮ 1 , ≤-step (≤-step ≤-refl)
+    ⋮ 0 , ≤-step (≤-step (≤-step ≤-refl))
+    ⋮∅
 
 -- ** Strings
 
