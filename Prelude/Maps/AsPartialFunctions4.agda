@@ -198,15 +198,17 @@ mapᴵ = mkMapᴵ Map ∅ _∪_ _⁉_ _∈ᵈ_ _♯_
               ∪-assocʳ ∪≡-assocʳ
 open Mapᴵ mapᴵ using (_⊆ᵈ_; _⊈ᵈ_; _[_↦_]∅)
 
+-- DecMapᴵ
+abstract
+  _∈ᵈ?_ : Decidable² _∈ᵈ_
+  k ∈ᵈ? m with m k
+  ... | just _  = yes auto
+  ... | nothing = no  auto
+
 module _ ⦃ _ : DecEq K ⦄ where
   abstract
     singleton : K × V → Map
     singleton (k , v) k′ = if k′ == k then just v else nothing
-
-    _∈ᵈ?_ : Decidable² _∈ᵈ_
-    k ∈ᵈ? m with m k
-    ... | just _  = yes auto
-    ... | nothing = no  auto
 
     singleton-law : ∀ {k v} → singleton (k , v) [ k ↦ v ]∅
     singleton-law {k}{v} = p₁ , p₂

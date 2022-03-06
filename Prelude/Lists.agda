@@ -249,23 +249,29 @@ module _ (f : A → Maybe B) where
   ∈-mapMaybe⁻ : y ∈ mapMaybe f xs
               → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
   ∈-mapMaybe⁻ {y = y} {xs = x ∷ xs} y∈
-    with f x | inspect f x
-  ... | nothing | _ = map₂′ (map₁′ there) (∈-mapMaybe⁻ y∈)
-  ... | just y′ | ≡[ fx ]
+    with f x in fx≡
+  ... | nothing = map₂′ (map₁′ there) (∈-mapMaybe⁻ y∈)
+  ... | just y′
     with y∈
-  ... | here refl = x , here refl , fx
+  ... | here refl = x , here refl , fx≡
   ... | there y∈′ = map₂′ (map₁′ there) (∈-mapMaybe⁻ y∈′)
 
-  ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y
-              → y ∈ mapMaybe f xs
-  ∈-mapMaybe⁺ {xs = x ∷ xs} x∈ eq
-    with x∈
-  ... | here refl rewrite eq = here refl
-  ... | there x∈′
-    with y∈ ← ∈-mapMaybe⁺ x∈′ eq
+  ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y → y ∈ mapMaybe f xs
+  ∈-mapMaybe⁺ {xs = x ∷ xs} x∈ eq with x∈
+  ... | here refl with just y ← f x -- in fx≡ [BUG]
+    = here $ M.just-injective (sym eq)
+  ... | there x∈ with IH ← ∈-mapMaybe⁺ x∈ eq
     with f x
-  ... | nothing = y∈
-  ... | just _  = there y∈
+  ... | nothing = IH
+  ... | just _  = there IH
+
+  mapMaybe-here : (eq : f x ≡ just y)
+    → mapMaybe f (x ∷ xs) ≡ y ∷ mapMaybe f xs
+  mapMaybe-here {x = x} eq with just _ ← f x = cong (_∷ _) (M.just-injective eq)
+
+  ∈-mapMaybe⁺-here : (eq : f x ≡ just y)
+    → Is-here $ ∈-mapMaybe⁺ (here {xs = xs} refl) eq
+  ∈-mapMaybe⁺-here {x = x} {y = y} {xs = xs} eq with just _ ← f x = _
 
   mapMaybe-⊆ : xs ⊆ ys → mapMaybe f xs ⊆ mapMaybe f ys
   mapMaybe-⊆ {xs = x ∷ xs} {ys = ys} xs⊆ fx∈ =

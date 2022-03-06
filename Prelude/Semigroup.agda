@@ -1,6 +1,7 @@
 module Prelude.Semigroup where
 
 open import Prelude.Init
+open import Prelude.Functor
 
 record Semigroup (A : Set ℓ) : Set ℓ where
   infixr 5 _◇_ _<>_
@@ -8,29 +9,23 @@ record Semigroup (A : Set ℓ) : Set ℓ where
   _<>_ = _◇_
 open Semigroup ⦃...⦄ public
 
-{-
-record CommutativeSemigroup (A : Set ℓ) (_~_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
-  field
-    overlap ⦃ sm ⦄ : Semigroup A
-    ◇-comm : Alg.Commutative _~_ (sm ._◇_)
-open CommutativeSemigroup ⦃...⦄ public hiding (sm)
-
-record AssociativeSemigroup (A : Set ℓ) (_~_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
-  field
-    overlap ⦃ sm ⦄ : Semigroup A
-    ◇-assocʳ : Alg.Associative _~_ (sm ._◇_)
-open AssociativeSemigroup ⦃...⦄ public hiding (sm)
--}
-
-record SemigroupLaws (A : Set ℓ) (_≈_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record SemigroupLaws (A : Set ℓ) ⦃ _ : Semigroup A ⦄ (_≈_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
   open Alg _≈_
   field
-    overlap ⦃ sm ⦄ : Semigroup A
+    -- doesn't work when you have multiple laws simultaneously
+    -- overlap ⦃ sm ⦄ : Semigroup A
     ◇-comm   : Commutative _◇_
     ◇-assocʳ : Associative _◇_
-open SemigroupLaws ⦃...⦄ public hiding (sm)
+open SemigroupLaws ⦃...⦄ public
+
+SemigroupLaws≡ : (A : Set ℓ) ⦃ _ : Semigroup A ⦄ → Set ℓ
+SemigroupLaws≡ A = SemigroupLaws A _≡_
 
 private variable A : Set ℓ
+
+module _ ⦃ _ : Semigroup A ⦄ ⦃ _ : SemigroupLaws≡ A ⦄ where
+  ◇-assocˡ : ∀ (x y z : A) → (x ◇ (y ◇ z)) ≡ ((x ◇ y) ◇ z)
+  ◇-assocˡ x y z = sym (◇-assocʳ x y z)
 
 instance
   Semigroup-List : Semigroup (List A)
@@ -47,6 +42,30 @@ instance
 
   Semigroup-String : Semigroup String
   Semigroup-String ._◇_ = Str._++_
+
+  Semigroup-Maybe : ⦃ Semigroup A ⦄ → Semigroup (Maybe A)
+  Semigroup-Maybe ._◇_ = λ where
+    (just x) (just y) → just (x ◇ y)
+    (just x) nothing  → just x
+    nothing  m        → m
+
+  SemigroupLaws-Maybe : ⦃ sm : Semigroup A ⦄ → ⦃ SemigroupLaws≡ A ⦄ → SemigroupLaws≡ (Maybe A)
+  SemigroupLaws-Maybe {A = A} = record {◇-assocʳ = p; ◇-comm = q}
+    where
+      open Alg≡
+
+      p : Associative (_◇_ {A = Maybe A})
+      p (just _) (just _) (just _) = cong just (◇-assocʳ _ _ _)
+      p (just _) (just _) nothing  = refl
+      p (just _) nothing  _ = refl
+      p nothing  (just _) _ = refl
+      p nothing  nothing  _ = refl
+
+      q : Commutative (_◇_ {A = Maybe A})
+      q (just x) (just y) = cong just (◇-comm x y)
+      q (just _) nothing  = refl
+      q nothing  (just _) = refl
+      q nothing  nothing  = refl
 
 
 Semigroup-ℕ-+ = Semigroup ℕ ∋ λ where ._◇_ → _+_

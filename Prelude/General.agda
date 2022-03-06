@@ -212,13 +212,26 @@ Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Set}
  → Is-just mx
 Any⇒Is-just {mx = .(just _)} (M.just _) = M.just tt
 
-Is-here : ∀ {A : Set} {P : Pred₀ A} {xs : List A} → Any P xs → Set
-Is-here (here _)  = ⊤
-Is-here (there _) = ⊥
+module _ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} where
+  Is-here Is-there : Pred₀ (Any P xs)
+  Is-here = λ where
+    (here _)  → ⊤
+    (there _) → ⊥
+  Is-there = λ where
+    (here _)  → ⊥
+    (there _) → ⊤
 
 Is-just⇒≢nothing : ∀ {A : Set} {mx : Maybe A} → Is-just mx → mx ≢ nothing
 Is-just⇒≢nothing {mx = nothing} () _
 Is-just⇒≢nothing {mx = just _} _ ()
+
+Is-nothing≡ : ∀ {A : Set} {mx : Maybe A} → Is-nothing mx → mx ≡ nothing
+Is-nothing≡ {mx = nothing} _ = refl
+Is-nothing≡ {mx = just _} (M.All.just ())
+
+¬Is-just⇒Is-nothing : ∀ {A : Set} {mx : Maybe A} → ¬ Is-just mx → Is-nothing mx
+¬Is-just⇒Is-nothing {mx = nothing} _ = M.All.nothing
+¬Is-just⇒Is-nothing {mx = just _}  p = ⊥-elim $ p (M.just tt)
 
 destruct-Is-just : ∀ {A : Set} {mx : Maybe A}
   → Is-just mx

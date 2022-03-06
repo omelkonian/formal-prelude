@@ -11,5 +11,4 @@ _ = Map⟨ String ↦ ℕ ⟩
 
 _ = Map
   ∋ singleton ("one" , 1) ◇ singleton ("one" , 2)
-  where instance _ = SemigroupLaws-ℕ-+
-                 _ = MonoidLaws-ℕ-+
+  where instance _ = Monoid-ℕ-+; _ = SemigroupLaws-ℕ-+; _ = MonoidLaws-ℕ-+
