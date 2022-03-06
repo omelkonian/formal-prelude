@@ -5,7 +5,7 @@
 module Prelude.General where
 
 open import Data.Nat.Properties
-import Data.Maybe.Relation.Unary.Any as M
+-- import Data.Maybe.Relation.Unary.Any as M
 
 open import Prelude.Init
 open import Prelude.Applicative
@@ -40,6 +40,14 @@ P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
 
 _Respects˘_ : Rel A ℓ → Pred A ℓ′ → Set _
 _~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
+
+IdFun : ∀ {A : Set ℓ} → Pred (A → A) ℓ
+IdFun f = ∀ x → f x ≡ x
+
+IdFun-fmap : ∀ {f : A → A} → IdFun f → IdFun (M.map f)
+IdFun-fmap f≗id = λ where
+  nothing  → refl
+  (just x) → cong just $ f≗id x
 
 -- ** Equality
 
@@ -203,14 +211,14 @@ ap-nothing {m = just _ } ()
 
 Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
  → mx ≡ just x
- → M.Any P mx
+ → M.Any.Any P mx
  → P x
-Any-just refl (M.just p) = p
+Any-just refl (M.Any.just p) = p
 
 Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Set}
- → M.Any P mx
+ → M.Any.Any P mx
  → Is-just mx
-Any⇒Is-just {mx = .(just _)} (M.just _) = M.just tt
+Any⇒Is-just {mx = .(just _)} (M.Any.just _) = M.Any.just tt
 
 module _ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} where
   Is-here Is-there : Pred₀ (Any P xs)
@@ -231,7 +239,7 @@ Is-nothing≡ {mx = just _} (M.All.just ())
 
 ¬Is-just⇒Is-nothing : ∀ {A : Set} {mx : Maybe A} → ¬ Is-just mx → Is-nothing mx
 ¬Is-just⇒Is-nothing {mx = nothing} _ = M.All.nothing
-¬Is-just⇒Is-nothing {mx = just _}  p = ⊥-elim $ p (M.just tt)
+¬Is-just⇒Is-nothing {mx = just _}  p = ⊥-elim $ p (M.Any.just tt)
 
 destruct-Is-just : ∀ {A : Set} {mx : Maybe A}
   → Is-just mx

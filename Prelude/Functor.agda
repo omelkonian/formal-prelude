@@ -8,7 +8,7 @@ Functor {ℓ = ℓ} = RawFunctor {ℓ = ℓ} {ℓ′ = ℓ}
 open RawFunctor ⦃ ... ⦄ public
 -}
 
-private variable A B : Set ℓ
+private variable A B C : Set ℓ
 
 record Functor (F : Set↑) : Setω where
   infixl 4 _<$>_ _<$_
@@ -24,6 +24,16 @@ record Functor (F : Set↑) : Setω where
   _<&>_ = flip _<$>_
 open Functor ⦃...⦄ public
 
+record FunctorLaws (F : Set↑) ⦃ _ : Functor F ⦄ : Setω where
+  field
+    -- preserves identity morphisms
+    fmap-id : ∀ {A : Set ℓ} (x : F A) →
+      fmap id x ≡ x
+    -- preserves composition of morphisms
+    fmap-∘  : ∀ {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {f : B → C} {g : A → B} (x : F A) →
+      fmap (f ∘ g) x ≡ (fmap f ∘ fmap g) x
+open FunctorLaws ⦃...⦄ public
+
 -- Id : Set↑
 -- Id x = x
 
@@ -34,8 +44,27 @@ instance
   Functor-Maybe : Functor Maybe
   Functor-Maybe ._<$>_ = M.map
 
+  FunctorLaws-Maybe : FunctorLaws Maybe
+  FunctorLaws-Maybe = λ where
+    .fmap-id → λ where (just _) → refl; nothing → refl
+    .fmap-∘  → λ where (just _) → refl; nothing → refl
+
   Functor-List : Functor List
   Functor-List ._<$>_ = L.map
+
+  FunctorLaws-List : FunctorLaws List
+  FunctorLaws-List = record {fmap-id = p; fmap-∘ = q}
+    where
+      p : ∀ {A : Set ℓ} (x : List A) → fmap id x ≡ x
+      p = λ where
+        [] → refl
+        (x ∷ xs) → cong (x ∷_) (p xs)
+
+      q : ∀ {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {f : B → C} {g : A → B} (x : List A) →
+        fmap (f ∘ g) x ≡ (fmap f ∘ fmap g) x
+      q {f = f}{g} = λ where
+        [] → refl
+        (x ∷ xs) → cong (f (g x) ∷_) (q xs)
 
   Functor-List⁺ : Functor List⁺
   Functor-List⁺ ._<$>_ = L.NE.map
