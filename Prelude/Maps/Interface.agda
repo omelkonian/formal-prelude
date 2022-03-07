@@ -9,6 +9,7 @@ open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.InferenceRules
 open import Prelude.Functor
+open import Prelude.Apartness hiding (_♯_)
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
@@ -23,7 +24,7 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
     _⁉_ : Map → K → Maybe V
     _∈ᵈ_ : K → Map → Set
 
-    _♯_ : Rel₀ Map -- T0D0: use Prelude.Apartness
+    _♯ᵐ_ : Rel₀ Map
 
   -- syntactic sugar
   syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩
@@ -32,6 +33,8 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
   infix  5 _⁉_
   infixr 4 _∪_
   infix  3 _≈_ _∈ᵈ_ _∉ᵈ_
+
+  private _♯_ = _♯ᵐ_
 
   _∉ᵈ_ : K → Map → Set
   k ∉ᵈ m = ¬ (k ∈ᵈ m)
@@ -56,6 +59,7 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
   ≈-setoid = record {Carrier = Map; _≈_ = _≈_; isEquivalence = ≈-equiv}
 
   module ≈-Reasoning = BinSetoid ≈-setoid
+
 
   -- derived relations
   ⟨_⊎_⟩≡_ : Map → Map → Map → Set
@@ -98,6 +102,10 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
     -- associativity
     ∪-assocʳ : ∀ {s₁ s₂ s₃} → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
     ∪≡-assocʳ : ∀ {s₁}{s₂}{s₃}{s} → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
+
+  instance
+    Apart-Map : Map // Map
+    Apart-Map = record {_♯_ = _♯_}
 
   private variable
     s s₁ s₂ s₃ s₁₂ s₂₃ m m′ m₁ m₂ m₃ m₁₂ m₂₃ : Map
