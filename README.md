@@ -1,4 +1,4 @@
-## Formal Prelude [![Build Status](https://travis-ci.com/omelkonian/formal-prelude.svg?branch=master)](https://travis-ci.com/omelkonian/formal-prelude)
+## Formal Prelude
 
 Browse the Agda code in HTML [here](http://omelkonian.github.io/formal-prelude).
 
