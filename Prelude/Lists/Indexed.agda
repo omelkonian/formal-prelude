@@ -8,14 +8,13 @@ open L.Mem using (_∈_; ∈-map⁺; mapWith∈)
 open Nat   using (_<_; ≤-pred)
 open F     using (toℕ; fromℕ<)
 open import Prelude.Bifunctor
+open import Prelude.InferenceRules
+open import Prelude.Split
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
-
   m n : ℕ
-  x : A
-  xs ys : List A
+  A : Set ℓ; B : Set ℓ′
+  x : A; xs ys : List A
 
 Index : List A → Set
 Index = Fin ∘ length
@@ -32,6 +31,9 @@ _⁉_ : List A → ℕ → Maybe A
 []       ⁉ _     = nothing
 (x ∷ xs) ⁉ zero  = just x
 (x ∷ xs) ⁉ suc n = xs ⁉ n
+
+index⁺ : x ∈ xs → Index⁺ xs
+index⁺ = fsuc ∘ L.Any.index
 
 remove : (vs : List A) → Index vs → List A
 remove []       ()
@@ -59,6 +61,24 @@ fin-indices = allFin ∘ length
 enumerate : (xs : List A) → List (Index xs × A)
 enumerate xs = zip (fin-indices xs) xs
 
+findElem : ∀ {P : Pred₀ A} → Decidable¹ P → List A → Maybe (A × List A)
+findElem P? xs with L.Any.any? P? xs
+... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
+... | no  _  = nothing
+
+-- ** indexℕ
+
+indexℕ : (x∈ : x ∈ xs) → ℕ
+indexℕ = toℕ ∘ L.Any.index
+
+indexℕ-injective : ∀ (p q : x ∈ xs) →
+  indexℕ p ≡ indexℕ q
+  ───────────────────
+  p ≡ q
+indexℕ-injective {xs = .(_ ∷ _)} (here refl) (here refl) i≡ = refl
+indexℕ-injective {xs = .(_ ∷ _)} (there p) (there q) i≡
+  = cong there $ indexℕ-injective p q $ Nat.suc-injective {indexℕ p} {indexℕ q} i≡
+
 zip-∈ : ∀ {xs : List A} {ys : List B} {x : A} {y : B}
   → (x , y) ∈ zip xs ys → (x ∈ xs) × (y ∈ ys)
 zip-∈ {xs = _ ∷ xs} {_ ∷ ys} (here refl) = here refl , here refl
@@ -73,6 +93,22 @@ splitAt : ∀ (xs : List A) → Index⁺ xs → List A × List A
 splitAt xs       fzero    = [] , xs
 splitAt (x ∷ xs) (fsuc i) = map₁ (x ∷_) (splitAt xs i)
 
+splitAtˡ splitAtʳ : ∀ (xs : List A) → Index⁺ xs → List A
+splitAtˡ = proj₁ ∘₂ splitAt
+splitAtʳ = proj₂ ∘₂ splitAt
+
+splitAt′ : ∀ (xs : List A) → ℕ → Maybe (List A × List A)
+splitAt′ xs n with n Nat.<? suc (length xs)
+... | yes n≤ = just $ splitAt xs (F.fromℕ< {m = n} {n = suc (length xs)} n≤)
+... | no  _  = nothing
+
+splitAt≡ : (i : Index⁺ xs)
+ → splitAt′ xs (toℕ i) ≡ just (splitAt xs i)
+splitAt≡ {xs = xs} i
+  with toℕ i Nat.<? suc (length xs)
+... | yes i≤ = cong just (cong (splitAt xs) (F.fromℕ<-toℕ i i≤))
+... | no  i≰ = ⊥-elim $ i≰ (F.toℕ<n i)
+
 splitAt⁺ʳ : ∀ (xs : List A) → Index xs
   → Σ[ xsˡ ∈ List⁺ A ] Σ[ xsʳ ∈ List A ]
       L.NE.length xsˡ + length xsʳ ≡ length xs
@@ -80,12 +116,21 @@ splitAt⁺ʳ (x ∷ xs) fzero    = x ∷ [] , xs , refl
 splitAt⁺ʳ (x ∷ xs) (fsuc i) = let xsˡ , xsʳ , p = splitAt⁺ʳ xs i
                               in  x ∷⁺ xsˡ , xsʳ , cong suc p
 
+instance
+  Split-∈ : ∀ {xs : List A} →
+    (x ∈ xs) -splitsInto- List A
+  Split-∈ {xs = xs} .split = splitAt xs ∘ index⁺
+
 private
   _ : splitAt⁺ʳ (0 ∷ 1 ∷ []) (# 0) ≡ (L.NE.[ 0 ] , [ 1 ] , refl)
   _ = refl
 
   _ : splitAt⁺ʳ (0 ∷ 1 ∷ []) (# 1) ≡ (0 ∷ 1 ∷ [] , [] , refl)
   _ = refl
+
+length-∈∙left : {xs : List A} (x∈ : x ∈ xs) → length (x∈ ∙left) ≡ suc (indexℕ x∈)
+length-∈∙left {xs = x ∷ xs} (here refl) = refl
+length-∈∙left {xs = x ∷ xs} (there x∈) rewrite length-∈∙left {xs = xs} x∈ = refl
 
 map-map₁-zip : ∀ {A B C : Set} {xs : List A} {ys : List B} (f : A → C)
   → map (map₁ f) (zip xs ys)
@@ -133,9 +178,6 @@ map-‼ : ∀ {xs : List A} {x : A} {f : A → B} (x∈ : x ∈ xs)
   → (map f xs ‼ ‼-map {xs = xs} {f = f} (L.Any.index x∈)) ≡ f x
 map-‼ (here refl) = refl
 map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x∈ = refl
-
-indexℕ : (x∈ : x ∈ xs) → ℕ
-indexℕ = toℕ ∘ L.Any.index
 
 ‼→⁉ : ∀ {xs : List A} {ix : Index xs}
     → just (xs ‼ ix) ≡ (xs ⁉ toℕ ix)

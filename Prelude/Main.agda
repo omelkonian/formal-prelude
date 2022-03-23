@@ -53,6 +53,7 @@ open import Prelude.Nary
 open import Prelude.Coercions
 open import Prelude.Validity
 open import Prelude.Accessors
+open import Prelude.Split
 
 -- ** Closures
 open import Prelude.Closures

@@ -5,10 +5,22 @@ module Prelude.Lists.Combinatorics where
 
 open import Prelude.Init
 open L.Mem
+open import Prelude.Bifunctor
 
 private variable
   A : Set ℓ;  x : A; xs : List A
   B : Set ℓ′; y : B; ys : List B
+
+-- ** Adjacent pairs.
+pairs : List A → List (A × A)
+pairs = λ where
+  (x ∷ y ∷ xs) → (x , y) ∷ pairs (y ∷ xs)
+  _            → []
+
+∈-pairs⁻ : ∀ {x y : A} → (x , y) ∈ pairs xs → (x ∈ xs) × (y ∈ xs)
+∈-pairs⁻ {xs = _ ∷ _ ∷ _} = λ where
+  (here refl) → here refl , there (here refl)
+  (there x∈)  → map₁ there $ map₂ there $ ∈-pairs⁻ x∈
 
 -- e.g. subsequences "abc" ≡ ["","c","b","bc","a","ab","ac","abc"]
 subsequences : List A → List (List A)

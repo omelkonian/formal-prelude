@@ -113,3 +113,12 @@ open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm
   (↭-prep _ _)   → refl
   (↭-swap _ _ _) → refl
   (↭-trans _ _)  → refl
+
+open Alg≡
+postulate
+  ↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
+    → Identity x₀ _⊕_
+    → Commutative _⊕_
+    → xs ↭ ys
+    → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
+-- ↭⇒≡ = {!!}
