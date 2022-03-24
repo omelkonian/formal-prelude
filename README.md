@@ -1,4 +1,4 @@
-## Formal Prelude
+## Formal Prelude [![CI](https://github.com/omelkonian/formal-prelude/workflows/CI/badge.svg)](https://github.com/omelkonian/formal-prelude/actions)
 
 Browse the Agda code in HTML [here](http://omelkonian.github.io/formal-prelude).
 
