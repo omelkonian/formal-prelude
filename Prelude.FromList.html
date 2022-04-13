@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.FromList</title><link rel="stylesheet" href="css/Agda.css"></head><body><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.FromList.html" class="Module">Prelude.FromList</a> <a id="25" class="Keyword">where</a>
+
+<a id="32" class="Keyword">open</a> <a id="37" class="Keyword">import</a> <a id="44" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="57" class="Keyword">open</a> <a id="62" class="Keyword">import</a> <a id="69" href="Prelude.Lists.html" class="Module">Prelude.Lists</a>
+
+<a id="84" class="Keyword">record</a> <a id="FromList"></a><a id="91" href="Prelude.FromList.html#91" class="Record">FromList</a> <a id="100" class="Symbol">(</a><a id="101" href="Prelude.FromList.html#101" class="Bound">A</a> <a id="103" class="Symbol">:</a> <a id="105" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="109" href="Prelude.Init.html#238" class="Generalizable">ℓ</a><a id="110" class="Symbol">)</a> <a id="112" class="Symbol">(</a><a id="113" href="Prelude.FromList.html#113" class="Bound">B</a> <a id="115" class="Symbol">:</a> <a id="117" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="121" href="Prelude.Init.html#240" class="Generalizable">ℓ′</a><a id="123" class="Symbol">)</a> <a id="125" class="Symbol">:</a> <a id="127" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="131" class="Symbol">(</a><a id="132" href="Prelude.FromList.html#109" class="Bound">ℓ</a> <a id="134" href="Agda.Primitive.html#810" class="Primitive Operator">⊔ₗ</a> <a id="137" href="Prelude.FromList.html#121" class="Bound">ℓ′</a><a id="139" class="Symbol">)</a> <a id="141" class="Keyword">where</a>
+  <a id="149" class="Keyword">field</a> <a id="FromList.fromList"></a><a id="155" href="Prelude.FromList.html#155" class="Field">fromList</a> <a id="164" class="Symbol">:</a> <a id="166" href="Agda.Builtin.List.html#148" class="Datatype">List</a> <a id="171" href="Prelude.FromList.html#101" class="Bound">A</a> <a id="173" class="Symbol">→</a> <a id="175" href="Prelude.FromList.html#113" class="Bound">B</a>
+  <a id="FromList._∙fromList"></a><a id="179" href="Prelude.FromList.html#179" class="Function Operator">_∙fromList</a> <a id="190" class="Symbol">=</a> <a id="192" href="Prelude.FromList.html#155" class="Field">fromList</a>
+<a id="201" class="Keyword">open</a> <a id="206" href="Prelude.FromList.html#91" class="Module">FromList</a> <a id="215" class="Symbol">⦃</a> <a id="217" class="Symbol">...</a> <a id="221" class="Symbol">⦄</a> <a id="223" class="Keyword">public</a>
+
+<a id="231" class="Keyword">private</a>
+  <a id="241" class="Keyword">variable</a>
+    <a id="254" href="Prelude.FromList.html#254" class="Generalizable">A</a> <a id="256" class="Symbol">:</a> <a id="258" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="262" href="Prelude.Init.html#238" class="Generalizable">ℓ</a>
+    <a id="268" href="Prelude.FromList.html#268" class="Generalizable">B</a> <a id="270" class="Symbol">:</a> <a id="272" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="276" href="Prelude.Init.html#240" class="Generalizable">ℓ′</a>
+
+<a id="280" class="Keyword">instance</a>
+  <a id="FromList-List"></a><a id="291" href="Prelude.FromList.html#291" class="Function">FromList-List</a> <a id="305" class="Symbol">:</a> <a id="307" href="Prelude.FromList.html#91" class="Record">FromList</a> <a id="316" href="Prelude.FromList.html#254" class="Generalizable">A</a> <a id="318" class="Symbol">(</a><a id="319" href="Agda.Builtin.List.html#148" class="Datatype">List</a> <a id="324" href="Prelude.FromList.html#254" class="Generalizable">A</a><a id="325" class="Symbol">)</a>
+  <a id="329" href="Prelude.FromList.html#291" class="Function">FromList-List</a> <a id="343" class="Symbol">.</a><a id="344" href="Prelude.FromList.html#155" class="Field">fromList</a> <a id="353" class="Symbol">=</a> <a id="355" href="Function.Base.html#615" class="Function">id</a>
+
+  <a id="361" class="Comment">-- FromList-List⁺ : FromList A (List⁺ A)</a>
+  <a id="404" class="Comment">-- FromList-List⁺ .fromList = L.NE.fromList</a>
+
+  <a id="FromList-Str"></a><a id="451" href="Prelude.FromList.html#451" class="Function">FromList-Str</a> <a id="464" class="Symbol">:</a> <a id="466" href="Prelude.FromList.html#91" class="Record">FromList</a> <a id="475" href="Agda.Builtin.Char.html#227" class="Postulate">Char</a> <a id="480" href="Agda.Builtin.String.html#336" class="Postulate">String</a>
+  <a id="489" href="Prelude.FromList.html#451" class="Function">FromList-Str</a> <a id="502" class="Symbol">.</a><a id="503" href="Prelude.FromList.html#155" class="Field">fromList</a> <a id="512" class="Symbol">=</a> <a id="514" href="Data.String.Base.html#1526" class="Primitive">Str.fromList</a>
+
+  <a id="FromList-Vec"></a><a id="530" href="Prelude.FromList.html#530" class="Function">FromList-Vec</a> <a id="543" class="Symbol">:</a> <a id="545" href="Prelude.FromList.html#91" class="Record">FromList</a> <a id="554" href="Prelude.FromList.html#254" class="Generalizable">A</a> <a id="556" class="Symbol">(</a><a id="557" href="Data.Product.html#1369" class="Function">∃</a> <a id="559" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="561" href="Data.Vec.Base.html#998" class="Datatype">Vec</a> <a id="565" href="Prelude.FromList.html#254" class="Generalizable">A</a><a id="566" class="Symbol">)</a>
+  <a id="570" href="Prelude.FromList.html#530" class="Function">FromList-Vec</a> <a id="583" class="Symbol">.</a><a id="584" href="Prelude.FromList.html#155" class="Field">fromList</a> <a id="593" href="Prelude.FromList.html#593" class="Bound">xs</a> <a id="596" class="Symbol">=</a> <a id="598" href="Data.List.Base.html#4864" class="Function">length</a> <a id="605" href="Prelude.FromList.html#593" class="Bound">xs</a> <a id="608" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="610" href="Data.Vec.Base.html#7540" class="Function">V.fromList</a> <a id="621" href="Prelude.FromList.html#593" class="Bound">xs</a>
+
+  <a id="627" class="Comment">-- FromList-↦ : ∀ {xs : List A} → FromList (A × B) (xs ↦ B)</a>
+  <a id="689" class="Comment">-- FromList-↦ {xs = xs} .fromList f = {!!} --  zip xs (codom f)</a>
+</pre></body></html>
