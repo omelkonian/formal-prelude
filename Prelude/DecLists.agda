@@ -1,4 +1,8 @@
 open import Prelude.Init
+open L.Any using (index)
+open L.Mem using (∈-map⁺; ∈-map⁻)
+open L.All using (lookup; ¬All⇒Any¬; ¬Any⇒All¬)
+open L.Perm using (drop-∷; drop-mid; ∈-resp-↭)
 open import Prelude.Lists
 open import Prelude.DecEq
 open import Prelude.Membership
@@ -28,8 +32,8 @@ instance
 
   Dec-Disjoint : Disjoint {A = A} ⁇²
   Dec-Disjoint {x = xs} {y = ys} .dec with all? (_∉? ys) xs
-  ... | yes p = yes (λ {v} (v∈ , v∈′) → L.All.lookup p v∈ v∈′ )
-  ... | no ¬p = let (x , x∈ , Px) = find $ L.All.¬All⇒Any¬ (_∉? ys) _ ¬p
+  ... | yes p = yes (λ {v} (v∈ , v∈′) → lookup p v∈ v∈′ )
+  ... | no ¬p = let (x , x∈ , Px) = find $ ¬All⇒Any¬ (_∉? ys) _ ¬p
                 in no λ p → p {x} (x∈ , ¬∉⇒∈ Px)
 
 infix 4 _⊆?_
@@ -37,6 +41,8 @@ _⊆?_ = ¿ _⊆_ {A = A} ¿²
 
 disjoint? = ¿ Disjoint {A = A} ¿²
 unique?   = ¿ Unique {A = A} ¿¹
+
+-- ** nub
 
 nub : List A → List A
 nub [] = []
@@ -62,23 +68,17 @@ nub-⊆⁻ {xs = x ∷ xs}
   (here refl) → here refl
   (there y∈)  → there $ nub-⊆⁻ {xs = xs} y∈
 
-nubBy : ∀ {B : Set} → (B → A) → List B → List B
-nubBy f [] = []
-nubBy f (x ∷ xs) with f x ∈? map f xs
-... | yes _ = nubBy f xs
-... | no  _ = x ∷ nubBy f xs
+All-nub : ∀ {p}{P : Pred A p} → All P xs → All P (nub xs)
+All-nub {xs = []}     []       = []
+All-nub {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
+... | yes _ = All-nub ps
+... | no  _ = p ∷ All-nub ps
 
-nub-all : ∀ {p}{P : Pred A p} → All P xs → All P (nub xs)
-nub-all {xs = []}     []       = []
-nub-all {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
-... | yes _ = nub-all ps
-... | no  _ = p ∷ nub-all ps
-
-nub-unique : Unique (nub xs)
-nub-unique {[]} = []
-nub-unique {x ∷ xs} with x ∈? xs
-... | yes _ = nub-unique {xs}
-... | no x∉ = nub-all {xs = xs} {P = _≢_ x} (L.All.¬Any⇒All¬ xs x∉) ∷ nub-unique {xs}
+Unique-nub : Unique (nub xs)
+Unique-nub {[]} = []
+Unique-nub {x ∷ xs} with x ∈? xs
+... | yes _ = Unique-nub {xs}
+... | no x∉ = All-nub {xs = xs} {P = _≢_ x} (¬Any⇒All¬ xs x∉) ∷ Unique-nub {xs}
 
 nub-from∘to : Unique xs → nub xs ≡ xs
 nub-from∘to {[]}     _ = refl
@@ -108,9 +108,71 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 ... | yes x∈ˢ = ∈-nub⁺ x∈
 ... | no  _   = there $ ∈-nub⁺ x∈
 
-open L.Any using (index)
--- open import Data.List.Relation.Binary.Permutation.Propositional.Properties
---   using (∈-resp-↭; drop-∷; drop-mid)
+∈-map∘nub⁻ : ∀ {B : Set ℓ} (f : A → B) x xs →
+  f x L.Mem.∈ map f (nub xs) → f x L.Mem.∈ map f xs
+∈-map∘nub⁻ f _ []       fx∈ = fx∈
+∈-map∘nub⁻ f x (y ∷ xs) fx∈ with y ∈? xs
+... | yes y∈ = there $ ∈-map∘nub⁻ f x xs fx∈
+... | no  y∉ with fx∈
+... | here  eq   = here eq
+... | there fx∈′ = there $ ∈-map∘nub⁻ f x xs fx∈′
+
+
+-- ** nubBy
+
+module _ {B : Set ℓ} where
+
+  -- NB: right-biased, e.g. nubBy ∣_∣ [-1,0,1] = [0,1]
+  nubBy : (B → A) → List B → List B
+  nubBy f [] = []
+  nubBy f (x ∷ xs) with f x ∈? map f xs
+  ... | yes _ = nubBy f xs
+  ... | no  _ = x ∷ nubBy f xs
+
+  All-nubBy : ∀ {p}{P : Pred B p} (f : B → A) xs → All P xs → All P (nubBy f xs)
+  All-nubBy f []       []       = []
+  All-nubBy f (x ∷ xs) (p ∷ ps) with f x ∈? map f xs
+  ... | yes _ = All-nubBy f xs ps
+  ... | no  _ = p ∷ All-nubBy f xs ps
+
+  module _ (f : B → A) where
+    ∈-nubBy⁻ : ∀ (x : B) xs → x ∈ nubBy f xs → x ∈ xs
+    ∈-nubBy⁻ x (y ∷ xs) x∈ with f y ∈? map f xs
+    ... | yes _ = there (∈-nubBy⁻ x xs x∈)
+    ... | no  _ with x∈
+    ... | here refl = here refl
+    ... | there x∈′ = there (∈-nubBy⁻ x xs x∈′)
+
+    ∈-map∘nubBy⁻ : ∀ (x : B) xs → f x ∈ map f (nubBy f xs) → f x ∈ map f xs
+    ∈-map∘nubBy⁻ _ []       fx∈ = fx∈
+    ∈-map∘nubBy⁻ x (y ∷ xs) fx∈ with f y ∈? map f xs
+    ... | yes y∈ = there $ ∈-map∘nubBy⁻ x xs fx∈
+    ... | no  y∉ with fx∈
+    ... | here  eq   = here eq
+    ... | there fx∈′ = there $ ∈-map∘nubBy⁻ x xs fx∈′
+
+    -- ∈-nubBy⁺ : ∀ (xs : List B) → x ∈ xs → x ∈ nubBy f xs
+    -- ∈-nubBy⁺ (y ∷ xs) x∈ with f y ∈? map f xs
+    -- ∈-nubBy⁺ (y ∷ xs) x∈ | yes fy∈ with x∈
+    -- ... | here refl with x′ , fx∈ , eq ← ∈-map⁻ f fy∈ = ∈-nubBy⁺ xs {!!}
+    -- ... | there x∈′ = ∈-nubBy⁺ xs x∈′
+    -- ∈-nubBy⁺ (y ∷ xs) x∈ | no  _ with x∈
+    -- ... | here refl = here refl
+    -- ... | there x∈′ = there (∈-nubBy⁺ xs x∈′)
+
+    Unique-nubBy : ∀ xs → Unique (nubBy f xs)
+    Unique-nubBy [] = []
+    Unique-nubBy (x ∷ xs) with f x ∈? map f xs
+    ... | yes _  = Unique-nubBy xs
+    ... | no fx∉ = All-nubBy f xs (¬Any⇒All¬ xs (fx∉ ∘ ∈-map⁺ f))
+                 ∷ Unique-nubBy xs
+
+    Unique-map∘nubBy : ∀ xs → Unique $ map f (nubBy f xs)
+    Unique-map∘nubBy [] = []
+    Unique-map∘nubBy (x ∷ xs) with f x ∈? map f xs
+    ... | yes _  = Unique-map∘nubBy xs
+    ... | no fx∉ = ¬Any⇒All¬ (map f (nubBy f xs)) (fx∉ ∘ ∈-map∘nubBy⁻ x xs )
+                 ∷ Unique-map∘nubBy xs
 
 -- ** deletion
 
@@ -176,9 +238,9 @@ private
   ↭-helper← : ∀ {x∈ : x ∈ ys}
     → x ∷ xs ↭ ys
     → xs ↭ remove ys (index x∈)
-  ↭-helper← {x} {x ∷ _}        {x∈ = here refl}          = L.Perm.drop-∷
-  ↭-helper← {x} {y ∷ x ∷ _}    {x∈ = there (here refl)}  = L.Perm.drop-mid [] [ y ]
-  ↭-helper← {x} {x₁ ∷ x₂ ∷ ys} {x∈ = there (there x∈ys)} = L.Perm.drop-∷ ∘ flip ↭-trans h
+  ↭-helper← {x} {x ∷ _}        {x∈ = here refl}          = drop-∷
+  ↭-helper← {x} {y ∷ x ∷ _}    {x∈ = there (here refl)}  = drop-mid [] [ y ]
+  ↭-helper← {x} {x₁ ∷ x₂ ∷ ys} {x∈ = there (there x∈ys)} = drop-∷ ∘ flip ↭-trans h
     where
       ys′ = remove ys (index x∈ys)
 
@@ -194,7 +256,7 @@ instance
   ... | []      | []    = yes ↭-refl
   ... | []      | _ ∷ _ = no ¬[]↭
   ... | x ∷ xs′ | ys′   with x ∈? ys′
-  ... | no  x∉          = no λ x∷xs↭ → x∉ (L.Perm.∈-resp-↭ x∷xs↭ (here refl))
+  ... | no  x∉          = no λ x∷xs↭ → x∉ (∈-resp-↭ x∷xs↭ (here refl))
   ... | yes x∈          with ¿ xs′ ↭ remove ys′ (index x∈) ¿
   ... | no ¬xs↭         = no (¬xs↭ ∘ ↭-helper←)
   ... | yes xs↭         = yes (↭-helper→ xs↭)
