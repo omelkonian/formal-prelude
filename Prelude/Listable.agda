@@ -36,6 +36,9 @@ instance
   Listable-Bool .witness = ⟦ true , false ⟧
   Listable-Bool .finite  = λ{ true → auto; false → auto }
 
-  Listable-× : {{_ : Listable A}} {{_ : Listable B}} → Listable (A × B)
+  Listable-× : ⦃ Listable A ⦄ → ⦃ Listable B ⦄ → Listable (A × B)
   Listable-× = record { witness = cartesianProduct witness witness
                       ; finite  = λ{ (x , y) → cartesianProduct-∈ (finite x) (finite y) } }
+
+decide∀ : ⦃ _ : Listable A ⦄ {P : Pred₀ A} → All P witness → (∀ x → P x)
+decide∀ allP x = L.All.lookup allP (finite x)

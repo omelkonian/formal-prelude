@@ -4,8 +4,8 @@ open import Prelude.Init
 open import Prelude.Lists
 
 record ToList (A : Set ℓ) (B : Set ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
-  field
-    toList : A → List B
+  field toList : A → List B
+  _∙toList = toList
 open ToList ⦃ ... ⦄ public
 
 private
