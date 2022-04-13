@@ -63,9 +63,11 @@ open import Prelude.Traces
 open import Prelude.Lists
 
 open import Prelude.Sets
+open import Prelude.Sets.Concrete
 open import Prelude.Sets.Example
 
 open import Prelude.Maps
+open import Prelude.Maps.Concrete
 open import Prelude.Maps.Example
 
 -- ** Utilities for cryptography

@@ -172,7 +172,7 @@ abstract
   toList = list
 
   fromList : List A → Set'
-  fromList xs = ⟨ nub xs ⟩∶- (nub-unique {xs = xs})
+  fromList xs = ⟨ nub xs ⟩∶- Unique-nub {xs = xs}
 
   from↔to : ∀ xs → Unique xs → toList (fromList xs) ≡ xs
   from↔to _ Uxs rewrite nub-from∘to Uxs = refl
