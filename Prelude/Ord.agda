@@ -80,7 +80,9 @@ record Ord (A : Set ℓ) : Set (lsuc ℓ) where
     module OrdSet where
       open import Data.Tree.AVL.Sets STO public
 
-open Ord ⦃ ... ⦄ public
+open Ord ⦃...⦄ public
+
+private variable X : Set ℓ
 
 instance
   Ord-ℕ : Ord ℕ
@@ -130,6 +132,37 @@ instance
 
   StrictTotalOrderℤ-< : StrictTotalOrder _<_
   StrictTotalOrderℤ-< = record {Integer}
+
+  Ord-Maybe : ⦃ Ord X ⦄ → Ord (Maybe X)
+  Ord-Maybe {X = X} = record {_≤_ = _≤ᵐ_; _<_ = _<ᵐ_}
+    where
+      _≤ᵐ_ _<ᵐ_ : Rel (Maybe X) _
+      nothing ≤ᵐ _       = ⊤
+      just _  ≤ᵐ nothing = ⊥
+      just v  ≤ᵐ just v′ = v ≤ v′
+
+      -- m <ᵐ m′ = (m ≤ᵐ m′) × (m ≢ m′)
+      nothing <ᵐ nothing = ⊥
+      nothing <ᵐ just _  = ⊤
+      just _  <ᵐ nothing = ⊥
+      just v  <ᵐ just v′ = v < v′
+
+DecOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → _≤_ {A = Maybe X} ⁇²
+DecOrd-Maybe              {x = nothing} {_}       .dec = yes tt
+DecOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
+DecOrd-Maybe ⦃ _ ⦄ ⦃ ≤? ⦄ {x = just _}  {just _}  .dec = dec ⦃ ≤? ⦄
+
+_≤?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → Decidable² (_≤_ {A = Maybe X})
+x ≤?ᵐ y = DecOrd-Maybe {x = x} {y} .dec
+
+DecStrictOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → _<_ {A = Maybe X} ⁇²
+DecStrictOrd-Maybe              {x = nothing} {nothing} .dec = no λ ()
+DecStrictOrd-Maybe              {x = nothing} {just _}  .dec = yes tt
+DecStrictOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
+DecStrictOrd-Maybe ⦃ _ ⦄ ⦃ <? ⦄ {x = just _}  {just _}  .dec = dec ⦃ <? ⦄
+
+_<?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → Decidable² (_<_ {A = Maybe X})
+x <?ᵐ y = DecStrictOrd-Maybe {x = x} {y} .dec
 
 postulate
   ∀≤max⁺ : ∀ (ts : List⁺ ℕ) → All⁺ (_≤ maximum⁺ ts) ts
