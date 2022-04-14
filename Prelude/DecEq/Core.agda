@@ -5,8 +5,7 @@ open import Prelude.Init
 private variable A B : Set ℓ
 
 record DecEq (A : Set ℓ) : Set ℓ where
-  field
-    _≟_ : Decidable² {A = A} _≡_
+  field _≟_ : Decidable² {A = A} _≡_
 
   _==_ : A → A → Bool
   x == y = ⌊ x ≟ y ⌋
@@ -15,6 +14,9 @@ record DecEq (A : Set ℓ) : Set ℓ where
   x ≠ y = not (x == y)
 
   infix 4 _≟_ _==_ _≠_
+
+  ≟-refl : ∀ x → (x ≟ x) ≡ yes refl
+  ≟-refl x with refl , p ← dec-yes (x ≟ x) refl = p
 
 open DecEq ⦃ ... ⦄ public
 

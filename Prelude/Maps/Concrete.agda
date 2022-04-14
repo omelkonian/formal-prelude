@@ -180,6 +180,6 @@ private
 
   -- ex : (k↦v ∪ k↦v′) ≡ singleton (k , v)
   -- ex = {!refl!}
-  -- rewrite ≟-refl _≟_ k | toWitnessFalse {Q = k ≟ k′} k≢k′
+  -- rewrite ≟-refl k | toWitnessFalse {Q = k ≟ k′} k≢k′
 
   m₁ = Map ∋ singleton (k , v) ∪ singleton (k , v)

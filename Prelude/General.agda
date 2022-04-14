@@ -328,14 +328,6 @@ module _ {A : Set ℓ} where
   MAll⇒¬MAny : ∀ {m : Maybe A} → M.All.All (const ⊥) m → ¬ M.Any.Any (const ⊤) m
   MAll⇒¬MAny {m = nothing} M.All.nothing ()
 
--- ** Decidable
-
-≟-refl : ∀ {A : Set} (_≟_ : Decidable² {A = A} _≡_) (x : A)
-  → x ≟ x ≡ yes refl
-≟-refl _≟_ x with x ≟ x
-... | no ¬p    = ⊥-elim (¬p refl)
-... | yes refl = refl
-
 -- ** Lists
 
 sequence : List (Maybe A) → Maybe (List A)

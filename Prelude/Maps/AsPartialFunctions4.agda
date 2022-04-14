@@ -214,7 +214,7 @@ module _ ⦃ _ : DecEq K ⦄ where
     singleton-law {k}{v} = p₁ , p₂
       where
         p₁ : singleton (k , v) [ k ↦ v ]
-        p₁ rewrite ≟-refl _≟_ k = refl
+        p₁ rewrite ≟-refl k = refl
 
         p₂ : ∀ k′ → k′ ≢ k → k′ ∉ᵈ singleton (k , v)
         p₂ k′ k′≢ with k′ ≟ k
