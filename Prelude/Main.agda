@@ -23,6 +23,7 @@ open import Prelude.Decidable
 -- ** Typeclasses
 open import Prelude.Functor
 open import Prelude.Bifunctor
+open import Prelude.Pointed
 open import Prelude.PointedFunctor
 open import Prelude.Semigroup
 open import Prelude.Monoid
@@ -63,12 +64,13 @@ open import Prelude.Traces
 open import Prelude.Lists
 
 open import Prelude.Sets
-open import Prelude.Sets.Concrete
 open import Prelude.Sets.Example
+open import Prelude.Sets.Concrete
 
 open import Prelude.Maps
-open import Prelude.Maps.Concrete
 open import Prelude.Maps.Example
+open import Prelude.Maps.Concrete
+open import Prelude.Maps.Concrete.Example
 
 -- ** Utilities for cryptography
 open import Prelude.Bitstring

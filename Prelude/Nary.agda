@@ -2,11 +2,11 @@ module Prelude.Nary where
 
 open import Prelude.Init
 open import Prelude.General
+-- NB: re-export Semigroup/Pointed for convenience
 open import Prelude.Semigroup public
-open import Prelude.PointedFunctor public
--- NB: re-export Semigroup/PointedFunctor for convenience
+open import Prelude.Pointed   public
 
-⟦_⟧ : ∀ {n} {A : Set ℓ} {F : Set↑} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : PointedFunctor F ⦄ → A ^ n → F A
+⟦_⟧ : ∀ {n} {A : Set ℓ} {F : Set↑} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : Pointed F ⦄ → A ^ n → F A
 ⟦_⟧ {n = zero}  x        = point x
 ⟦_⟧ {n = suc n} (x , xs) = point x ◇ ⟦ xs ⟧
 
