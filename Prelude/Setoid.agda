@@ -2,12 +2,13 @@ module Prelude.Setoid where
 
 open import Prelude.Init
 open import Prelude.Decidable
+open import Prelude.Equivalence
 
-record ISetoid (A : Set ℓ) : Set (lsuc ℓ) where
+record ISetoid (A : Set ℓ) ℓ′ : Set (lsuc ℓ′ ⊔ₗ ℓ) where
   infix 4 _≈_ _≉_
-  field _≈_ : Rel₀ A
+  field _≈_ : Rel A ℓ′
 
-  _≉_ : Rel₀ A
+  _≉_ : Rel A ℓ′
   x ≉ y = ¬ (x ≈ y)
 
   module _ ⦃ _ : _≈_ ⁇² ⦄ where
@@ -18,8 +19,12 @@ record ISetoid (A : Set ℓ) : Set (lsuc ℓ) where
     _≉?_ = dec²
 open ISetoid ⦃ ... ⦄ public
 
-IDecSetoid : (A : Set ℓ) → ⦃ ISetoid A ⦄ → Set ℓ
+IDecSetoid : (A : Set ℓ) → ⦃ ISetoid A ℓ′ ⦄ → Set _
 IDecSetoid A = _≈_ {A = A} ⁇²
+
+record Setoid-Laws (A : Set ℓ) ⦃ _ : ISetoid A ℓ′ ⦄ : Set (lsuc ℓ′ ⊔ₗ ℓ) where
+  field isEquivalence : Equivalence _≈_
+open Setoid-Laws ⦃...⦄ public
 
 {-
 record IDecSetoid (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Set (lsuc ℓ) where
