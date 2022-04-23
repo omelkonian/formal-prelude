@@ -165,12 +165,13 @@ module LabelledReflexiveTransitiveClosure
 -- [BUG] this needs to be placed above the simpler `ReflexiveTransitiveClosure`:
 -- Agda complains that we're re-definining `_—→⟨_⟩_`, although they should leave in different namespaces.
 module UpToLabelledReflexiveTransitiveClosure
-  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
+  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ℓ′ ⦄ where
 
   open LabelledReflexiveTransitiveClosure _—[_]→_ public
     using (_—→_; _←[_]—_; _←—_)
 
   private
+    ℓ⊔ℓ′ = ℓ ⊔ₗ ℓ′
     variable
       x y z x′ y′ z′ : A
       α α′ : L
@@ -181,7 +182,7 @@ module UpToLabelledReflexiveTransitiveClosure
   infixr 2 _—→⟨_⟩_⊢_
   infix  1 begin_; pattern begin_ x = x
   infix -1 _—↠_ _—[_]↠_ _—↠⁺_ _—[_]↠⁺_
-  data _—[_]↠_ : LRel (A , List L) ℓ where
+  data _—[_]↠_ : LRel (A , List L) ℓ⊔ℓ′ where
     _∎ : ∀ x → x —[ [] ]↠ x
     _—→⟨_⟩_⊢_ : ∀ x {x′ y y′ z}
       → x′ —[ α ]→ y′
@@ -189,7 +190,7 @@ module UpToLabelledReflexiveTransitiveClosure
       → y —[ αs ]↠ z
         --———————————————
       → x —[ α ∷ αs ]↠ z
-  data _—[_]↠⁺_ : LRel (A , List L) ℓ where
+  data _—[_]↠⁺_ : LRel (A , List L) ℓ⊔ℓ′ where
     _—→⟨_⟩_⊢_ : ∀ x {x′ y y′ z}
       → x′ —[ α ]→ y′
       → x ≈ x′ × y ≈ y′
@@ -203,7 +204,7 @@ module UpToLabelledReflexiveTransitiveClosure
   -- infix  3 _∎
   infixr 2 _⟨_⟩←—_⊢_
   infix -1 _↞[_]—_ _↞—_ _⁺↞[_]—_ _⁺↞—_
-  data _↞[_]—_ : LRel (A , List L) ℓ where
+  data _↞[_]—_ : LRel (A , List L) ℓ⊔ℓ′ where
     _∎ : ∀ x → x ↞[ [] ]— x
     _⟨_⟩←—_⊢_ : ∀ z {z′ y y′ x}
       → (z′ ←[ α ]— y′)
@@ -211,7 +212,7 @@ module UpToLabelledReflexiveTransitiveClosure
       → (y ↞[ αs ]— x)
         --————————————————————
       → z ↞[ αs L.∷ʳ α ]— x
-  data _⁺↞[_]—_ : LRel (A , List L) ℓ where
+  data _⁺↞[_]—_ : LRel (A , List L) ℓ⊔ℓ′ where
     _⟨_⟩←—_⊢_ : ∀ z {z′ y y′ x}
       → (z′ ←[ α ]— y′)
       → z ≈ z′ × y ≈ y′
@@ -222,7 +223,7 @@ module UpToLabelledReflexiveTransitiveClosure
   _⁺↞—_ = unlabel _⁺↞[_]—_
 
   -- automatic-proof version
-  module _ ⦃ _ : IDecSetoid A ⦄ where
+  module _ ⦃ _ : IDecSetoid A ℓ′ ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 
@@ -338,19 +339,21 @@ module ReflexiveTransitiveClosure {A : Set ℓ} (_—→_ : Rel A ℓ) where
   view↔ = viewLeft , viewRight
 
 module UpToReflexiveTransitiveClosure
-  {A : Set ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ⦄ where
+  {A : Set ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ℓ′ ⦄ where
 
   open ReflexiveTransitiveClosure _—→_ public
     using (_←—_)
 
-  private variable x y z x′ y′ z′ : A
+  private
+    ℓ⊔ℓ′ = ℓ ⊔ₗ ℓ′
+    variable x y z x′ y′ z′ : A
 
   -- left-biased
   infix  3 _∎
   infixr 2 _—→⟨_⟩_⊢_
   infix  1 begin_; pattern begin_ x = x
   infix -1 _—↠_ _—↠⁺_
-  data _—↠_ : Rel A ℓ where
+  data _—↠_ : Rel A ℓ⊔ℓ′ where
     _∎ : ∀ x → x —↠ x
     _—→⟨_⟩_⊢_ : ∀ x {x′ y y′ z}
       → x′ —→ y′
@@ -358,7 +361,7 @@ module UpToReflexiveTransitiveClosure
       → y —↠ z
         --———————————————
       → x —↠ z
-  data _—↠⁺_ : Rel A ℓ where
+  data _—↠⁺_ : Rel A ℓ⊔ℓ′ where
     _—→⟨_⟩_⊢_ : ∀ x {x′ y y′ z}
       → x′ —→ y′
       → x ≈ x′ × y ≈ y′
@@ -391,7 +394,7 @@ module UpToReflexiveTransitiveClosure
   -- infix  3 _∎
   infixr 2 _⟨_⟩←—_⊢_
   infix -1 _↞—_ _⁺↞—_
-  data _↞—_ : Rel A ℓ where
+  data _↞—_ : Rel A ℓ⊔ℓ′ where
     _∎ : ∀ x → x ↞— x
     _⟨_⟩←—_⊢_ : ∀ z {z′ y y′ x}
       → (z′ ←— y′)
@@ -399,7 +402,7 @@ module UpToReflexiveTransitiveClosure
       → (y ↞— x)
         --————————————————————
       → z ↞— x
-  data _⁺↞—_ : Rel A ℓ where
+  data _⁺↞—_ : Rel A ℓ⊔ℓ′ where
     _⟨_⟩←—_⊢_ : ∀ z {z′ y y′ x}
       → (z′ ←— y′)
       → z ≈ z′ × y ≈ y′
@@ -429,7 +432,7 @@ module UpToReflexiveTransitiveClosure
   _⁺↞—⟨_⟩_ = TransitiveOp _⁺↞—_ ∋ mkTransitiveOp ⁺↞—-trans
 
   -- automatic-proof version
-  module _ ⦃ ds : IDecSetoid A ⦄ where
+  module _ ⦃ ds : IDecSetoid A ℓ′ ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 
