@@ -12,6 +12,12 @@ open Monoid ⦃ ... ⦄ public hiding (sm)
 record MonoidLaws (A : Set ℓ) ⦃ _ : Monoid A ⦄ (_~_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
   open Alg _~_
   field ε-identity : Identity ε _◇_
+
+  ε-identityˡ : LeftIdentity ε _◇_
+  ε-identityˡ = ε-identity .proj₁
+
+  ε-identityʳ : RightIdentity ε _◇_
+  ε-identityʳ = ε-identity .proj₂
 open MonoidLaws ⦃...⦄ public
 
 MonoidLaws≡ : (A : Set ℓ) ⦃ _ : Monoid A ⦄ → Set ℓ
