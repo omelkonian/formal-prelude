@@ -1,5 +1,8 @@
 module Prelude.Init where
 
+module SetAsType where
+  open import Agda.Primitive using () renaming (Set to Type) public
+
 -- ** Universes
 module Lvl where
   open import Level public
