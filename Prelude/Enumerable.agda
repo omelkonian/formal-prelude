@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Enumerable types with a (finite) list witness.
 ------------------------------------------------------------------------
+
 module Prelude.Enumerable where
 
 open import Prelude.Init
