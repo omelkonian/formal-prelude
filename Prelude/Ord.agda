@@ -147,22 +147,25 @@ instance
       just _  <ᵐ nothing = ⊥
       just v  <ᵐ just v′ = v < v′
 
-DecOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → _≤_ {A = Maybe X} ⁇²
-DecOrd-Maybe              {x = nothing} {_}       .dec = yes tt
-DecOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
-DecOrd-Maybe ⦃ _ ⦄ ⦃ ≤? ⦄ {x = just _}  {just _}  .dec = dec ⦃ ≤? ⦄
+-- T0D0: cannot declare these as instances without breaking instance resolution.
+module Maybe-DecOrd where
+--   instance
+  DecOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → _≤_ {A = Maybe X} ⁇²
+  DecOrd-Maybe              {x = nothing} {_}       .dec = yes tt
+  DecOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
+  DecOrd-Maybe ⦃ _ ⦄ ⦃ ≤? ⦄ {x = just _}  {just _}  .dec = dec ⦃ ≤? ⦄
 
-_≤?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → Decidable² (_≤_ {A = Maybe X})
-x ≤?ᵐ y = DecOrd-Maybe {x = x} {y} .dec
+  _≤?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → Decidable² (_≤_ {A = Maybe X})
+  x ≤?ᵐ y = DecOrd-Maybe {x = x} {y} .dec
 
-DecStrictOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → _<_ {A = Maybe X} ⁇²
-DecStrictOrd-Maybe              {x = nothing} {nothing} .dec = no λ ()
-DecStrictOrd-Maybe              {x = nothing} {just _}  .dec = yes tt
-DecStrictOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
-DecStrictOrd-Maybe ⦃ _ ⦄ ⦃ <? ⦄ {x = just _}  {just _}  .dec = dec ⦃ <? ⦄
+  DecStrictOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → _<_ {A = Maybe X} ⁇²
+  DecStrictOrd-Maybe              {x = nothing} {nothing} .dec = no λ ()
+  DecStrictOrd-Maybe              {x = nothing} {just _}  .dec = yes tt
+  DecStrictOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
+  DecStrictOrd-Maybe ⦃ _ ⦄ ⦃ <? ⦄ {x = just _}  {just _}  .dec = dec ⦃ <? ⦄
 
-_<?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → Decidable² (_<_ {A = Maybe X})
-x <?ᵐ y = DecStrictOrd-Maybe {x = x} {y} .dec
+  _<?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → Decidable² (_<_ {A = Maybe X})
+  x <?ᵐ y = DecStrictOrd-Maybe {x = x} {y} .dec
 
 postulate
   ∀≤max⁺ : ∀ (ts : List⁺ ℕ) → All⁺ (_≤ maximum⁺ ts) ts
