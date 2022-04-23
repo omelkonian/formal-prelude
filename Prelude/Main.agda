@@ -45,7 +45,7 @@ open import Prelude.Orders
 open import Prelude.Ord
 
 open import Prelude.Setoid
-open import Prelude.Equivalence
+-- open import Prelude.Equivalence
 
 open import Prelude.Collections
 open import Prelude.Membership
