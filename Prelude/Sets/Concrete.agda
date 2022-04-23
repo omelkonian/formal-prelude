@@ -18,6 +18,7 @@ open import Prelude.Ord
 open import Prelude.ToList
 open import Prelude.FromList
 open import Prelude.Semigroup
+open import Prelude.InferenceRules
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
@@ -34,11 +35,11 @@ record Set' : Set where
 open Set'
 syntax Set' {A = A} = Set⟨ A ⟩
 
-private
-  variable
-    x : A
-    xs ys zs : List A
-    Xs Ys Zs : Set'
+private variable
+  x x′ y y′ z z′ : A
+  xs ys zs : List A
+  Xs Ys Zs s s′ s″ : Set'
+  P : Pred A 0ℓ
 
 -----------------------------------------------------------------------
 -- Lifting from list predicates/relations to set predicates/relations.
@@ -46,7 +47,7 @@ private
 private
   record Lift (F : Set → Set₁) : Set₁ where
     field ↑ : F (List A) → F Set'
-  open Lift {{...}}
+  open Lift ⦃...⦄
 
   instance
     Lift-Pred : Lift Pred₀
@@ -78,22 +79,14 @@ x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.¬Any⇒All¬ _ x∉ ∷ p)
 _<$>_∶-_ : (f : A → A) → Set' → (∀ {x y} → f x ≡ f y → x ≡ y) → Set'
 f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ map⁺ inj p
 
-filter′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Set' → Set'
+filter′ : Decidable¹ P → Set' → Set'
 filter′ P? (xs ⊣ p) = filter P? xs ⊣ filter⁺ P? p
 
 -- ** decidability
 _∈ˢ?_ : Decidable² _∈ˢ_
 o ∈ˢ? (os ⊣ _) = o ∈? os
 _∉ˢ?_ : Decidable² _∉ˢ_
-o ∉ˢ? (os ⊣ _) = ¬? (o ∈? os)
-
-instance
-  Apart-Set' : Set' // Set'
-  Apart-Set' ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
-
-_++_∶-_ : ∀ (s s′ : Set') → s ♯ s′ → Set'
-(xs ⊣ pxs) ++ (ys ⊣ pys) ∶- dsj =
-  (xs ++ ys) ⊣ ++⁺ pxs pys dsj
+o ∉ˢ? (os ⊣ _) = o ∉? os
 
 count′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Set' → ℕ
 count′ P? = count P? ∘ list
@@ -104,8 +97,12 @@ count′ P? = count P? ∘ list
 singleton : A → Set'
 singleton a = [ a ] ⊣ ([] ∷ [])
 
-singleton∈ˢ : ∀ {x x′} → x′ ∈ˢ singleton x ↔ x′ ≡ x
+singleton∈ˢ : x′ ∈ˢ singleton x ↔ x′ ≡ x
 singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
+
+_++_∶-_ : ∀ (s s′ : Set') → Disjoint (list s) (list s′) → Set'
+(xs ⊣ pxs) ++ (ys ⊣ pys) ∶- dsj =
+  (xs ++ ys) ⊣ ++⁺ pxs pys dsj
 
 _∪_ _∩_ _─_ : Op₂ Set'
 x ─ y = filter′ (_∉ˢ? y) x
@@ -149,29 +146,22 @@ x ∪ y = x ++ (filter′ (_∉ˢ? x) y) ∶- disjoint-─ {xs = list x} {ys = l
 
 -- ** derived operations
 
--- ♯-comm : Symmetric _♯_
-♯-comm : ∀ (x y : Set') → x ♯ y → y ♯ x
-♯-comm x y x♯y = x♯y ∘ Product.swap
-
-∈-∩⇒¬♯ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → ¬ (xs ♯ ys)
-∈-∩⇒¬♯ x xs ys x∈ xs♯ys = xs♯ys $ ∈-∩⁻ _ xs ys x∈
-
-♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
-♯-skipˡ xs ys _ p (x∈ys , x∈zs) = p (∈-∪⁺ʳ _ xs ys x∈ys , x∈zs)
-
 _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
-s ⊆ˢ s′ = ∀ {x} → x ∈ˢ s → x ∈ˢ s′
-s ⊈ˢ s′ = ¬ s ⊆ˢ s′
+s ⊆ˢ s′ = list s ⊆ list s′
 s ⊇ˢ s′ = s′ ⊆ˢ s
+s ⊈ˢ s′ = ¬ s ⊆ˢ s′
 s ⊉ˢ s′ = ¬ s ⊇ˢ s′
+
+_⊆?ˢ_ = Decidable² _⊆ˢ_ ∋ dec²
 
 ⊆ˢ-trans : Transitive _⊆ˢ_
 ⊆ˢ-trans ij ji = ji ∘ ij
 
-
 -- ** algebraic properties
 _≈ˢ_ : Rel₀ Set'
 s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
+
+_≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
 
 ≈ˢ-equiv : IsEquivalence _≈ˢ_
 ≈ˢ-equiv = record
@@ -188,6 +178,12 @@ module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
 
 open Alg _≈ˢ_
 
+≈ˢ⇒⊆ˢ : s ≈ˢ s′ → s ⊆ˢ s′
+≈ˢ⇒⊆ˢ = proj₁
+
+≈ˢ⇒⊆ˢ˘ : s ≈ˢ s′ → s′ ⊆ˢ s
+≈ˢ⇒⊆ˢ˘ = proj₂
+
 ∅─-identityʳ : RightIdentity ∅ _─_
 ∅─-identityʳ s rewrite L.filter-all (_∉? []) {xs = list s} All∉[] = ≈ˢ-refl {x = s}
 
@@ -197,6 +193,63 @@ open Alg _≈ˢ_
         xs ─ ∅ ≈⟨ ∅─-identityʳ xs ⟩
         xs ∎
   where open ≈ˢ-Reasoning
+
+∩-comm : Commutative _∩_
+∩-comm s s′ = uncurry (∈-∩⁺ _ s′ s) ∘ Product.swap ∘ ∈-∩⁻ _ s s′
+            , uncurry (∈-∩⁺ _ s s′) ∘ Product.swap ∘ ∈-∩⁻ _ s′ s
+
+∪-∅ : (Xs ∪ Ys) ≈ˢ ∅ → (Xs ≈ˢ ∅) × (Ys ≈ˢ ∅)
+∪-∅ {Xs}{Ys} p = (≈ˢ⇒⊆ˢ {Xs ∪ Ys}{∅} p ∘ ∈-∪⁺ˡ _ Xs Ys , λ ())
+               , (≈ˢ⇒⊆ˢ {Xs ∪ Ys}{∅} p ∘ ∈-∪⁺ʳ _ Xs Ys , λ ())
+
+∪-∅ˡ : (Xs ∪ Ys) ≈ˢ ∅ → Xs ≈ˢ ∅
+∪-∅ˡ {Xs}{Ys} = proj₁ ∘ ∪-∅ {Xs}{Ys}
+
+∪-∅ʳ : (Xs ∪ Ys) ≈ˢ ∅ → Ys ≈ˢ ∅
+∪-∅ʳ {Xs}{Ys} = proj₂ ∘ ∪-∅ {Xs}{Ys}
+
+∪-∩ : ((Xs ∪ Ys) ∩ Zs) ≈ˢ ((Xs ∩ Zs) ∪ (Ys ∩ Zs))
+∪-∩ {Xs}{Ys}{Zs} =
+  (λ x∈ →
+  let x∈∪ , x∈Zs = ∈-∩⁻ _ (Xs ∪ Ys) Zs x∈
+  in  case ∈-∪⁻ _ Xs Ys x∈∪ of λ where
+        (inj₁ x∈Xs) → ∈-∪⁺ˡ _ (Xs ∩ Zs) (Ys ∩ Zs)
+                              (∈-∩⁺ _ Xs Zs x∈Xs x∈Zs)
+        (inj₂ x∈Ys) → ∈-∪⁺ʳ _ (Xs ∩ Zs) (Ys ∩ Zs)
+                              (∈-∩⁺ _ Ys Zs x∈Ys x∈Zs))
+  , (∈-∪⁻ _ (Xs ∩ Zs) (Ys ∩ Zs) >≡> λ where
+       (inj₁ x∈) → let x∈Xs , x∈Zs = ∈-∩⁻ _ Xs Zs x∈
+                   in ∈-∩⁺ _ (Xs ∪ Ys) Zs (∈-∪⁺ˡ _ Xs Ys x∈Xs) x∈Zs
+       (inj₂ x∈) → let x∈Ys , x∈Zs = ∈-∩⁻ _ Ys Zs x∈
+                   in ∈-∩⁺ _ (Xs ∪ Ys) Zs (∈-∪⁺ʳ _ Xs Ys x∈Ys) x∈Zs)
+
+-- ** apartness
+instance
+  Apart-Set' : Set' // Set'
+  -- Apart-Set' ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
+  Apart-Set' ._♯_ s s′ = (s ∩ s′) ≈ˢ ∅
+
+_♯?ˢ_ = Decidable² (_♯_ {A = Set'}) ∋ dec²
+
+-- ♯-comm : Symmetric _♯_
+♯-comm : ∀ (x y : Set') → x ♯ y → y ♯ x
+♯-comm x y = ≈ˢ-trans {i = y ∩ x}{j = x ∩ y}{k = ∅} (∩-comm y x)
+
+∈-∩⇒¬♯ : x ∈ˢ (Xs ∩ Ys) → ¬ (Xs ♯ Ys)
+∈-∩⇒¬♯ {Xs = Xs}{Ys} x∈ xs♯ys = contradict (≈ˢ⇒⊆ˢ {s = Xs ∩ Ys} {s′ = ∅} xs♯ys x∈)
+
+♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
+♯-skipˡ xs ys zs p = ∪-∅ {xs ∩ zs}{ys ∩ zs}
+  (let open ≈ˢ-Reasoning in
+   begin
+    (xs ∩ zs) ∪ (ys ∩ zs)
+   ≈˘⟨ ∪-∩ {xs}{ys}{zs} ⟩
+    (xs ∪ ys) ∩ zs
+   ≈⟨ p ⟩
+     ∅
+   ∎)
+  .proj₂
+
 
 -- ** list conversion
 instance
@@ -224,10 +277,24 @@ instance
 
 record Set'⁺ : Set where
   constructor _⊣_
-  field
-    set   : Set'
-    .set⁺ : ∣ set ∣ > 0
+  field set   : Set'
+        .set⁺ : ∣ set ∣ > 0
 syntax Set'⁺ {A = A} = Set⁺⟨ A ⟩
+
+instance
+  DecEq-Set'⁺ : DecEq Set'⁺
+  DecEq-Set'⁺ ._≟_ (s ⊣ _) (s′ ⊣ _) with s ≟ s′
+  ... | yes refl = yes refl
+  ... | no  ¬eq  = no λ where refl → ¬eq refl
+
+mkSet⁺ : (s : Set') ⦃ _ : True (∣ s ∣ >? 0) ⦄ → Set'⁺
+mkSet⁺ s ⦃ pr ⦄ = s ⊣ toWitness pr
+
+fromList⁺ : (xs : List A) ⦃ _ : True (length (nub xs) >? 0) ⦄ → Set'⁺
+fromList⁺ = mkSet⁺ ∘ fromList
+
+toList'⁺ : Set'⁺ → List⁺ A
+toList'⁺ (s ⊣ _) with x ∷ xs ← list s = x ∷ xs
 
 -- instance
 --   Semigroup-Set' : ⦃ Semigroup A ⦄ → Semigroup Set'
