@@ -11,7 +11,7 @@ open import Prelude.Apartness
 open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.Ord
-
+open import Prelude.Measurable
 
 module Prelude.Maps.Concrete {K V : Set} ⦃ _ : DecEq K ⦄ ⦃ _ : DecEq V ⦄ where
 
@@ -47,6 +47,7 @@ module _ {a b} {A : Set a} {B : Set b} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ (
   Unique-map∘nub∘nubBy : ∀ (xs : List A) → Unique (map f $ nub $ nubBy f xs)
   Unique-map∘nub∘nubBy xs rewrite nub∘nubBy≗nubBy xs = Unique-map∘nubBy f xs
 
+-- NB: right-biased union
 infixr 4 _∪_
 _∪_ : Op₂ Map
 (kvs ⊣ _) ∪ (kvs′ ⊣ _)
@@ -79,8 +80,7 @@ insert : K × V → Op₁ Map
 insert (k , v) m = m ∪ singleton (k , v)
 
 insertWith : Op₂ V → K × V → Op₁ Map
-insertWith _⊗_ (k , v) m
-  with m ⁉ᵐ k
+insertWith _⊗_ (k , v) m with m ⁉ᵐ k
 ... | nothing = insert (k , v) m
 ... | just v′ = insert (k , v ⊗ v′) m
 
@@ -124,7 +124,6 @@ module _
   ⦃ _ : _≤_ {A = V} ⁇² ⦄
   ⦃ _ : _<_ {A = V} ⁇² ⦄
   ⦃ _ : Monoid V ⦄
-  (_∸_ : Op₂ V)
   where
 
   normalize : Op₁ Map
@@ -135,15 +134,23 @@ module _
     S.All' (λ where (k , v) → v ≤ fromMaybe ε (m′ ⁉ᵐ k))
            (m .kvs)
 
+  _≈ᵐ_ : Rel₀ Map
+  m ≈ᵐ m′ = (m ≤ᵐ m′) × (m′ ≤ᵐ m)
+
   _≤?ᵐ_ : Decidable² _≤ᵐ_
   m ≤?ᵐ m′ = dec
 
-  _-ᵐ_ : Map → Map → Maybe Map
-  m -ᵐ m′ = let m″ = normalize m′ in
-    if ⌊ m″ ≤?ᵐ m ⌋ then
-      just $ normalize $ unionWith (flip _∸_) m m′
-    else
-      nothing
+  _≈?ᵐ_ : Decidable² _≈ᵐ_
+  m ≈?ᵐ m′ = dec
+
+  module _ (_∸_ : Op₂ V) where
+
+    _-ᵐ_ : Map → Map → Maybe Map
+    m -ᵐ m′ = let m″ = normalize m′ in
+      if ⌊ m″ ≤?ᵐ m ⌋ then
+        just $ normalize $ unionWith (flip _∸_) m m′
+      else
+        nothing
 
 -- ** list conversion
 instance
@@ -183,3 +190,16 @@ private
   -- rewrite ≟-refl k | toWitnessFalse {Q = k ≟ k′} k≢k′
 
   m₁ = Map ∋ singleton (k , v) ∪ singleton (k , v)
+
+instance
+  Measurable-Map : Measurable Map
+  Measurable-Map = record {∣_∣ = ∣_∣ ∘ kvs}
+
+Map⁺ = ∃ λ (m : Map) → ∣ m ∣ > 0
+syntax Map⁺ {K = K} {V = V} = Map⁺⟨ K ↦ V ⟩
+
+mkMap⁺ : (m : Map) ⦃ _ : True (∣ m ∣ >? 0) ⦄ → Map⁺
+mkMap⁺ m ⦃ pr ⦄ = m , toWitness pr
+
+fromList⁺ : (xs : List (K × V)) ⦃ _ : True (length (nub $ nubBy proj₁ xs) >? 0) ⦄ → Map⁺
+fromList⁺ = mkMap⁺ ∘ fromList
