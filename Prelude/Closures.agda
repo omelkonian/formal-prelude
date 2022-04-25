@@ -165,13 +165,13 @@ module LabelledReflexiveTransitiveClosure
 -- [BUG] this needs to be placed above the simpler `ReflexiveTransitiveClosure`:
 -- Agda complains that we're re-definining `_—→⟨_⟩_`, although they should leave in different namespaces.
 module UpToLabelledReflexiveTransitiveClosure
-  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ℓ′ ⦄ where
+  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
 
   open LabelledReflexiveTransitiveClosure _—[_]→_ public
     using (_—→_; _←[_]—_; _←—_)
 
   private
-    ℓ⊔ℓ′ = ℓ ⊔ₗ ℓ′
+    ℓ⊔ℓ′ = ℓ ⊔ₗ relℓ
     variable
       x y z x′ y′ z′ : A
       α α′ : L
@@ -223,7 +223,7 @@ module UpToLabelledReflexiveTransitiveClosure
   _⁺↞—_ = unlabel _⁺↞[_]—_
 
   -- automatic-proof version
-  module _ ⦃ _ : IDecSetoid A ℓ′ ⦄ where
+  module _ ⦃ _ : IDecSetoid A ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 
@@ -339,13 +339,13 @@ module ReflexiveTransitiveClosure {A : Set ℓ} (_—→_ : Rel A ℓ) where
   view↔ = viewLeft , viewRight
 
 module UpToReflexiveTransitiveClosure
-  {A : Set ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ℓ′ ⦄ where
+  {A : Set ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ⦄ where
 
   open ReflexiveTransitiveClosure _—→_ public
     using (_←—_)
 
   private
-    ℓ⊔ℓ′ = ℓ ⊔ₗ ℓ′
+    ℓ⊔ℓ′ = ℓ ⊔ₗ relℓ
     variable x y z x′ y′ z′ : A
 
   -- left-biased
@@ -432,7 +432,7 @@ module UpToReflexiveTransitiveClosure
   _⁺↞—⟨_⟩_ = TransitiveOp _⁺↞—_ ∋ mkTransitiveOp ⁺↞—-trans
 
   -- automatic-proof version
-  module _ ⦃ ds : IDecSetoid A ℓ′ ⦄ where
+  module _ ⦃ ds : IDecSetoid A ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 
