@@ -5,6 +5,7 @@ module Prelude.Lists.Permutations where
 
 open import Prelude.Init
 open L.Mem using (_∈_; mapWith∈)
+open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm)
 
 private variable
   A : Set ℓ
@@ -12,8 +13,6 @@ private variable
   x y : A
   xs ys zs ws : List A
   xss yss : List (List A)
-
-open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm)
 
 ↭-concat⁺ : xss ↭ yss → concat xss ↭ concat yss
 ↭-concat⁺ ↭-refl = ↭-refl

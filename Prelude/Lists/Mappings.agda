@@ -18,7 +18,7 @@ private variable
   xs xs′ ys zs : List A
   P : Pred₀ A
 
--- mapWith∈
+-- ** Mappings from membership proofs.
 infixr 0 _↦′_ _↦_
 
 _↦′_ : List A → (A → Set ℓ) → Set _
@@ -54,14 +54,22 @@ xs↦ ++/↦ ys↦ = ∈-++⁻ _ >≡> λ where
   (inj₁ x∈) → xs↦ x∈
   (inj₂ y∈) → ys↦ y∈
 
-_++/↦_⊣≡_ : xs ↦′ P → ys ↦′ P → zs ≡ xs ++ ys → zs ↦′ P
-f ++/↦ g ⊣≡ refl = f ++/↦ g
-
 extend-↦ : zs ↭ xs ++ ys → xs ↦′ P → ys ↦′ P → zs ↦′ P
 extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)
 
 cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P
 cong-↦ f refl = f
+
+∈-resp-↭∘∈-resp-↭ :
+  (p : xs ↭ ys) (q : ys ↭ zs) (x∈ : x L.Mem.∈ xs) →
+  --——————————————————————————————————————————————————————
+  ∈-resp-↭ q (∈-resp-↭ p x∈) ≡ ∈-resp-↭ (↭-trans p q) x∈
+∈-resp-↭∘∈-resp-↭ p q x∈ =
+  begin
+      ∈-resp-↭ q (∈-resp-↭ p x∈)
+    ≡⟨⟩
+      ∈-resp-↭ (↭-trans p q) x∈
+    ∎ where open ≡-Reasoning
 
 Any-resp-↭∘Any-resp-↭˘ : ∀ {A : Set} {x : A} {xs ys : List A}
     (p↭ : xs ↭ ys)
@@ -87,7 +95,7 @@ Any-resp-↭∘Any-resp-↭˘ (↭-trans p↭ p↭′) p
   → (∈-resp-↭ (↭-sym p↭) ∘ ∈-resp-↭ p↭) x∈ ≡ x∈
 ∈-resp-↭∘∈-resp-↭˘ = Any-resp-↭∘Any-resp-↭˘
 
--- Pointwise equality of same-domain mappings.
+-- ** Pointwise equality of same-domain mappings.
 module _ {A : Set} {xs : List A} {P : Pred₀ A} where
   _≗↦_ : Rel₀ (xs ↦′ P)
   f ≗↦ f′ = ∀ {x : A} (x∈ : x ∈ xs) → f x∈ ≡ f′ x∈
@@ -112,6 +120,7 @@ module _ {A : Set} {xs : List A} {P : Pred₀ A} where
       f x∈
     ∎ where open ≡-Reasoning
 
+
   permute-↦∘permute-↦˘ : ∀ {ys : List A}
     → (p↭ : xs ↭ ys)
     → (f : xs ↦′ P)
@@ -122,24 +131,24 @@ module _ {A : Set} {xs : List A} {P : Pred₀ A} where
           | L.Perm.↭-sym-involutive p↭
     = cong f $ Any-resp-↭∘Any-resp-↭˘ p↭ x∈
 
-++/↦-there : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)
-  → ((f ∘ there) ++/↦ g) ≗↦ ((f ++/↦ g) ∘ there)
-++/↦-there {xs = []}         _ _ {_} _        = refl
-++/↦-there {xs = _ ∷ _}      _ _ {_} (here _) = refl
-++/↦-there {xs = xs@(_ ∷ _)} _ _ {_} (there x∈)
-  with ∈-++⁻ xs (there x∈)
-... | inj₁ _ = refl
-... | inj₂ _ = refl
+-- T0D0 use for permute-↦∘permute-↦˘ to simplify
+module _ {A : Set} {P : A → Set} {x : A} {xs ys zs : List A} where
+  permute-↦∘permute-↦ :
+    (p : xs ↭ ys) (q : ys ↭ zs) (f : xs ↦′ P) →
+    --——————————————————————————————————————————————————————
+    permute-↦ q (permute-↦ p f) ≗↦ permute-↦ (↭-trans p q) f
+  permute-↦∘permute-↦ p q f x∈ =
+    begin
+      permute-↦ q (permute-↦ p f) x∈
+    ≡⟨⟩
+      f (∈-resp-↭ (↭-sym p) $ ∈-resp-↭ (↭-sym q) x∈)
+    ≡⟨⟩
+      f (∈-resp-↭ (↭-sym $ ↭-trans p q) x∈)
+    ≡⟨⟩
+      permute-↦ (↭-trans p q) f x∈
+    ∎ where open ≡-Reasoning
 
-uncons-≗↦ : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)
-  → uncons-↦ (f ++/↦ g) ≗↦ (uncons-↦ f ++/↦ g)
-uncons-≗↦ f g {y} y∈ =
-  begin uncons-↦ (f ++/↦ g) y∈  ≡⟨⟩
-        (f ++/↦ g) (there y∈)   ≡⟨ sym $ ++/↦-there f g y∈ ⟩
-        ((f ∘ there) ++/↦ g) y∈ ≡⟨⟩
-        (uncons-↦ f ++/↦ g) y∈  ∎ where open ≡-Reasoning
-
--- Pointwise equality of ⊆-related mappings.
+-- ** Pointwise equality of ⊆-related mappings.
 module _ {A : Set} {xs ys : List A} {P : Pred₀ A} where
   _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Set
   f′ ≗⟨ p ⊆⟩↦ f = f′ ≗↦ (f ∘ p)
@@ -171,3 +180,37 @@ module _ {A : Set} {xs ys : List A} {P : Pred₀ A} where
   ++-≗↦ˡʳ : (f : xs ↦′ P) (g : ys ↦′ P)
     → (f ++/↦ g) ≗↦ˡʳ f , g
   ++-≗↦ˡʳ f g = ++-≗↦ˡ f g , ++-≗↦ʳ f g
+
+-- ** Properties.
+++/↦-inj₂ : ∀ (f : xs ↦′ P) (g : ys ↦′ P) (x∈ : x ∈ xs ++ ys) (y∈ : x ∈ ys)
+  → ∈-++⁻ xs x∈ ≡ inj₂ y∈
+    --———————————————————
+  → (f ++/↦ g) x∈ ≡ g y∈
+++/↦-inj₂ {xs = xs} _ _ x∈ _ eq
+  with inj₂ _ ← ∈-++⁻ xs x∈
+  with refl ← eq
+  = refl
+
+++/↦≡-inj₂ : (eq : zs ≡ xs ++ ys)
+  → ∀ (f : xs ↦′ P) (g : ys ↦′ P) (x∈ : x ∈ zs) (y∈ : x ∈ ys)
+    → ∈-++⁻ xs (subst (x ∈_) eq x∈) ≡ inj₂ y∈
+      --—————————————————————————————————————
+    → subst (_↦′ P) (sym eq) (f ++/↦ g) x∈ ≡ g y∈
+++/↦≡-inj₂ refl = ++/↦-inj₂
+
+++/↦-there : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)
+  → ((f ∘ there) ++/↦ g) ≗↦ ((f ++/↦ g) ∘ there)
+++/↦-there {xs = []}         _ _ {_} _        = refl
+++/↦-there {xs = _ ∷ _}      _ _ {_} (here _) = refl
+++/↦-there {xs = xs@(_ ∷ _)} _ _ {_} (there x∈)
+  with ∈-++⁻ xs (there x∈)
+... | inj₁ _ = refl
+... | inj₂ _ = refl
+
+uncons-≗↦ : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)
+  → uncons-↦ (f ++/↦ g) ≗↦ (uncons-↦ f ++/↦ g)
+uncons-≗↦ f g {y} y∈ =
+  begin uncons-↦ (f ++/↦ g) y∈  ≡⟨⟩
+        (f ++/↦ g) (there y∈)   ≡⟨ sym $ ++/↦-there f g y∈ ⟩
+        ((f ∘ there) ++/↦ g) y∈ ≡⟨⟩
+        (uncons-↦ f ++/↦ g) y∈  ∎ where open ≡-Reasoning

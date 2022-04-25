@@ -36,6 +36,11 @@ length-concat {xs = xs} {xss = ys ∷ xss} (there xs∈)
   → Any (λ x → y ∈ f x) xs
 ∈-concatMap⁻ f = L.Any.map⁻ ∘ ∈-concat⁻ (map f _)
 
+Any-concatMap⁺ : ∀ {P : Pred B ℓ} {f : A → List B}
+  → Any (Any P ∘ f) xs
+  → Any P (concatMap f xs)
+Any-concatMap⁺ = L.Any.concat⁺ ∘ L.Any.map⁺
+
 ∈-concatMap⁺ : ∀ {y : B} {f : A → List B}
   → Any (λ x → y ∈ f x) xs
   → y ∈ concatMap f xs
