@@ -47,6 +47,8 @@ instance
           p = LeftIdentity ε  _◇_ ∋ λ _ → refl
           q = RightIdentity ε _◇_ ∋ λ where (just _) → refl; nothing → refl
 
+-- ** nats
+
 Monoid-ℕ-+ = Monoid ℕ ∋ λ where .ε → 0
   where instance _ = Semigroup-ℕ-+
 MonoidLaws-ℕ-+ = MonoidLaws≡ ℕ ∋ record {ε-identity = Nat.+-identityˡ , Nat.+-identityʳ}
@@ -56,3 +58,17 @@ Monoid-ℕ-* = Monoid ℕ ∋ λ where .ε → 1
   where instance _ = Semigroup-ℕ-*
 MonoidLaws-ℕ-* = MonoidLaws≡ ℕ ∋ record {ε-identity = Nat.*-identityˡ , Nat.*-identityʳ}
   where instance _ = Monoid-ℕ-*
+
+-- ** maybes
+
+just-◇ˡ : ∀ {A : Set} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
+  just x ◇ mx ≡ just (x ◇ fromMaybe ε mx)
+just-◇ˡ x = λ where
+  (just _) → refl
+  nothing  → cong just $ sym $ ε-identityʳ x
+
+just-◇ʳ : ∀ {A : Set} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
+  mx ◇ just x ≡ just (fromMaybe ε mx ◇ x)
+just-◇ʳ x = λ where
+  (just _) → refl
+  nothing  → cong just $ sym $ ε-identityˡ x
