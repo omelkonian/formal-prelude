@@ -45,7 +45,6 @@ open import Prelude.Orders
 open import Prelude.Ord
 
 open import Prelude.Setoid
--- open import Prelude.Equivalence
 
 open import Prelude.Collections
 open import Prelude.Membership
@@ -67,6 +66,7 @@ open import Prelude.Lists
 open import Prelude.Sets
 open import Prelude.Sets.Example
 open import Prelude.Sets.Concrete
+open import Prelude.Sets.Concrete.Example
 
 open import Prelude.Maps
 open import Prelude.Maps.Example
