@@ -258,12 +258,12 @@ module Unary where
   open import Relation.Unary public
 open import Relation.Unary public
   using (Pred)
-  renaming (Decidable to Decidable¹; _⇒_ to _⇒¹_)
+  renaming (Decidable to Decidable¹; _⇒_ to _⇒¹_; _⊆_ to _⊆¹_)
 
 open import Relation.Binary public
   using ( REL; Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric; Trans; Transitive; Total
         ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
-        ; DecidableEquality; IsEquivalence; Setoid )
+        ; DecidableEquality; IsEquivalence; Setoid)
   renaming (Decidable to Decidable²; _⇒_ to _⇒²_; _⇔_ to _⇔²_)
 open import Relation.Binary.PropositionalEquality public
   using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_

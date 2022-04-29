@@ -11,14 +11,12 @@ open Nat.Ord
 open import Prelude.Applicative
 open import Prelude.Functor
 open import Prelude.Bifunctor
-open import Prelude.Monad
 
-private
-  variable
-    A : Set ℓ₁
-    B : Set ℓ₂
-    x y x′ y′ : A
-    xs ys : List A
+private variable
+  A : Set ℓ₁
+  B : Set ℓ₂
+  x y x′ y′ : A
+  xs ys : List A
 
 -- ** Functions
 infix -1 _`→`_ _↔_ _⇔_ _⊢_
@@ -86,6 +84,9 @@ module ⊢-Reasoning where
 
   _≡⟨_⟩_ : ∀ P → P ≡ Q → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
   _ ≡⟨ refl ⟩ p = p
+
+  _≡⟨⟩_ : ∀ P → ℝ⟨ P ⊢ Q ⟩ → ℝ⟨ P ⊢ Q ⟩
+  _ ≡⟨⟩ p = p
 
   _≡˘⟨_⟩_ : ∀ P → Q ≡ P → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
   P ≡˘⟨ eq ⟩ PlQ = P ≡⟨ sym eq ⟩ PlQ
@@ -352,14 +353,6 @@ case-singleton : ∀ {x xs} {f : A → B} {g : B}
                  ; _         → g }) ≡ f x
 case-singleton refl = refl
 
--- ** Maybe-Bool
-
-do-pure : ∀ {A : Set ℓ} {x : A} {mx : Maybe A} {f : A → Bool}
-  → mx ≡ just x
-  → f x ≡ true
-  → M.fromMaybe false (mx >>= pure ∘ f) ≡ true
-do-pure refl f≡ rewrite f≡ = refl
-
 -- ** Singleton types
 data Is {A : Set ℓ} : A → Set ℓ where
   ⟫_ : (x : A) → Is x
@@ -371,6 +364,15 @@ private module _ (n : ℕ) where
   f with ⟫ n
   ... | ⟫ 0     = inj₁ refl
   ... | ⟫ suc _ = inj₂ $ -, refl
+
+
+-- ** ω-level
+
+itω : ∀ {A : Setω} → ⦃ A ⦄ → A
+itω ⦃ x ⦄ = x
+
+_∋ω_ : (A : Setω) → A → A
+_ ∋ω x = x
 
 -- ** Testing
 

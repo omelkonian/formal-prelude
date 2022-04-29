@@ -3,6 +3,7 @@ module Prelude.Monad where
 open import Prelude.Init
 open import Prelude.Functor
 open import Prelude.Applicative
+open import Prelude.General
 
 {-
 Monad : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
@@ -11,7 +12,7 @@ open RawMonad ⦃ ... ⦄ public
   using (return; _>>=_; _>>_; _=<<_; _>=>_; _<=<_; join)
 -}
 
-private variable A B C : Set ℓ; M : Set↑
+private variable A : Set ℓ; B : Set ℓ′; C : Set ℓ″; M : Set↑
 
 record Monad (M : Set↑) : Setω where
   infixl 1 _>>=_ _>>_ _≫=_ _≫_ _>=>_
@@ -38,8 +39,25 @@ record Monad (M : Set↑) : Setω where
 
   join : M (M A) → M A
   join m = m >>= id
-
 open Monad ⦃...⦄ public
+
+record Monad-Laws (M : Set↑) ⦃ _ : Monad M ⦄ : Setω where
+  field
+    >>=-identityˡ : ∀ {A : Set ℓ} {B : Set ℓ′} {a : A} {h : A → M B} →
+      (return a >>= h) ≡ h a
+    >>=-identityʳ : ∀ {A : Set ℓ} (m : M A) →
+      (m >>= return) ≡ m
+    >>=-assoc : ∀ {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} (m : M A) {g : A → M B} {h : B → M C} →
+      ((m >>= g) >>= h) ≡ (m >>= (λ x → g x >>= h))
+open Monad-Laws ⦃...⦄ public
+
+record Lawful-Monad (M : Set↑) : Setω where
+  field ⦃ isMonad ⦄ : Monad M
+        ⦃ hasMonadLaws ⦄ : Monad-Laws M
+open Lawful-Monad ⦃...⦄ using () public
+instance
+  mkLawful-Monad : ⦃ _ : Monad M ⦄ → ⦃ Monad-Laws M ⦄ → Lawful-Monad M
+  mkLawful-Monad = record {}
 
 record Monad′ (M : Set[ ℓ ↝ ℓ′ ]) : Set (lsuc ℓ ⊔ₗ ℓ′) where
   infixl 1 _>>=′_ _>>′_ _≫=′_ _≫′_ _>=>′_
@@ -69,22 +87,36 @@ record Monad′ (M : Set[ ℓ ↝ ℓ′ ]) : Set (lsuc ℓ ⊔ₗ ℓ′) where
 open Monad′ ⦃...⦄ public
 
 record Monad₀ (M : Set↑) : Setω where
-  field
-    ⦃ super-Mon ⦄ : Monad M
-    ⦃ super-Ap₀ ⦄ : Applicative₀ M
-open Monad₀ ⦃...⦄ public
+  field ⦃ isMonad ⦄ : Monad M
+        ⦃ isApplicative₀ ⦄ : Applicative₀ M
+open Monad₀ ⦃...⦄ using () public
+instance
+  mkMonad₀ : ⦃ Monad M ⦄ → ⦃ Applicative₀ M ⦄ → Monad₀ M
+  mkMonad₀ = record {}
 
 record Monad⁺ (M : Set↑) : Setω where
-  field
-    ⦃ super-Mon ⦄ : Monad M
-    ⦃ super-Alt ⦄ : Alternative M
-open Monad⁺ ⦃...⦄ public
+  field ⦃ isMonad ⦄ : Monad M
+        ⦃ isAlternative ⦄ : Alternative M
+open Monad⁺ ⦃...⦄ using () public
+instance
+  mkMonad⁺ : ⦃ Monad M ⦄ → ⦃ Alternative M ⦄ → Monad⁺ M
+  mkMonad⁺ = record {}
 
 instance
   Monad-Maybe : Monad Maybe
   Monad-Maybe = λ where
     .return → pure
     ._>>=_ m f → maybe f nothing m
+
+  MonadLaws-Maybe : Monad-Laws Maybe
+  MonadLaws-Maybe = λ where
+    .>>=-identityˡ → refl
+    .>>=-identityʳ → λ where
+      (just _) → refl
+      nothing  → refl
+    .>>=-assoc → λ where
+      (just _) → refl
+      nothing  → refl
 
   Monad-List : Monad List
   Monad-List = λ where
@@ -95,19 +127,18 @@ instance
   Monad-TC = record {R}
     where import Reflection as R using (return) renaming (bindTC to _>>=_)
 
--- provides us with forward composition as _>=>_, but breaks instance-resolution/typeclass-inference
-{-
-Id : Set ℓ → Set ℓ
-Id = id
+{- ** Id monad: provides us with forward composition as _>=>_,
+                but breaks instance-resolution/typeclass-inference
+module IdMonad where
+  Id : Set ℓ → Set ℓ
+  Id = id
 
-instance
-  Monad-Id : Monad {ℓ} Id
+  Monad-Id : Monad Id
   Monad-Id .return = id
   Monad-Id ._>>=_ = _|>_
 -}
 
-{- monadic utilities
--}
+-- ** monadic utilities
 module _ ⦃ _ : Monad M ⦄ where
   mapM : (A → M B) → List A → M (List B)
   mapM f []       = return []
@@ -137,3 +168,21 @@ module _ ⦃ _ : Monad M ⦄ where
   -- traverse f = λ where
   --   [] → return []
   --   (x ∷ xs) → ⦇ f x ∷ traverse f xs ⦈
+
+do-pure : ∀ {A : Set ℓ} {x : A} {mx : Maybe A} {f : A → Bool}
+  → mx ≡ just x
+  → f x ≡ true
+  → M.fromMaybe false (mx >>= pure ∘ f) ≡ true
+do-pure refl f≡ rewrite f≡ = refl
+
+private
+  _ : (return 5 >>= just) ≡ just 5
+  _ = refl
+  _ : (return 5 >>= just) ≡ just 5
+  _ = >>=-identityʳ _
+
+  _ : ⦃ _ : Lawful-Monad M ⦄ → (ℕ → M ℕ)
+  _ = return
+
+  _ : Lawful-Monad Maybe
+  _ = itω
