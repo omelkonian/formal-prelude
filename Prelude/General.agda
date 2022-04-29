@@ -20,7 +20,7 @@ private
     x y x′ y′ : A
     xs ys : List A
 
--- ** Functions and predicates
+-- ** Functions
 infix -1 _`→`_ _↔_ _⇔_ _⊢_
 
 _`→`_ : Op₂ Set
@@ -32,15 +32,6 @@ A ↔ B = (A → B) × (B → A)
 _⇔_ : Set ℓ → Set ℓ′ → Set _
 A ⇔ B = (A → B) × (B → A)
 
-_⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
-P ⊢ Q = ∀ {x} → P x → Q x
-
-_⊣⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
-P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
-
-_Respects˘_ : Rel A ℓ → Pred A ℓ′ → Set _
-_~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
-
 IdFun : ∀ {A : Set ℓ} → Pred (A → A) ℓ
 IdFun f = ∀ x → f x ≡ x
 
@@ -49,63 +40,67 @@ IdFun-fmap f≗id = λ where
   nothing  → refl
   (just x) → cong just $ f≗id x
 
+module _ {A : Set ℓ} {B : Pred A ℓ′} where
+  implicitly : (∀ {x} → B x) → (∀ x → B x)
+  implicitly f x = f {x}
+
+  explicitly : (∀ x → B x) → (∀ {x} → B x)
+  explicitly f {x} = f x
+
+  automatically : (∀ ⦃ x ⦄ → B x) → (∀ x → B x)
+  automatically f x = f ⦃ x ⦄
+
+  manually : (∀ x → B x) → (∀ ⦃ x ⦄ → B x)
+  manually f ⦃ x ⦄ = f x
+
 -- ** Equality
 
--- forward
-substˡ = subst
-substˡ′ = substˡ
-infixl 4 substˡ″
-substˡ″ : {P : Pred₀ A} → x ≡ y → P x → P y
-substˡ″ = substˡ _
-syntax substˡ  (λ ◆ → P) eq p = p :~ eq ⟪ ◆ ∣ P ⟫
-syntax substˡ′ P         eq p = p :~ eq ⟪ P ⟫
-syntax substˡ″           eq p = p :~ eq
+≗-sym : ∀ {f g : A → B} → f ≗ g → g ≗ f
+≗-sym eq x rewrite eq x = refl
 
--- backward
-substʳ : (P : Pred₀ A) → y ≡ x → P x → P y
-substʳ P eq p = subst P (sym eq) p
-substʳ′ = substʳ
-substʳ″ : {P : Pred₀ A} → y ≡ x → P x → P y
-substʳ″ = substʳ _
-infixl 4 substʳ″
-syntax substʳ  (λ ◆ → P) eq p = ⟪ ◆ ∣ P ⟫ eq ~: p
-syntax substʳ′ P         eq p =     ⟪ P ⟫ eq ~: p
-syntax substʳ″           eq p =           eq ~: p
+open import Prelude.SubstDSL public
 
--- [T0D0] macro that automagically finds which context P to use
+-- ** Predicates
 
+_⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+P ⊢ Q = ∀ {x} → P x → Q x
 
-private
-  postulate
-    n m : ℕ
-    n≡m : n ≡ m
-    P : Pred₀ ℕ
-    pₙ : P n
-    pₘ : P m
-    p : P m × P n
-    p₇ : P 7
+_⊣⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
 
-  -- backward
-  _ : P n
-  _ = ⟪ P ⟫ n≡m ~: pₘ
+module ⊢-Reasoning where
+  -- Reasoning newtype (for better type inference).
+  record ℝ⟨_⊢_⟩ {A : Set ℓ} (P Q : Pred A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+    constructor mkℝ_
+    field begin_ : P ⊢ Q
+    infix -2 begin_
+  open ℝ⟨_⊢_⟩ public
+  infix  -2 mkℝ_
+  infixr -1 _⊢⟨_⟩_ _≡⟨_⟩_ _≗⟨_⟩_ _≡˘⟨_⟩_ _≗˘⟨_⟩_
+  infix  0  _∎
 
-  -- forward
-  _ : P m
-  _ = pₙ :~ n≡m ⟪ P ⟫
+  private variable Q R : Pred A ℓ
 
-  -- backward chain
-  _ : P (n + 0) × P (0 + m)
-  _ = ⟪ ◆ ∣ P ◆ × P (0 + m) ⟫ +-identityʳ _ ~:
-      ⟪ ◆ ∣ P ◆ × P (0 + m) ⟫ n≡m           ~:
-      ⟪ ◆ ∣ P m × P ◆       ⟫ +-identityˡ _ ~:
-      ⟪ ◆ ∣ P m × P ◆       ⟫ sym n≡m       ~: p
+  _⊢⟨_⟩_ : ∀ P → P ⊢ Q → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
+  P ⊢⟨ P⊢Q ⟩ (mkℝ Q⊢R) = mkℝ (Q⊢R ∘ P⊢Q)
 
-  -- forward chain
-  _ : P (n + 0) × P (0 + m)
-  _ = p :~ n≡m                 ⟪ ◆ ∣ P m × P ◆       ⟫
-        :~ sym (+-identityˡ _) ⟪ ◆ ∣ P m × P ◆       ⟫
-        :~ sym n≡m             ⟪ ◆ ∣ P ◆ × P (0 + m) ⟫
-        :~ sym (+-identityʳ _) ⟪ ◆ ∣ P ◆ × P (0 + m) ⟫
+  _≡⟨_⟩_ : ∀ P → P ≡ Q → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
+  _ ≡⟨ refl ⟩ p = p
+
+  _≡˘⟨_⟩_ : ∀ P → Q ≡ P → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
+  P ≡˘⟨ eq ⟩ PlQ = P ≡⟨ sym eq ⟩ PlQ
+
+  _≗⟨_⟩_ : ∀ P → P ≗ Q → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
+  _ ≗⟨ eq ⟩ (mkℝ QlR) = mkℝ (QlR ∘ subst id (eq _))
+
+  _≗˘⟨_⟩_ : ∀ P → Q ≗ P → ℝ⟨ Q ⊢ R ⟩ → ℝ⟨ P ⊢ R ⟩
+  P ≗˘⟨ eq ⟩ PlQ = P ≗⟨ ≗-sym eq ⟩ PlQ
+
+  _∎ : ∀ (P : Pred A ℓ) → ℝ⟨ P ⊢ P ⟩
+  _∎ _ = mkℝ id
+
+_Respects˘_ : Rel A ℓ → Pred A ℓ′ → Set _
+_~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
 
 -- ** N-ary tuples
 _^_ : Set ℓ → ℕ → Set ℓ
