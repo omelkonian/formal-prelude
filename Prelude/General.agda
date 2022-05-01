@@ -74,7 +74,7 @@ module ⊢-Reasoning where
     infix -2 begin_
   open ℝ⟨_⊢_⟩ public
   infix  -2 mkℝ_
-  infixr -1 _⊢⟨_⟩_ _≡⟨_⟩_ _≗⟨_⟩_ _≡˘⟨_⟩_ _≗˘⟨_⟩_
+  infixr -1 _⊢⟨_⟩_ _≡⟨_⟩_ _≗⟨_⟩_ _≡˘⟨_⟩_ _≗˘⟨_⟩_ _≡⟨⟩_
   infix  0  _∎
 
   private variable Q R : Pred A ℓ

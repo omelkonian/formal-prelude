@@ -88,3 +88,6 @@ open import Prelude.Tactics
 
 -- ** Automatical solvers
 open import Prelude.Solvers
+
+-- ** Lenses
+open import Prelude.Lenses

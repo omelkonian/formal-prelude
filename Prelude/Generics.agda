@@ -309,6 +309,19 @@ withHole ty k = do
   k hole′
   return hole′
 
+-- ** records
+mkRecord : List (Name × Term) → Term
+mkRecord fs = pat-lam (map (λ where (fn , e) → clause [] [ vArg (proj fn) ] e) fs) []
+
+updateField : List Name → Term → Name → Term → Term
+updateField fs rexp fn fexp =
+  pat-lam (flip map fs $ λ f →
+    if f == fn then
+      clause [] [ vArg (proj fn) ] fexp
+    else
+      clause [] [ vArg (proj f) ] (f ∙⟦ rexp ⟧)
+    ) []
+
 -------------------------------------------------
 -- *** Deriving
 
@@ -377,6 +390,15 @@ module Debug (v : String × ℕ) where
 
   printCurrentContext : TC ⊤
   printCurrentContext = printContext =<< getContext
+
+  -- ** definitions
+  genSimpleDef : Name → Type → Term → TC ⊤
+  genSimpleDef n ty e = do
+    print "Generaring..."
+    declareDef (vArg n) ty
+    print $ "```\n" ◇ show n ◇ " : " ◇ " " ◇ show ty
+    defineFun n [ clause [] [] e ]
+    print $ show n ◇ " = " ◇ " " ◇ show e ◇ "\n```"
 
 module DebugI (v : String) where
   -- i.e. set {-# OPTIONS -v ⟨v⟩:0 #-} to enable messages in the **info** buffer.
