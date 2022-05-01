@@ -26,7 +26,23 @@ IDecSetoid A = _≈_ {A = A} ⁇²
 
 record Setoid-Laws (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Setω where
   field isEquivalence : IsEquivalence _≈_
+
+  mkSetoid : Setoid ℓ relℓ
+  mkSetoid = record {Carrier = A; _≈_ = _≈_; isEquivalence = isEquivalence}
 open Setoid-Laws ⦃...⦄ public
+
+record Lawful-Setoid (A : Set ℓ) : Setω where
+  field
+    ⦃ isSetoid ⦄ : ISetoid A
+    ⦃ hasSetoidLaws ⦄ : Setoid-Laws A
+open Lawful-Setoid ⦃...⦄ using () public
+
+instance
+  mkLawful-Setoid : {A : Set ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ Setoid-Laws A ⦄ → Lawful-Setoid A
+  mkLawful-Setoid = record {}
+
+_⟶_ : (A : Set ℓ) (B : Set ℓ′) ⦃ _ : Lawful-Setoid A ⦄ ⦃ _ : Lawful-Setoid B ⦄ → Set _
+A ⟶ B = mkSetoid {A = A} Fun.Eq.⟶ mkSetoid {A = B}
 
 {-
   record IDecSetoid (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Set (lsuc ℓ) where
