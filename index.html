@@ -9,83 +9,87 @@
 
 <a id="154" class="Comment">-- ** General properties of standard types</a>
 <a id="197" class="Keyword">open</a> <a id="202" class="Keyword">import</a> <a id="209" href="Prelude.General.html" class="Module">Prelude.General</a>
+<a id="225" class="Keyword">open</a> <a id="230" class="Keyword">import</a> <a id="237" href="Prelude.SubstDSL.html" class="Module">Prelude.SubstDSL</a>
 
-<a id="226" class="Comment">-- ** Convenient syntax for inference rules</a>
-<a id="270" class="Keyword">open</a> <a id="275" class="Keyword">import</a> <a id="282" href="Prelude.InferenceRules.html" class="Module">Prelude.InferenceRules</a>
+<a id="255" class="Comment">-- ** Convenient syntax for inference rules</a>
+<a id="299" class="Keyword">open</a> <a id="304" class="Keyword">import</a> <a id="311" href="Prelude.InferenceRules.html" class="Module">Prelude.InferenceRules</a>
 
-<a id="306" class="Comment">-- ** Metaprogramming utilities</a>
-<a id="338" class="Keyword">open</a> <a id="343" class="Keyword">import</a> <a id="350" href="Prelude.Generics.html" class="Module">Prelude.Generics</a>
-<a id="367" class="Keyword">open</a> <a id="372" class="Keyword">import</a> <a id="379" href="Prelude.Match.html" class="Module">Prelude.Match</a>
+<a id="335" class="Comment">-- ** Metaprogramming utilities</a>
+<a id="367" class="Keyword">open</a> <a id="372" class="Keyword">import</a> <a id="379" href="Prelude.Generics.html" class="Module">Prelude.Generics</a>
+<a id="396" class="Keyword">open</a> <a id="401" class="Keyword">import</a> <a id="408" href="Prelude.Match.html" class="Module">Prelude.Match</a>
 
-<a id="394" class="Comment">-- ** Decidability</a>
-<a id="413" class="Keyword">open</a> <a id="418" class="Keyword">import</a> <a id="425" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
-<a id="439" class="Keyword">open</a> <a id="444" class="Keyword">import</a> <a id="451" href="Prelude.Decidable.html" class="Module">Prelude.Decidable</a>
+<a id="423" class="Comment">-- ** Decidability</a>
+<a id="442" class="Keyword">open</a> <a id="447" class="Keyword">import</a> <a id="454" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+<a id="468" class="Keyword">open</a> <a id="473" class="Keyword">import</a> <a id="480" href="Prelude.Decidable.html" class="Module">Prelude.Decidable</a>
 
-<a id="470" class="Comment">-- ** Typeclasses</a>
-<a id="488" class="Keyword">open</a> <a id="493" class="Keyword">import</a> <a id="500" href="Prelude.Functor.html" class="Module">Prelude.Functor</a>
-<a id="516" class="Keyword">open</a> <a id="521" class="Keyword">import</a> <a id="528" href="Prelude.Bifunctor.html" class="Module">Prelude.Bifunctor</a>
-<a id="546" class="Keyword">open</a> <a id="551" class="Keyword">import</a> <a id="558" href="Prelude.Pointed.html" class="Module">Prelude.Pointed</a>
-<a id="574" class="Keyword">open</a> <a id="579" class="Keyword">import</a> <a id="586" href="Prelude.PointedFunctor.html" class="Module">Prelude.PointedFunctor</a>
-<a id="609" class="Keyword">open</a> <a id="614" class="Keyword">import</a> <a id="621" href="Prelude.Semigroup.html" class="Module">Prelude.Semigroup</a>
-<a id="639" class="Keyword">open</a> <a id="644" class="Keyword">import</a> <a id="651" href="Prelude.Monoid.html" class="Module">Prelude.Monoid</a>
-<a id="666" class="Keyword">open</a> <a id="671" class="Keyword">import</a> <a id="678" href="Prelude.Foldable.html" class="Module">Prelude.Foldable</a>
-<a id="695" class="Keyword">open</a> <a id="700" class="Keyword">import</a> <a id="707" href="Prelude.Applicative.html" class="Module">Prelude.Applicative</a>
-<a id="727" class="Keyword">open</a> <a id="732" class="Keyword">import</a> <a id="739" href="Prelude.Traversable.html" class="Module">Prelude.Traversable</a>
-<a id="759" class="Keyword">open</a> <a id="764" class="Keyword">import</a> <a id="771" href="Prelude.Monad.html" class="Module">Prelude.Monad</a>
+<a id="499" class="Comment">-- ** Typeclasses</a>
+<a id="517" class="Keyword">open</a> <a id="522" class="Keyword">import</a> <a id="529" href="Prelude.Functor.html" class="Module">Prelude.Functor</a>
+<a id="545" class="Keyword">open</a> <a id="550" class="Keyword">import</a> <a id="557" href="Prelude.Bifunctor.html" class="Module">Prelude.Bifunctor</a>
+<a id="575" class="Keyword">open</a> <a id="580" class="Keyword">import</a> <a id="587" href="Prelude.Pointed.html" class="Module">Prelude.Pointed</a>
+<a id="603" class="Keyword">open</a> <a id="608" class="Keyword">import</a> <a id="615" href="Prelude.PointedFunctor.html" class="Module">Prelude.PointedFunctor</a>
+<a id="638" class="Keyword">open</a> <a id="643" class="Keyword">import</a> <a id="650" href="Prelude.Semigroup.html" class="Module">Prelude.Semigroup</a>
+<a id="668" class="Keyword">open</a> <a id="673" class="Keyword">import</a> <a id="680" href="Prelude.Monoid.html" class="Module">Prelude.Monoid</a>
+<a id="695" class="Keyword">open</a> <a id="700" class="Keyword">import</a> <a id="707" href="Prelude.Foldable.html" class="Module">Prelude.Foldable</a>
+<a id="724" class="Keyword">open</a> <a id="729" class="Keyword">import</a> <a id="736" href="Prelude.Applicative.html" class="Module">Prelude.Applicative</a>
+<a id="756" class="Keyword">open</a> <a id="761" class="Keyword">import</a> <a id="768" href="Prelude.Traversable.html" class="Module">Prelude.Traversable</a>
+<a id="788" class="Keyword">open</a> <a id="793" class="Keyword">import</a> <a id="800" href="Prelude.Monad.html" class="Module">Prelude.Monad</a>
 
-<a id="786" class="Keyword">open</a> <a id="791" class="Keyword">import</a> <a id="798" href="Prelude.Default.html" class="Module">Prelude.Default</a>
-<a id="814" class="Keyword">open</a> <a id="819" class="Keyword">import</a> <a id="826" href="Prelude.Show.html" class="Module">Prelude.Show</a>
-<a id="839" class="Keyword">open</a> <a id="844" class="Keyword">import</a> <a id="851" href="Prelude.Measurable.html" class="Module">Prelude.Measurable</a>
+<a id="815" class="Keyword">open</a> <a id="820" class="Keyword">import</a> <a id="827" href="Prelude.Default.html" class="Module">Prelude.Default</a>
+<a id="843" class="Keyword">open</a> <a id="848" class="Keyword">import</a> <a id="855" href="Prelude.Show.html" class="Module">Prelude.Show</a>
+<a id="868" class="Keyword">open</a> <a id="873" class="Keyword">import</a> <a id="880" href="Prelude.Measurable.html" class="Module">Prelude.Measurable</a>
 
-<a id="871" class="Keyword">open</a> <a id="876" class="Keyword">import</a> <a id="883" href="Prelude.ToN.html" class="Module">Prelude.ToN</a>
-<a id="895" class="Keyword">open</a> <a id="900" class="Keyword">import</a> <a id="907" href="Prelude.FromN.html" class="Module">Prelude.FromN</a>
-<a id="921" class="Keyword">open</a> <a id="926" class="Keyword">import</a> <a id="933" href="Prelude.ToList.html" class="Module">Prelude.ToList</a>
-<a id="948" class="Keyword">open</a> <a id="953" class="Keyword">import</a> <a id="960" href="Prelude.Enumerable.html" class="Module">Prelude.Enumerable</a>
+<a id="900" class="Keyword">open</a> <a id="905" class="Keyword">import</a> <a id="912" href="Prelude.ToN.html" class="Module">Prelude.ToN</a>
+<a id="924" class="Keyword">open</a> <a id="929" class="Keyword">import</a> <a id="936" href="Prelude.FromN.html" class="Module">Prelude.FromN</a>
+<a id="950" class="Keyword">open</a> <a id="955" class="Keyword">import</a> <a id="962" href="Prelude.ToList.html" class="Module">Prelude.ToList</a>
+<a id="977" class="Keyword">open</a> <a id="982" class="Keyword">import</a> <a id="989" href="Prelude.Enumerable.html" class="Module">Prelude.Enumerable</a>
 
-<a id="980" class="Keyword">open</a> <a id="985" class="Keyword">import</a> <a id="992" href="Prelude.Orders.html" class="Module">Prelude.Orders</a>
-<a id="1007" class="Keyword">open</a> <a id="1012" class="Keyword">import</a> <a id="1019" href="Prelude.Ord.html" class="Module">Prelude.Ord</a>
+<a id="1009" class="Keyword">open</a> <a id="1014" class="Keyword">import</a> <a id="1021" href="Prelude.Orders.html" class="Module">Prelude.Orders</a>
+<a id="1036" class="Keyword">open</a> <a id="1041" class="Keyword">import</a> <a id="1048" href="Prelude.Ord.html" class="Module">Prelude.Ord</a>
 
-<a id="1032" class="Keyword">open</a> <a id="1037" class="Keyword">import</a> <a id="1044" href="Prelude.Setoid.html" class="Module">Prelude.Setoid</a>
+<a id="1061" class="Keyword">open</a> <a id="1066" class="Keyword">import</a> <a id="1073" href="Prelude.Setoid.html" class="Module">Prelude.Setoid</a>
 
-<a id="1060" class="Keyword">open</a> <a id="1065" class="Keyword">import</a> <a id="1072" href="Prelude.Collections.html" class="Module">Prelude.Collections</a>
-<a id="1092" class="Keyword">open</a> <a id="1097" class="Keyword">import</a> <a id="1104" href="Prelude.Membership.html" class="Module">Prelude.Membership</a>
-<a id="1123" class="Keyword">open</a> <a id="1128" class="Keyword">import</a> <a id="1135" href="Prelude.Apartness.html" class="Module">Prelude.Apartness</a>
+<a id="1089" class="Keyword">open</a> <a id="1094" class="Keyword">import</a> <a id="1101" href="Prelude.Collections.html" class="Module">Prelude.Collections</a>
+<a id="1121" class="Keyword">open</a> <a id="1126" class="Keyword">import</a> <a id="1133" href="Prelude.Membership.html" class="Module">Prelude.Membership</a>
+<a id="1152" class="Keyword">open</a> <a id="1157" class="Keyword">import</a> <a id="1164" href="Prelude.Apartness.html" class="Module">Prelude.Apartness</a>
 
-<a id="1154" class="Keyword">open</a> <a id="1159" class="Keyword">import</a> <a id="1166" href="Prelude.Nary.html" class="Module">Prelude.Nary</a>
-<a id="1179" class="Keyword">open</a> <a id="1184" class="Keyword">import</a> <a id="1191" href="Prelude.Coercions.html" class="Module">Prelude.Coercions</a>
-<a id="1209" class="Keyword">open</a> <a id="1214" class="Keyword">import</a> <a id="1221" href="Prelude.Validity.html" class="Module">Prelude.Validity</a>
-<a id="1238" class="Keyword">open</a> <a id="1243" class="Keyword">import</a> <a id="1250" href="Prelude.Accessors.html" class="Module">Prelude.Accessors</a>
-<a id="1268" class="Keyword">open</a> <a id="1273" class="Keyword">import</a> <a id="1280" href="Prelude.Split.html" class="Module">Prelude.Split</a>
+<a id="1183" class="Keyword">open</a> <a id="1188" class="Keyword">import</a> <a id="1195" href="Prelude.Nary.html" class="Module">Prelude.Nary</a>
+<a id="1208" class="Keyword">open</a> <a id="1213" class="Keyword">import</a> <a id="1220" href="Prelude.Coercions.html" class="Module">Prelude.Coercions</a>
+<a id="1238" class="Keyword">open</a> <a id="1243" class="Keyword">import</a> <a id="1250" href="Prelude.Validity.html" class="Module">Prelude.Validity</a>
+<a id="1267" class="Keyword">open</a> <a id="1272" class="Keyword">import</a> <a id="1279" href="Prelude.Accessors.html" class="Module">Prelude.Accessors</a>
+<a id="1297" class="Keyword">open</a> <a id="1302" class="Keyword">import</a> <a id="1309" href="Prelude.Split.html" class="Module">Prelude.Split</a>
 
-<a id="1295" class="Comment">-- ** Closures</a>
-<a id="1310" class="Keyword">open</a> <a id="1315" class="Keyword">import</a> <a id="1322" href="Prelude.Closures.html" class="Module">Prelude.Closures</a>
-<a id="1339" class="Keyword">open</a> <a id="1344" class="Keyword">import</a> <a id="1351" href="Prelude.Traces.html" class="Module">Prelude.Traces</a>
+<a id="1324" class="Comment">-- ** Closures</a>
+<a id="1339" class="Keyword">open</a> <a id="1344" class="Keyword">import</a> <a id="1351" href="Prelude.Closures.html" class="Module">Prelude.Closures</a>
+<a id="1368" class="Keyword">open</a> <a id="1373" class="Keyword">import</a> <a id="1380" href="Prelude.Traces.html" class="Module">Prelude.Traces</a>
 
-<a id="1367" class="Comment">-- ** Data structures</a>
-<a id="1389" class="Keyword">open</a> <a id="1394" class="Keyword">import</a> <a id="1401" href="Prelude.Lists.html" class="Module">Prelude.Lists</a>
+<a id="1396" class="Comment">-- ** Data structures</a>
+<a id="1418" class="Keyword">open</a> <a id="1423" class="Keyword">import</a> <a id="1430" href="Prelude.Lists.html" class="Module">Prelude.Lists</a>
 
-<a id="1416" class="Keyword">open</a> <a id="1421" class="Keyword">import</a> <a id="1428" href="Prelude.Sets.html" class="Module">Prelude.Sets</a>
-<a id="1441" class="Keyword">open</a> <a id="1446" class="Keyword">import</a> <a id="1453" href="Prelude.Sets.Example.html" class="Module">Prelude.Sets.Example</a>
-<a id="1474" class="Keyword">open</a> <a id="1479" class="Keyword">import</a> <a id="1486" href="Prelude.Sets.Concrete.html" class="Module">Prelude.Sets.Concrete</a>
-<a id="1508" class="Keyword">open</a> <a id="1513" class="Keyword">import</a> <a id="1520" href="Prelude.Sets.Concrete.Example.html" class="Module">Prelude.Sets.Concrete.Example</a>
+<a id="1445" class="Keyword">open</a> <a id="1450" class="Keyword">import</a> <a id="1457" href="Prelude.Sets.html" class="Module">Prelude.Sets</a>
+<a id="1470" class="Keyword">open</a> <a id="1475" class="Keyword">import</a> <a id="1482" href="Prelude.Sets.Example.html" class="Module">Prelude.Sets.Example</a>
+<a id="1503" class="Keyword">open</a> <a id="1508" class="Keyword">import</a> <a id="1515" href="Prelude.Sets.Concrete.html" class="Module">Prelude.Sets.Concrete</a>
+<a id="1537" class="Keyword">open</a> <a id="1542" class="Keyword">import</a> <a id="1549" href="Prelude.Sets.Concrete.Example.html" class="Module">Prelude.Sets.Concrete.Example</a>
 
-<a id="1551" class="Keyword">open</a> <a id="1556" class="Keyword">import</a> <a id="1563" href="Prelude.Maps.html" class="Module">Prelude.Maps</a>
-<a id="1576" class="Keyword">open</a> <a id="1581" class="Keyword">import</a> <a id="1588" href="Prelude.Maps.Example.html" class="Module">Prelude.Maps.Example</a>
-<a id="1609" class="Keyword">open</a> <a id="1614" class="Keyword">import</a> <a id="1621" href="Prelude.Maps.Concrete.html" class="Module">Prelude.Maps.Concrete</a>
-<a id="1643" class="Keyword">open</a> <a id="1648" class="Keyword">import</a> <a id="1655" href="Prelude.Maps.Concrete.Example.html" class="Module">Prelude.Maps.Concrete.Example</a>
+<a id="1580" class="Keyword">open</a> <a id="1585" class="Keyword">import</a> <a id="1592" href="Prelude.Maps.html" class="Module">Prelude.Maps</a>
+<a id="1605" class="Keyword">open</a> <a id="1610" class="Keyword">import</a> <a id="1617" href="Prelude.Maps.Example.html" class="Module">Prelude.Maps.Example</a>
+<a id="1638" class="Keyword">open</a> <a id="1643" class="Keyword">import</a> <a id="1650" href="Prelude.Maps.Concrete.html" class="Module">Prelude.Maps.Concrete</a>
+<a id="1672" class="Keyword">open</a> <a id="1677" class="Keyword">import</a> <a id="1684" href="Prelude.Maps.Concrete.Example.html" class="Module">Prelude.Maps.Concrete.Example</a>
 
-<a id="1686" class="Comment">-- ** Utilities for cryptography</a>
-<a id="1719" class="Keyword">open</a> <a id="1724" class="Keyword">import</a> <a id="1731" href="Prelude.Bitstring.html" class="Module">Prelude.Bitstring</a>
+<a id="1715" class="Comment">-- ** Utilities for cryptography</a>
+<a id="1748" class="Keyword">open</a> <a id="1753" class="Keyword">import</a> <a id="1760" href="Prelude.Bitstring.html" class="Module">Prelude.Bitstring</a>
 
-<a id="1750" class="Comment">-- ** Unsafe operations</a>
-<a id="1774" class="Keyword">open</a> <a id="1779" class="Keyword">import</a> <a id="1786" href="Prelude.Unsafe.html" class="Module">Prelude.Unsafe</a>
+<a id="1779" class="Comment">-- ** Unsafe operations</a>
+<a id="1803" class="Keyword">open</a> <a id="1808" class="Keyword">import</a> <a id="1815" href="Prelude.Unsafe.html" class="Module">Prelude.Unsafe</a>
 
-<a id="1802" class="Comment">-- ** Utilities for working with irrelevance</a>
-<a id="1847" class="Keyword">open</a> <a id="1852" class="Keyword">import</a> <a id="1859" href="Prelude.Irrelevance.html" class="Module">Prelude.Irrelevance</a>
+<a id="1831" class="Comment">-- ** Utilities for working with irrelevance</a>
+<a id="1876" class="Keyword">open</a> <a id="1881" class="Keyword">import</a> <a id="1888" href="Prelude.Irrelevance.html" class="Module">Prelude.Irrelevance</a>
 
-<a id="1880" class="Comment">-- ** Tactics</a>
-<a id="1894" class="Keyword">open</a> <a id="1899" class="Keyword">import</a> <a id="1906" href="Prelude.Tactics.html" class="Module">Prelude.Tactics</a>
+<a id="1909" class="Comment">-- ** Tactics</a>
+<a id="1923" class="Keyword">open</a> <a id="1928" class="Keyword">import</a> <a id="1935" href="Prelude.Tactics.html" class="Module">Prelude.Tactics</a>
 
-<a id="1923" class="Comment">-- ** Automatical solvers</a>
-<a id="1949" class="Keyword">open</a> <a id="1954" class="Keyword">import</a> <a id="1961" href="Prelude.Solvers.html" class="Module">Prelude.Solvers</a>
+<a id="1952" class="Comment">-- ** Automatical solvers</a>
+<a id="1978" class="Keyword">open</a> <a id="1983" class="Keyword">import</a> <a id="1990" href="Prelude.Solvers.html" class="Module">Prelude.Solvers</a>
+
+<a id="2007" class="Comment">-- ** Lenses</a>
+<a id="2020" class="Keyword">open</a> <a id="2025" class="Keyword">import</a> <a id="2032" href="Prelude.Lenses.html" class="Module">Prelude.Lenses</a>
 </pre></body></html>
