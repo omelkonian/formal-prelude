@@ -25,6 +25,8 @@ record Lens : Type ℓ↑ where
   modify : Modifier
   modify s f = s .set $ f (s .get)
 
+  _∙modify = modify
+
 record Lens-Laws (l : Lens) : Type ℓ↑ where
   open Lens l
   field

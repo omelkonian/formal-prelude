@@ -43,7 +43,7 @@ private
   unquoteDecl 𝕪 _∙y _∙y=_ _∙y↝_
     = deriveLenses (quote R₀)
       [ (𝕪 , _∙y , _∙y=_ , _∙y↝_) ]
-  infix 10 _∙y=_ _∙y↝_
+  infixl 10 _∙y=_ _∙y↝_
 
   _ : record {y = "test"} ∙y ≡ "test"
   _ = refl
@@ -61,7 +61,7 @@ private
       ( (𝕩 , _∙x , _∙x=_ , _∙x↝_)
       ∷ (𝕣 , _∙r , _∙r=_ , _∙r↝_)
       ∷ [])
-  infix 10 _∙x=_ _∙x↝_ _∙r=_ _∙r↝_
+  infixl 10 _∙x=_ _∙x↝_ _∙r=_ _∙r↝_
 
   _ : R → String
   _ = λ r → r ∙r ∙y
