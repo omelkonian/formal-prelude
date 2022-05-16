@@ -470,6 +470,10 @@ f -∙- x = case f of λ where
        (lam visible (abs x t)) → go t
 -}
 
+_-∗-_ : Term → List Term → TC Term
+f -∗- []       = return f
+f -∗- (x ∷ xs) = f -∙- x >>= _-∗- xs
+
 private
   macro
     test : Hole → TC ⊤
