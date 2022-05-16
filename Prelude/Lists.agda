@@ -31,6 +31,7 @@ open import Prelude.Lists.NonEmpty public
 open import Prelude.Lists.Indexed public
 open import Prelude.Lists.Combinatorics public
 open import Prelude.Lists.Permutations public
+-- open import Prelude.Lists.PermutationsMeta public -- import manually if needed
 open import Prelude.Lists.Concat public
 open import Prelude.Lists.Count public
 open import Prelude.Lists.Sums public

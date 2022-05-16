@@ -10,32 +10,7 @@ open import Prelude.Lists.Empty
 private variable
   a b c : Level; A : Set a; B : Set b; C : Set c
   x x′ y : A; xs ys : List A
-  P : Pred A ℓ
-
--- ** _∈_
-
-∈-++⁻∘∈-++⁺ˡ : (x∈ : x ∈ xs)
-  → ∈-++⁻ xs {ys} (∈-++⁺ˡ {xs = xs}{ys} x∈)
-  ≡ inj₁ x∈
-∈-++⁻∘∈-++⁺ˡ (here _) = refl
-∈-++⁻∘∈-++⁺ˡ {ys = ys} (there x∈) rewrite ∈-++⁻∘∈-++⁺ˡ {ys = ys} x∈ = refl
-
-∈-++⁻∘∈-++⁺ʳ : (y∈ : y ∈ ys)
-  → ∈-++⁻ xs {ys} (∈-++⁺ʳ xs {ys} y∈)
-  ≡ inj₂ y∈
-∈-++⁻∘∈-++⁺ʳ {xs = []} _ = refl
-∈-++⁻∘∈-++⁺ʳ {xs = _ ∷ xs} y∈ rewrite ∈-++⁻∘∈-++⁺ʳ {xs = xs} y∈ = refl
-
--- ** _⊆_
-
-⊆-tail : x ∷ xs ⊆ ys → xs ⊆ ys
-⊆-tail = _∘ there
-
-module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
-  ⊆-filter : xs ⊆ ys → filter P? xs ⊆ filter P? ys
-  ⊆-filter {xs = xs}{ys} xs⊆ y∈ =
-    let x∈ , Px = ∈-filter⁻ P? y∈
-    in ∈-filter⁺ P? (xs⊆ x∈) Px
+  P Q : Pred A ℓ
 
 -- ** Any
 
@@ -47,6 +22,104 @@ module _ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} where
   Is-there = λ where
     (here _)  → ⊥
     (there _) → ⊤
+
+Any-++⁻∘Any-++⁺ˡ : (x∈ : Any P xs)
+  → L.Any.++⁻ xs {ys} (L.Any.++⁺ˡ {xs = xs}{ys} x∈)
+  ≡ inj₁ x∈
+Any-++⁻∘Any-++⁺ˡ (here _) = refl
+Any-++⁻∘Any-++⁺ˡ {ys = ys} (there x∈) rewrite Any-++⁻∘Any-++⁺ˡ {ys = ys} x∈ = refl
+
+Any-++⁻∘Any-++⁺ʳ : (y∈ : Any P ys)
+  → L.Any.++⁻ xs {ys} (L.Any.++⁺ʳ xs {ys} y∈)
+  ≡ inj₂ y∈
+Any-++⁻∘Any-++⁺ʳ {xs = []} _ = refl
+Any-++⁻∘Any-++⁺ʳ {xs = _ ∷ xs} y∈ rewrite Any-++⁻∘Any-++⁺ʳ {xs = xs} y∈ = refl
+
+Any-++⁻⇒Any-++⁺ˡ : ∀ {xs ys : List A}
+  → (x∈ : Any P (xs ++ ys))
+    --———————————————————
+  → case L.Any.++⁻ xs {ys} x∈ of λ where
+      (inj₁ x∈ˡ) → x∈ ≡ L.Any.++⁺ˡ x∈ˡ
+      (inj₂ x∈ʳ) → x∈ ≡ L.Any.++⁺ʳ xs x∈ʳ
+Any-++⁻⇒Any-++⁺ˡ {xs = []}          x∈       = refl
+Any-++⁻⇒Any-++⁺ˡ {xs = x ∷ xs} {ys} (here _) = refl
+Any-++⁻⇒Any-++⁺ˡ {xs = x ∷ xs} {ys} (there x∈)
+  with IH ← Any-++⁻⇒Any-++⁺ˡ {xs = xs}{ys} x∈
+  with L.Any.++⁻ xs x∈
+... | inj₁ x∈ˡ = cong there IH
+... | inj₂ x∈ʳ = cong there IH
+
+destruct-Any-++ : ∀ {xs ys : List A}
+  → (x∈ : Any P (xs ++ ys))
+    --——————————————————
+  → (∃ λ (x∈ˡ : Any P xs) → x∈ ≡ L.Any.++⁺ˡ x∈ˡ)
+  ⊎ (∃ λ (x∈ʳ : Any P ys) → x∈ ≡ L.Any.++⁺ʳ xs x∈ʳ)
+destruct-Any-++ {xs = xs}{ys} x∈
+  with L.Any.++⁻ xs {ys} x∈ | Any-++⁻⇒Any-++⁺ˡ {xs = xs}{ys} x∈
+... | inj₁ x∈ˡ | refl = inj₁ $ -, refl
+... | inj₂ x∈ʳ | refl = inj₂ $ -, refl
+
+destruct-Any-++² : ∀ {xs ys zs : List A}
+  → (x∈ : Any P (xs ++ ys ++ zs))
+    --————————————————————————————————————
+  → (∃ λ (x∈xs : Any P xs) → x∈ ≡ (L.Any.++⁺ˡ x∈xs))
+  ⊎ (∃ λ (x∈ys : Any P ys) → x∈ ≡ (L.Any.++⁺ʳ xs $ L.Any.++⁺ˡ x∈ys))
+  ⊎ (∃ λ (x∈zs : Any P zs) → x∈ ≡ (L.Any.++⁺ʳ xs $ L.Any.++⁺ʳ ys x∈zs))
+destruct-Any-++² {xs = xs}{ys} x∈
+  with destruct-Any-++ {xs = xs} x∈
+... | inj₁ (_   , refl) = inj₁ $ -, refl
+... | inj₂ (x∈ʳ , refl)
+  with destruct-Any-++ {xs = ys} x∈ʳ
+... | inj₁ (_ , refl) = inj₂ $ inj₁ $ -, refl
+... | inj₂ (_ , refl) = inj₂ $ inj₂ $ -, refl
+
+-- ** _∈_
+
+∈-++⁻∘∈-++⁺ˡ : (x∈ : x ∈ xs)
+  → ∈-++⁻ xs {ys} (∈-++⁺ˡ {xs = xs}{ys} x∈)
+  ≡ inj₁ x∈
+∈-++⁻∘∈-++⁺ˡ = Any-++⁻∘Any-++⁺ˡ
+
+∈-++⁻∘∈-++⁺ʳ : (y∈ : y ∈ ys)
+  → ∈-++⁻ xs {ys} (∈-++⁺ʳ xs {ys} y∈)
+  ≡ inj₂ y∈
+∈-++⁻∘∈-++⁺ʳ = Any-++⁻∘Any-++⁺ʳ
+
+∈-++⁻⇒∈-++⁺ˡ : ∀ {xs ys : List A}
+  → (x∈ : x ∈ xs ++ ys)
+    --———————————————————
+  → case ∈-++⁻ xs {ys} x∈ of λ where
+      (inj₁ x∈ˡ) → x∈ ≡ ∈-++⁺ˡ x∈ˡ
+      (inj₂ x∈ʳ) → x∈ ≡ ∈-++⁺ʳ xs x∈ʳ
+∈-++⁻⇒∈-++⁺ˡ {xs = xs} x∈ with ∈-++⁻ xs x∈ | Any-++⁻⇒Any-++⁺ˡ {xs = xs} x∈
+... | inj₁ _ | p = p
+... | inj₂ _ | p = p
+
+destruct-∈-++ : ∀ {xs ys : List A}
+  → (x∈ : x ∈ xs ++ ys)
+    --——————————————————
+  → (∃ λ (x∈ˡ : x ∈ xs) → x∈ ≡ ∈-++⁺ˡ x∈ˡ)
+  ⊎ (∃ λ (x∈ʳ : x ∈ ys) → x∈ ≡ ∈-++⁺ʳ xs x∈ʳ)
+destruct-∈-++ = destruct-Any-++
+
+destruct-∈-++² : ∀ {xs ys zs : List A}
+  → (x∈ : x ∈ xs ++ ys ++ zs)
+    --————————————————————————————————————
+  → (∃ λ (x∈xs : x ∈ xs) → x∈ ≡ (∈-++⁺ˡ x∈xs))
+  ⊎ (∃ λ (x∈ys : x ∈ ys) → x∈ ≡ (∈-++⁺ʳ xs $ ∈-++⁺ˡ x∈ys))
+  ⊎ (∃ λ (x∈zs : x ∈ zs) → x∈ ≡ (∈-++⁺ʳ xs $ ∈-++⁺ʳ ys x∈zs))
+destruct-∈-++² = destruct-Any-++²
+
+-- ** _⊆_
+
+⊆-tail : x ∷ xs ⊆ ys → xs ⊆ ys
+⊆-tail = _∘ there
+
+module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
+  ⊆-filter : xs ⊆ ys → filter P? xs ⊆ filter P? ys
+  ⊆-filter {xs = xs}{ys} xs⊆ y∈ =
+    let x∈ , Px = ∈-filter⁻ P? y∈
+    in ∈-filter⁺ P? (xs⊆ x∈) Px
 
 -- ** mapWith∈
 
@@ -206,44 +279,43 @@ indexℕ-++⁻ {xs = x ∷ xs} y∈ (there y∈′) i≡ = qed
 
 -- ** Last∈
 
-Last∈ : Pred₀ (x ∈ xs)
+LastAny : ∀ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} → Pred (Any P xs) ℓ
+LastAny (there p) = LastAny p
+LastAny {xs = _ ∷ xs} (here _) = Null xs
+
+Last∈ : Pred (x ∈ xs) _
 -- Last = Null ∘ Any-tail
-Last∈ {xs = _ ∷ []}      (here _)   = ⊤
-Last∈ {xs = _ ∷ (_ ∷ _)} (here _)   = ⊥
-Last∈ {xs = _ ∷ (_ ∷ _)} (there x∈) = Last∈ x∈
+Last∈ = LastAny
 
-Last∈-there⁺ : ∀ (x∈ : x ∈ xs) →
-  Last∈ x∈
-  ─────────────────────────
-  Last∈ (there {x = x′} x∈)
-Last∈-there⁺ = λ where
-  (here _)  → id
-  (there _) → id
+Last∈-there⁺ : ∀ (x∈ : x ∈ xs) → Last∈ x∈ → Last∈ (there {x = x′} x∈)
+Last∈-there⁺ _ = id
 
-Last∈-there⁻ : ∀ (x∈ : x ∈ xs) →
-  Last∈ (there {x = x′} x∈)
-  ─────────────────────────
-  Last∈ x∈
-Last∈-there⁻ = λ where
-  (here _)  → id
-  (there _) → id
+module _ (f : P ⊆¹ Q) where
+  LastAny-map⁺ :
+    (p : Any P xs)
+    → LastAny p
+    → LastAny (L.Any.map f p)
+  LastAny-map⁺ (here _)  = id
+  LastAny-map⁺ (there p) = LastAny-map⁺ p
 
-Last∈-here⁻ :
-  Last∈ (here {x = x}{xs} refl)
-  ─────────────────────────────
-  Null xs
-Last∈-here⁻ {xs = []} tt = refl
+  LastAny-map⁻ :
+    (p : Any P xs)
+    → LastAny (L.Any.map f p)
+    → LastAny p
+  LastAny-map⁻ (here _)  = id
+  LastAny-map⁻ (there p) = LastAny-map⁻ p
 
-Last∈-here⁺ :
-  Null xs
-  ─────────────────────────────
-  Last∈ (here {x = x}{xs} refl)
-Last∈-here⁺ {xs = []} refl = tt
-
+module _ (f : A → B) (P : Pred B ℓ) where
+  LastAny-map⁺⁺ :
+    (p : Any (P ∘ f) xs)
+    → LastAny p
+    → LastAny (L.Any.map⁺ {P = P} p)
+  LastAny-map⁺⁺ (here _)  refl = refl
+  LastAny-map⁺⁺ (there p) lp   = LastAny-map⁺⁺ p lp
 
 Last∈-map⁺ : ∀ (f : A → B) (x∈ : x ∈ xs) →
   Last∈ x∈
   ───────────────────
   Last∈ (∈-map⁺ f x∈)
-Last∈-map⁺ {xs = _ ∷ []}    f (here refl) p = tt
-Last∈-map⁺ {xs = _ ∷ _ ∷ _} f (there x∈)  p = Last∈-map⁺ f x∈ p
+Last∈-map⁺ f (here _)  refl = refl
+Last∈-map⁺ f (there p) lp   = Last∈-map⁺ f p lp

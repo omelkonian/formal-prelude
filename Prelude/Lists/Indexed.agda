@@ -15,6 +15,7 @@ private variable
   m n : ℕ
   A : Set ℓ; B : Set ℓ′
   x : A; xs ys : List A
+  P Q : Pred A ℓ″
 
 Index : List A → Set
 Index = Fin ∘ length
@@ -32,7 +33,7 @@ _⁉_ : List A → ℕ → Maybe A
 (x ∷ xs) ⁉ zero  = just x
 (x ∷ xs) ⁉ suc n = xs ⁉ n
 
-index⁺ : x ∈ xs → Index⁺ xs
+index⁺ : Any P xs → Index⁺ xs
 index⁺ = fsuc ∘ L.Any.index
 
 remove : (vs : List A) → Index vs → List A
@@ -68,7 +69,7 @@ findElem P? xs with L.Any.any? P? xs
 
 -- ** indexℕ
 
-indexℕ : (x∈ : x ∈ xs) → ℕ
+indexℕ : Any P xs → ℕ
 indexℕ = toℕ ∘ L.Any.index
 
 indexℕ-injective : ∀ (p q : x ∈ xs) →
@@ -78,6 +79,22 @@ indexℕ-injective : ∀ (p q : x ∈ xs) →
 indexℕ-injective {xs = .(_ ∷ _)} (here refl) (here refl) i≡ = refl
 indexℕ-injective {xs = .(_ ∷ _)} (there p) (there q) i≡
   = cong there $ indexℕ-injective p q $ Nat.suc-injective {indexℕ p} {indexℕ q} i≡
+
+indexℕ-Any-map : ∀ {f : P ⊆¹ Q}
+  → (x∈ : Any P xs)
+  → indexℕ (L.Any.map f x∈)
+  ≡ indexℕ x∈
+indexℕ-Any-map = λ where
+  (here _)  → refl
+  (there p) → cong suc $ indexℕ-Any-map p
+
+indexℕ-Any-map⁺ : ∀ {f : A → B} {P : Pred B ℓ}
+  → (x∈ : Any (P ∘ f) xs)
+  → indexℕ (L.Any.map⁺ {f = f} {P = P} x∈)
+  ≡ indexℕ x∈
+indexℕ-Any-map⁺ = λ where
+  (here _)  → refl
+  (there p) → cong suc $ indexℕ-Any-map⁺ p
 
 zip-∈ : ∀ {xs : List A} {ys : List B} {x : A} {y : B}
   → (x , y) ∈ zip xs ys → (x ∈ xs) × (y ∈ ys)
@@ -117,8 +134,8 @@ splitAt⁺ʳ (x ∷ xs) (fsuc i) = let xsˡ , xsʳ , p = splitAt⁺ʳ xs i
                               in  x ∷⁺ xsˡ , xsʳ , cong suc p
 
 instance
-  Split-∈ : ∀ {xs : List A} →
-    (x ∈ xs) -splitsInto- List A
+  Split-∈ : ∀ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} →
+    Any P xs -splitsInto- List A
   Split-∈ {xs = xs} .split = splitAt xs ∘ index⁺
 
 private
@@ -128,8 +145,8 @@ private
   _ : splitAt⁺ʳ (0 ∷ 1 ∷ []) (# 1) ≡ (0 ∷ 1 ∷ [] , [] , refl)
   _ = refl
 
-length-∈∙left : {xs : List A} (x∈ : x ∈ xs) → length (x∈ ∙left) ≡ suc (indexℕ x∈)
-length-∈∙left {xs = x ∷ xs} (here refl) = refl
+length-∈∙left : {xs : List A} (x∈ : Any P xs) → length (x∈ ∙left) ≡ suc (indexℕ x∈)
+length-∈∙left {xs = x ∷ xs} (here _) = refl
 length-∈∙left {xs = x ∷ xs} (there x∈) rewrite length-∈∙left {xs = xs} x∈ = refl
 
 map-map₁-zip : ∀ {A B C : Set} {xs : List A} {ys : List B} (f : A → C)

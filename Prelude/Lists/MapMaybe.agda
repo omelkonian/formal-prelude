@@ -16,12 +16,70 @@ private variable
   a b : Level; A : Set a; B : Set b
   x x′ y : A; xs ys : List A
 
+-- ** catMaybes
+catMaybes : List (Maybe A) → List A
+catMaybes [] = []
+catMaybes (nothing ∷ xs) = catMaybes xs
+catMaybes (just x ∷ xs)  = x ∷ catMaybes xs
+
+Any-catMaybes⁺ : ∀ {P : Pred A ℓ} {xs : List (Maybe A)}
+  → Any (M.Any.Any P) xs → Any P (catMaybes xs)
+Any-catMaybes⁺ {xs = nothing ∷ xs} (there x∈) = Any-catMaybes⁺ x∈
+Any-catMaybes⁺ {xs = just x ∷ xs} = λ where
+  (here (M.Any.just px)) → here px
+  (there x∈)             → there $ Any-catMaybes⁺ x∈
+
+catMaybes-↭ : xs ↭ ys → catMaybes xs ↭ catMaybes ys
+catMaybes-↭ ↭-refl = ↭-refl
+catMaybes-↭ (↭-trans xs↭ ↭ys) = ↭-trans (catMaybes-↭ xs↭) (catMaybes-↭ ↭ys)
+catMaybes-↭ {xs = .(mx ∷ _)} {.(mx ∷ _)} (↭-prep mx xs↭)
+  with mx
+... | nothing = catMaybes-↭ xs↭
+... | just x  = ↭-prep x $ catMaybes-↭ xs↭
+catMaybes-↭ {xs = .(mx ∷ my ∷ _)} {.(my ∷ mx ∷ _)} (↭-swap mx my xs↭)
+  with mx | my
+... | nothing | nothing = catMaybes-↭ xs↭
+... | nothing | just y  = ↭-prep y $ catMaybes-↭ xs↭
+... | just x  | nothing = ↭-prep x $ catMaybes-↭ xs↭
+... | just x  | just y  = ↭-swap x y $ catMaybes-↭ xs↭
+
+-- mapMaybe′: a simpler definition than the one found in stdlib
+-- NB: does not use a `with` statement and is therefore much easier to reason about
+mapMaybe′ : (A → Maybe B) → List A → List B
+mapMaybe′ f = catMaybes ∘ map f
+
+module _ (f : A → Maybe B) where
+  mapMaybe≗mapMaybe′ :
+    mapMaybe′ f ≗ mapMaybe f
+  mapMaybe≗mapMaybe′ [] = refl
+  mapMaybe≗mapMaybe′ (x ∷ xs) with f x
+  ... | nothing = mapMaybe≗mapMaybe′ xs
+  ... | just _  = cong (_ ∷_) (mapMaybe≗mapMaybe′ xs)
+
+  mapMaybe′-↭ : xs ↭ ys → mapMaybe′ f xs ↭ mapMaybe′ f ys
+  mapMaybe′-↭ = catMaybes-↭ ∘ L.Perm.map⁺ f
+
+  mapMaybe-↭ : xs ↭ ys → mapMaybe f xs ↭ mapMaybe f ys
+  mapMaybe-↭ {xs}{ys} xs↭ =
+    subst (_↭ _) (mapMaybe≗mapMaybe′ xs) $
+    subst (_ ↭_) (mapMaybe≗mapMaybe′ ys) $
+    mapMaybe′-↭ xs↭
+
 module MapMaybeDSL (f : A → Maybe B) where
-  ⊥⋯_ _⋯⊥ ⊤⋯_ _⋯⊤ : ∀ {x : A} → x ∈ xs → ℕ
-  ⊥⋯ x∈ = countNothing f (x∈ ∙left)
-  ⊤⋯ x∈ = countJust    f (x∈ ∙left)
-  x∈ ⋯⊥ = countNothing f (x∈ ∙right)
-  x∈ ⋯⊤ = countJust    f (x∈ ∙right)
+
+  module _ {P : Pred A ℓ′} where
+    ⊥⋯_ _⋯⊥ ⊤⋯_ _⋯⊤ : Any P xs → ℕ
+    ⊥⋯ x∈ = countNothing f (x∈ ∙left)
+    ⊤⋯ x∈ = countJust    f (x∈ ∙left)
+    x∈ ⋯⊥ = countNothing f (x∈ ∙right)
+    x∈ ⋯⊤ = countJust    f (x∈ ∙right)
+
+    countNothing≤ : (x∈ : Any P xs) → ⊥⋯ x∈ ≤ suc (indexℕ x∈)
+    countNothing≤ {xs = xs} x∈ =
+      begin ⊥⋯ x∈                     ≡⟨⟩
+            countNothing f (x∈ ∙left) ≤⟨ length-count (is-nothing? ∘ f) {xs = x∈ ∙left} ⟩
+            length (x∈ ∙left)         ≡⟨ length-∈∙left x∈ ⟩
+            suc (indexℕ x∈)           ∎ where open ≤-Reasoning
 
   countNothing≡⊥⋯⊥ : (x∈ : x ∈ xs) → countNothing f xs ≡ ⊥⋯ x∈ + x∈ ⋯⊥
   countNothing≡⊥⋯⊥ {xs = x ∷ xs} (here refl)
@@ -32,13 +90,6 @@ module MapMaybeDSL (f : A → Maybe B) where
     with f x
   ... | nothing = cong suc (countNothing≡⊥⋯⊥ x∈)
   ... | just _  = countNothing≡⊥⋯⊥ x∈
-
-  countNothing≤ : (x∈ : x ∈ xs) → ⊥⋯ x∈ ≤ suc (indexℕ x∈)
-  countNothing≤ {xs = xs} x∈ =
-    begin ⊥⋯ x∈                      ≡⟨⟩
-          countNothing f (x∈ ∙left) ≤⟨ length-count (is-nothing? ∘ f) {xs = x∈ ∙left} ⟩
-          length (x∈ ∙left)         ≡⟨ length-∈∙left x∈ ⟩
-          suc (indexℕ x∈)           ∎ where open ≤-Reasoning
 
 module _ (f : A → Maybe B) where
   open MapMaybeDSL f
@@ -51,6 +102,186 @@ module _ (f : A → Maybe B) where
 
   mapMaybe-skip : f x ≡ nothing → mapMaybe f (x ∷ xs) ≡ mapMaybe f xs
   mapMaybe-skip {x = x} _ with nothing ← f x = refl
+
+  mapMaybe-here : (eq : f x ≡ just y)
+    → mapMaybe f (x ∷ xs) ≡ y ∷ mapMaybe f xs
+  mapMaybe-here {x = x} eq with just _ ← f x = cong (_∷ _) (M.just-injective eq)
+
+  All-nothing⇒mapMaybe≡[] : ∀ {xs} → All Is-nothing (map f xs) → Null (mapMaybe f xs)
+  All-nothing⇒mapMaybe≡[] {xs = []}     [] = refl
+  All-nothing⇒mapMaybe≡[] {xs = x ∷ xs} (px ∷ pxs) with f x | px
+  ... | just _  | M.All.just ()
+  ... | nothing | _ = All-nothing⇒mapMaybe≡[] {xs = xs} pxs
+
+  mapMaybe≡[]⇒All-nothing : ∀ {xs} → Null (mapMaybe f xs) → All (Is-nothing ∘ f) xs
+  mapMaybe≡[]⇒All-nothing {xs = []}     p = []
+  mapMaybe≡[]⇒All-nothing {xs = x ∷ xs} p
+    with nothing ← f x in fx≡
+    = subst (M.All.All _) (sym fx≡) M.All.nothing
+    ∷ mapMaybe≡[]⇒All-nothing {xs = xs} p
+
+  -- ** mapMaybe⁻
+
+  module _ {P : Pred B ℓ} where
+    Any-mapMaybe′⁺ : Any (M.Any.Any P ∘ f) xs → Any P (mapMaybe′ f xs)
+    Any-mapMaybe′⁺ = Any-catMaybes⁺ ∘ L.Any.map⁺
+
+    -- private
+    Any[_]⇒_ : ∀ xs → Any P (mapMaybe′ f xs) → Any P (mapMaybe f xs)
+    Any[ xs ]⇒ x∈ = subst (Any P) (mapMaybe≗mapMaybe′ f xs) x∈
+
+    Any-mapMaybe⁺ : Any (M.Any.Any P ∘ f) xs → Any P (mapMaybe f xs)
+    Any-mapMaybe⁺ {xs = xs} x∈ = Any[ xs ]⇒ Any-mapMaybe′⁺ x∈
+
+    --
+
+    Any-mapMaybe′⁺-here : (Px : M.Any.Any P (f x))
+      → Is-here $ Any-mapMaybe′⁺ (here {xs = xs} Px)
+    Any-mapMaybe′⁺-here {x = x} Px
+      with f x      | Px
+    ... | .(just _) | M.Any.just _ = tt
+
+    Is-here∘Any⇒ : ∀ xs →
+      (p : Any P (mapMaybe′ f xs)) →
+      Is-here p →
+      Is-here (Any[ xs ]⇒ p)
+    Is-here∘Any⇒ (x ∷ xs) p hp with f x
+    ... | nothing = Is-here∘Any⇒ xs p hp
+    ... | just _ rewrite mapMaybe≗mapMaybe′ f xs = hp
+
+    Any-mapMaybe⁺-here : (Px : M.Any.Any P (f x))
+      → Is-here $ Any-mapMaybe⁺ (here {xs = xs} Px)
+    Any-mapMaybe⁺-here {x = x} {xs = xs} Px =
+      Is-here∘Any⇒ _ (Any-mapMaybe′⁺ (here Px)) (Any-mapMaybe′⁺-here Px)
+
+    --
+
+    Is-here⇒indexℕ≡0 : (p : Any P xs) →
+      Is-here p
+      ────────────
+      indexℕ p ≡ 0
+    Is-here⇒indexℕ≡0 (here _) _ = refl
+
+    indexℕ-Any-mapMaybe≡0 : ∀ {y : B} (Px : M.Any.Any P (f x))
+      → indexℕ (Any-mapMaybe⁺ (here {x = x} {xs = xs} Px)) ≡ 0
+    indexℕ-Any-mapMaybe≡0 {x = x} {xs = xs} Px = Is-here⇒indexℕ≡0 _ (Any-mapMaybe⁺-here Px)
+
+    --
+
+    indexℕ∘Any⇒ : (p : Any P (mapMaybe′ f xs)) →
+       indexℕ (Any[ xs ]⇒ p) ≡ indexℕ p
+    indexℕ∘Any⇒ {xs = xs} p rewrite mapMaybe≗mapMaybe′ f xs = refl
+
+    indexℕ-Any-catMaybes⁺ : ∀ {xs : List (Maybe B)} (p : Any (M.Any.Any P) xs)
+      → indexℕ (Any-catMaybes⁺ p) ≡ indexℕ p ∸ count is-nothing? (p ∙left)
+    indexℕ-Any-catMaybes⁺ {xs = nothing ∷ xs} (there p) = indexℕ-Any-catMaybes⁺ {xs = xs} p
+    indexℕ-Any-catMaybes⁺ {xs = just x ∷ _}   (here (M.Any.just _)) = refl
+    indexℕ-Any-catMaybes⁺ {xs = just x ∷ xs}  (there p) =
+      begin
+        indexℕ (there {x = x} (Any-catMaybes⁺ p))
+      ≡⟨⟩
+        suc (indexℕ $ Any-catMaybes⁺ p)
+      ≡⟨ cong suc $ indexℕ-Any-catMaybes⁺ p ⟩
+        suc (indexℕ p ∸ ⊥⋯p)
+      ≡⟨ ∸-suc (indexℕ p) ⊥⋯p (⊥≤ p) ⟩
+        suc (indexℕ p) ∸ ⊥⋯p
+      ≡⟨ cong (suc (indexℕ p) ∸_) $ sym $ c≡ (p ∙left) ⟩
+        suc (indexℕ p) ∸ count is-nothing? ((there {x = just x} p) ∙left)
+      ≡⟨⟩
+        indexℕ (there {x = just x} p) ∸ (MapMaybeDSL.⊥⋯ id) (there {x = just x} p)
+      ∎ where
+        open ≡-Reasoning
+        ⊥⋯p = count is-nothing? (p ∙left)
+
+        c≡ : ∀ xs → count is-nothing? (just x ∷ xs) ≡ count is-nothing? xs
+        c≡ xs = cong length $ L.filter-reject is-nothing? {x = just x} {xs = xs} (λ ())
+
+        ⊥≤ : ∀ {xs} (p : Any (M.Any.Any P) xs) → count is-nothing? (p ∙left) ≤ indexℕ p
+        ⊥≤ (here (M.Any.just _)) = z≤n
+        ⊥≤ {xs = xs} (there {x = just x} p)
+          rewrite L.filter-reject is-nothing? {x = just x} {xs = xs} (λ ())
+          = Nat.≤-step (⊥≤ p)
+        ⊥≤ {xs = xs} (there {x = nothing} p)
+          rewrite L.filter-accept is-nothing? {x = nothing} {xs = xs} tt
+          = s≤s (⊥≤ p)
+
+    indexℕ-Any-mapMaybe′⁺ : ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
+      → indexℕ (Any-mapMaybe′⁺ x∈) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
+    indexℕ-Any-mapMaybe′⁺ {xs = xs} p =
+      begin
+        indexℕ (Any-mapMaybe′⁺ p)
+      ≡⟨⟩
+        indexℕ (Any-catMaybes⁺ $ L.Any.map⁺ p)
+      ≡⟨ indexℕ-Any-catMaybes⁺ (L.Any.map⁺ p) ⟩
+        indexℕ (L.Any.map⁺ p) ∸ count is-nothing? ((L.Any.map⁺ p) ∙left)
+      ≡⟨ cong (_∸ count is-nothing? ((L.Any.map⁺ p) ∙left)) $ indexℕ-Any-map⁺ p ⟩
+        indexℕ p ∸ count is-nothing? ((L.Any.map⁺ p) ∙left)
+      ≡⟨ cong (indexℕ p ∸_) $ c≡ p ⟩
+        indexℕ p ∸ ⊥⋯ p
+      ∎ where
+        open ≡-Reasoning
+        c≡ : ∀ {xs : List A} (p : Any (M.Any.Any P ∘ f) xs)
+          → count is-nothing? ((L.Any.map⁺ {P = M.Any.Any P} p) ∙left)
+          ≡ ⊥⋯ p
+        c≡ {xs = x ∷ xs} (here px) with just _ ← f x = refl
+        c≡ {xs = x ∷ xs} (there p)
+          with IH ← c≡ p
+          with f x
+        ... | nothing = cong suc IH
+        ... | just _  = IH
+
+    indexℕ-Any-mapMaybe⁺ : ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
+      → indexℕ (Any-mapMaybe⁺ x∈) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
+    indexℕ-Any-mapMaybe⁺ {xs = xs} p =
+      begin
+        indexℕ (Any-mapMaybe⁺ p)
+      ≡⟨ indexℕ∘Any⇒ {xs = xs} (Any-mapMaybe′⁺ p) ⟩
+        indexℕ (Any-mapMaybe′⁺ p)
+      ≡⟨ indexℕ-Any-mapMaybe′⁺ p ⟩
+        indexℕ p ∸ ⊥⋯ p
+      ∎ where open ≡-Reasoning
+
+  ≡just⇒MAny :
+      f x ≡ just y
+    → (x ≡_) ⊆¹ M.Any.Any (_≡_ y) ∘ f
+  ≡just⇒MAny eq refl = subst (M.Any.Any (_ ≡_)) (sym eq) (M.Any.just refl)
+
+  ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y → y ∈ mapMaybe f xs
+  ∈-mapMaybe⁺ {x = x} {xs = xs} {y = y} x∈ eq = Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈
+
+  Is-here∘map : ∀ {X : Set ℓ} {P : Pred A ℓ′} {Q : Pred A ℓ″} (g : P ⊆¹ Q)
+    → (p : Any P xs)
+    → Is-here p
+    → Is-here $ L.Any.map g p
+  Is-here∘map _ (here _) _ = tt
+
+  ∈-mapMaybe⁺-here : (eq : f x ≡ just y)
+    → Is-here $ ∈-mapMaybe⁺ (here {xs = xs} refl) eq
+  ∈-mapMaybe⁺-here {x = x} {y = y} {xs = xs} eq = Any-mapMaybe⁺-here (≡just⇒MAny eq refl)
+
+  ∈-mapMaybe-skip : f x ≡ nothing → y ∈ mapMaybe f (x ∷ xs) → y ∈ mapMaybe f xs
+  ∈-mapMaybe-skip fx≡ = subst (_ ∈_) (mapMaybe-skip fx≡)
+
+  ∈-mapMaybe-here : ∀ {y′} → f x ≡ just y′ → y ∈ mapMaybe f (x ∷ xs) → y ∈ y′ ∷ mapMaybe f xs
+  ∈-mapMaybe-here fx≡ = subst (_ ∈_) (mapMaybe-here fx≡)
+
+  ∈-mapMaybe-++⁻ : ∀ xs {ys} {x : B}
+    → x ∈ mapMaybe f (xs ++ ys)
+    → x ∈ mapMaybe f xs
+    ⊎ x ∈ mapMaybe f ys
+  ∈-mapMaybe-++⁻ xs {ys} rewrite mapMaybe-++ xs ys = ∈-++⁻ _
+
+  ∈-mapMaybe-++⁺ˡ : ∀ {xs ys} {x : B}
+    → x ∈ mapMaybe f xs
+    → x ∈ mapMaybe f (xs ++ ys)
+  ∈-mapMaybe-++⁺ˡ {xs}{ys} rewrite mapMaybe-++ xs ys = ∈-++⁺ˡ
+
+  ∈-mapMaybe-++⁺ʳ : ∀ xs {ys} {y : B}
+    → y ∈ mapMaybe f ys
+    → y ∈ mapMaybe f (xs ++ ys)
+  ∈-mapMaybe-++⁺ʳ xs {ys} rewrite mapMaybe-++ xs ys = ∈-++⁺ʳ _
+
+  -- ** ∈-mapMaybe⁻
 
   ∈-mapMaybe⁻ : y ∈ mapMaybe f xs
               → ∃ λ x → (x ∈ xs) × (f x ≡ just y)
@@ -76,69 +307,45 @@ module _ (f : A → Maybe B) where
     → Is-here $ ∈-mapMaybe⁻ y∈ .proj₂ .proj₁
     → Is-here y∈
   ∈-mapMaybe⁻-here {x = x} {xs = xs} y∈ y∈≡
-    with f x | inspect f x
+    with f x    | inspect f x
   ... | nothing | _ = case y∈≡ of λ ()
-  ... | just _ | _ with here _ ← y∈ = tt
-
-  ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y → y ∈ mapMaybe f xs
-  ∈-mapMaybe⁺ {xs = x ∷ xs} x∈ eq with x∈
-  ... | here refl with just y ← f x -- in fx≡ [BUG]
-    = here $ M.just-injective (sym eq)
-  ... | there x∈ with IH ← ∈-mapMaybe⁺ x∈ eq
-    with f x
-  ... | nothing = IH
-  ... | just _  = there IH
-
-  mapMaybe-here : (eq : f x ≡ just y)
-    → mapMaybe f (x ∷ xs) ≡ y ∷ mapMaybe f xs
-  mapMaybe-here {x = x} eq with just _ ← f x = cong (_∷ _) (M.just-injective eq)
-
-  ∈-mapMaybe⁺-here : (eq : f x ≡ just y)
-    → Is-here $ ∈-mapMaybe⁺ (here {xs = xs} refl) eq
-  ∈-mapMaybe⁺-here {x = x} {y = y} {xs = xs} eq with just _ ← f x = _
+  ... | just _  | _ with here _ ← y∈ = tt
 
   mapMaybe-⊆ : xs ⊆ ys → mapMaybe f xs ⊆ mapMaybe f ys
   mapMaybe-⊆ {xs = x ∷ xs} {ys = ys} xs⊆ fx∈ =
     let x , x∈ , fx≡ = ∈-mapMaybe⁻ fx∈
     in  ∈-mapMaybe⁺ (xs⊆ x∈) fx≡
 
-  mapMaybe-↭ : xs ↭ ys → mapMaybe f xs ↭ mapMaybe f ys
-  mapMaybe-↭ {xs = xs} {ys = .xs} ↭-refl = ↭-refl
-  mapMaybe-↭ {xs = .(x ∷ _)} {ys = .(x ∷ _)} (↭-prep x xs↭ys)
-    with IH ← mapMaybe-↭ xs↭ys
-    with f x
-  ... | nothing = IH
-  ... | just y  = ↭-prep y IH
-  mapMaybe-↭ {xs = .(x ∷ y ∷ _)} {ys = .(y ∷ x ∷ _)} (↭-swap x y xs↭ys)
-    with IH ← mapMaybe-↭ xs↭ys
-    with f x | inspect f x | f y | inspect f y
-  ... | nothing | ≡[ fx ] | nothing | ≡[ fy ] rewrite fx | fy = IH
-  ... | nothing | ≡[ fx ] | just y′ | ≡[ fy ] rewrite fx | fy = ↭-prep y′ IH
-  ... | just x′ | ≡[ fx ] | nothing | ≡[ fy ] rewrite fx | fy = ↭-prep x′ IH
-  ... | just x′ | ≡[ fx ] | just y′ | ≡[ fy ] rewrite fx | fy = ↭-swap x′ y′ IH
-  mapMaybe-↭ {xs = xs} {ys = ys} (↭-trans xs↭ ↭ys) = ↭-trans (mapMaybe-↭ xs↭) (mapMaybe-↭ ↭ys)
+  -- ** LastAny
 
-  ∈-mapMaybe-skip : f x ≡ nothing → y ∈ mapMaybe f (x ∷ xs) → y ∈ mapMaybe f xs
-  ∈-mapMaybe-skip fx≡ = subst (_ ∈_) (mapMaybe-skip fx≡)
+  module _ {P : Pred B ℓ} where
+    LastAny-catMaybes⁺ : (p : Any (M.Any.Any P) xs) →
+      LastAny p
+      ──────────────────────────
+      LastAny (Any-catMaybes⁺ p)
+    LastAny-catMaybes⁺ {just x ∷ .[]} (here (M.Any.just _)) refl = refl
+    LastAny-catMaybes⁺ {just x  ∷ _}  (there p) lp = LastAny-catMaybes⁺ p lp
+    LastAny-catMaybes⁺ {nothing ∷ _}  (there p) lp = LastAny-catMaybes⁺ p lp
 
-  ∈-mapMaybe-here : ∀ {y′} → f x ≡ just y′ → y ∈ mapMaybe f (x ∷ xs) → y ∈ y′ ∷ mapMaybe f xs
-  ∈-mapMaybe-here fx≡ = subst (_ ∈_) (mapMaybe-here fx≡)
+    LastAny-mapMaybe′⁺ :
+      ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
+      → LastAny x∈
+      → LastAny $ Any-mapMaybe′⁺ x∈
+    LastAny-mapMaybe′⁺ {xs = xs} p lp = LastAny-catMaybes⁺ (L.Any.map⁺ p) (LastAny-map⁺⁺ f (M.Any.Any P) p lp)
 
-  ∈-mapMaybe-++⁻ : ∀ xs {ys} {x : B}
-    → x ∈ mapMaybe f (xs ++ ys)
-    → x ∈ mapMaybe f xs
-    ⊎ x ∈ mapMaybe f ys
-  ∈-mapMaybe-++⁻ xs {ys} rewrite mapMaybe-++ xs ys = ∈-++⁻ _
+    Last∘Any⇒ : ∀ xs →
+      (p : Any P (mapMaybe′ f xs)) →
+      LastAny p →
+      LastAny (Any[ xs ]⇒ p)
+    Last∘Any⇒ (x ∷ xs) p hp with f x
+    ... | nothing = Last∘Any⇒ xs p hp
+    ... | just _  rewrite mapMaybe≗mapMaybe′ f xs = hp
 
-  ∈-mapMaybe-++⁺ˡ : ∀ {xs ys} {x : B}
-    → x ∈ mapMaybe f xs
-    → x ∈ mapMaybe f (xs ++ ys)
-  ∈-mapMaybe-++⁺ˡ {xs}{ys} rewrite mapMaybe-++ xs ys = ∈-++⁺ˡ
-
-  ∈-mapMaybe-++⁺ʳ : ∀ xs {ys} {y : B}
-    → y ∈ mapMaybe f ys
-    → y ∈ mapMaybe f (xs ++ ys)
-  ∈-mapMaybe-++⁺ʳ xs {ys} rewrite mapMaybe-++ xs ys = ∈-++⁺ʳ _
+    LastAny-mapMaybe⁺ :
+      ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
+      → LastAny x∈
+      → LastAny $ Any-mapMaybe⁺ x∈
+    LastAny-mapMaybe⁺ {xs = xs} = Last∘Any⇒ xs _ ∘₂ LastAny-mapMaybe′⁺
 
   -- ** Last∈
 
@@ -147,14 +354,7 @@ module _ (f : A → Maybe B) where
     → (f≡ : f x ≡ just y)
     → Last∈ x∈
     → Last∈ $ ∈-mapMaybe⁺ x∈ f≡
-  Last∈-mapMaybe⁺ {x = x} {xs = .x ∷ []} {y = y} (here refl) f≡ tt
-    with f x | ∈-mapMaybe⁺ {x = x} {xs = [ x ]} (here refl) f≡
-  ... | nothing | ()
-  ... | just _  | here refl = tt
-  Last∈-mapMaybe⁺ {x = x} {xs = .(_ ∷ _)} {y = y} (there {x = z} x∈) f≡ last-x∈
-    with f z
-  ... | nothing = Last∈-mapMaybe⁺ x∈ f≡ $ Last∈-there⁻ x∈ last-x∈
-  ... | just fz = Last∈-there⁺ (∈-mapMaybe⁺ x∈ f≡) (Last∈-mapMaybe⁺ x∈ f≡ $ Last∈-there⁻ x∈ last-x∈)
+  Last∈-mapMaybe⁺ p eq = LastAny-mapMaybe⁺ (L.Any.map _ p) ∘ LastAny-map⁺ (≡just⇒MAny eq) p
 
   -- ** mapMaybe˘
   mapMaybe˘ : List A → List A
@@ -210,47 +410,26 @@ module _ (f : A → Maybe B) where
 
   indexℕ-mapMaybe≡0 : ∀ {y : B} (fx≡ : f x ≡ just y)
     → indexℕ (∈-mapMaybe⁺ (here {x = x} {xs = xs} refl) fx≡) ≡ 0
-  indexℕ-mapMaybe≡0 {x = x} {xs = xs} {y = y} eq with just _ ← f x = refl
-
-  ⊥⋯≤indexℕ : (x∈ : x ∈ xs) → ⊥⋯ x∈ ≤ suc (indexℕ x∈)
-  ⊥⋯≤indexℕ {xs = x ∷ _} (here refl)
-    with f x
-  ... | nothing = Nat.≤-refl
-  ... | just _  = z≤n
-  ⊥⋯≤indexℕ {xs = x ∷ xs} (there x∈)
-    with IH ← ⊥⋯≤indexℕ {xs = xs} x∈
-    with f x
-  ... | nothing = s≤s IH
-  ... | just _ = Nat.≤-step IH
-
-  ⊥⋯just≤indexℕ : ∀ {y : B} (x∈ : x ∈ xs) →
-    f x ≡ just y
-    ────────────────
-    ⊥⋯ x∈ ≤ indexℕ x∈
-  ⊥⋯just≤indexℕ {xs = x ∷ xs} (here refl) f≡
-    with just _ ← f x = z≤n
-  ⊥⋯just≤indexℕ {xs = x ∷ xs} (there x∈) f≡
-    with IH ← ⊥⋯just≤indexℕ {xs = xs} x∈ f≡
-    with f x
-  ... | nothing = s≤s IH
-  ... | just _  = Nat.≤-step IH
+  indexℕ-mapMaybe≡0 {y = y} eq = indexℕ-Any-mapMaybe≡0 {y = y} (≡just⇒MAny eq refl)
 
   indexℕ-mapMaybe⁺ : ∀ {y : B} (x∈ : x ∈ xs) (fx≡ : f x ≡ just y)
     → indexℕ (∈-mapMaybe⁺ x∈ fx≡) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
-  indexℕ-mapMaybe⁺ {xs = x ∷ xs} {y = y} (here refl) eq
-    with just _ ← f x
-    = refl
-  indexℕ-mapMaybe⁺ {xs = x ∷ xs} (there x∈) eq
-    with f x | indexℕ-mapMaybe⁺ {xs = xs} x∈ eq
-  ... | nothing | IH = IH
-  ... | just _  | IH rewrite IH
-    = ∸-suc (indexℕ x∈) (⊥⋯ x∈) (⊥⋯just≤indexℕ x∈ eq)
-
-postulate
-  mapMaybe≡[]⇒All-nothing : ∀ {xs : List A} {f : A → Maybe B}
-    → Null (mapMaybe f xs)
-    → All (Is-nothing ∘ f) xs
-
-  All-nothing⇒mapMaybe≡[] : ∀ {xs : List A} {f : A → Maybe B}
-    → All Is-nothing (map f xs)
-    → Null (mapMaybe f xs)
+  indexℕ-mapMaybe⁺ {xs = xs} {y = y} x∈ eq =
+    begin
+      indexℕ (∈-mapMaybe⁺ x∈ eq)
+    ≡⟨⟩
+      indexℕ (Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈)
+    ≡⟨ indexℕ-Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈ ⟩
+      indexℕ (L.Any.map (≡just⇒MAny eq) x∈) ∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)
+    ≡⟨ cong (_∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)) $ indexℕ-Any-map x∈ ⟩
+      indexℕ x∈ ∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)
+    ≡⟨ cong (indexℕ x∈ ∸_) $ ⊥-map eq x∈ ⟩
+      indexℕ x∈ ∸ ⊥⋯ x∈
+    ∎ where
+      open ≡-Reasoning
+      ⊥-map : ∀ {x} {xs} (eq : f x ≡ just y) (x∈ : x ∈ xs) →
+        ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈) ≡ ⊥⋯ x∈
+      ⊥-map {xs = _ ∷ _}  _  (here _)   = refl
+      ⊥-map {xs = x ∷ xs} eq (there x∈) with f x
+      ... | nothing = cong suc (⊥-map eq x∈)
+      ... | just _  = ⊥-map eq x∈
