@@ -27,8 +27,14 @@ IDecSetoid A = _≈_ {A = A} ⁇²
 record Setoid-Laws (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Setω where
   field isEquivalence : IsEquivalence _≈_
 
+  open IsEquivalence isEquivalence public
+    renaming (refl to ≈-refl; sym to ≈-sym; trans to ≈-trans; reflexive to ≈-reflexive)
+
   mkSetoid : Setoid ℓ relℓ
   mkSetoid = record {Carrier = A; _≈_ = _≈_; isEquivalence = isEquivalence}
+
+  import Relation.Binary.Reasoning.Setoid as BinSetoid
+  module ≈-Reasoning = BinSetoid mkSetoid
 open Setoid-Laws ⦃...⦄ public
 
 record Lawful-Setoid (A : Set ℓ) : Setω where
