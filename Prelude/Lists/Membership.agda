@@ -319,3 +319,21 @@ Last∈-map⁺ : ∀ (f : A → B) (x∈ : x ∈ xs) →
   Last∈ (∈-map⁺ f x∈)
 Last∈-map⁺ f (here _)  refl = refl
 Last∈-map⁺ f (there p) lp   = Last∈-map⁺ f p lp
+
+∉-++⁻ :
+  x ∉ xs ++ ys
+  ───────────────────
+  (x ∉ xs) × (x ∉ ys)
+∉-++⁻ x∉ = (x∉ ∘ ∈-++⁺ˡ) , (x∉ ∘ ∈-++⁺ʳ _)
+
+∉-++⁻ˡ : x ∉ xs ++ ys → x ∉ xs
+∉-++⁻ˡ = proj₁ ∘ ∉-++⁻
+∉-++⁻ʳ : x ∉ xs ++ ys → x ∉ ys
+∉-++⁻ʳ = proj₂ ∘ ∉-++⁻
+
+∉-++⁺ :
+  ∙ x ∉ xs
+  ∙ x ∉ ys
+    ────────────
+    x ∉ xs ++ ys
+∉-++⁺ x∉ˡ x∉ʳ = ∈-++⁻ _ >≡> Sum.[ x∉ˡ , x∉ʳ ]
