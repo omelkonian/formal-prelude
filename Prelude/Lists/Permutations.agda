@@ -229,14 +229,14 @@ module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where
     )
 
   ∈-map-resp-↭∘∈-map-resp-↭˘ : ∀ {fx : B} {xs ys} →
-    (fx∈ : fx ∈ map f xs)
     (p : xs ↭ ys)
+    (fx∈ : fx ∈ map f xs)
     --——————————————————————————
     → ( ∈-map-resp-↭ (↭-sym p)
       ∘ ∈-map-resp-↭ p
       ) fx∈
     ≡ fx∈
-  ∈-map-resp-↭∘∈-map-resp-↭˘ {xs = xs}{ys} fx∈ p =
+  ∈-map-resp-↭∘∈-map-resp-↭˘ {xs = xs}{ys} p fx∈ =
     begin
       ( ∈-map-resp-↭ (↭-sym p)
       ∘ ∈-map-resp-↭ p
