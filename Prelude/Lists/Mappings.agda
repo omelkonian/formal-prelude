@@ -8,15 +8,16 @@ open L.Mem using (_∈_; mapWith∈; ∈-++⁻)
 open L.Perm using (∈-resp-↭; Any-resp-↭)
 open import Prelude.General using (⟫_)
 open import Prelude.Lists.Membership
+open import Prelude.Lists.Permutations
 
 private variable
-  a b : Level
+  a b p : Level
   A : Set a
   B : Set b
+  P : Pred A p
 
   x : A
   xs xs′ ys zs : List A
-  P : Pred₀ A
 
 -- ** Mappings from membership proofs.
 infixr 0 _↦′_ _↦_
@@ -60,48 +61,13 @@ extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)
 cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P
 cong-↦ f refl = f
 
-∈-resp-↭∘∈-resp-↭ :
-  (p : xs ↭ ys) (q : ys ↭ zs) (x∈ : x L.Mem.∈ xs) →
-  --——————————————————————————————————————————————————————
-  ∈-resp-↭ q (∈-resp-↭ p x∈) ≡ ∈-resp-↭ (↭-trans p q) x∈
-∈-resp-↭∘∈-resp-↭ p q x∈ =
-  begin
-      ∈-resp-↭ q (∈-resp-↭ p x∈)
-    ≡⟨⟩
-      ∈-resp-↭ (↭-trans p q) x∈
-    ∎ where open ≡-Reasoning
-
-Any-resp-↭∘Any-resp-↭˘ : ∀ {A : Set} {x : A} {xs ys : List A}
-    (p↭ : xs ↭ ys)
-    (x∈ : x ∈ xs)
-    --——————————————————————————————————————————
-  → (Any-resp-↭ (↭-sym p↭) ∘ Any-resp-↭ p↭) x∈ ≡ x∈
-Any-resp-↭∘Any-resp-↭˘ ↭-refl _ = refl
-Any-resp-↭∘Any-resp-↭˘ (↭-prep _ _) (here _) = refl
-Any-resp-↭∘Any-resp-↭˘ (↭-prep x p↭) (there p)
-  = cong there $ Any-resp-↭∘Any-resp-↭˘ p↭ p
-Any-resp-↭∘Any-resp-↭˘ (↭-swap _ _ _) (here _) = refl
-Any-resp-↭∘Any-resp-↭˘ (↭-swap _ _ _) (there (here _)) = refl
-Any-resp-↭∘Any-resp-↭˘ (↭-swap x y p↭) (there (there p))
-  = cong there $ cong there $ Any-resp-↭∘Any-resp-↭˘ p↭ p
-Any-resp-↭∘Any-resp-↭˘ (↭-trans p↭ p↭′) p
-  rewrite Any-resp-↭∘Any-resp-↭˘ p↭′ (Any-resp-↭ p↭ p)
-  = Any-resp-↭∘Any-resp-↭˘ p↭ p
-
-∈-resp-↭∘∈-resp-↭˘ : ∀ {A : Set} {x : A} {xs ys : List A}
-    (p↭ : xs ↭ ys)
-    (x∈ : x ∈ xs)
-    --——————————————————————————————————————————
-  → (∈-resp-↭ (↭-sym p↭) ∘ ∈-resp-↭ p↭) x∈ ≡ x∈
-∈-resp-↭∘∈-resp-↭˘ = Any-resp-↭∘Any-resp-↭˘
-
 -- ** Pointwise equality of same-domain mappings.
-module _ {A : Set} {xs : List A} {P : Pred₀ A} where
-  _≗↦_ : Rel₀ (xs ↦′ P)
+module _ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} where
+  _≗↦_ : Rel (xs ↦′ P) _
   f ≗↦ f′ = ∀ {x : A} (x∈ : x ∈ xs) → f x∈ ≡ f′ x∈
 
   _≗⟨_⟩↦_ : ∀ {ys : List A} →
-    (ys ↦′ P) → (p↭ : xs ↭ ys) → (xs ↦′ P) → Set
+    (ys ↦′ P) → (p↭ : xs ↭ ys) → (xs ↦′ P) → Set _
   f′ ≗⟨ p↭ ⟩↦ f = ∀ {x : A} (x∈ : x ∈ xs) → f′ (∈-resp-↭ p↭ x∈) ≡ f x∈
 
   permute-≗↦ : ∀ {ys : List A}
@@ -132,7 +98,7 @@ module _ {A : Set} {xs : List A} {P : Pred₀ A} where
     = cong f $ Any-resp-↭∘Any-resp-↭˘ p↭ x∈
 
 -- T0D0 use for permute-↦∘permute-↦˘ to simplify
-module _ {A : Set} {P : A → Set} {x : A} {xs ys zs : List A} where
+module _ {A : Set ℓ} {P : A → Set ℓ′} {x : A} {xs ys zs : List A} where
   permute-↦∘permute-↦ :
     (p : xs ↭ ys) (q : ys ↭ zs) (f : xs ↦′ P) →
     --——————————————————————————————————————————————————————
@@ -149,15 +115,15 @@ module _ {A : Set} {P : A → Set} {x : A} {xs ys zs : List A} where
     ∎ where open ≡-Reasoning
 
 -- ** Pointwise equality of ⊆-related mappings.
-module _ {A : Set} {xs ys : List A} {P : Pred₀ A} where
-  _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Set
+module _ {A : Set ℓ} {xs ys : List A} {P : Pred A ℓ′} where
+  _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Set _
   f′ ≗⟨ p ⊆⟩↦ f = f′ ≗↦ (f ∘ p)
 
   weaken-≗↦ : (p : ys ⊆ xs) (f : xs ↦′ P)
     → weaken-↦ f p ≗⟨ p ⊆⟩↦ f
   weaken-≗↦ _ _ _ = refl
 
-  _≗↦ˡ_ : xs ++ ys ↦′ P → xs ↦′ P → Set
+  _≗↦ˡ_ : xs ++ ys ↦′ P → xs ↦′ P → Set _
   fg ≗↦ˡ f = (fg ∘ L.Mem.∈-++⁺ˡ) ≗↦ f
 
   ++-≗↦ˡ : (f : xs ↦′ P) (g : ys ↦′ P)
@@ -165,7 +131,7 @@ module _ {A : Set} {xs ys : List A} {P : Pred₀ A} where
   ++-≗↦ˡ _ _ (here _) = refl
   ++-≗↦ˡ _ _ (there x∈) rewrite ∈-++⁻∘∈-++⁺ˡ {ys = ys} x∈ = refl
 
-  _≗↦ʳ_ : xs ++ ys ↦′ P → ys ↦′ P → Set
+  _≗↦ʳ_ : xs ++ ys ↦′ P → ys ↦′ P → Set _
   fg ≗↦ʳ g = (fg ∘ L.Mem.∈-++⁺ʳ _) ≗↦ g
 
   ++-≗↦ʳ : (f : xs ↦′ P) (g : ys ↦′ P)
@@ -174,7 +140,7 @@ module _ {A : Set} {xs ys : List A} {P : Pred₀ A} where
   ... | ⟫ [] = refl
   ... | ⟫ _ ∷ xs′ rewrite ∈-++⁻∘∈-++⁺ʳ {xs = xs} y∈ = refl
 
-  _≗↦ˡʳ_,_ : xs ++ ys ↦′ P → xs ↦′ P → ys ↦′ P → Set
+  _≗↦ˡʳ_,_ : xs ++ ys ↦′ P → xs ↦′ P → ys ↦′ P → Set _
   fg ≗↦ˡʳ f , g = (fg ≗↦ˡ f) × (fg ≗↦ʳ g)
 
   ++-≗↦ˡʳ : (f : xs ↦′ P) (g : ys ↦′ P)

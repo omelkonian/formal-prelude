@@ -4,6 +4,7 @@
 module Prelude.Lists.Permutations where
 
 open import Prelude.Init
+open import Prelude.Bifunctor
 open L.Mem using (_∈_; mapWith∈)
 open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm)
 
@@ -121,3 +122,155 @@ postulate
     → xs ↭ ys
     → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
 -- ↭⇒≡ = {!!}
+
+-- ** _∈_
+open L.Mem -- using (_∈_; mapWith∈; ∈-++⁻)
+open L.Perm using (∈-resp-↭; Any-resp-↭)
+
+∈-resp-↭∘∈-resp-↭ :
+  (p : xs ↭ ys) (q : ys ↭ zs) (x∈ : x L.Mem.∈ xs) →
+  --——————————————————————————————————————————————————————
+  ∈-resp-↭ q (∈-resp-↭ p x∈) ≡ ∈-resp-↭ (↭-trans p q) x∈
+∈-resp-↭∘∈-resp-↭ p q x∈ =
+  begin
+      ∈-resp-↭ q (∈-resp-↭ p x∈)
+    ≡⟨⟩
+      ∈-resp-↭ (↭-trans p q) x∈
+    ∎ where open ≡-Reasoning
+
+Any-resp-↭∘Any-resp-↭˘ : ∀ {x : A} {xs ys : List A}
+    (p↭ : xs ↭ ys)
+    (x∈ : x ∈ xs)
+    --——————————————————————————————————————————
+  → (Any-resp-↭ (↭-sym p↭) ∘ Any-resp-↭ p↭) x∈ ≡ x∈
+Any-resp-↭∘Any-resp-↭˘ ↭-refl _ = refl
+Any-resp-↭∘Any-resp-↭˘ (↭-prep _ _) (here _) = refl
+Any-resp-↭∘Any-resp-↭˘ (↭-prep x p↭) (there p)
+  = cong there $ Any-resp-↭∘Any-resp-↭˘ p↭ p
+Any-resp-↭∘Any-resp-↭˘ (↭-swap _ _ _) (here _) = refl
+Any-resp-↭∘Any-resp-↭˘ (↭-swap _ _ _) (there (here _)) = refl
+Any-resp-↭∘Any-resp-↭˘ (↭-swap x y p↭) (there (there p))
+  = cong there $ cong there $ Any-resp-↭∘Any-resp-↭˘ p↭ p
+Any-resp-↭∘Any-resp-↭˘ (↭-trans p↭ p↭′) p
+  rewrite Any-resp-↭∘Any-resp-↭˘ p↭′ (Any-resp-↭ p↭ p)
+  = Any-resp-↭∘Any-resp-↭˘ p↭ p
+
+∈-resp-↭∘∈-resp-↭˘ : ∀ {x : A} {xs ys : List A}
+    (p↭ : xs ↭ ys)
+    (x∈ : x ∈ xs)
+    --——————————————————————————————————————————
+  → (∈-resp-↭ (↭-sym p↭) ∘ ∈-resp-↭ p↭) x∈ ≡ x∈
+∈-resp-↭∘∈-resp-↭˘ = Any-resp-↭∘Any-resp-↭˘
+
+-- ** map
+module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where
+
+  ∈-map⁺′ : ∀ {y xs} → (∃ λ x → x ∈ xs × y ≡ f x) → y ∈ map f xs
+  ∈-map⁺′ = L.Any.map⁺ ∘ L.Mem.∃∈-Any
+
+  ∈-map⁺′∘∈-map⁻ : ∀ {y : B} {xs : List A} →
+    (x∈ : y ∈ map f xs)
+    --——————————————————————————
+    → ( ∈-map⁺′
+      ∘ ∈-map⁻ f
+      ) x∈
+    ≡ x∈
+  ∈-map⁺′∘∈-map⁻ {y = y}{xs} x∈ =
+    begin
+      ( ∈-map⁺′
+      ∘ ∈-map⁻ f
+      ) x∈
+    ≡⟨⟩
+      ( LA.map⁺
+      ∘ L.Mem.∃∈-Any
+      ∘ find
+      ∘ LA.map⁻
+      ) x∈
+    ≡⟨ cong LA.map⁺ $ lose∘find _ ⟩
+      ( LA.map⁺
+      ∘ LA.map⁻
+      ) x∈
+    ≡⟨ L.Any.map⁺∘map⁻ _ ⟩
+      x∈
+    ∎ where open ≡-Reasoning; module LA = L.Any
+
+  ∈-map⁻∘∈-map⁺′ : ∀ {y : B} {xs : List A} →
+    (x∈ : ∃ λ x → x ∈ xs × y ≡ f x)
+    --——————————————————————————
+    → ( ∈-map⁻ f
+      ∘ ∈-map⁺′
+      ) x∈
+    ≡ x∈
+  ∈-map⁻∘∈-map⁺′ {y = y}{xs} x∈ =
+    begin
+      ( ∈-map⁻ f -- ∃x. (x ∈ xs) × (y ≡ f x)
+      ∘ ∈-map⁺′  -- y ∈ map f xs
+      ) x∈       -- ∃x. (x ∈ xs) × (y ≡ f x)
+    ≡⟨⟩
+      ( find         -- ∃x. (x ∈ xs) × (y ≡ f x)
+      ∘ LA.map⁻      -- Any ((y ≡_) ∘ f) xs
+      ∘ LA.map⁺      -- Any (y ≡_) (map f xs)
+      ∘ L.Mem.∃∈-Any -- Any ((y ≡_) ∘ f) xs
+      ) x∈           -- ∃x. (x ∈ xs) × (y ≡ f x)
+    ≡⟨ cong find $ L.Any.map⁻∘map⁺ (y ≡_) (L.Mem.∃∈-Any x∈) ⟩
+      ( find         -- ∃x. (x ∈ xs) × (y ≡ f x)
+      ∘ L.Mem.∃∈-Any -- Any ((y ≡_) ∘ f) xs
+      ) x∈           -- ∃x. (x ∈ xs) × (y ≡ f x)
+    ≡⟨ find∘lose _ _ _ ⟩
+      x∈
+    ∎ where open ≡-Reasoning; module LA = L.Any
+
+
+  ∈-map-resp-↭ : ∀ {xs ys} → xs ↭ ys → map f xs ⊆ map f ys
+  ∈-map-resp-↭ {ys = ys} xs↭ =
+    ( ∈-map⁺′                     -- y ∈ map f ys
+    ∘ map₂′ (map₁ $ ∈-resp-↭ xs↭) -- (x ∈ ys) × (y ≡ f x)
+    ∘ ∈-map⁻ f                    -- (x ∈ xs) × (y ≡ f x)
+    )
+
+  ∈-map-resp-↭∘∈-map-resp-↭˘ : ∀ {fx : B} {xs ys} →
+    (fx∈ : fx ∈ map f xs)
+    (p : xs ↭ ys)
+    --——————————————————————————
+    → ( ∈-map-resp-↭ (↭-sym p)
+      ∘ ∈-map-resp-↭ p
+      ) fx∈
+    ≡ fx∈
+  ∈-map-resp-↭∘∈-map-resp-↭˘ {xs = xs}{ys} fx∈ p =
+    begin
+      ( ∈-map-resp-↭ (↭-sym p)
+      ∘ ∈-map-resp-↭ p
+      ) fx∈
+    ≡⟨⟩
+      ( ∈-map⁺′                           -- (f x ∈ map f xs)
+      ∘ map₂′ (map₁ $ ∈-resp-↭ (↭-sym p)) -- ∃x. (x ∈ xs) × —//—
+      ∘ ∈-map⁻ f                          -- ∃x. (x ∈ ys) × (fx ≡ f x)
+      ∘ ∈-map⁺′                           -- (fx ∈ map f ys)
+      ∘ map₂′ (map₁ $ ∈-resp-↭ p)         -- ∃x. (x ∈ ys) × –‌//—
+      ∘ ∈-map⁻ f                          -- ∃x. (x ∈ xs) × (fx ≡ f x)
+      ) fx∈                               -- fx ∈ map f xs
+    ≡⟨ cong (∈-map⁺′ ∘ map₂′ (map₁ $ ∈-resp-↭ (↭-sym p)))
+         $ ∈-map⁻∘∈-map⁺′ (map₂′ (map₁ $ ∈-resp-↭ p) (∈-map⁻ f fx∈)) ⟩
+      ( ∈-map⁺′
+      ∘ map₂′ (map₁ $ ∈-resp-↭ (↭-sym p))
+      ∘ map₂′ (map₁ $ ∈-resp-↭ p)
+      ∘ ∈-map⁻ f
+      ) fx∈
+    ≡⟨⟩
+      ( ∈-map⁺′
+      ∘ map₂′ (map₁ $ ∈-resp-↭ (↭-sym p) ∘ ∈-resp-↭ p)
+      ∘ ∈-map⁻ f
+      ) fx∈
+    ≡⟨⟩
+      let x , x∈ , fx≡ = ∈-map⁻ f fx∈
+      in ∈-map⁺′ (x , ∈-resp-↭ (↭-sym p) (∈-resp-↭ p x∈) , fx≡)
+    ≡⟨ cong (λ ◆ → let x , _ , fx≡ = ∈-map⁻ f fx∈
+                   in ∈-map⁺′ (x , ◆ , fx≡))
+        $ ∈-resp-↭∘∈-resp-↭˘ p _ ⟩
+      let x , x∈ , fx≡ = ∈-map⁻ f fx∈
+      in ∈-map⁺′ (x , x∈ , fx≡)
+    ≡⟨⟩
+      ∈-map⁺′ (∈-map⁻ f fx∈)
+    ≡⟨ ∈-map⁺′∘∈-map⁻ _ ⟩
+      fx∈
+    ∎ where open ≡-Reasoning
