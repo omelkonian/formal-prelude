@@ -4,13 +4,17 @@ open import Prelude.Init
 open import Prelude.General
 
 infix -1 _↝_
-record _↝_ (A B : Set) : Set where
+record _↝_ (A : Set ℓ) (B : Set ℓ′) : Setω where
   field to : A → B
   -- syntax to {A}{B} x = [ A ∋ x ]↝ B
   syntax to {B = B} = to[ B ]
 open _↝_ ⦃...⦄ public
 
-private variable A B : Set
+private variable
+  A : Set ℓ
+  B : Set ℓ′
+  P : Pred A ℓ″
+  Q : Pred A ℓ‴
 
 tos : ⦃ A ↝ B ⦄ → List A ↝ List B
 tos .to = map to
@@ -45,3 +49,10 @@ private
 
   _ : 𝟚 ↔ Bool
   _ = it
+
+infix -1 _⁇_↝_
+record _⁇_↝_ (A : Set ℓ) (P : Pred A ℓ′) (B : Set ℓ′) : Setω where
+  field toBecause : (x : A) .{_ : P x} → B
+  ⌞_⌟ = toBecause
+  syntax toBecause x {p} = ⌞ x ⊣ p ⌟
+open _⁇_↝_ ⦃...⦄ public
