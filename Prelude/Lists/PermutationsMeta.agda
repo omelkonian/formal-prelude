@@ -4,11 +4,12 @@
 module Prelude.Lists.PermutationsMeta where
 
 open import Prelude.Init
-open L.Mem using (_∈_; mapWith∈)
+open L.Mem using (_∈_; mapWith∈; ∈-map⁻)
 open L.Perm hiding (trans)
 open import Prelude.InferenceRules
 open import Prelude.Decidable
 open import Prelude.General
+open import Prelude.Bifunctor
 
 open import Prelude.Lists.Permutations
 open import Prelude.Lists.Membership
@@ -34,9 +35,9 @@ sym∘cong _ refl = refl
 ↭-trans∘reflʳ : (p↭ : xs ↭ ys) → L.Perm.↭-trans p↭ refl ≡ p↭
 ↭-trans∘reflʳ = λ where
   refl → refl
-  (↭-prep _ _) → refl
-  (↭-swap _ _ _) → refl
-  (_↭_.trans _ _) → refl
+  (prep _ _) → refl
+  (swap _ _ _) → refl
+  (↭-trans _ _) → refl
 
 ↭-sym∘↭-reflexive :
   (eq : xs ≡ ys)
@@ -54,8 +55,8 @@ IsRefl? : Decidable¹ (IsRefl {xs = xs}{ys})
 IsRefl? = λ where
   refl → yes tt
   (↭-prep _ _) → no λ ()
-  (↭-swap _ _ _) → no λ ()
-  (_↭_.trans _ _) → no λ ()
+  (swap _ _ _) → no λ ()
+  (↭-trans _ _) → no λ ()
 
 ↭-trans≗trans : ∀ (p : xs ↭ ys) (q : ys ↭ zs) →
   ∙ ¬ IsRefl p
@@ -65,15 +66,15 @@ IsRefl? = λ where
     ≡ _↭_.trans p q
 ↭-trans≗trans refl _ p≢ _ = ⊥-elim (p≢ tt)
 ↭-trans≗trans _ refl _ q≢ = ⊥-elim (q≢ tt)
-↭-trans≗trans (↭-prep _ _) (↭-prep _ _) _ _ = refl
-↭-trans≗trans (↭-prep _ _) (↭-swap _ _ _) _ _ = refl
-↭-trans≗trans (↭-prep _ _) (_↭_.trans _ _) _ _ = refl
-↭-trans≗trans (↭-swap _ _ p) (↭-prep _ _) _ _ = refl
-↭-trans≗trans (↭-swap _ _ p) (↭-swap _ _ _) _ _ = refl
-↭-trans≗trans (↭-swap _ _ p) (_↭_.trans _ _) _ _ = refl
-↭-trans≗trans (_↭_.trans _ _) (↭-prep _ _) _ _ = refl
-↭-trans≗trans (_↭_.trans _ _) (↭-swap _ _ _) _ _ = refl
-↭-trans≗trans (_↭_.trans _ _) (_↭_.trans _ _) _ _ = refl
+↭-trans≗trans (prep _ _) (↭-prep _ _) _ _ = refl
+↭-trans≗trans (prep _ _) (swap _ _ _) _ _ = refl
+↭-trans≗trans (prep _ _) (↭-trans _ _) _ _ = refl
+↭-trans≗trans (swap _ _ p) (↭-prep _ _) _ _ = refl
+↭-trans≗trans (swap _ _ p) (swap _ _ _) _ _ = refl
+↭-trans≗trans (swap _ _ p) (↭-trans _ _) _ _ = refl
+↭-trans≗trans (↭-trans _ _) (prep _ _) _ _ = refl
+↭-trans≗trans (↭-trans _ _) (swap _ _ _) _ _ = refl
+↭-trans≗trans (↭-trans _ _) (↭-trans _ _) _ _ = refl
 
 Any-resp-↭∘Any-map : ∀ {P : Pred A ℓ} {Q : Pred A ℓ′}
   (f : P ⊆¹ Q)
@@ -87,42 +88,65 @@ Any-resp-↭∘Any-map : ∀ {P : Pred A ℓ} {Q : Pred A ℓ′}
     ∘ Any-resp-↭ xs↭ -- Any P ys
     ) x∈             -- Any P xs
 Any-resp-↭∘Any-map f xs↭ x∈
-  with xs↭           | x∈
-... | refl           | _                = refl
-... | ↭-prep _ xs↭   | here _           = refl
-... | ↭-prep _ xs↭   | there x∈         = cong there $ Any-resp-↭∘Any-map f xs↭ x∈
-... | ↭-swap _ _ xs↭ | here _           = refl
-... | ↭-swap _ _ xs↭ | there (here _)   = refl
-... | ↭-swap _ _ xs↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘Any-map f xs↭ x∈
-... | _↭_.trans p q  | x∈
+  with xs↭         | x∈
+... | refl         | _                = refl
+... | prep _ xs↭   | here _           = refl
+... | prep _ xs↭   | there x∈         = cong there $ Any-resp-↭∘Any-map f xs↭ x∈
+... | swap _ _ xs↭ | here _           = refl
+... | swap _ _ xs↭ | there (here _)   = refl
+... | swap _ _ xs↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘Any-map f xs↭ x∈
+... | ↭-trans p q  | x∈
   rewrite Any-resp-↭∘Any-map f p x∈
   = Any-resp-↭∘Any-map f q (Any-resp-↭ p x∈)
 
--- ** map
-module _ {f : A → B} {P : Pred B ℓ} where
-  Any-resp-↭∘map⁺ :
-    (xs↭ : xs ↭ ys)
-    (x∈ : Any (P ∘ f) xs) →
-    --————————————————————————————————————————————————
-      ( Any-resp-↭ {P = P} (map⁺ f xs↭) -- Any P (map f ys)
-      ∘ L.Any.map⁺ {f = f}              -- Any P (map f xs)
-      ) x∈                              -- Any (P ∘ f) xs
-    ≡ ( L.Any.map⁺ {f = f} -- Any P (map f ys)
-      ∘ Any-resp-↭ xs↭     -- Any (P ∘ f) ys
-      ) x∈                 -- Any (P ∘ f) xs
-  Any-resp-↭∘map⁺ xs↭ x∈
-      with xs↭         | x∈
-  ... | refl           | _                = refl
-  ... | ↭-prep _ xs↭   | here _           = refl
-  ... | ↭-prep _ xs↭   | there x∈         = cong there $ Any-resp-↭∘map⁺ xs↭ x∈
-  ... | ↭-swap _ _ xs↭ | here _           = refl
-  ... | ↭-swap _ _ xs↭ | there (here _)   = refl
-  ... | ↭-swap _ _ xs↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘map⁺ xs↭ x∈
-  ... | _↭_.trans p q  | x∈
-      rewrite Any-resp-↭∘map⁺ p x∈
-      = Any-resp-↭∘map⁺ q (Any-resp-↭ p x∈)
+Any-map∘∈-resp-↭ : ∀ {A : Set} {x y : A} {xs ys : List A}
+  (f : (x ≡_) ⊆¹ (y ≡_))
+  (p : xs ↭ ys)
+  (x∈ : x ∈ xs)
+  --—————————————————————
+  → ( L.Any.map f -- y ∈ ys
+    ∘ ∈-resp-↭ p  -- x ∈ ys
+    ) x∈          -- x ∈ xs
+  ≡ ( ∈-resp-↭ p  -- y ∈ ys
+    ∘ L.Any.map f -- y ∈ xs
+    ) x∈          -- x ∈ xs
+Any-map∘∈-resp-↭ _ refl _ = refl
+Any-map∘∈-resp-↭ f (↭-trans p p′) x∈
+  rewrite sym $ Any-map∘∈-resp-↭ f p x∈
+        | sym $ Any-map∘∈-resp-↭ f p′ (∈-resp-↭ p x∈)
+        = refl
+Any-map∘∈-resp-↭ f (prep x p) x∈ with x∈
+... | here _ = refl
+... | there x∈ = cong there $ Any-map∘∈-resp-↭ f p x∈
+Any-map∘∈-resp-↭ f (swap x y p) x∈ with x∈
+... | here _ = refl
+... | there (here _) = refl
+... | there (there x∈) = cong there $ cong there $ Any-map∘∈-resp-↭ f p x∈
 
 module _ {P : Pred A ℓ} where
+
+  find∘Any-resp-↭ :
+    (p : xs ↭ ys)
+    (x∈ : Any P xs)
+    --—————————————————————
+    → ( find         -- ∃x. x ∈ ys × P x
+      ∘ Any-resp-↭ p -- Any P ys
+      ) x∈           -- Any P xs
+    ≡ ( map₂′ (map₁ $ Any-resp-↭ p) -- ∃x. x ∈ ys × P x
+      ∘ find                        -- ∃x. x ∈ xs × P x
+      ) x∈                          -- Any P xs
+  find∘Any-resp-↭ refl x∈ = refl
+  find∘Any-resp-↭ (prep x p) x∈ with x∈
+  ... | here _ = refl
+  ... | there x∈ rewrite find∘Any-resp-↭ p x∈ = refl
+  find∘Any-resp-↭ (swap x y p) x∈ with x∈
+  ... | here _ = refl
+  ... | there (here _) = refl
+  ... | there (there x∈) rewrite find∘Any-resp-↭ p x∈ = refl
+  find∘Any-resp-↭ (↭-trans p p′) x∈
+    rewrite find∘Any-resp-↭ p′ (Any-resp-↭ p x∈)
+          | find∘Any-resp-↭ p x∈
+          = refl
 
   -- ** ++
 
@@ -141,10 +165,10 @@ module _ {P : Pred A ℓ} where
   ... | refl            | _                = refl
   ... | ↭-prep _ xss↭   | here _           = refl
   ... | ↭-prep _ xss↭   | there x∈         = cong there $ Any-resp-↭∘Any-++⁺ʳˡ xss↭ x∈
-  ... | ↭-swap _ _ xss↭ | here _           = refl
-  ... | ↭-swap _ _ xss↭ | there (here _)   = refl
-  ... | ↭-swap _ _ xss↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘Any-++⁺ʳˡ xss↭ x∈
-  ... | _↭_.trans p q   | x∈
+  ... | swap _ _ xss↭ | here _           = refl
+  ... | swap _ _ xss↭ | there (here _)   = refl
+  ... | swap _ _ xss↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘Any-++⁺ʳˡ xss↭ x∈
+  ... | ↭-trans p q   | x∈
     rewrite Any-resp-↭∘Any-++⁺ʳˡ {zs = zs} p x∈
     = Any-resp-↭∘Any-++⁺ʳˡ {zs = zs} q (Any-resp-↭ p x∈)
 
@@ -185,8 +209,8 @@ module _ {P : Pred A ℓ} where
       x∈             -- Any P zs
   Any-resp-↭∘Any-++⁺ʳʳ refl             = λ _ → refl
   Any-resp-↭∘Any-++⁺ʳʳ (↭-prep _ xs↭)   = cong there ∘ Any-resp-↭∘Any-++⁺ʳʳ xs↭
-  Any-resp-↭∘Any-++⁺ʳʳ (↭-swap _ _ xs↭) = cong there ∘ cong there ∘ Any-resp-↭∘Any-++⁺ʳʳ xs↭
-  Any-resp-↭∘Any-++⁺ʳʳ (_↭_.trans xs↭ ↭ys) x∈
+  Any-resp-↭∘Any-++⁺ʳʳ (swap _ _ xs↭) = cong there ∘ cong there ∘ Any-resp-↭∘Any-++⁺ʳʳ xs↭
+  Any-resp-↭∘Any-++⁺ʳʳ (↭-trans xs↭ ↭ys) x∈
     rewrite Any-resp-↭∘Any-++⁺ʳʳ xs↭ x∈ = Any-resp-↭∘Any-++⁺ʳʳ ↭ys x∈
 
   Any-++⁺ˡ∘here :
@@ -935,10 +959,10 @@ module _ {P : Pred A ℓ} where
     rewrite Any-resp-↭∘Any-++⁺ˡʳ {zs = xs} (↭-concat⁺ xss↭) (L.Any.concat⁺ xs∈)
           | Any-resp-↭∘Any-concat⁺ xss↭ xs∈
           = refl
-  Any-resp-↭∘Any-concat⁺ (_↭_.trans p q) x∈
+  Any-resp-↭∘Any-concat⁺ (↭-trans p q) x∈
     rewrite Any-resp-↭∘Any-concat⁺ p x∈
     = Any-resp-↭∘Any-concat⁺ q (Any-resp-↭ p x∈)
-  Any-resp-↭∘Any-concat⁺ {xss = .xs ∷ .ys ∷ xss} {yss = .ys ∷ .xs ∷ yss} (↭-swap xs ys xss↭) xs∈
+  Any-resp-↭∘Any-concat⁺ {xss = .xs ∷ .ys ∷ xss} {yss = .ys ∷ .xs ∷ yss} (swap xs ys xss↭) xs∈
     rewrite ↭-trans∘reflʳ (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ xss↭)
     with xs∈
   ... | here x∈
@@ -1053,6 +1077,71 @@ module _ {P : Pred A ℓ} where
       ) xs∈             -- Any (Any P) xss
     ∎
 
+-- ** map
+module _ {f : A → B} {P : Pred B ℓ} where
+
+  Any-resp-↭∘map⁺ :
+    (xs↭ : xs ↭ ys)
+    (x∈ : Any (P ∘ f) xs) →
+    --————————————————————————————————————————————————
+      ( Any-resp-↭ {P = P} (map⁺ f xs↭) -- Any P (map f ys)
+      ∘ L.Any.map⁺ {f = f}              -- Any P (map f xs)
+      ) x∈                              -- Any (P ∘ f) xs
+    ≡ ( L.Any.map⁺ {f = f} -- Any P (map f ys)
+      ∘ Any-resp-↭ xs↭     -- Any (P ∘ f) ys
+      ) x∈                 -- Any (P ∘ f) xs
+  Any-resp-↭∘map⁺ xs↭ x∈
+      with xs↭         | x∈
+  ... | refl           | _                = refl
+  ... | ↭-prep _ xs↭   | here _           = refl
+  ... | ↭-prep _ xs↭   | there x∈         = cong there $ Any-resp-↭∘map⁺ xs↭ x∈
+  ... | swap _ _ xs↭ | here _           = refl
+  ... | swap _ _ xs↭ | there (here _)   = refl
+  ... | swap _ _ xs↭ | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘map⁺ xs↭ x∈
+  ... | ↭-trans p q  | x∈
+      rewrite Any-resp-↭∘map⁺ p x∈
+      = Any-resp-↭∘map⁺ q (Any-resp-↭ p x∈)
+
+  Any-map⁻∘Any-resp-↭∘map⁺ :
+    (p : xs ↭ ys)
+    (x∈ : Any P (map f xs))
+    --—————————————————————
+    → ( L.Any.map⁻            -- Any (P ∘ f) ys
+      ∘ Any-resp-↭ (map⁺ f p) -- Any P (map f ys)
+      ) x∈                    -- Any P (map f xs)
+    ≡ ( Any-resp-↭ p -- Any (P ∘ f) ys
+      ∘ L.Any.map⁻   -- Any (P ∘ f) xs
+      ) x∈           -- Any P (map f xs)
+  Any-map⁻∘Any-resp-↭∘map⁺ refl y∈ = refl
+  Any-map⁻∘Any-resp-↭∘map⁺ (↭-prep x p) y∈ with y∈
+  ... | here _ = refl
+  ... | there y∈ rewrite Any-map⁻∘Any-resp-↭∘map⁺ p y∈ = refl
+  Any-map⁻∘Any-resp-↭∘map⁺ (swap x y p) y∈ with y∈
+  ... | here _ = refl
+  ... | there (here _) = refl
+  ... | there (there y∈) rewrite Any-map⁻∘Any-resp-↭∘map⁺ p y∈ = refl
+  Any-map⁻∘Any-resp-↭∘map⁺ (↭-trans p p′) y∈
+    rewrite Any-map⁻∘Any-resp-↭∘map⁺ p′ (Any-resp-↭ (map⁺ f p) y∈)
+          | Any-map⁻∘Any-resp-↭∘map⁺ p y∈
+          = refl
+
+module _ {A B : Set} (f : A → B) where
+
+  ∈-map⁻∘∈-resp-↭∘map⁺ : ∀ {y : B} {xs ys : List A}
+    (p : xs ↭ ys)
+    (y∈ : y ∈ map f xs)
+    --—————————————————————
+    → ( ∈-map⁻ f            -- ∃x. (x ∈ ys) × (y ≡ f x)
+      ∘ ∈-resp-↭ (map⁺ f p) -- y ∈ map f ys
+      ) y∈                  -- y ∈ map f xs
+    ≡ ( map₂′ (map₁ $ ∈-resp-↭ p) -- ∃x. (x ∈ ys) × (y ≡ f x)
+      ∘ ∈-map⁻ f                  -- ∃x. (x ∈ xs) × (y ≡ f x)
+      ) y∈                        -- y ∈ map f xs
+  ∈-map⁻∘∈-resp-↭∘map⁺ {y = y} p y∈
+    rewrite Any-map⁻∘Any-resp-↭∘map⁺ {P = y ≡_} p y∈
+          | find∘Any-resp-↭ p (L.Any.map⁻ y∈)
+          = refl
+
 -- ** concatMap
 module _ {f : A → List B} where
   Any-resp-↭∘Any-concatMap⁺ : ∀ {P : Pred B ℓ}
@@ -1117,7 +1206,7 @@ Any-resp-↭∘Any-catMaybes⁺ : ∀ {P : Pred A ℓ″}
     ∘ Any-resp-↭ xs↭ -- Any (M.Any.Any P ∘ f) ys
     ) x∈             -- Any (M.Any.Any P ∘ f) xs
 Any-resp-↭∘Any-catMaybes⁺ refl x∈ = refl
-Any-resp-↭∘Any-catMaybes⁺ (_↭_.trans xs↭ ↭ys) x∈
+Any-resp-↭∘Any-catMaybes⁺ (↭-trans xs↭ ↭ys) x∈
   rewrite Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
         | Any-resp-↭∘Any-catMaybes⁺ ↭ys (Any-resp-↭ xs↭ x∈)
         = refl
@@ -1127,20 +1216,20 @@ Any-resp-↭∘Any-catMaybes⁺ (↭-prep (just _) xs↭) x∈
 ... | there x∈ = cong there $ Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
 Any-resp-↭∘Any-catMaybes⁺ (↭-prep nothing xs↭) (there x∈)
   = Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
-Any-resp-↭∘Any-catMaybes⁺ (↭-swap (just _) (just _) xs↭) x∈
+Any-resp-↭∘Any-catMaybes⁺ (swap (just _) (just _) xs↭) x∈
   with x∈
 ... | here (M.Any.just _) = refl
 ... | there (here (M.Any.just _)) = refl
 ... | there (there x∈) = cong (there ∘′ there) $ Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
-Any-resp-↭∘Any-catMaybes⁺ (↭-swap (just _) nothing xs↭) x∈
+Any-resp-↭∘Any-catMaybes⁺ (swap (just _) nothing xs↭) x∈
   with x∈
 ... | here (M.Any.just _) = refl
 ... | there (there x∈) = cong there $ Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
-Any-resp-↭∘Any-catMaybes⁺ (↭-swap nothing (just _) xs↭) (there x∈)
+Any-resp-↭∘Any-catMaybes⁺ (swap nothing (just _) xs↭) (there x∈)
   with x∈
 ... | here (M.Any.just _) = refl
 ... | there x∈ = cong there $ Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
-Any-resp-↭∘Any-catMaybes⁺ (↭-swap nothing nothing xs↭) (there (there x∈))
+Any-resp-↭∘Any-catMaybes⁺ (swap nothing nothing xs↭) (there (there x∈))
   = Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
 
 -- ** subst
@@ -1303,4 +1392,4 @@ module _ (f : A → Maybe B) where
       ( flip (∈-mapMaybe⁺ f) eq
       ∘ ∈-resp-↭ xs↭
       ) x∈
-    ∎ where open ≡-Reasoning
+    ∎
