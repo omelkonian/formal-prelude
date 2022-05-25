@@ -165,6 +165,35 @@ Any-resp-↭∘Any-resp-↭˘ (↭-trans p↭ p↭′) p
 -- ** map
 module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where
 
+  ∈-map-resp-↭ : ∀ {xs ys} → xs ↭ ys → map f xs ⊆ map f ys
+  ∈-map-resp-↭ xs↭ys = ∈-resp-↭ $ map⁺ f xs↭ys
+
+  ∈-map-resp-↭∘∈-map-resp-↭˘ : ∀ {fx : B} {xs ys} →
+    (p : xs ↭ ys)
+    (fx∈ : fx ∈ map f xs)
+    --——————————————————————————
+    → ( ∈-map-resp-↭ (↭-sym p)
+      ∘ ∈-map-resp-↭ p
+      ) fx∈
+    ≡ fx∈
+  ∈-map-resp-↭∘∈-map-resp-↭˘ {xs = xs}{ys} p fx∈ =
+    begin
+      ( ∈-map-resp-↭ (↭-sym p)
+      ∘ ∈-map-resp-↭ p
+      ) fx∈
+    ≡⟨⟩
+      ( ∈-resp-↭ (map⁺ f (↭-sym p))
+      ∘ ∈-resp-↭ (map⁺ f p)
+      ) fx∈
+    ≡˘⟨ cong (λ ◆ → ∈-resp-↭ ◆ $ ∈-resp-↭ (map⁺ f p) fx∈) $ ↭-sym∘map⁺ f p ⟩
+      ( ∈-resp-↭ (↭-sym $ map⁺ f p)
+      ∘ ∈-resp-↭ (map⁺ f p)
+      ) fx∈
+    ≡⟨ ∈-resp-↭∘∈-resp-↭˘ (map⁺ f p) _ ⟩
+      fx∈
+    ∎ where open ≡-Reasoning
+
+
   ∈-map⁺′ : ∀ {y xs} → (∃ λ x → x ∈ xs × y ≡ f x) → y ∈ map f xs
   ∈-map⁺′ = L.Any.map⁺ ∘ L.Mem.∃∈-Any
 
@@ -221,25 +250,25 @@ module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where
     ∎ where open ≡-Reasoning; module LA = L.Any
 
 
-  ∈-map-resp-↭ : ∀ {xs ys} → xs ↭ ys → map f xs ⊆ map f ys
-  ∈-map-resp-↭ {ys = ys} xs↭ =
+  ∈-map-resp-↭′ : ∀ {xs ys} → xs ↭ ys → map f xs ⊆ map f ys
+  ∈-map-resp-↭′ {ys = ys} xs↭ =
     ( ∈-map⁺′                     -- y ∈ map f ys
     ∘ map₂′ (map₁ $ ∈-resp-↭ xs↭) -- (x ∈ ys) × (y ≡ f x)
     ∘ ∈-map⁻ f                    -- (x ∈ xs) × (y ≡ f x)
     )
 
-  ∈-map-resp-↭∘∈-map-resp-↭˘ : ∀ {fx : B} {xs ys} →
+  ∈-map-resp-↭′∘∈-map-resp-↭′˘ : ∀ {fx : B} {xs ys} →
     (p : xs ↭ ys)
     (fx∈ : fx ∈ map f xs)
     --——————————————————————————
-    → ( ∈-map-resp-↭ (↭-sym p)
-      ∘ ∈-map-resp-↭ p
+    → ( ∈-map-resp-↭′ (↭-sym p)
+      ∘ ∈-map-resp-↭′ p
       ) fx∈
     ≡ fx∈
-  ∈-map-resp-↭∘∈-map-resp-↭˘ {xs = xs}{ys} p fx∈ =
+  ∈-map-resp-↭′∘∈-map-resp-↭′˘ {xs = xs}{ys} p fx∈ =
     begin
-      ( ∈-map-resp-↭ (↭-sym p)
-      ∘ ∈-map-resp-↭ p
+      ( ∈-map-resp-↭′ (↭-sym p)
+      ∘ ∈-map-resp-↭′ p
       ) fx∈
     ≡⟨⟩
       ( ∈-map⁺′                           -- (f x ∈ map f xs)
