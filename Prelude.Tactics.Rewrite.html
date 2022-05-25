@@ -3,7 +3,7 @@
 <a id="32" class="Keyword">module</a> <a id="39" href="Prelude.Tactics.Rewrite.html" class="Module">Prelude.Tactics.Rewrite</a> <a id="63" class="Keyword">where</a>
 
 <a id="70" class="Keyword">open</a> <a id="75" class="Keyword">import</a> <a id="82" href="Prelude.Init.html" class="Module">Prelude.Init</a>
-<a id="95" class="Keyword">open</a> <a id="100" href="Prelude.Init.html#10419" class="Module">Meta</a>
+<a id="95" class="Keyword">open</a> <a id="100" href="Prelude.Init.html#10802" class="Module">Meta</a>
 <a id="105" class="Keyword">open</a> <a id="110" class="Keyword">import</a> <a id="117" href="Prelude.Generics.html" class="Module">Prelude.Generics</a>
 <a id="134" class="Keyword">open</a> <a id="139" href="Prelude.Generics.html#10126" class="Module">Debug</a> <a id="145" class="Symbol">(</a><a id="146" class="String">&quot;rewrite&quot;</a> <a id="156" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="158" class="Number">100</a><a id="161" class="Symbol">)</a>
 
@@ -162,7 +162,7 @@
     <a id="a"></a><a id="4923" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a> <a id="b"></a><a id="4925" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a> <a id="4927" class="Symbol">:</a> <a id="4929" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
     <a id="eq"></a><a id="4935" href="Prelude.Tactics.Rewrite.html#4935" class="Postulate">eq</a> <a id="4938" class="Symbol">:</a> <a id="4940" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a> <a id="4942" href="Agda.Builtin.Equality.html#151" class="Datatype Operator">≡</a> <a id="4944" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a>
 
-    <a id="P"></a><a id="4951" href="Prelude.Tactics.Rewrite.html#4951" class="Postulate">P</a> <a id="4953" class="Symbol">:</a> <a id="4955" href="Prelude.Init.html#11508" class="Function">Pred₀</a> <a id="4961" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
+    <a id="P"></a><a id="4951" href="Prelude.Tactics.Rewrite.html#4951" class="Postulate">P</a> <a id="4953" class="Symbol">:</a> <a id="4955" href="Prelude.Init.html#11891" class="Function">Pred₀</a> <a id="4961" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
     <a id="Pa"></a><a id="4967" href="Prelude.Tactics.Rewrite.html#4967" class="Postulate">Pa</a> <a id="4970" class="Symbol">:</a> <a id="4972" href="Prelude.Tactics.Rewrite.html#4951" class="Postulate">P</a> <a id="4974" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a>
 
   <a id="4979" class="Keyword">open</a> <a id="4984" href="Prelude.General.html#10306" class="Module">MultiTest</a>
@@ -183,7 +183,7 @@
     <a id="5297" href="Prelude.General.html#10516" class="InductiveConstructor Operator">⋮∅</a>
 
   <a id="5303" class="Keyword">postulate</a>
-    <a id="P²"></a><a id="5317" href="Prelude.Tactics.Rewrite.html#5317" class="Postulate">P²</a> <a id="5320" class="Symbol">:</a> <a id="5322" href="Prelude.Init.html#11514" class="Function">Rel₀</a> <a id="5327" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
+    <a id="P²"></a><a id="5317" href="Prelude.Tactics.Rewrite.html#5317" class="Postulate">P²</a> <a id="5320" class="Symbol">:</a> <a id="5322" href="Prelude.Init.html#11897" class="Function">Rel₀</a> <a id="5327" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
     <a id="P²a"></a><a id="5333" href="Prelude.Tactics.Rewrite.html#5333" class="Postulate">P²a</a> <a id="5337" class="Symbol">:</a> <a id="5339" href="Prelude.Tactics.Rewrite.html#5317" class="Postulate">P²</a> <a id="5342" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a> <a id="5344" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a>
 
   <a id="5349" href="Prelude.Tactics.Rewrite.html#5349" class="Function">_</a> <a id="5351" class="Symbol">=</a> <a id="5353" href="Prelude.Tactics.Rewrite.html#5317" class="Postulate">P²</a> <a id="5356" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a> <a id="5358" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a>
@@ -193,7 +193,7 @@
     <a id="5434" href="Prelude.General.html#10516" class="InductiveConstructor Operator">⋮∅</a>
 
   <a id="5440" class="Keyword">postulate</a>
-    <a id="P³"></a><a id="5454" href="Prelude.Tactics.Rewrite.html#5454" class="Postulate">P³</a> <a id="5457" class="Symbol">:</a> <a id="5459" href="Prelude.Init.html#11519" class="Function">3Rel₀</a> <a id="5465" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
+    <a id="P³"></a><a id="5454" href="Prelude.Tactics.Rewrite.html#5454" class="Postulate">P³</a> <a id="5457" class="Symbol">:</a> <a id="5459" href="Prelude.Init.html#11902" class="Function">3Rel₀</a> <a id="5465" href="Prelude.Tactics.Rewrite.html#4911" class="Postulate">X</a>
     <a id="P³a"></a><a id="5471" href="Prelude.Tactics.Rewrite.html#5471" class="Postulate">P³a</a> <a id="5475" class="Symbol">:</a> <a id="5477" href="Prelude.Tactics.Rewrite.html#5454" class="Postulate">P³</a> <a id="5480" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a> <a id="5482" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a> <a id="5484" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a>
 
   <a id="5489" href="Prelude.Tactics.Rewrite.html#5489" class="Function">_</a> <a id="5491" class="Symbol">=</a> <a id="5493" href="Prelude.Tactics.Rewrite.html#5454" class="Postulate">P³</a> <a id="5496" href="Prelude.Tactics.Rewrite.html#4925" class="Postulate">b</a> <a id="5498" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a> <a id="5500" href="Prelude.Tactics.Rewrite.html#4923" class="Postulate">a</a>
