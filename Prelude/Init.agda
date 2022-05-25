@@ -21,6 +21,13 @@ Set[ ℓ ↝ ℓ′ ] = Set ℓ → Set ℓ′
 Set↑ : Setω
 Set↑ = ∀ {ℓ} → Set[ ℓ ↝ ℓ ]
 
+-- ** Equality
+open import Relation.Binary.PropositionalEquality public
+  using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_
+        ; module ≡-Reasoning
+        ; setoid )
+  renaming ([_] to ≡[_])
+
 -- ** Functions
 open import Function public
   using ( id; const; constᵣ
@@ -28,15 +35,6 @@ open import Function public
         ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_
         ; _∋_; _on_; typeOf; it
         )
-
--- forward composition (= kleene composition of `Monad Id`)
-_>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
-f >≡> g = g ∘ f
-
-open import Function.Definitions public
-  using (Injective)
-open import Function.Bundles public
-  using (module Injection; _↣_)
 module Fun where
   open import Function public
   module Inv where
@@ -45,7 +43,22 @@ module Fun where
     open import Function.Equality public
   module Equiv where
     open import Function.Equivalence public
+open import Function.Definitions public
+  using (Congruent; Injective; Surjective; Bijective; Inverseˡ; Inverseʳ; Inverseᵇ)
+module _ {a b} {A : Set a} {B : Set b} where
+  open import Function.Definitions {A = A} {B = B} _≡_ _≡_ public
+    using ()
+    renaming
+      ( Congruent to Congruent≡; Injective to Injective≡
+      ; Surjective to Surjective≡; Bijective to Bijective≡
+      ; Inverseˡ to Inverse≡ˡ; Inverseʳ to Inverse≡ʳ; Inverseᵇ to Inverse≡ᵇ
+      )
+open import Function.Bundles public
+  using (module Injection; _↣_)
 
+-- forward composition (= kleene composition of `Monad Id`)
+_>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
+f >≡> g = g ∘ f
 
 -- ** Categories
 open import Category.Functor public
@@ -265,11 +278,6 @@ open import Relation.Binary public
         ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
         ; DecidableEquality; IsEquivalence; Setoid)
   renaming (Decidable to Decidable²; _⇒_ to _⇒²_; _⇔_ to _⇔²_)
-open import Relation.Binary.PropositionalEquality public
-  using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_
-        ; module ≡-Reasoning
-        ; setoid )
-  renaming ([_] to ≡[_])
 module PropEq where
   open import Relation.Binary.PropositionalEquality public
 module Binary where
@@ -293,7 +301,6 @@ open import Algebra public
   using (Op₁; Op₂; Opₗ; Opᵣ)
 module Alg {a ℓ} {A : Set a} (_~_ : Rel A ℓ) where
   open import Algebra.Definitions {A = A} _~_ public
-import Algebra.Definitions as A
 module Alg≡ {a} {A : Set a} where
   open import Algebra.Definitions {A = A} _≡_ public
 
