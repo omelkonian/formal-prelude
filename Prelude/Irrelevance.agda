@@ -46,6 +46,25 @@ instance
 -- Squashed-Unique×⊆ {xs = xs} {ys = ys} ∀xs≡ ∀ys≡ .∀≡ xs⊆ xs⊆′ = {!!}
 -- -- need extensionality...
 
+-- Products with erased proj₂, aka refinements.
+
+private variable ℓ ℓ′ : Level
+
+record Σ₀ (A : Set ℓ) (P : A → Set ℓ′) : Set (ℓ ⊔ ℓ′) where
+  constructor _,₀_
+  field
+    element   : A
+    .property : P element
+open Σ₀ public
+infixr 4 _,₀_
+
+infixr 2 _×₀_
+
+_×₀_ : ∀ (A : Set ℓ) (B : Set ℓ′) → Set (ℓ ⊔ ℓ′)
+A ×₀ B = Σ₀ A (const B)
+
+∃₀ : ∀ {A : Set ℓ} → (A → Set ℓ′) → Set (ℓ ⊔ ℓ′)
+∃₀ = Σ₀ _
 
 {-
 record Squash {a} (A : Set a) : Set a where
