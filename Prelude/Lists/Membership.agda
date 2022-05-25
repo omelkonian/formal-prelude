@@ -121,6 +121,16 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
     let x∈ , Px = ∈-filter⁻ P? y∈
     in ∈-filter⁺ P? (xs⊆ x∈) Px
 
+-- ** map
+∈-map⁻inverseˡ : ∀ (f : A → B) (f⁻¹ : B → A) →
+  ∙ Inverse≡ˡ {A = B} f⁻¹ f
+  ∙ y ∈ map f xs
+    ───────────────────────
+    f⁻¹ y ∈ xs
+∈-map⁻inverseˡ {xs = xs} f f⁻¹ inv y∈ =
+  let x , x∈ , eq = ∈-map⁻ f y∈
+  in subst (_∈ xs) (sym $ trans (cong f⁻¹ eq) (inv _)) x∈
+
 -- ** mapWith∈
 
 ∈-mapWith∈⁻ : ∀ {xs : List A} {f : ∀ {x} → x ∈ xs → B} {y : B}
