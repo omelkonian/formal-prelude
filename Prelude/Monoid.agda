@@ -48,16 +48,30 @@ instance
           q = RightIdentity ε _◇_ ∋ λ where (just _) → refl; nothing → refl
 
 -- ** nats
+module _ where
+  open Nat
+  Monoid-ℕ-+ = Monoid ℕ ∋ λ where .ε → 0
+    where instance _ = Semigroup-ℕ-+
+  MonoidLaws-ℕ-+ = MonoidLaws≡ ℕ ∋ record {ε-identity = +-identityˡ , +-identityʳ}
+    where instance _ = Monoid-ℕ-+
 
-Monoid-ℕ-+ = Monoid ℕ ∋ λ where .ε → 0
-  where instance _ = Semigroup-ℕ-+
-MonoidLaws-ℕ-+ = MonoidLaws≡ ℕ ∋ record {ε-identity = Nat.+-identityˡ , Nat.+-identityʳ}
-  where instance _ = Monoid-ℕ-+
+  Monoid-ℕ-* = Monoid ℕ ∋ λ where .ε → 1
+    where instance _ = Semigroup-ℕ-*
+  MonoidLaws-ℕ-* = MonoidLaws≡ ℕ ∋ record {ε-identity = *-identityˡ , *-identityʳ}
+    where instance _ = Monoid-ℕ-*
 
-Monoid-ℕ-* = Monoid ℕ ∋ λ where .ε → 1
-  where instance _ = Semigroup-ℕ-*
-MonoidLaws-ℕ-* = MonoidLaws≡ ℕ ∋ record {ε-identity = Nat.*-identityˡ , Nat.*-identityʳ}
-  where instance _ = Monoid-ℕ-*
+-- ** integers
+module _ where
+  open Integer
+  Monoid-ℤ-+ = Monoid ℤ ∋ λ where .ε → 0ℤ
+    where instance _ = Semigroup-ℤ-+
+  MonoidLaws-ℤ-+ = MonoidLaws≡ ℤ ∋ record {ε-identity = +-identityˡ , +-identityʳ}
+    where instance _ = Monoid-ℤ-+
+
+  Monoid-ℤ-* = Monoid ℤ ∋ λ where .ε → 1ℤ
+    where instance _ = Semigroup-ℤ-*
+  MonoidLaws-ℤ-* = MonoidLaws≡ ℤ ∋ record {ε-identity = *-identityˡ , *-identityʳ}
+    where instance _ = Monoid-ℤ-*
 
 -- ** maybes
 

@@ -68,18 +68,38 @@ instance
       q nothing  nothing  = refl
 
 
-Semigroup-ℕ-+ = Semigroup ℕ ∋ λ where ._◇_ → _+_
--- AssocSemigroup-ℕ-+ = AssociativeSemigroup ℕ _≡_ ∋ record {◇-assocʳ = Nat.+-assoc}
---   where instance _ = Semigroup-ℕ-+
--- CommSemigroup-ℕ-+ = CommutativeSemigroup ℕ _≡_ ∋ record {◇-comm = Nat.+-comm}
---   where instance _ = Semigroup-ℕ-+
-SemigroupLaws-ℕ-+ = SemigroupLaws ℕ _≡_ ∋ record {◇-assocʳ = Nat.+-assoc; ◇-comm = Nat.+-comm}
-  where instance _ = Semigroup-ℕ-+
+-- ** nats
+module _ where
+  open Nat
 
-Semigroup-ℕ-* = Semigroup ℕ ∋ λ where ._◇_ → _*_
--- AssocSemigroup-ℕ-* = AssociativeSemigroup ℕ _≡_ ∋ record {◇-assocʳ = Nat.*-assoc}
---   where instance _ = Semigroup-ℕ-*
--- CommSemigroup-ℕ-* = CommutativeSemigroup ℕ _≡_ ∋ record {◇-comm = Nat.*-comm}
---   where instance _ = Semigroup-ℕ-*
-SemigroupLaws-ℕ-* = SemigroupLaws ℕ _≡_ ∋ record {◇-assocʳ = Nat.*-assoc; ◇-comm = Nat.*-comm}
-  where instance _ = Semigroup-ℕ-*
+  Semigroup-ℕ-+ = Semigroup ℕ ∋ λ where ._◇_ → _+_
+  -- AssocSemigroup-ℕ-+ = AssociativeSemigroup ℕ _≡_ ∋ record {◇-assocʳ = +-assoc}
+  --   where instance _ = Semigroup-ℕ-+
+  -- CommSemigroup-ℕ-+ = CommutativeSemigroup ℕ _≡_ ∋ record {◇-comm = +-comm}
+  --   where instance _ = Semigroup-ℕ-+
+  SemigroupLaws-ℕ-+ = SemigroupLaws ℕ _≡_ ∋
+    record {◇-assocʳ = +-assoc; ◇-comm = +-comm}
+    where instance _ = Semigroup-ℕ-+
+
+  Semigroup-ℕ-* = Semigroup ℕ ∋ λ where ._◇_ → _*_
+  -- AssocSemigroup-ℕ-* = AssociativeSemigroup ℕ _≡_ ∋ record {◇-assocʳ = *-assoc}
+  --   where instance _ = Semigroup-ℕ-*
+  -- CommSemigroup-ℕ-* = CommutativeSemigroup ℕ _≡_ ∋ record {◇-comm = *-comm}
+  --   where instance _ = Semigroup-ℕ-*
+  SemigroupLaws-ℕ-* = SemigroupLaws ℕ _≡_ ∋
+    record {◇-assocʳ = *-assoc; ◇-comm = *-comm}
+    where instance _ = Semigroup-ℕ-*
+
+-- ** integers
+module _ where
+  open Integer
+
+  Semigroup-ℤ-+ = Semigroup ℤ ∋ λ where ._◇_ → Integer._+_
+  SemigroupLaws-ℤ-+ = SemigroupLaws ℤ _≡_ ∋
+    record {◇-assocʳ = +-assoc; ◇-comm = +-comm}
+    where instance _ = Semigroup-ℤ-+
+
+  Semigroup-ℤ-* = Semigroup ℤ ∋ λ where ._◇_ → Integer._*_
+  SemigroupLaws-ℤ-* = SemigroupLaws ℤ _≡_ ∋
+    record {◇-assocʳ = *-assoc; ◇-comm = *-comm}
+    where instance _ = Semigroup-ℤ-*
