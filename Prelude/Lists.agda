@@ -40,6 +40,7 @@ open import Prelude.Lists.Singletons public
 open import Prelude.Lists.MapMaybe public
 open import Prelude.Lists.Mappings public
 open import Prelude.Lists.SuffixSubset public
+open import Prelude.Lists.Sublists public
 
 -- ** Prefix relation, instantiated for propositional equality.
 Prefix≡ : List A → List A → Set _
