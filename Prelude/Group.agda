@@ -48,9 +48,12 @@ module _ (G : Set ℓ) ⦃ _ : Group G ⦄ (X : Set ℓ′) ⦃ _ : ISetoid X �
       identity : ∀ {x : X} → x · ε ≈ x
       compatibility : ∀ {x : X} {g h : G} → x · g · h ≈ x · (g ◇ h)
 
+  open Actionˡ ⦃...⦄ public renaming
+    (identity to ·-identity; compatibility to ·-compatibility)
+
 record GSet (G : Set ℓ) ⦃ _ : Group G ⦄ (X : Set ℓ′) ⦃ _ : ISetoid X ⦄ : Setω where
-  field action : Actionˡ G X
-open GSet public
+  field ⦃ action ⦄ : Actionˡ G X
+open GSet ⦃...⦄ public
 
 record GSet′ (G : Set ℓ) ⦃ _ : Group G ⦄ : Setω where
   field
@@ -59,3 +62,13 @@ record GSet′ (G : Set ℓ) ⦃ _ : Group G ⦄ : Setω where
     ⦃ setoidX ⦄ : ISetoid X
     action′ : Actionˡ G X
 open GSet′ public
+
+module GSet-Morphisms (G : Set ℓ) ⦃ _ : Group G ⦄ where
+
+  module _ (X Y : Set ℓ′) ⦃ _ : ISetoid X ⦄ ⦃ _ : ISetoid Y ⦄ ⦃ _ : GSet G X ⦄ ⦃ _ : GSet G Y ⦄ where
+
+    record _—𝔾→_ : Set (ℓ ⊔ₗ ℓ′ ⊔ₗ relℓ) where
+      field
+        f : X → Y
+        equivariant : ∀ {g : G} {x : X} → f (g · x) ≈ g · f x
+    open _—𝔾→_ public renaming (f to _𝔾⟨$⟩_)
