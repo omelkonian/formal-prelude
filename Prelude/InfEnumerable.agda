@@ -51,6 +51,14 @@ fresh xs =
   let n , n∉ = freshℕ (map toℕ xs)
   in  fromℕ n , n∉ ∘ fromℕ∈⇒∈toℕ _ _
 
+fresh^_ : ⦃ Enumerable∞ A ⦄ → (n : ℕ) → (xs : List A) →
+  Σ (Vec A n) (V.All.All (_∉ xs))
+(fresh^ zero) xs = [] , V.All.[]
+(fresh^ suc n) xs =
+  let x , px = fresh xs
+      xs , pxs = (fresh^ n) xs
+  in x ∷ xs , px V.All.∷ pxs
+
 -- record Enumerable∞ (A : Set ℓ) : Set ℓ where
 --   field witness  : Stream A ∞
 --         infinite : ∀ x → x ∈ˢ witness
