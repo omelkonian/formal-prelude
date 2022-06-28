@@ -326,6 +326,9 @@ module _ {A : Set ℓ} where
 
 -- ** Lists
 
+[]-injective : [ x ] ≡ [ y ] → x ≡ y
+[]-injective refl = refl
+
 sequence : List (Maybe A) → Maybe (List A)
 sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (just [])
 
