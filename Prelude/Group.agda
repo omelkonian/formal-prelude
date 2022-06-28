@@ -69,6 +69,6 @@ module GSet-Morphisms (G : Set ℓ) ⦃ _ : Group G ⦄ where
 
     record _—𝔾→_ : Set (ℓ ⊔ₗ ℓ′ ⊔ₗ relℓ) where
       field
-        f : X → Y
-        equivariant : ∀ {g : G} {x : X} → f (g · x) ≈ g · f x
-    open _—𝔾→_ public renaming (f to _𝔾⟨$⟩_)
+        F : X → Y
+        equivariant : ∀ {g : G} {x : X} → F (g · x) ≈ g · F x
+    open _—𝔾→_ public renaming (F to _𝔾⟨$⟩_)
