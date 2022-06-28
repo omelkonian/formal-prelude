@@ -1077,6 +1077,89 @@ module _ {P : Pred A ℓ} where
       ) xs∈             -- Any (Any P) xss
     ∎
 
+postulate
+  ↭-sym∘shifts : ∀ (xs ys zs : List A)
+    → ↭-sym (shifts xs ys {zs})
+    ≡ shifts ys xs
+
+postulate
+  ↭-sym∘concat⁺ :
+    (p : xss ↭ yss)
+    --———————————————————
+    → ↭-sym (↭-concat⁺ p)
+    ≡ ↭-concat⁺ (↭-sym p)
+{-
+↭-sym∘concat⁺ ↭-refl = refl
+↭-sym∘concat⁺ (↭-prep _ p)
+  rewrite sym $ ↭-sym∘concat⁺ p
+        = ↭-sym∘++⁺ˡ (↭-concat⁺ p)
+↭-sym∘concat⁺ (↭-trans p q)
+  rewrite ↭-sym∘concat⁺ p
+        | ↭-sym∘concat⁺ q
+        = refl
+↭-sym∘concat⁺ {xss = _ ∷ _ ∷ xss} (↭-swap xs ys p)
+-}
+  {-
+  = begin
+    ↭-sym (↭-concat⁺ (↭-swap xs ys p))
+  ≡⟨⟩
+    ↭-sym ( L.Perm.↭-trans (shifts xs ys)
+          $ L.Perm.↭-trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ p) refl
+          )
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (↭-sym $ L.Perm.↭-trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ p) refl)
+      (↭-sym $ shifts xs ys)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (↭-sym $ L.Perm.↭-trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ p) refl)
+      (shifts ys xs)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (L.Perm.↭-trans (↭-sym $ ++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ p) refl)
+      (shifts ys xs)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (L.Perm.↭-trans (++⁺ˡ ys $ ↭-sym $ ++⁺ˡ xs $ ↭-concat⁺ p) refl)
+      (shifts ys xs)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (L.Perm.↭-trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-sym $ ↭-concat⁺ p) refl)
+      (shifts ys xs)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (L.Perm.↭-trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ $ ↭-sym p) refl)
+      (shifts ys xs)
+  ≡⟨ {!!} ⟩
+    L.Perm.↭-trans
+      (shifts ys xs)
+      (L.Perm.↭-trans (++⁺ˡ xs $ ++⁺ˡ ys $ ↭-concat⁺ $ ↭-sym p) refl)
+  ≡⟨⟩
+    ↭-concat⁺ (↭-swap ys xs $ ↭-sym p)
+  ≡⟨⟩
+    ↭-concat⁺ (↭-sym $ ↭-swap xs ys p)
+  ∎ where open ≡-Reasoning
+  -- ↭-sym $ trans (shifts xs ys) (trans (++ ys ++ xs $ concat p) refl)
+  -- ≡ trans (shifts ys xs) (trans (++ xs ++ ys $ concat $ sym p) refl)
+  rewrite ↭-sym∘↭trans (shifts xs ys)
+            (L.Perm.↭-trans (++⁺ˡ ys (++⁺ˡ xs (↭-concat⁺ p))) ↭-refl)
+  -- trans (↭-sym $ shifts xs ys) (↭-sym (...) refl)
+        | ↭-sym∘shifts xs ys (concat xss)
+        = {!cong (L.Perm.↭-trans (shifts ys xs)) ?!}
+  -- trans (shifts xs ys) (sym $ trans (++ ys ++ xs $ concat p) refl)
+  -- ≡ trans (shifts ys xs) (trans (++ xs ++ ys $ concat $ sym p) refl)
+  -- trans (shifts ys xs) (↭-sym $ trans (...) refl)
+        | ↭-sym∘↭trans (++⁺ˡ ys (++⁺ˡ xs (↭-concat⁺ p))) ↭-refl
+  -- trans (shifts ys xs) (trans (↭-sym ...) refl)
+        | ↭-sym∘++⁺ˡ {zs = ys} (++⁺ˡ xs (↭-concat⁺ p))
+  -- trans (shifts ys xs) (trans (++⁺ˡ ys ↭-sym ...) refl)
+        | ↭-sym∘++⁺ˡ {zs = xs} (↭-concat⁺ p)
+  -- trans (shifts ys xs) (trans (++⁺ˡ ys $ ++⁺ˡ xs ↭-sym $ ↭-concat⁺ p) refl)
+        | ↭-sym∘concat⁺ p
+  -- trans (shifts ys xs) (trans (++⁺ˡ ys $ ++⁺ˡ xs $ ↭-concat⁺ $ ↭-sym p) refl)
+        = {!!}
+  -}
+
 -- ** map
 module _ {f : A → B} {P : Pred B ℓ} where
 
@@ -1192,6 +1275,16 @@ module _ {f : A → List B} where
       ) x∈
   ∈-resp-↭∘∈-concatMap⁺ = Any-resp-↭∘Any-concatMap⁺
 
+↭-sym∘concatMap⁺ :
+  (f : A → List B)
+  (p : xs ↭ ys)
+  --———————————————————
+  → ↭-sym (↭-concatMap⁺ f p)
+  ≡ ↭-concatMap⁺ f (↭-sym p)
+↭-sym∘concatMap⁺ f p
+  rewrite ↭-sym∘concat⁺ (map⁺ f p)
+        | ↭-sym∘map⁺ f p
+        = refl
 
 -- ** catMaybes
 
@@ -1393,3 +1486,11 @@ module _ (f : A → Maybe B) where
       ∘ ∈-resp-↭ xs↭
       ) x∈
     ∎
+
+postulate
+  ↭-sym∘mapMaybe⁺ :
+    (f : A → Maybe B)
+    (p : xs ↭ ys)
+    --———————————————————
+    → ↭-sym (mapMaybe-↭ f p)
+    ≡ mapMaybe-↭ f (↭-sym p)

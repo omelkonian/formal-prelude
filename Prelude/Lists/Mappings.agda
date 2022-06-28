@@ -4,7 +4,7 @@
 module Prelude.Lists.Mappings where
 
 open import Prelude.Init
-open L.Mem using (_∈_; mapWith∈; ∈-++⁻)
+open L.Mem using (_∈_; mapWith∈; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open L.Perm using (∈-resp-↭; Any-resp-↭)
 open import Prelude.General using (⟫_)
 open import Prelude.Lists.Membership
@@ -54,6 +54,12 @@ _++/↦_ : xs ↦′ P → ys ↦′ P → xs ++ ys ↦′ P
 xs↦ ++/↦ ys↦ = ∈-++⁻ _ >≡> λ where
   (inj₁ x∈) → xs↦ x∈
   (inj₂ y∈) → ys↦ y∈
+
+destruct-++/↦ : xs ++ ys ↦′ P → (xs ↦′ P) × (ys ↦′ P)
+destruct-++/↦ xys↦ = xys↦ ∘ ∈-++⁺ˡ , xys↦ ∘ ∈-++⁺ʳ _
+
+destruct≡-++/↦ : zs ≡ xs ++ ys → zs ↦′ P → (xs ↦′ P) × (ys ↦′ P)
+destruct≡-++/↦ refl = destruct-++/↦
 
 extend-↦ : zs ↭ xs ++ ys → xs ↦′ P → ys ↦′ P → zs ↦′ P
 extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)

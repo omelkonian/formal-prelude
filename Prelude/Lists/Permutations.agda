@@ -58,20 +58,6 @@ private variable
         | ↭-sym∘++⁺ˡ {zs = ws} p
         = refl
 
-↭-sym∘map⁺ :
-  (f : A → B)
-  (p : xs ↭ ys)
-  --——————————————————————————
-  → ↭-sym (map⁺ f p)
-  ≡ map⁺ f (↭-sym p)
-↭-sym∘map⁺ f ↭-refl = refl
-↭-sym∘map⁺ f (↭-prep x p) = cong (↭-prep $ f x) (↭-sym∘map⁺ f p)
-↭-sym∘map⁺ f (↭-swap x y p) = cong (↭-swap (f y) (f x)) (↭-sym∘map⁺ f p)
-↭-sym∘map⁺ f (↭-trans {xs}{ys}{zs} p q)
-  rewrite ↭-sym∘map⁺ {xs = xs} {ys} f p
-        | ↭-sym∘map⁺ {xs = ys} {zs} f q
-        = refl
-
 ↭-sym∘↭-trans :
   (p : ys ↭ xs)
   (q : ys ↭ zs)
@@ -114,6 +100,20 @@ private variable
   (↭-swap _ _ _) → refl
   (↭-trans _ _)  → refl
 
+↭-sym∘map⁺ :
+  (f : A → B)
+  (p : xs ↭ ys)
+  --——————————————————————————
+  → ↭-sym (map⁺ f p)
+  ≡ map⁺ f (↭-sym p)
+↭-sym∘map⁺ f ↭-refl = refl
+↭-sym∘map⁺ f (↭-prep x p) = cong (↭-prep $ f x) (↭-sym∘map⁺ f p)
+↭-sym∘map⁺ f (↭-swap x y p) = cong (↭-swap (f y) (f x)) (↭-sym∘map⁺ f p)
+↭-sym∘map⁺ f (↭-trans {xs}{ys}{zs} p q)
+  rewrite ↭-sym∘map⁺ {xs = xs} {ys} f p
+        | ↭-sym∘map⁺ {xs = ys} {zs} f q
+        = refl
+
 open Alg≡
 postulate
   ↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
@@ -155,12 +155,38 @@ Any-resp-↭∘Any-resp-↭˘ (↭-trans p↭ p↭′) p
   rewrite Any-resp-↭∘Any-resp-↭˘ p↭′ (Any-resp-↭ p↭ p)
   = Any-resp-↭∘Any-resp-↭˘ p↭ p
 
+Any-resp-↭˘∘Any-resp-↭ : ∀ {x : A} {xs ys : List A}
+    (p↭ : xs ↭ ys)
+    (x∈ : x ∈ ys)
+    --——————————————————————————————————————————
+  → (Any-resp-↭ p↭ ∘ Any-resp-↭ (↭-sym p↭)) x∈ ≡ x∈
+Any-resp-↭˘∘Any-resp-↭ p↭ x∈ =
+  begin
+    ( Any-resp-↭ p↭
+    ∘ Any-resp-↭ (↭-sym p↭)
+    ) x∈
+  ≡˘⟨ cong (λ ◆ → (Any-resp-↭ ◆ ∘ Any-resp-↭ (↭-sym p↭)) x∈)
+         $ L.Perm.↭-sym-involutive p↭ ⟩
+    ( Any-resp-↭ (↭-sym $ ↭-sym p↭)
+    ∘ Any-resp-↭ (↭-sym p↭)
+    ) x∈
+  ≡⟨ Any-resp-↭∘Any-resp-↭˘ (↭-sym p↭) x∈ ⟩
+    x∈
+  ∎ where open ≡-Reasoning
+
 ∈-resp-↭∘∈-resp-↭˘ : ∀ {x : A} {xs ys : List A}
     (p↭ : xs ↭ ys)
     (x∈ : x ∈ xs)
     --——————————————————————————————————————————
   → (∈-resp-↭ (↭-sym p↭) ∘ ∈-resp-↭ p↭) x∈ ≡ x∈
 ∈-resp-↭∘∈-resp-↭˘ = Any-resp-↭∘Any-resp-↭˘
+
+∈-resp-↭˘∘∈-resp-↭ : ∀ {x : A} {xs ys : List A}
+    (p↭ : xs ↭ ys)
+    (x∈ : x ∈ ys)
+    --——————————————————————————————————————————
+  → (∈-resp-↭ p↭ ∘ ∈-resp-↭ (↭-sym p↭)) x∈ ≡ x∈
+∈-resp-↭˘∘∈-resp-↭ = Any-resp-↭˘∘Any-resp-↭
 
 -- ** map
 module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where

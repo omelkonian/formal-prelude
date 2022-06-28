@@ -35,16 +35,16 @@ Any-++⁻∘Any-++⁺ʳ : (y∈ : Any P ys)
 Any-++⁻∘Any-++⁺ʳ {xs = []} _ = refl
 Any-++⁻∘Any-++⁺ʳ {xs = _ ∷ xs} y∈ rewrite Any-++⁻∘Any-++⁺ʳ {xs = xs} y∈ = refl
 
-Any-++⁻⇒Any-++⁺ˡ : ∀ {xs ys : List A}
+Any-++⁻⇒Any-++⁺ : ∀ {xs ys : List A}
   → (x∈ : Any P (xs ++ ys))
     --———————————————————
   → case L.Any.++⁻ xs {ys} x∈ of λ where
       (inj₁ x∈ˡ) → x∈ ≡ L.Any.++⁺ˡ x∈ˡ
       (inj₂ x∈ʳ) → x∈ ≡ L.Any.++⁺ʳ xs x∈ʳ
-Any-++⁻⇒Any-++⁺ˡ {xs = []}          x∈       = refl
-Any-++⁻⇒Any-++⁺ˡ {xs = x ∷ xs} {ys} (here _) = refl
-Any-++⁻⇒Any-++⁺ˡ {xs = x ∷ xs} {ys} (there x∈)
-  with IH ← Any-++⁻⇒Any-++⁺ˡ {xs = xs}{ys} x∈
+Any-++⁻⇒Any-++⁺ {xs = []}          x∈       = refl
+Any-++⁻⇒Any-++⁺ {xs = x ∷ xs} {ys} (here _) = refl
+Any-++⁻⇒Any-++⁺ {xs = x ∷ xs} {ys} (there x∈)
+  with IH ← Any-++⁻⇒Any-++⁺ {xs = xs}{ys} x∈
   with L.Any.++⁻ xs x∈
 ... | inj₁ x∈ˡ = cong there IH
 ... | inj₂ x∈ʳ = cong there IH
@@ -55,7 +55,7 @@ destruct-Any-++ : ∀ {xs ys : List A}
   → (∃ λ (x∈ˡ : Any P xs) → x∈ ≡ L.Any.++⁺ˡ x∈ˡ)
   ⊎ (∃ λ (x∈ʳ : Any P ys) → x∈ ≡ L.Any.++⁺ʳ xs x∈ʳ)
 destruct-Any-++ {xs = xs}{ys} x∈
-  with L.Any.++⁻ xs {ys} x∈ | Any-++⁻⇒Any-++⁺ˡ {xs = xs}{ys} x∈
+  with L.Any.++⁻ xs {ys} x∈ | Any-++⁻⇒Any-++⁺ {xs = xs}{ys} x∈
 ... | inj₁ x∈ˡ | refl = inj₁ $ -, refl
 ... | inj₂ x∈ʳ | refl = inj₂ $ -, refl
 
@@ -91,7 +91,7 @@ destruct-Any-++² {xs = xs}{ys} x∈
   → case ∈-++⁻ xs {ys} x∈ of λ where
       (inj₁ x∈ˡ) → x∈ ≡ ∈-++⁺ˡ x∈ˡ
       (inj₂ x∈ʳ) → x∈ ≡ ∈-++⁺ʳ xs x∈ʳ
-∈-++⁻⇒∈-++⁺ˡ {xs = xs} x∈ with ∈-++⁻ xs x∈ | Any-++⁻⇒Any-++⁺ˡ {xs = xs} x∈
+∈-++⁻⇒∈-++⁺ˡ {xs = xs} x∈ with ∈-++⁻ xs x∈ | Any-++⁻⇒Any-++⁺ {xs = xs} x∈
 ... | inj₁ _ | p = p
 ... | inj₂ _ | p = p
 
