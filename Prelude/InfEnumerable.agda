@@ -1,8 +1,7 @@
-------------------------------------------------------------------------
--- Enumerable types with an (infinite) stream witness.
-------------------------------------------------------------------------
+------------------------------------------------------------
+-- (Infinite) enumerable types that are in bijection with ℕ.
+------------------------------------------------------------
 
--- {-# OPTIONS --sized-types #-}
 module Prelude.InfEnumerable where
 
 open import Prelude.Init
@@ -58,12 +57,3 @@ fresh^_ : ⦃ Enumerable∞ A ⦄ → (n : ℕ) → (xs : List A) →
   let x , px = fresh xs
       xs , pxs = (fresh^ n) xs
   in x ∷ xs , px V.All.∷ pxs
-
--- record Enumerable∞ (A : Set ℓ) : Set ℓ where
---   field witness  : Stream A ∞
---         infinite : ∀ x → x ∈ˢ witness
--- open Enumerable∞ ⦃...⦄ public
-
--- instance
---   Enumerable∞-ℕ : Enumerable∞ ℕ
---   Enumerable∞-ℕ .witness = iterate suc 0
