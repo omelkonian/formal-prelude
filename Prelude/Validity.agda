@@ -12,6 +12,7 @@ record Validable (A : Set ℓ) : Set (ℓ ⊔ₗ lsuc ℓ′) where
 
   Valid? : ⦃ Valid ⁇¹ ⦄ → Decidable¹ Valid
   Valid? _ = dec
+
 open Validable ⦃ ... ⦄ public
 
 -- record DecValidable (A : Set ℓ) : Set (lsuc ℓ) where
@@ -23,3 +24,6 @@ open Validable ⦃ ... ⦄ public
 -- instance
 --   DecValidable→Dec : ∀ {A : Set ℓ} ⦃ _ : DecValidable A ⦄ → {x : A} → (Valid x) ⁇
 --   DecValidable→Dec .dec = Valid? _
+
+𝕍 : (A : Set ℓ) → ⦃ Validable {ℓ′ = ℓ′} A ⦄ → Set _
+𝕍 A = ∃ λ (a : A) → Valid a
