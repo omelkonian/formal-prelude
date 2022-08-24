@@ -5,6 +5,7 @@ open import Prelude.Lists
 open import Prelude.Decidable
 open import Prelude.Orders
 open import Prelude.DecEq
+open import Prelude.InferenceRules
 
 record Ord (A : Set ℓ) : Set (lsuc ℓ) where
   field _≤_ _<_ : Rel₀ A
@@ -43,6 +44,34 @@ record Ord (A : Set ℓ) : Set (lsuc ℓ) where
     minimum⁺ maximum⁺ : List⁺ A → A
     minimum⁺ (x ∷ xs) = minimum x xs
     maximum⁺ (x ∷ xs) = maximum x xs
+
+    module _ {x} {y} {ys : List A} where
+
+      minimum-skip :
+        x ≤ y
+        ─────────────────────────────────
+        minimum x (y ∷ ys) ≡ minimum x ys
+      minimum-skip x≤ rewrite dec-yes (x ≤? y) x≤ .proj₂ = refl
+
+      maximum-skip :
+        y ≤ x
+        ─────────────────────────────────
+        maximum x (y ∷ ys) ≡ maximum x ys
+      maximum-skip y≤ rewrite dec-yes (y ≤? x) y≤ .proj₂ = refl
+
+    postulate
+      ∀≤max⁺ : ∀ (xs : List⁺ A) → All⁺ (_≤ maximum⁺ xs) xs
+      ∀≤max : ∀ x (xs : List A) → All (_≤ maximum x xs) xs
+
+    ∀≤⇒≡max : ∀ {x} {xs : List A} →
+      All (_≤ x) xs
+      ────────────────
+      x ≡ maximum x xs
+    ∀≤⇒≡max [] = refl
+    ∀≤⇒≡max {x = x} {xs = y ∷ xs} (py ∷ p) =
+      begin x                  ≡⟨ ∀≤⇒≡max {xs = xs} p ⟩
+            maximum x xs       ≡˘⟨ maximum-skip {ys = xs} py ⟩
+            maximum x (y ∷ xs) ∎ where open ≡-Reasoning
 
     module _ ⦃ _ : DecEq A ⦄ ⦃ _ : TotalOrder _≤_ ⦄ where
       open import Data.List.Sort.MergeSort
@@ -166,16 +195,6 @@ module Maybe-DecOrd where
 
   _<?ᵐ_ : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → Decidable² (_<_ {A = Maybe X})
   x <?ᵐ y = DecStrictOrd-Maybe {x = x} {y} .dec
-
-postulate
-  ∀≤max⁺ : ∀ (ts : List⁺ ℕ) → All⁺ (_≤ maximum⁺ ts) ts
-  ∀≤max : ∀ t₀ (ts : List ℕ) → All (_≤ maximum t₀ ts) ts
-
-minimum-skip : ∀ {x y} {ys : List ℕ} → x ≤ y → minimum x (y ∷ ys) ≡ minimum x ys
-minimum-skip {x}{y} x≤ rewrite dec-yes (x ≤? y) x≤ .proj₂ = refl
-
-maximum-skip : ∀ {x y} {ys : List ℕ} → y ≤ x → maximum x (y ∷ ys) ≡ maximum x ys
-maximum-skip {x}{y} y≤ rewrite dec-yes (y ≤? x) y≤ .proj₂ = refl
 
 private
   open import Prelude.Nary
