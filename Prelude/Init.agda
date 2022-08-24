@@ -259,6 +259,7 @@ open import Relation.Nullary.Decidable public
   using ( ⌊_⌋; isNo; isYes; True; False
         ; toWitness; fromWitness; toWitnessFalse; fromWitnessFalse
         ; dec-yes; dec-no; dec-true; dec-false; dec-yes-irr
+        ; isYes≗does
         )
 open import Relation.Nullary.Implication public
   using (_→-dec_)
