@@ -34,7 +34,7 @@ record Ord (A : Set ℓ) : Set (lsuc ℓ) where
 
     min max : Op₂ A
     min x y = if ⌊ x ≤? y ⌋ then x else y
-    max x y = min y x
+    max x y = if ⌊ y ≤? x ⌋ then x else y
 
     minimum maximum : A → List A → A
     minimum = foldl min
@@ -171,14 +171,52 @@ postulate
   ∀≤max⁺ : ∀ (ts : List⁺ ℕ) → All⁺ (_≤ maximum⁺ ts) ts
   ∀≤max : ∀ t₀ (ts : List ℕ) → All (_≤ maximum t₀ ts) ts
 
+minimum-skip : ∀ {x y} {ys : List ℕ} → x ≤ y → minimum x (y ∷ ys) ≡ minimum x ys
+minimum-skip {x}{y} x≤ rewrite dec-yes (x ≤? y) x≤ .proj₂ = refl
+
+maximum-skip : ∀ {x y} {ys : List ℕ} → y ≤ x → maximum x (y ∷ ys) ≡ maximum x ys
+maximum-skip {x}{y} y≤ rewrite dec-yes (y ≤? x) y≤ .proj₂ = refl
+
 private
   open import Prelude.Nary
 
-  _ : sort (List ℤ ∋ []) ≡ []
-  _ = refl
+  -- ** min/max
+  _ = min 10 20 ≡ 10
+    ∋ refl
 
-  _ : sort ⟦ 1 , 3 , 2 , 0 ⟧ ≡ ⟦ 0 , 1 , 2 , 3 ⟧
-  _ = refl
+  _ = min 20 10 ≡ 10
+    ∋ refl
 
-  _ : True $ Sorted? ⟦ 1 , 6 , 15 ⟧
-  _ = tt
+  _ = min 0 1 ≡ 0
+    ∋ refl
+
+  _ = max 10 20 ≡ 20
+    ∋ refl
+
+  _ = max 20 10 ≡ 20
+    ∋ refl
+
+  _ = max 0 1 ≡ 1
+    ∋ refl
+
+  -- ** minimum/maximum
+
+  _ = minimum⁺ ⟦ 1 , 3 , 2 , 0 ⟧ ≡ 0
+    ∋ refl
+
+  _ = minimum⁺ ⟦ 1 , 3 , 2 ⟧ ≡ 1
+    ∋ refl
+
+  _ = maximum⁺ ⟦ 1 , 3 , 2 , 0 ⟧ ≡ 3
+    ∋ refl
+
+  -- ** sorting
+
+  _ = sort (List ℤ ∋ []) ≡ []
+    ∋ refl
+
+  _ = sort ⟦ 1 , 3 , 2 , 0 ⟧ ≡ ⟦ 0 , 1 , 2 , 3 ⟧
+    ∋ refl
+
+  _ = True (Sorted? ⟦ 1 , 6 , 15 ⟧)
+    ∋ tt
