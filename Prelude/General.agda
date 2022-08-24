@@ -324,6 +324,9 @@ module _ {A : Set ℓ} where
   MAll⇒¬MAny : ∀ {m : Maybe A} → M.All.All (const ⊥) m → ¬ M.Any.Any (const ⊤) m
   MAll⇒¬MAny {m = nothing} M.All.nothing ()
 
+  mk-Is-just : ∀ {mx : Maybe A} {x : A} → mx ≡ just x → Is-just mx
+  mk-Is-just refl = M.Any.just tt
+
 -- ** Lists
 
 []-injective : [ x ] ≡ [ y ] → x ≡ y
