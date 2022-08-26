@@ -51,6 +51,10 @@ dec³ _ _ _ = dec
 ¿_¿³ : ∀ {A B C : Set ℓ} (_~_~_ : 3REL A B C ℓ′) → ⦃ _~_~_ ⁇³ ⦄ → Decidable³ _~_~_
 ¿ _ ¿³ = dec³
 
+infix -100 auto∶_
+auto∶_ : ∀ (X : Set ℓ) → ⦃ X ⁇ ⦄ → Set
+auto∶_ A = True ¿ A ¿
+
 private variable
   A : Set ℓ
   B : Set ℓ′
