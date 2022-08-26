@@ -5,3 +5,4 @@ open import Prelude.Tactics.Try public
 open import Prelude.Tactics.Eta public
 open import Prelude.Tactics.Rewrite public
 open import Prelude.Tactics.Extra public
+open import Prelude.Tactics.Existentials public
