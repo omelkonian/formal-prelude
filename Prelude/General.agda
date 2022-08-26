@@ -303,6 +303,9 @@ module _ {A : Set ℓ} where
   ¬is-just≡ {mx = just _}  p = ⊥-elim $ p tt
   ¬is-just≡ {mx = nothing} _ = refl
 
+  Is-just? : (mx : Maybe A) → Dec (Is-just mx)
+  Is-just? = M.Any.dec λ _ → yes tt
+
   Is-just⇒≢nothing : ∀ {mx : Maybe A} → Is-just mx → mx ≢ nothing
   Is-just⇒≢nothing {mx = nothing} () _
   Is-just⇒≢nothing {mx = just _} _ ()
