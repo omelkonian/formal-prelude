@@ -77,6 +77,7 @@ open import Prelude.Maps.Concrete.Example
 
 -- ** Utilities for cryptography
 open import Prelude.Bitstring
+open import Prelude.Serializable
 
 -- ** Unsafe operations
 open import Prelude.Unsafe

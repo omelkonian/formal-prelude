@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Prelude.Bitstring where
 
 open import Data.Digit as D public using (Bit)
@@ -9,6 +10,10 @@ open import Prelude.DecEq
 open import Prelude.Applicative
 open import Prelude.Semigroup
 open import Prelude.Nary
+open import Prelude.Functor
+open import Prelude.InferenceRules
+open import Prelude.Measurable
+open import Prelude.Monad
 
 Bin⁺ : Set
 Bin⁺ = List Bit
@@ -32,6 +37,10 @@ toBits : Bin → List Bit
 toBits 0#      = [ 0b ]
 toBits (bs 1#) = bs ++ [ 1b ]
 
+instance
+  Measurable-Bin : Measurable Bin
+  Measurable-Bin .∣_∣ = length ∘ toBits
+
 toℕ : Bin → ℕ
 toℕ = D.fromDigits ∘ toBits
 
@@ -42,6 +51,10 @@ fromBits (b  ∷ bs) | bs′ 1# = (b ∷ bs′) 1#
 fromBits (0b ∷ bs) | 0#     = 0#
 fromBits (1b ∷ bs) | 0#     = [] 1#
 fromBits (⊥b ∷ bs) | _
+
+instance
+  Semigroup-Bin : Semigroup Bin
+  Semigroup-Bin ._◇_ b b′ = fromBits (toBits b ◇ toBits b′)
 
 private
   pattern 2+_ n = 1+ 1+ n
@@ -60,13 +73,11 @@ private
 fromℕ : ℕ → Bin
 fromℕ n = fromBits $ ntoBits n
 
---
-
-record Hashable (A : Set) : Set where
-  field
-    _♯ : A → Bitstring
-open Hashable {{...}} public
-
-instance
-  Hashable-ℕ : Hashable ℕ
-  Hashable-ℕ ._♯ = fromℕ
+postulate
+  fromℕ-injective : Injective≡ fromℕ
+  fromℕ∘toℕ : ∀ m → fromℕ (toℕ m) ≡ m
+  toℕ∘fromℕ : ∀ n → toℕ (fromℕ n) ≡ n
+  -- toℕ-fromℕ : ∀ bs n →
+  --   toℕ bs ≡ n
+  --   ════════════
+  --   bs ≡ fromℕ n
