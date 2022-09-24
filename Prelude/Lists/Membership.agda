@@ -213,8 +213,11 @@ All∉[] : All (_∉ []) ys
 All∉[] {ys = []}     = []
 All∉[] {ys = y ∷ ys} = (λ ()) ∷ All∉[] {ys = ys}
 
-Any-tail : ∀ {-A : Set-} {P : Pred₀ A} {xs : List A} → Any P xs → List A
-Any-tail {xs = xs} x∈ = drop (suc $ F.toℕ $ L.Any.index x∈) xs
+Any-front : ∀ {P : Pred₀ A} {xs : List A} → Any P xs → List A
+Any-front {xs = xs} x∈ = take (indexℕ x∈) xs
+
+Any-tail : ∀ {P : Pred₀ A} {xs : List A} → Any P xs → List A
+Any-tail {xs = xs} x∈ = drop (suc $ indexℕ x∈) xs
 -- Any-tail {xs = _ ∷ xs}     (here _)   = xs
 -- Any-tail {xs = _ ∷ _ ∷ xs} (there x∈) = ∈-tail x∈
 
