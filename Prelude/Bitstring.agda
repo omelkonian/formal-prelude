@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Prelude.Bitstring where
 
 open import Data.Digit as D public using (Bit)
@@ -14,6 +13,8 @@ open import Prelude.Functor
 open import Prelude.InferenceRules
 open import Prelude.Measurable
 open import Prelude.Monad
+open import Prelude.ToN
+open import Prelude.FromN
 
 Bin⁺ : Set
 Bin⁺ = List Bit
@@ -41,8 +42,8 @@ instance
   Measurable-Bin : Measurable Bin
   Measurable-Bin .∣_∣ = length ∘ toBits
 
-toℕ : Bin → ℕ
-toℕ = D.fromDigits ∘ toBits
+  Toℕ-Bin : Toℕ Bin
+  Toℕ-Bin .toℕ = D.fromDigits ∘ toBits
 
 fromBits : List Bit → Bin
 fromBits []        = 0#
@@ -70,13 +71,14 @@ private
   ntoBits : ℕ → List Bit
   ntoBits n = ntoBits′ n n
 
-fromℕ : ℕ → Bin
-fromℕ n = fromBits $ ntoBits n
+instance
+  Fromℕ-Bin : Fromℕ Bin
+  Fromℕ-Bin .fromℕ n = fromBits $ ntoBits n
 
 postulate
-  fromℕ-injective : Injective≡ fromℕ
-  fromℕ∘toℕ : ∀ m → fromℕ (toℕ m) ≡ m
-  toℕ∘fromℕ : ∀ n → toℕ (fromℕ n) ≡ n
+  fromℕ-injective : Injective≡ (fromℕ {A = Bin})
+  fromℕ∘toℕ : ∀ m → fromℕ {A = Bin} (toℕ m) ≡ m
+  toℕ∘fromℕ : ∀ n → toℕ (fromℕ {A = Bin} n) ≡ n
   -- toℕ-fromℕ : ∀ bs n →
   --   toℕ bs ≡ n
   --   ════════════
