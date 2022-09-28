@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.SerializableBitstring</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/SerializableBitstring.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.SerializableBitstring.html" class="Module">Prelude.SerializableBitstring</a> <a id="38" class="Keyword">where</a>
+
+<a id="45" class="Keyword">open</a> <a id="50" class="Keyword">import</a> <a id="57" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="70" class="Keyword">open</a> <a id="75" class="Keyword">import</a> <a id="82" href="Prelude.Bitstring.html" class="Module">Prelude.Bitstring</a>
+<a id="100" class="Keyword">open</a> <a id="105" class="Keyword">import</a> <a id="112" href="Prelude.ToN.html" class="Module">Prelude.ToN</a>
+<a id="124" class="Keyword">open</a> <a id="129" class="Keyword">import</a> <a id="136" href="Prelude.FromN.html" class="Module">Prelude.FromN</a>
+<a id="150" class="Keyword">open</a> <a id="155" class="Keyword">import</a> <a id="162" href="Prelude.Applicative.html" class="Module">Prelude.Applicative</a>
+
+<a id="183" class="Keyword">open</a> <a id="188" class="Keyword">import</a> <a id="195" href="Prelude.Serializable.html" class="Module">Prelude.Serializable</a> <a id="216" href="Prelude.Bitstring.html#623" class="Function">Bitstring</a> <a id="226" class="Keyword">public</a>
+
+<a id="234" class="Keyword">instance</a>
+  <a id="Serializable-ℕ"></a><a id="245" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="260" class="Symbol">:</a> <a id="262" href="Prelude.Serializable.html#117" class="Record">Serializable</a> <a id="275" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
+  <a id="279" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="294" class="Symbol">.</a><a id="295" href="Prelude.Serializable.html#164" class="Field">encode</a> <a id="302" class="Symbol">=</a> <a id="304" href="Prelude.FromN.html#102" class="Field">fromℕ</a>
+  <a id="312" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="327" class="Symbol">.</a><a id="328" href="Prelude.Serializable.html#186" class="Field">encode-injective</a> <a id="345" class="Symbol">=</a> <a id="347" href="Prelude.Bitstring.html#1705" class="Postulate">fromℕ-injective</a>
+  <a id="365" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="380" class="Symbol">.</a><a id="381" href="Prelude.Serializable.html#228" class="Field">decode</a> <a id="388" class="Symbol">=</a> <a id="390" href="Prelude.Applicative.html#522" class="Field">pure</a> <a id="395" href="Function.Base.html#1031" class="Function Operator">∘</a> <a id="397" href="Prelude.ToN.html#98" class="Field">toℕ</a>
+  <a id="403" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="418" class="Symbol">.</a><a id="419" href="Prelude.Serializable.html#256" class="Field">encode-decode</a> <a id="433" href="Prelude.SerializableBitstring.html#433" class="Bound">m</a> <a id="435" href="Prelude.SerializableBitstring.html#435" class="Bound">x</a> <a id="437" class="Symbol">.</a><a id="438" href="Agda.Builtin.Sigma.html#252" class="Field">proj₁</a> <a id="444" href="Agda.Builtin.Equality.html#208" class="InductiveConstructor">refl</a>
+    <a id="453" class="Symbol">=</a> <a id="455" href="Relation.Binary.PropositionalEquality.Core.html#1684" class="Function">sym</a> <a id="459" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="461" href="Prelude.Bitstring.html#1754" class="Postulate">fromℕ∘toℕ</a> <a id="471" href="Prelude.SerializableBitstring.html#433" class="Bound">m</a>
+  <a id="475" href="Prelude.SerializableBitstring.html#245" class="Function">Serializable-ℕ</a> <a id="490" class="Symbol">.</a><a id="491" href="Prelude.Serializable.html#256" class="Field">encode-decode</a> <a id="505" href="Prelude.SerializableBitstring.html#505" class="Bound">m</a> <a id="507" href="Prelude.SerializableBitstring.html#507" class="Bound">x</a> <a id="509" class="Symbol">.</a><a id="510" href="Agda.Builtin.Sigma.html#264" class="Field">proj₂</a> <a id="516" href="Agda.Builtin.Equality.html#208" class="InductiveConstructor">refl</a>
+    <a id="525" class="Symbol">=</a> <a id="527" href="Relation.Binary.PropositionalEquality.Core.html#1130" class="Function">cong</a> <a id="532" href="Agda.Builtin.Maybe.html#174" class="InductiveConstructor">just</a> <a id="537" href="Function.Base.html#1919" class="Function Operator">$</a> <a id="539" href="Prelude.Bitstring.html#1802" class="Postulate">toℕ∘fromℕ</a> <a id="549" href="Prelude.SerializableBitstring.html#507" class="Bound">x</a>
+
+<a id="552" class="Comment">{-
+open import Prelude.Semigroup
+open import Prelude.Functor
+open import Prelude.Measurable
+open import Prelude.Monad
+
+private variable
+  a b : Level
+  A : Set a
+  B : Set b
+
+instance
+  Serializable-⊎ : ⦃ Serializable A ⦄ → ⦃ Serializable B ⦄ → Serializable (A ⊎ B)
+  Serializable-⊎ .encode = λ where
+    (inj₁ a) → fromBits $ 0b ∷ toBits (encode a)
+    (inj₂ b) → fromBits $ 1b ∷ toBits (encode b)
+  Serializable-⊎ .encode-injective {inj₁ x} {inj₁ x₁} eq = {!!}
+  Serializable-⊎ .encode-injective {inj₁ x} {inj₂ y} eq = {!!}
+  Serializable-⊎ .encode-injective {inj₂ y} {inj₁ x} eq = {!!}
+  Serializable-⊎ .encode-injective {inj₂ y} {inj₂ y₁} eq = {!!}
+  Serializable-⊎ .decode = toBits &gt;≡&gt; λ where
+    [] → nothing
+    (0b ∷ bs) → inj₁ &lt;$&gt; decode (fromBits bs)
+    (1b ∷ bs) → inj₂ &lt;$&gt; decode (fromBits bs)
+  Serializable-⊎ .encode-decode m x .proj₁ = {!!}
+  Serializable-⊎ .encode-decode m x .proj₂ = {!!}
+
+  Serializable-× : ⦃ Serializable A ⦄ → ⦃ Serializable B ⦄ → Serializable (A × B)
+  Serializable-× .encode (a , b) =
+    let
+      𝕒 = encode a
+      𝕓 = encode b
+    in
+      encode ∣ 𝕒 ∣ ◇ 𝕒 ◇ 𝕓
+  Serializable-× .encode-injective {x} {y} eq = {!!}
+
+  Serializable-× .decode m = {!!}
+  -- Serializable-× .decode m = do
+  --   let ∣a∣ , m′ = L.splitAt ? m
+  --   n ← decode ∣a∣
+  --   let 𝕒 , 𝕓 = L.splitAt n m′
+  --   a ← decode 𝕒
+  --   b ← decode 𝕓
+  --   return (a , b)
+
+  Serializable-× .encode-decode m x .proj₁ = {!!}
+  Serializable-× .encode-decode m x .proj₂ = {!!}
+
+private
+  instance
+    postulate Serializable-String : Serializable String
+
+  data X : Set where
+    mk₁ : ℕ → X
+    mk₂ : String → X
+
+  instance
+    Serializable-X : Serializable X
+    Serializable-X .encode = λ where
+      (mk₁ n) → encode {A = ℕ ⊎ String} (inj₁ n)
+      (mk₂ s) → encode {A = ℕ ⊎ String} (inj₂ s)
+    Serializable-X .encode-injective = {!!}
+    Serializable-X .decode
+      = decode {A = ℕ ⊎ String} &gt;≡&gt; fmap (λ where (inj₁ n) → mk₁ n; (inj₂ s) → mk₂ s)
+    Serializable-X .encode-decode m x = λ where
+      .proj₁ → {!!}
+      .proj₂ → {!!}
+-}</a>
+</pre></body></html>
