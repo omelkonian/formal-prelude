@@ -16,6 +16,27 @@ private variable
   a b : Level; A : Set a; B : Set b
   x x′ y : A; xs ys : List A
 
+-- ** mapMaybe
+mapMaybeIsInj₁∘mapInj₁ : (xs : List A) → mapMaybe (isInj₁ {B = B}) (map inj₁ xs) ≡ xs
+mapMaybeIsInj₁∘mapInj₁ = λ where
+  [] → refl
+  (x ∷ xs) → cong (x ∷_) (mapMaybeIsInj₁∘mapInj₁ xs)
+
+mapMaybeIsInj₁∘mapInj₂ : (xs : List B) → mapMaybe (isInj₁ {A = A}) (map inj₂ xs) ≡ []
+mapMaybeIsInj₁∘mapInj₂ = λ where
+  [] → refl
+  (x ∷ xs) → mapMaybeIsInj₁∘mapInj₂ xs
+
+mapMaybeIsInj₂∘mapInj₂ : (xs : List B) → mapMaybe (isInj₂ {A = A}) (map inj₂ xs) ≡ xs
+mapMaybeIsInj₂∘mapInj₂ = λ where
+  [] → refl
+  (x ∷ xs) → cong (x ∷_) (mapMaybeIsInj₂∘mapInj₂ xs)
+
+mapMaybeIsInj₂∘mapInj₁ : (xs : List A) → mapMaybe (isInj₂ {B = B}) (map inj₁ xs) ≡ []
+mapMaybeIsInj₂∘mapInj₁ = λ where
+  [] → refl
+  (x ∷ xs) → mapMaybeIsInj₂∘mapInj₁ xs
+
 -- ** catMaybes
 catMaybes : List (Maybe A) → List A
 catMaybes [] = []
