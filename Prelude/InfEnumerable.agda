@@ -6,6 +6,7 @@ module Prelude.InfEnumerable where
 
 open import Prelude.Init
 open L.Mem
+open import Prelude.Membership using (_∈?_)
 open import Prelude.Nary
 open import Prelude.Lists
 open import Prelude.Decidable
@@ -40,6 +41,15 @@ freshℕ xs = suc (∑ℕ xs) , λ x∈ → ¬suc≰ _ (x∈∑ℕ x∈)
     ¬suc≰ : ∀ n → suc n ≰ n
     ¬suc≰ (suc n) (s≤s p) = ¬suc≰ n p
 
+minFreshℕ : (xs : List ℕ) → ∃ (_∉ xs)
+minFreshℕ xs = go 0 (suc (∑ℕ xs))
+  where
+    go : ℕ → ℕ → ∃ (_∉ xs)
+    go _ 0 = freshℕ xs
+    go x (suc fuel) with x ∈? xs
+    ... | no x∉ = x , x∉
+    ... | yes _ = go (suc x) fuel
+
 fromℕ∈⇒∈toℕ : ∀ ⦃ _ : Enumerable∞ A ⦄ n (xs : List A) → fromℕ n ∈ xs → n ∈ map toℕ xs
 fromℕ∈⇒∈toℕ n xs x∈ =
   subst (_∈ map toℕ xs) (enum .Fun.Inverse.inverse .proj₁ n) $
@@ -48,6 +58,11 @@ fromℕ∈⇒∈toℕ n xs x∈ =
 fresh : ⦃ Enumerable∞ A ⦄ → (xs : List A) → ∃ (_∉ xs)
 fresh xs =
   let n , n∉ = freshℕ (map toℕ xs)
+  in  fromℕ n , n∉ ∘ fromℕ∈⇒∈toℕ _ _
+
+minFresh : ⦃ Enumerable∞ A ⦄ → (xs : List A) → ∃ (_∉ xs)
+minFresh xs =
+  let n , n∉ = minFreshℕ (map toℕ xs)
   in  fromℕ n , n∉ ∘ fromℕ∈⇒∈toℕ _ _
 
 fresh^_ : ⦃ Enumerable∞ A ⦄ → (n : ℕ) → (xs : List A) →
