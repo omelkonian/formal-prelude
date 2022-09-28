@@ -37,6 +37,11 @@ dom {xs = xs} _ = xs
 codom : xs ↦ B → List B
 codom = mapWith∈ _
 
+codom-↦ : ∀ {xs : List A} → (f : xs ↦ B) → codom f ↦ A
+codom-↦ {xs = x ∷ _} f = λ where
+  (here  _)  → x
+  (there x∈) → codom-↦ (f ∘ there) x∈
+
 weaken-↦ : xs ↦′ P → ys ⊆ xs → ys ↦′ P
 weaken-↦ f ys⊆xs = f ∘ ys⊆xs
 
@@ -67,6 +72,8 @@ extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)
 cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P
 cong-↦ f refl = f
 
+open ≡-Reasoning
+
 -- ** Pointwise equality of same-domain mappings.
 module _ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} where
   _≗↦_ : Rel (xs ↦′ P) _
@@ -90,7 +97,7 @@ module _ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} where
       f (∈-resp-↭ (↭-sym p↭) $ ∈-resp-↭ p↭ x∈)
     ≡⟨ cong f (∈-resp-↭∘∈-resp-↭˘ p↭ x∈) ⟩
       f x∈
-    ∎ where open ≡-Reasoning
+    ∎
 
 
   permute-↦∘permute-↦˘ : ∀ {ys : List A}
@@ -102,6 +109,28 @@ module _ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} where
     rewrite permute-≗↦ p↭ f x∈
           | L.Perm.↭-sym-involutive p↭
     = cong f $ Any-resp-↭∘Any-resp-↭˘ p↭ x∈
+
+module _ (f : xs ↦′ P) (g : ys ↦′ P) where
+  destruct-++/↦∘++/↦ :
+    let f′ , g′ = destruct-++/↦ (f ++/↦ g)
+    in (f ≗↦ f′) × (g ≗↦ g′)
+  destruct-++/↦∘++/↦ = f≗ , g≗
+    where
+      fg : (xs ↦′ P) × (ys ↦′ P)
+      fg = destruct-++/↦ (f ++/↦ g)
+      f′ = fg .proj₁; g′ = fg .proj₂
+
+      f≗ : f ≗↦ f′
+      f≗ x∈ rewrite Any-++⁻∘Any-++⁺ˡ {ys = ys} x∈ = refl
+
+      g≗ : g ≗↦ g′
+      g≗ x∈ rewrite Any-++⁻∘Any-++⁺ʳ {xs = xs} x∈ = refl
+
+  destruct≡-++/↦∘cong-↦ :
+    (eq : zs ≡ xs ++ ys) →
+    let f′ , g′ = destruct≡-++/↦ eq (cong-↦ (f ++/↦ g) eq)
+    in (f ≗↦ f′) × (g ≗↦ g′)
+  destruct≡-++/↦∘cong-↦ refl = destruct-++/↦∘++/↦
 
 -- T0D0 use for permute-↦∘permute-↦˘ to simplify
 module _ {A : Set ℓ} {P : A → Set ℓ′} {x : A} {xs ys zs : List A} where
@@ -118,7 +147,7 @@ module _ {A : Set ℓ} {P : A → Set ℓ′} {x : A} {xs ys zs : List A} where
       f (∈-resp-↭ (↭-sym $ ↭-trans p q) x∈)
     ≡⟨⟩
       permute-↦ (↭-trans p q) f x∈
-    ∎ where open ≡-Reasoning
+    ∎
 
 -- ** Pointwise equality of ⊆-related mappings.
 module _ {A : Set ℓ} {xs ys : List A} {P : Pred A ℓ′} where
@@ -185,4 +214,4 @@ uncons-≗↦ f g {y} y∈ =
   begin uncons-↦ (f ++/↦ g) y∈  ≡⟨⟩
         (f ++/↦ g) (there y∈)   ≡⟨ sym $ ++/↦-there f g y∈ ⟩
         ((f ∘ there) ++/↦ g) y∈ ≡⟨⟩
-        (uncons-↦ f ++/↦ g) y∈  ∎ where open ≡-Reasoning
+        (uncons-↦ f ++/↦ g) y∈  ∎
