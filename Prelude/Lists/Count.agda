@@ -4,6 +4,7 @@ open import Prelude.Init
 open Nat.Ord
 open Nat using (_≤_)
 open import Prelude.General
+open import Prelude.Null
 open import Prelude.Lists.Empty
 
 private variable

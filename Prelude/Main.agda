@@ -58,6 +58,8 @@ open import Prelude.Coercions
 open import Prelude.Validity
 open import Prelude.Accessors
 open import Prelude.Split
+open import Prelude.Null
+
 open import Prelude.Views
 
 -- ** Closures

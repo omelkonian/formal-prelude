@@ -7,6 +7,7 @@ open import Prelude.Init
 open Nat using (_≤_)
 open L.Mem using (_∈_; mapWith∈)
 open L.NE using (toList)
+open import Prelude.Null
 open import Prelude.Lists.Count
 open import Prelude.Lists.Combinatorics
 open import Prelude.Lists.Empty
@@ -150,7 +151,7 @@ destruct-Singleton⁺ : ∀ {xs : List⁺ A}
 destruct-Singleton⁺ {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton⁺ {xs = _ ∷ (_ ∷ _)} ()
 
-singleton⁺ : ∀ {xs : List A}
+singleton⁺ : ∀ {A : Set ℓ} {xs : List A}
   → AtMostSingleton xs
   → (xs≢[] : ¬Null xs)
   → Singleton⁺ (toList⁺ xs xs≢[])
@@ -167,10 +168,10 @@ singleton-concatMap {f = f} h⁺ s-f
   rewrite L.++-identityʳ (f h)
     = s-f h
 
-singleton⇒singleton⁺ : ∀ {xs≢[] : ¬ Null xs}
+singleton⇒singleton⁺ : ∀ {A : Set ℓ} {xs : List A} {xs≢[] : ¬ Null xs}
   → Singleton xs
   → Singleton⁺ (toList⁺ xs xs≢[])
-singleton⇒singleton⁺ p rewrite proj₂ $ destruct-Singleton p = tt
+singleton⇒singleton⁺ p rewrite destruct-Singleton p .proj₂ = tt
 
 postulate
   singleton⁺-map⁺ : ∀ {xs : List⁺ A} {f : A → B} → Singleton⁺ xs → Singleton⁺ (L.NE.map f xs)

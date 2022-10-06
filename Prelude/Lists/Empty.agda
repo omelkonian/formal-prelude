@@ -5,6 +5,7 @@ module Prelude.Lists.Empty where
 
 open import Prelude.Init
 open L.Mem using (_∈_; mapWith∈)
+open import Prelude.Null
 
 private variable
   A : Set ℓ
@@ -12,20 +13,6 @@ private variable
   x : A
   xs ys : List A
   xss : List (List A)
-
-Null : List A → Set _
-Null xs = xs ≡ []
-
-¬Null : List A → Set _
-¬Null xs = xs ≢ []
-
-null? : Decidable¹ (Null {A = A})
-null? []      = yes refl
-null? (_ ∷ _) = no  λ ()
-
-¬null? : Decidable¹ (¬Null {A = A})
-¬null? []      = no  λ ¬p → ¬p refl
-¬null? (_ ∷ _) = yes λ ()
 
 toList≢[] : ∀ {xs : List⁺ A} → ¬Null (L.NE.toList xs)
 toList≢[] {xs = x ∷ xs} ()

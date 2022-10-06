@@ -6,11 +6,13 @@ open L.Mem
 open import Prelude.General
 open import Prelude.InferenceRules
 open import Prelude.Bifunctor
+open import Prelude.Split
+open import Prelude.Null
+
 open import Prelude.Lists.Empty
 open import Prelude.Lists.Indexed
 open import Prelude.Lists.Count
 open import Prelude.Lists.Membership
-open import Prelude.Split
 
 private variable
   a b : Level; A : Set a; B : Set b

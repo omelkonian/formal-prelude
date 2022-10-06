@@ -6,6 +6,7 @@ open Nat; open Nat.Ord
 open import Prelude.General
 open import Prelude.InferenceRules
 open import Prelude.Split
+open import Prelude.Null
 
 open import Prelude.Lists.Core
 open import Prelude.Lists.Indexed

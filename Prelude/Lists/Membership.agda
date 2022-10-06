@@ -1,14 +1,16 @@
 module Prelude.Lists.Membership where
 
 open import Prelude.Init
+open L.Mem
 open import Prelude.General
 open import Prelude.InferenceRules
-open L.Mem
+open import Prelude.Null
+open import Prelude.Lists.Core
 open import Prelude.Lists.Indexed
 open import Prelude.Lists.Empty
 
 private variable
-  a b c : Level; A : Set a; B : Set b; C : Set c
+  A : Set ℓ; B : Set ℓ′; C : Set ℓ″
   x x′ y : A; xs ys : List A
   P Q : Pred A ℓ
 
@@ -350,3 +352,75 @@ Last∈-map⁺ f (there p) lp   = Last∈-map⁺ f p lp
     ────────────
     x ∉ xs ++ ys
 ∉-++⁺ x∉ˡ x∉ʳ = ∈-++⁻ _ >≡> Sum.[ x∉ˡ , x∉ʳ ]
+
+-- ** aligning & zipping
+
+{-
+∈-alignWith⁺ˡ :
+∈-alignWith⁺ʳ :
+∈-alignWith⁻ :
+
+∈-zipWith⁺ˡ :
+∈-zipWith⁺ʳ :
+∈-zipWith⁻ :
+
+∈-unalignWith⁺ˡ :
+∈-unalignWith⁺ʳ :
+∈-unalignWith⁻ :
+
+∈-unzipWith⁺ˡ :
+∈-unzipWith⁺ʳ :
+∈-unzipWith⁻ :
+
+∈-partitionSumsWith⁺ˡ
+∈-partitionSumsWith⁺ʳ
+∈-partitionSumsWith⁻
+
+∈-align⁺ˡ : a ∈ as → this a ∈ align as bs
+∈-align⁺ʳ : b ∈ bs → that b ∈ align as bs
+∈-align⁻
+
+∈-zip⁺ˡ
+∈-zip⁺ʳ
+∈-zip⁻
+
+∈-unalign⁺ˡ
+∈-unalign⁺ʳ
+∈-unalign⁻
+
+∈-unzip⁺ˡ
+∈-unzip⁺ʳ
+∈-unzip⁻
+-}
+
+private variable
+  a : A; b : B
+  abs abs′ : List (A ⊎ B)
+
+∈-partitionSums⁺ˡ ∈-lefts⁺ : inj₁ a ∈ abs → a ∈ lefts abs
+∈-partitionSums⁺ˡ {abs = inj₁ _ ∷ _} (here refl) = here refl
+∈-partitionSums⁺ˡ {abs = inj₁ _ ∷ _} (there a∈)  = there $ ∈-partitionSums⁺ˡ a∈
+∈-partitionSums⁺ˡ {abs = inj₂ _ ∷ _} (there a∈)  = ∈-partitionSums⁺ˡ a∈
+∈-lefts⁺ = ∈-partitionSums⁺ˡ
+
+∈-partitionSums⁺ʳ ∈-rights⁺ : inj₂ b ∈ abs → b ∈ rights abs
+∈-partitionSums⁺ʳ {abs = inj₂ _ ∷ _} (here refl) = here refl
+∈-partitionSums⁺ʳ {abs = inj₁ _ ∷ _} (there b∈)  = ∈-partitionSums⁺ʳ b∈
+∈-partitionSums⁺ʳ {abs = inj₂ _ ∷ _} (there b∈)  = there $ ∈-partitionSums⁺ʳ b∈
+∈-rights⁺ = ∈-partitionSums⁺ʳ
+
+∈-partitionSums⁻ˡ ∈-lefts⁻ : a ∈ lefts abs → inj₁ a ∈ abs
+∈-partitionSums⁻ˡ {abs = inj₁ _ ∷ _} (here refl) = here refl
+∈-partitionSums⁻ˡ {abs = inj₁ _ ∷ _} (there a∈)  = there $′ ∈-partitionSums⁻ˡ a∈
+∈-partitionSums⁻ˡ {abs = inj₂ _ ∷ _} a∈          = there $′ ∈-partitionSums⁻ˡ a∈
+∈-lefts⁻ = ∈-partitionSums⁻ˡ
+
+∈-partitionSums⁻ʳ ∈-rights⁻ : b ∈ rights abs → inj₂ b ∈ abs
+∈-partitionSums⁻ʳ {abs = inj₁ _ ∷ _} b∈          = there $′ ∈-partitionSums⁻ʳ b∈
+∈-partitionSums⁻ʳ {abs = inj₂ _ ∷ _} (here refl) = here refl
+∈-partitionSums⁻ʳ {abs = inj₂ _ ∷ _} (there b∈)  = there $′ ∈-partitionSums⁻ʳ b∈
+∈-rights⁻ = ∈-partitionSums⁻ʳ
+
+-- ∈-merge⁺ˡ :
+-- ∈-merge⁺ʳ :
+-- ∈-merge⁻ :

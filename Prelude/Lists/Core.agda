@@ -89,3 +89,10 @@ All-map : ∀ {P : Pred₀ A} {Q : Pred₀ A} {xs : List A}
   → All P xs
   → All Q xs
 All-map P⇒Q = L.All.map (λ {x} → P⇒Q x)
+
+-- ** partitioning
+lefts : List (A ⊎ B) → List A
+lefts = proj₁ ∘ partitionSums
+
+rights : List (A ⊎ B) → List B
+rights = proj₂ ∘ partitionSums
