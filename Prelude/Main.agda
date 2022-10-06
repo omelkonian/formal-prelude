@@ -73,6 +73,9 @@ open import Prelude.Sets
 open import Prelude.Sets.Example
 open import Prelude.Sets.Concrete
 open import Prelude.Sets.Concrete.Example
+open import Prelude.Sets.Concrete.Extra
+open import Prelude.Sets.Concrete.Abstract
+open import Prelude.Sets.Concrete.Abstract.Example
 
 open import Prelude.Maps
 open import Prelude.Maps.Example
