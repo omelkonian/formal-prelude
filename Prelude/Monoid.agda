@@ -23,7 +23,7 @@ open MonoidLaws ⦃...⦄ public
 MonoidLaws≡ : (A : Set ℓ) ⦃ _ : Monoid A ⦄ → Set ℓ
 MonoidLaws≡ A = MonoidLaws A _≡_
 
-private variable A : Set
+private variable A : Set ℓ
 
 instance
   Monoid-List : Monoid (List A)
