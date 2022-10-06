@@ -41,10 +41,10 @@ compatible? ty ty′ = do
 
 `λ∅∅ = `λ⦅ [ "()" , vArg? ] ⦆∅
 
-derive-DecEq : ℕ → (Name × Name) → Definition → TC Term
+derive-DecEq : ℕ → Name → Definition → TC Term
 
-derive-DecEq _ _              (data-type _  []) = return `λ∅∅
-derive-DecEq toDrop (this , ≟-rec) (data-type ps cs) = do
+derive-DecEq _ _          (data-type _  []) = return `λ∅∅
+derive-DecEq toDrop ≟-rec (data-type ps cs) = do
   print $ "DATATYPE {pars = " ◇ show ps ◇ "; cs = " ◇ show cs ◇ "}"
   cls ← concatMap L.fromMaybe <$> mapM f (allPairs cs)
   return $ pat-lam cls []
@@ -175,7 +175,7 @@ instance
       t ← inContext (ctx ++ L.reverse mctx) $ do
         ctx ← getContext
         print $ "  Context′: " ◇ show ctx
-        derive-DecEq (length ctx) (n , f′) d
+        derive-DecEq (length ctx) f′ d
       -- print $ "  Term: " ◇ show t
 
       return (f′ , (pc , mtel) , t)

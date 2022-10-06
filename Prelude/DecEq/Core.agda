@@ -72,6 +72,9 @@ instance
   DecEq-Maybe : ⦃ _ : DecEq A ⦄ → DecEq (Maybe A)
   DecEq-Maybe ._≟_ = M.≡-dec _≟_
 
+  DecEq-These : ⦃ DecEq A ⦄ → ⦃ DecEq B ⦄ → DecEq (These A B)
+  DecEq-These ._≟_ = ∣These∣.≡-dec _≟_ _≟_
+
   -- ** reflection
   open Meta
 

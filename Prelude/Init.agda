@@ -90,6 +90,12 @@ module Sum where
   open import Data.Sum public
   open import Data.Sum.Properties public
 
+open import Data.These public
+  using (These; this; that; these)
+module ∣These∣ where
+  open import Data.These public
+  open import Data.These.Properties public
+
 open import Data.Bool  public
   using (Bool; true; false; not; if_then_else_; _∧_; _∨_; T)
 open import Data.Bool.Properties public
