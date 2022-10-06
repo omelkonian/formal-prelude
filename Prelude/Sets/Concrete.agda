@@ -19,6 +19,7 @@ open import Prelude.ToList
 open import Prelude.FromList
 open import Prelude.Semigroup
 open import Prelude.InferenceRules
+open import Prelude.Null
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
@@ -169,7 +170,7 @@ _≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
   ; sym   = Product.swap
   ; trans = λ where (ij , ji) (jk , kj) → jk ∘ ij , ji ∘ kj
   }
-open IsEquivalence ≈ˢ-equiv renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans)
+open IsEquivalence ≈ˢ-equiv renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans) public
 
 ≈ˢ-setoid : Setoid 0ℓ 0ℓ
 ≈ˢ-setoid = record { Carrier = Set'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
@@ -225,9 +226,9 @@ open Alg _≈ˢ_
 
 -- ** apartness
 instance
-  Apart-Set' : Set' // Set'
-  -- Apart-Set' ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
-  Apart-Set' ._♯_ s s′ = (s ∩ s′) ≈ˢ ∅
+  Apart-Set : Set' // Set'
+  -- Apart-Set ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
+  Apart-Set ._♯_ s s′ = (s ∩ s′) ≈ˢ ∅
 
 _♯?ˢ_ = Decidable² (_♯_ {A = Set'}) ∋ dec²
 
@@ -253,11 +254,11 @@ _♯?ˢ_ = Decidable² (_♯_ {A = Set'}) ∋ dec²
 
 -- ** list conversion
 instance
-  ToList-Set' : ToList Set' A
-  ToList-Set' .toList = list
+  ToList-Set : ToList Set' A
+  ToList-Set .toList = list
 
-  FromList-Set' : FromList A Set'
-  FromList-Set' .fromList xs = nub xs ⊣ Unique-nub {xs = xs}
+  FromList-Set : FromList A Set'
+  FromList-Set .fromList xs = nub xs ⊣ Unique-nub {xs = xs}
 
 from↔to : ∀ xs → Unique xs → toList (fromList {B = Set'} xs) ≡ xs
 from↔to _ Uxs rewrite nub-from∘to Uxs = refl
@@ -265,10 +266,16 @@ from↔to _ Uxs rewrite nub-from∘to Uxs = refl
 ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
 ∈ˢ-fromList = ∈-nub⁺ , ∈-nub⁻
 
+∈ˢ-fromList⁺ : x ∈ xs → x ∈ˢ fromList xs
+∈ˢ-fromList⁺ = ∈ˢ-fromList .proj₁
+
+∈ˢ-fromList⁻ : x ∈ˢ fromList xs → x ∈ xs
+∈ˢ-fromList⁻ = ∈ˢ-fromList .proj₂
+
 -- ** decidability of set equality
 instance
-  DecEq-Set' : DecEq Set'
-  DecEq-Set' ._≟_ s s′ with list s ≟ list s′
+  DecEq-Set : DecEq Set'
+  DecEq-Set ._≟_ s s′ with list s ≟ list s′
   ... | no ¬p    = no λ{ refl → ¬p refl }
   ... | yes refl = yes refl
 
@@ -282,8 +289,8 @@ record Set'⁺ : Set where
 syntax Set'⁺ {A = A} = Set⁺⟨ A ⟩
 
 instance
-  DecEq-Set'⁺ : DecEq Set'⁺
-  DecEq-Set'⁺ ._≟_ (s ⊣ _) (s′ ⊣ _) with s ≟ s′
+  DecEq-Set⁺ : DecEq Set'⁺
+  DecEq-Set⁺ ._≟_ (s ⊣ _) (s′ ⊣ _) with s ≟ s′
   ... | yes refl = yes refl
   ... | no  ¬eq  = no λ where refl → ¬eq refl
 
@@ -297,5 +304,9 @@ toList'⁺ : Set'⁺ → List⁺ A
 toList'⁺ (s ⊣ _) with x ∷ xs ← list s = x ∷ xs
 
 -- instance
---   Semigroup-Set' : ⦃ Semigroup A ⦄ → Semigroup Set'
---   Semigroup-Set' ._◇_ s@(xs ⊣ p) s′@(ys ⊣ p′) = {!!}
+--   Semigroup-Set : ⦃ Semigroup A ⦄ → Semigroup Set'
+--   Semigroup-Set ._◇_ s@(xs ⊣ p) s′@(ys ⊣ p′) = {!!}
+
+instance
+  Nullable-Set : Nullable Set'
+  Nullable-Set .Null = _≈ˢ ∅
