@@ -57,6 +57,7 @@ open import Function.Bundles public
   using (module Injection; _↣_)
 
 -- forward composition (= kleene composition of `Monad Id`)
+infixr 0 _>≡>_
 _>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
 f >≡> g = g ∘ f
 
