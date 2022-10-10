@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Bags.Example</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Bags/Example.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.Bags.Example.html" class="Module">Prelude.Bags.Example</a> <a id="29" class="Keyword">where</a>
+
+<a id="36" class="Keyword">open</a> <a id="41" class="Keyword">import</a> <a id="48" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="61" class="Keyword">open</a> <a id="66" class="Keyword">import</a> <a id="73" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+
+<a id="88" class="Keyword">private</a>
+  <a id="98" class="Keyword">module</a> <a id="ConcreteExample"></a><a id="105" href="Prelude.Bags.Example.html#105" class="Module">ConcreteExample</a> <a id="121" class="Keyword">where</a>
+    <a id="131" class="Keyword">open</a> <a id="136" class="Keyword">import</a> <a id="143" href="Prelude.Bags.html" class="Module">Prelude.Bags</a>
+
+    <a id="161" href="Prelude.Bags.Example.html#161" class="Function">_</a> <a id="163" class="Symbol">=</a> <a id="165" href="Prelude.Bags.Concrete.html#112" class="Function Operator">Bag⟨</a> <a id="170" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="177" href="Prelude.Bags.Concrete.html#112" class="Function Operator">⟩</a> <a id="179" href="Function.Base.html#4562" class="Function Operator">∋</a> <a id="181" href="Prelude.Bags.Concrete.AsMaps.html#375" class="Function">singleton</a> <a id="191" class="String">&quot;sth&quot;</a> <a id="197" href="Prelude.Maps.Concrete.html#1455" class="Function Operator">∪</a> <a id="199" href="Prelude.Bags.Concrete.AsMaps.html#375" class="Function">singleton</a> <a id="209" class="String">&quot;sth&quot;</a>
+    <a id="219" href="Prelude.Bags.Example.html#219" class="Function">_</a> <a id="221" class="Symbol">=</a> <a id="223" href="Prelude.DecEq.Core.html#97" class="Record">DecEq</a> <a id="229" href="Prelude.Bags.Concrete.html#112" class="Function Operator">Bag⟨</a> <a id="234" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="241" href="Prelude.Bags.Concrete.html#112" class="Function Operator">⟩</a> <a id="243" href="Function.Base.html#4562" class="Function Operator">∋</a> <a id="245" href="Function.Base.html#4812" class="Function">it</a>
+
+    <a id="253" href="Prelude.Bags.Example.html#253" class="Function">_</a> <a id="255" class="Symbol">:</a> <a id="257" class="String">&quot;sth&quot;</a> <a id="263" href="Prelude.Bags.Concrete.AsMaps.html#309" class="Function Operator">∈ˢ</a> <a id="266" class="Symbol">(</a><a id="267" href="Prelude.Bags.Concrete.AsMaps.html#375" class="Function">singleton</a> <a id="277" class="String">&quot;else&quot;</a> <a id="284" href="Prelude.Maps.Concrete.html#1455" class="Function Operator">∪</a> <a id="286" href="Prelude.Bags.Concrete.AsMaps.html#375" class="Function">singleton</a> <a id="296" class="String">&quot;sth&quot;</a> <a id="302" href="Prelude.Maps.Concrete.html#1455" class="Function Operator">∪</a> <a id="304" href="Prelude.Bags.Concrete.AsMaps.html#375" class="Function">singleton</a> <a id="314" class="String">&quot;else&quot;</a><a id="320" class="Symbol">)</a>
+    <a id="326" class="Symbol">_</a> <a id="328" class="Symbol">=</a> <a id="330" href="Data.List.Relation.Unary.Any.html#1219" class="InductiveConstructor">here</a> <a id="335" href="Agda.Builtin.Equality.html#208" class="InductiveConstructor">refl</a> <a id="340" class="Comment">-- ✓ COMPUTES, AS EXPECTED!</a>
+
+  <a id="371" class="Keyword">module</a> <a id="AbstractExample"></a><a id="378" href="Prelude.Bags.Example.html#378" class="Module">AbstractExample</a> <a id="394" class="Keyword">where</a>
+    <a id="404" class="Keyword">open</a> <a id="409" class="Keyword">import</a> <a id="416" href="Prelude.Bags.Abstract.html" class="Module">Prelude.Bags.Abstract</a>
+
+    <a id="443" class="Comment">-- _ : &quot;sth&quot; ∈ˢ (singleton &quot;else&quot; ∪ singleton &quot;sth&quot; ∪ singleton &quot;else&quot;)</a>
+    <a id="519" class="Comment">-- -- _ = there (here refl) -- ✖ DOES NOT COMPUTE, AS EXPECTED!</a>
+    <a id="587" class="Comment">-- _ = ∈-∪⁺ʳ _ _ _ (∈-∪⁺ˡ _ _ _ ?)</a>
+</pre></body></html>

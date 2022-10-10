@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Maps.Abstract</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Maps/Abstract.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">open</a> <a id="6" class="Keyword">import</a> <a id="13" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="26" class="Keyword">open</a> <a id="31" href="Prelude.Init.html#35" class="Module">SetAsType</a>
+<a id="41" class="Keyword">open</a> <a id="46" class="Keyword">import</a> <a id="53" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+<a id="67" class="Keyword">open</a> <a id="72" class="Keyword">import</a> <a id="79" href="Prelude.Apartness.html" class="Module">Prelude.Apartness</a>
+<a id="97" class="Keyword">open</a> <a id="102" class="Keyword">import</a> <a id="109" href="Prelude.Setoid.html" class="Module">Prelude.Setoid</a> <a id="124" class="Keyword">renaming</a> <a id="133" class="Symbol">(</a><a id="134" href="Prelude.Setoid.html#210" class="Field Operator">_≈_</a> <a id="138" class="Symbol">to</a> <a id="141" class="Field Operator">_≈₀_</a><a id="145" class="Symbol">)</a>
+<a id="147" class="Keyword">open</a> <a id="152" class="Keyword">import</a> <a id="159" href="Prelude.Ord.html" class="Module">Prelude.Ord</a>
+<a id="171" class="Keyword">open</a> <a id="176" class="Keyword">import</a> <a id="183" href="Prelude.Decidable.html" class="Module">Prelude.Decidable</a>
+<a id="201" class="Keyword">open</a> <a id="206" class="Keyword">import</a> <a id="213" href="Prelude.Monoid.html" class="Module">Prelude.Monoid</a>
+
+<a id="229" class="Keyword">module</a> <a id="236" href="Prelude.Maps.Abstract.html" class="Module">Prelude.Maps.Abstract</a> <a id="258" class="Symbol">{</a><a id="259" href="Prelude.Maps.Abstract.html#259" class="Bound">K</a> <a id="261" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a> <a id="263" class="Symbol">:</a> <a id="265" href="Agda.Primitive.html#326" class="Primitive">Type</a><a id="269" class="Symbol">}</a> <a id="271" class="Symbol">⦃</a> <a id="273" href="Prelude.Maps.Abstract.html#273" class="Bound">_</a> <a id="275" class="Symbol">:</a> <a id="277" href="Prelude.DecEq.Core.html#97" class="Record">DecEq</a> <a id="283" href="Prelude.Maps.Abstract.html#259" class="Bound">K</a> <a id="285" class="Symbol">⦄</a> <a id="287" class="Symbol">⦃</a> <a id="289" href="Prelude.Maps.Abstract.html#289" class="Bound">_</a> <a id="291" class="Symbol">:</a> <a id="293" href="Prelude.DecEq.Core.html#97" class="Record">DecEq</a> <a id="299" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a> <a id="301" class="Symbol">⦄</a>
+  <a id="305" class="Symbol">⦃</a> <a id="307" href="Prelude.Maps.Abstract.html#307" class="Bound">_</a> <a id="309" class="Symbol">:</a> <a id="311" href="Prelude.Ord.html#204" class="Record">Ord</a> <a id="315" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a> <a id="317" class="Symbol">⦄</a>
+  <a id="321" class="Symbol">⦃</a> <a id="323" href="Prelude.Maps.Abstract.html#323" class="Bound">_</a> <a id="325" class="Symbol">:</a> <a id="327" href="Prelude.Ord.html#249" class="Field Operator">_≤_</a> <a id="331" class="Symbol">{</a><a id="332" class="Argument">A</a> <a id="334" class="Symbol">=</a> <a id="336" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a><a id="337" class="Symbol">}</a> <a id="339" href="Prelude.Decidable.Base.html#715" class="Function Operator">⁇²</a> <a id="342" class="Symbol">⦄</a>
+  <a id="346" class="Symbol">⦃</a> <a id="348" href="Prelude.Maps.Abstract.html#348" class="Bound">_</a> <a id="350" class="Symbol">:</a> <a id="352" href="Prelude.Ord.html#253" class="Field Operator">_&lt;_</a> <a id="356" class="Symbol">{</a><a id="357" class="Argument">A</a> <a id="359" class="Symbol">=</a> <a id="361" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a><a id="362" class="Symbol">}</a> <a id="364" href="Prelude.Decidable.Base.html#715" class="Function Operator">⁇²</a> <a id="367" class="Symbol">⦄</a>
+  <a id="371" class="Symbol">⦃</a> <a id="373" href="Prelude.Maps.Abstract.html#373" class="Bound">_</a> <a id="375" class="Symbol">:</a> <a id="377" href="Prelude.Monoid.html#100" class="Record">Monoid</a> <a id="384" href="Prelude.Maps.Abstract.html#261" class="Bound">V</a> <a id="386" class="Symbol">⦄</a>
+  <a id="390" class="Keyword">where</a>
+
+<a id="397" class="Keyword">import</a> <a id="404" href="Prelude.Maps.Concrete.html" class="Module">Prelude.Maps.Concrete</a> <a id="426" class="Symbol">as</a> <a id="429" class="Module">Imp</a>
+<a id="433" class="Keyword">open</a> <a id="438" class="Keyword">import</a> <a id="445" href="Prelude.Maps.Abstract.Interface.html" class="Module">Prelude.Maps.Abstract.Interface</a>
+
+<a id="478" class="Comment">-- T0D0: different notions of _≈_ map equivalence</a>
+<a id="528" class="Comment">-- abstract</a>
+<a id="540" class="Comment">--   imp : Mapᴵ K V 0ℓ</a>
+<a id="563" class="Comment">--   imp = record {Imp}</a>
+
+<a id="588" class="Comment">--   open Mapᴵ imp public</a>
+</pre></body></html>
