@@ -272,6 +272,9 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   cong-↦ (mk↦ f) eq = mk↦ f ∘ eq .proj₁
 
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+  concatMapˢ : (A → Set⟨ B ⟩) → (Set⟨ A ⟩ → Set⟨ B ⟩)
+  concatMapˢ f = concatˢ ∘ mapˢ f
+
   filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
   filterˢ₁ = mapMaybeˢ isInj₁
 
