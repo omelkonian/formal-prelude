@@ -1,5 +1,3 @@
--- Mostly copied from Prelude.MultiSets.
-
 open import Prelude.Init
 open import Prelude.General
 open import Prelude.DecEq
@@ -14,22 +12,22 @@ open import Prelude.Ord
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
-module Prelude.MultiSets.Concrete {A : Set} where
+module Prelude.Bags.Concrete.AsPartialFunctions {A : Set} where
 
-MultiSet : Set
-MultiSet = A → Maybe ℕ
+Bag : Set
+Bag = A → Maybe ℕ
 
-syntax MultiSet {A = A} = MultiSet⟨ A ⟩
+syntax Bag {A = A} = Bag⟨ A ⟩
 
 -- private variable
---   s s₁ s₂ s₃ s₁₂ s₂₃ m m′ m₁ m₂ m₃ m₁₂ m₂₃ : MultiSet
---   f g : MultiSet → MultiSet
+--   s s₁ s₂ s₃ s₁₂ s₂₃ m m′ m₁ m₂ m₃ m₁₂ m₂₃ : Bag
+--   f g : Bag → Bag
 
-∅ : MultiSet
+∅ : Bag
 ∅ = const nothing
 
 infix 3 _∈ᵈ_ _∉ᵈ_ _∈ᵈ?_ _∉ᵈ?_
-_∈ᵈ_ _∉ᵈ_ : A → MultiSet → Set
+_∈ᵈ_ _∉ᵈ_ : A → Bag → Set
 k ∈ᵈ m = M.Any.Any (_> 0) (m k)
 k ∉ᵈ m = ¬ (k ∈ᵈ m)
 
@@ -40,14 +38,14 @@ _∉ᵈ?_ : Decidable² _∉ᵈ_
 k ∉ᵈ? m = ¬? (k ∈ᵈ? m)
 
 infix 3 _⊆ᵈ_ _⊈ᵈ_
-_⊆ᵈ_ _⊈ᵈ_ : Rel₀ MultiSet
+_⊆ᵈ_ _⊈ᵈ_ : Rel₀ Bag
 m ⊆ᵈ m′ = ∀ k → k ∈ᵈ m → k ∈ᵈ m′
 k ⊈ᵈ m = ¬ (k ⊆ᵈ m)
 
 -- ** equivalence
 
 infix 3 _≈_
-_≈_ : Rel₀ MultiSet
+_≈_ : Rel₀ Bag
 m ≈ m′ = ∀ k → m k ≡ m′ k
 
 ≈-refl : Reflexive _≈_
@@ -63,7 +61,7 @@ m ≈ m′ = ∀ k → m k ≡ m′ k
 ≈-equiv = record {refl = ≈-refl; sym = ≈-sym; trans = ≈-trans}
 
 ≈-setoid : Setoid 0ℓ 0ℓ
-≈-setoid = record {Carrier = MultiSet; _≈_ = _≈_; isEquivalence = ≈-equiv}
+≈-setoid = record {Carrier = Bag; _≈_ = _≈_; isEquivalence = ≈-equiv}
 
 module ≈-Reasoning = BinSetoid ≈-setoid
 
@@ -76,19 +74,19 @@ module ≈-Reasoning = BinSetoid ≈-setoid
 -- _⁺ : ∀ {X : Set} → Pred₀ X → Pred₀ (Maybe X)
 -- _⁺ = M.All.All
 
--- KeyMonotonic KeyPreserving : Pred₀ (MultiSet → MultiSet)
+-- KeyMonotonic KeyPreserving : Pred₀ (Bag → Bag)
 -- KeyMonotonic  f = ∀ s → s   ⊆ᵈ f s
 -- KeyPreserving f = ∀ s → f s ⊆ᵈ s
 
--- KeyMonotonicᵐ KeyPreservingᵐ : Pred₀ (MultiSet → Maybe MultiSet)
+-- KeyMonotonicᵐ KeyPreservingᵐ : Pred₀ (Bag → Maybe Bag)
 -- KeyMonotonicᵐ  f = ∀ s → M.All.All (s ⊆ᵈ_) (f s)
 -- KeyPreservingᵐ f = ∀ s → M.All.All (_⊆ᵈ s) (f s)
 
 -- -- ** separation
 
 -- instance
---   Apart-MultiSet : MultiSet // MultiSet
---   Apart-MultiSet ._♯_ m m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
+--   Apart-Bag : Bag // Bag
+--   Apart-Bag ._♯_ m m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
 
 -- ♯-comm : Symmetric _♯_
 -- ♯-comm s₁♯s₂ k = s₁♯s₂ k ∘ Product.swap
@@ -98,7 +96,7 @@ module ≈-Reasoning = BinSetoid ≈-setoid
 --   with p ← s₁♯s₃ k
 --   rewrite eq k = p
 
--- ♯-cong-pre : ∀ {s₁ s₂ : MultiSet} {f : MultiSet → MultiSet}
+-- ♯-cong-pre : ∀ {s₁ s₂ : Bag} {f : Bag → Bag}
 --   → KeyPreserving f
 --   → s₁ ♯ s₂
 --   → f s₁ ♯ s₂
@@ -122,18 +120,18 @@ module ≈-Reasoning = BinSetoid ≈-setoid
 
 -- _[_↦∅] = _∉ᵈ_
 
--- _[_↦_] : MultiSet → K → V → Set
+-- _[_↦_] : Bag → K → V → Set
 -- m [ k ↦ v ] = m k ≡ just v
 
--- _[_↦_]∅ : MultiSet → K → V → Set
+-- _[_↦_]∅ : Bag → K → V → Set
 -- m [ k ↦ v ]∅ = m [ k ↦ v ] × ∀ k′ → k′ ≢ k → k′ ∉ᵈ m
 
 -- module _ ⦃ _ : DecEq K ⦄ where
---   _[_↝_] : MultiSet → K → (Op₁ V) → MultiSet
+--   _[_↝_] : Bag → K → (Op₁ V) → Bag
 --   -- m [ k′ ↝ f ] = λ k → if k == k′ then f <$> m k else m k
 --   m [ k′ ↝ f ] = λ k → (if k == k′ then f else id) <$> m k
 
---   _[_≔_] : MultiSet → K → V → MultiSet
+--   _[_≔_] : Bag → K → V → Bag
 --   m [ k′ ≔ v ] = λ k → if k == k′ then just v else m k
 
 --   ≔⇒↦ : (m [ k ≔ v ]) [ k ↦ v ]
@@ -155,25 +153,25 @@ module ≈-Reasoning = BinSetoid ≈-setoid
 
 -- module _ ⦃ _ : Monoid V ⦄ ⦃ _ : SemigroupLaws≡ V ⦄ ⦃ _ : MonoidLaws≡ V ⦄ where
 --   instance
---     Semigroup-MultiSet : Semigroup MultiSet
---     Semigroup-MultiSet ._◇_ m m′ k = m k ◇ m′ k
+--     Semigroup-Bag : Semigroup Bag
+--     Semigroup-Bag ._◇_ m m′ k = m k ◇ m′ k
 
---     Monoid-MultiSet : Monoid MultiSet
---     Monoid-MultiSet .ε = ∅
+--     Monoid-Bag : Monoid Bag
+--     Monoid-Bag .ε = ∅
 
---   open Alg (Rel₀ MultiSet ∋ _≈_)
+--   open Alg (Rel₀ Bag ∋ _≈_)
 
---   ⟨_◇_⟩≡_ : 3Rel MultiSet 0ℓ
+--   ⟨_◇_⟩≡_ : 3Rel Bag 0ℓ
 --   ⟨ m₁ ◇ m₂ ⟩≡ m = m₁ ◇ m₂ ≈ m
 
 --   instance
---     SemigroupLaws-MultiSet : SemigroupLaws MultiSet _≈_
---     SemigroupLaws-MultiSet = λ where
+--     SemigroupLaws-Bag : SemigroupLaws Bag _≈_
+--     SemigroupLaws-Bag = λ where
 --       .◇-comm   → λ m m′ k   → ◇-comm (m k) (m′ k)
 --       .◇-assocʳ → λ m₁ _ _ k → ◇-assocʳ (m₁ k) _ _
 
---     MonoidLaws-MultiSet : MonoidLaws MultiSet _≈_
---     MonoidLaws-MultiSet .ε-identity = λ where
+--     MonoidLaws-Bag : MonoidLaws Bag _≈_
+--     MonoidLaws-Bag .ε-identity = λ where
 --       .proj₁ → λ m k → ε-identityˡ (m k)
 --       .proj₂ → λ m k → ε-identityʳ (m k)
 
@@ -253,10 +251,10 @@ module ≈-Reasoning = BinSetoid ≈-setoid
 --   ∈ᵈ-◇⁺ʳ : ∀ k s₁ s₂ → k ∈ᵈ s₂ → k ∈ᵈ (s₁ ◇ s₂)
 --   ∈ᵈ-◇⁺ʳ k s₁ s₂ = ∈ᵈ-◇⁺ k s₁ s₂ ∘ inj₂
 
---   _⁉⁰_ : MultiSet → K → V
+--   _⁉⁰_ : Bag → K → V
 --   m ⁉⁰ k = fromMaybe ε (m k)
 
---   _[_↦⁰_] : MultiSet → K → V → Set
+--   _[_↦⁰_] : Bag → K → V → Set
 --   m [ k ↦⁰ v ] = m ⁉⁰ k ≡ v
 
 --   ↦⇒↦⁰ : s [ k ↦ v ] → s [ k ↦⁰ v ]

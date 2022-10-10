@@ -7,11 +7,11 @@ open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
 
-open import Prelude.Sets.Interface
+open import Prelude.Sets.Abstract.Interface
 
 import Relation.Unary as U
 
-module Prelude.Sets.AsPredicates {A : Set} where
+module Prelude.Sets.Abstract.AsPredicates {A : Set} where
 
 abstract
 

@@ -1,6 +1,9 @@
-module Prelude.Maps.Interface where
+module Prelude.Maps.Abstract.Interface where
+
+import Relation.Binary.Reasoning.Setoid as BinSetoid
 
 open import Prelude.Init
+open SetAsType
 open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
@@ -9,66 +12,62 @@ open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.InferenceRules
 open import Prelude.Functor
-open import Prelude.Apartness hiding (_♯_)
+open import Prelude.Apartness renaming (_♯_ to _♯₀_)
+open import Prelude.Setoid    renaming (_≈_ to _≈₀_)
 
-import Relation.Binary.Reasoning.Setoid as BinSetoid
-
-record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
+record Mapᴵ (K V : Type) (σ : Level) : Type (lsuc σ) where
   constructor mkMapᴵ
   field
-    Map : Set σ
+    Map : Type σ
 
     ∅ : Map
     _∪_ : Op₂ Map -- left-biased
 
     _⁉_ : Map → K → Maybe V
-    _∈ᵈ_ : K → Map → Set
+    _∈ᵈ_ : K → Map → Type
 
-    _♯ᵐ_ : Rel₀ Map
+    ⦃ Apart-Map ⦄ : Map //^⦅ 0ℓ ⦆ Map
 
   -- syntactic sugar
   syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩
 
   -- operator precedence
-  infix  5 _⁉_
-  infixr 4 _∪_
-  infix  3 _≈_ _∈ᵈ_ _∉ᵈ_
+  infix  6 _⁉_
+  infixr 5 _∪_
+  infix  4 _∈ᵈ_ _∉ᵈ_
 
-  private _♯_ = _♯ᵐ_
-
-  _∉ᵈ_ : K → Map → Set
+  _∉ᵈ_ : K → Map → Type
   k ∉ᵈ m = ¬ (k ∈ᵈ m)
 
   -- equivalence
-  _≈_ : Rel₀ Map
-  m ≈ m′ = ∀ k → m ⁉ k ≡ m′ ⁉ k
+  instance
+    Setoid-Map : ISetoid Map
+    Setoid-Map = record
+      { relℓ  = 0ℓ
+      ; _≈_ = λ m m′ → ∀ k → m ⁉ k ≡ m′ ⁉ k
+      }
 
-  ≈-refl : Reflexive _≈_
-  ≈-refl _ = refl
+  private infix 4 _≈_; _≈_ = Rel₀ Map ∋ _≈₀_ {A = Map}
+  open Alg _≈_
 
-  ≈-sym : Symmetric _≈_
-  ≈-sym p k = sym (p k)
-
-  ≈-trans : Transitive _≈_
-  ≈-trans p q k = trans (p k) (q k)
-
-  ≈-equiv : IsEquivalence _≈_
-  ≈-equiv = record {refl = ≈-refl; sym = ≈-sym; trans = ≈-trans}
-
-  ≈-setoid : Setoid σ 0ℓ
-  ≈-setoid = record {Carrier = Map; _≈_ = _≈_; isEquivalence = ≈-equiv}
-
-  module ≈-Reasoning = BinSetoid ≈-setoid
-
+  instance
+    SetoidLaws-Map : Setoid-Laws Map
+    SetoidLaws-Map = record {isEquivalence = record
+      { refl = λ _ → refl
+      ; sym = λ p k → sym (p k)
+      ; trans = λ p q k → trans (p k) (q k)
+      }}
 
   -- derived relations
-  ⟨_⊎_⟩≡_ : Map → Map → Map → Set
+  private infix 4 _♯_; _♯_ = Rel₀ Map ∋ _♯₀_ {A = Map}
+
+  ⟨_⊎_⟩≡_ : Map → Map → Map → Type
   ⟨ m ⊎ m′ ⟩≡ m″ = (m ♯ m′) × ((m ∪ m′) ≈ m″)
 
-  _[_↦_] : Map → K → V → Set
+  _[_↦_] : Map → K → V → Type
   m [ k ↦ v ] = m ⁉ k ≡ just v
 
-  _[_↦_]∅ : Map → K → V → Set
+  _[_↦_]∅ : Map → K → V → Type
   m [ k ↦ v ]∅ = m [ k ↦ v ] × ∀ k′ → k′ ≢ k → k′ ∉ᵈ m
 
   field
@@ -102,10 +101,6 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
     -- associativity
     ∪-assocʳ : ∀ {s₁ s₂ s₃} → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
     ∪≡-assocʳ : ∀ {s₁}{s₂}{s₃}{s} → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
-
-  instance
-    Apart-Map : Map // Map
-    Apart-Map = record {_♯_ = _♯_}
 
   private variable
     s s₁ s₂ s₃ s₁₂ s₂₃ m m′ m₁ m₂ m₃ m₁₂ m₂₃ : Map
@@ -166,9 +161,9 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
   ... | inj₁ k∈₁ = ⊥-elim $ k∉₁ k∈₁
   ... | inj₂ k∈₂ = ⊥-elim $ k∉₂ k∈₂
 
-  record DecMapᴵ : Set (lsuc σ) where
+  record DecMapᴵ : Type (lsuc σ) where
     field _∈ᵈ?_ : Decidable² _∈ᵈ_
-    infix 3 _∈ᵈ?_ _∉ᵈ?_
+    infix 4 _∈ᵈ?_ _∉ᵈ?_
     _∉ᵈ?_ : Decidable² _∉ᵈ_
     k ∉ᵈ? m = ¬? (k ∈ᵈ? m)
 
@@ -176,16 +171,16 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
       Dec-∈ᵈ : ∀ {k : K} {m : Map} → (k ∈ᵈ m) ⁇
       Dec-∈ᵈ .dec = _∈ᵈ?_ _ _
 
-  infix 3 _⊆ᵈ_ _⊈ᵈ_
+  infix 4 _⊆ᵈ_ _⊈ᵈ_
   _⊆ᵈ_ _⊈ᵈ_ : Rel₀ Map
   m ⊆ᵈ m′ = ∀ k → k ∈ᵈ m → k ∈ᵈ m′
   k ⊈ᵈ m = ¬ (k ⊆ᵈ m)
 
-  KeyMonotonic KeyPreserving : (Map → Map) → Set σ
+  KeyMonotonic KeyPreserving : (Map → Map) → Type σ
   KeyMonotonic  f = ∀ s → s   ⊆ᵈ f s
   KeyPreserving f = ∀ s → f s ⊆ᵈ s
 
-  ≈-cong : ∀ {P : K → Maybe V → Set}
+  ≈-cong : ∀ {P : K → Maybe V → Type}
     → s₁ ≈ s₂
     → (∀ k → P k (s₁ ⁉ k))
     → (∀ k → P k (s₂ ⁉ k))
@@ -236,21 +231,19 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
       ≡ss : ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
       ≡ss = s₁₂♯s₃′ , ≈-trans (∪-cong ≡s₁₂) ≡s
 
-  record WithBuildᴵ : Set (lsuc σ) where
+  record WithBuildᴵ : Type (lsuc σ) where
     field
       buildMap : (K → Maybe V) → Map
       buildMap-sound : ∀ (f : K → Maybe V) → ∀ k → buildMap f ⁉ k ≡ f k
 
     module _ ⦃ mᵥ : Monoid V ⦄ ⦃ _ : SemigroupLaws≡ V ⦄ ⦃ _ : MonoidLaws≡ V ⦄ where
-      infix 5 _⁉ε_
+      infix 6 _⁉ε_
       _⁉ε_ : Map → K → V
       m ⁉ε k = fromMaybe ε (m ⁉ k)
 
       instance
         Semigroup-Map : Semigroup Map
         Semigroup-Map ._◇_ m m′ = buildMap λ k → (m ⁉ k) ◇ (m′ ⁉ k)
-
-      open Alg (Rel₀ Map ∋ _≈_)
 
       ◇-⁉ : ∀ m m′ → (m ◇ m′) ⁉ k ≡ (m ⁉ k) ◇ (m′ ⁉ k)
       ◇-⁉ {k} m m′ = buildMap-sound (λ k → (m ⁉ k) ◇ (m′ ⁉ k)) k
@@ -400,11 +393,11 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
 
   module _ ⦃ _ : DecEq K ⦄ where
 
-    -- record DecEqMapᴵ : Set (lsuc σ) where
+    -- record DecEqMapᴵ : Type (lsuc σ) where
     --   field deceq : DecEq Map
     --   instance DecEq-Map = deceq
 
-    record WithSingletonᴵ : Set (lsuc σ) where
+    record WithSingletonᴵ : Type (lsuc σ) where
       field
         singleton : K × V → Map
         singleton-law : ∀ {k v} → singleton (k , v) [ k ↦ v ]∅
@@ -634,17 +627,17 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
               (singleton (k , f v) ◇ s) ⁉ k′
             ∎ where open ≡-Reasoning
 
-        data Cmd : Set₁ where
+        data Cmd : Type₁ where
           _∶_ : Cmd → Cmd → Cmd
-          iff⦅_⦆_ : ∀ {P : Set} → Dec P → Cmd → Cmd
+          iff⦅_⦆_ : ∀ {P : Type} → Dec P → Cmd → Cmd
           just? : K → (V → Cmd) → Cmd
           _≔_ : K → V → Cmd
           [_←_] : (V → V) → K → Cmd
 
-        iff¿_¿_ : (P : Set) → ⦃ P ⁇ ⦄ → Cmd → Cmd
+        iff¿_¿_ : (P : Type) → ⦃ P ⁇ ⦄ → Cmd → Cmd
         iff¿ P ¿ c = iff⦅ ¿ P ¿ ⦆ c
 
-        infix 4 _≔_
+        infix 5 _≔_
 
         run : Cmd → (Map → Map)
         run (k ≔ v) = update (k , v)
@@ -691,7 +684,7 @@ record Mapᴵ (K V : Set) (σ : Level) : Set (lsuc σ) where
           ... | just _  | p = ⊥-elim $ k∉ (p auto)
           ... | nothing | _ = refl
 
-        module _ {s cmd} {P : Set} {b : Dec P} where
+        module _ {s cmd} {P : Type} {b : Dec P} where
           iff-accept : True b → run (iff⦅ b ⦆ cmd) s ≈ run cmd s
           iff-accept _ _ with ⟫ yes _ ← ⟫ b = refl
 

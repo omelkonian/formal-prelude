@@ -14,9 +14,9 @@ open import Prelude.Measurable
 open import Prelude.Bifunctor
 open import Prelude.Decidable
 
-open import Prelude.Sets.Interface
+open import Prelude.Sets.Abstract.Interface
 
-module Prelude.Sets.AsUniqueLists {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Sets.Abstract.AsUniqueLists {A : Set} ⦃ _ : DecEq A ⦄ where
 
 -- ** basic definitions
 abstract
@@ -182,8 +182,8 @@ abstract
 
 -- ** decidability of set equality
 abstract
-  deceq : DecEq Set'
-  deceq ._≟_ s s′
+  DecEq-Set : DecEq Set'
+  DecEq-Set ._≟_ s s′
     with list s ≟ list s′
   ... | no ¬p    = no λ{ refl → ¬p refl }
   ... | yes refl = yes refl

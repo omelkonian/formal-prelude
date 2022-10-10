@@ -8,21 +8,25 @@ open import Prelude.DecEq
 open import Prelude.ToList
 open import Prelude.FromList
 open import Prelude.InferenceRules
+open import Prelude.Setoid
+open import Prelude.Functor
+open import Prelude.Foldable
+open import Prelude.Traversable
+open import Prelude.Monad
+open import Prelude.Indexable
+
 open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
 open import Prelude.Lists.SetEquality
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
-open import Prelude.Sets.Concrete
+open import Prelude.Sets.Concrete.Core
 
 private to = toList; from = fromList
 
 module _ {A : Set} ⦃ _ : DecEq A ⦄ where
-  private variable
-    x : A
-    xs ys : List A
-    Xs Ys : Set⟨ A ⟩
+  private variable x : A; xs ys zs : Set⟨ A ⟩
 
   toList∘singleton : toList (singleton x) ≡ [ x ]
   toList∘singleton = refl
@@ -30,10 +34,37 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   fromList∘singleton : fromList [ x ] ≡ singleton x
   fromList∘singleton = refl
 
-  ∈ˢ-toList⁻ : x ∈ˢ Xs → x ∈ toList Xs
+  ∈ˢ-toList⁻ : x ∈ˢ xs → x ∈ toList xs
   ∈ˢ-toList⁻ = id
-  ∈ˢ-toList⁺ : x ∈ toList Xs → x ∈ˢ Xs
+  ∈ˢ-toList⁺ : x ∈ toList xs → x ∈ˢ xs
   ∈ˢ-toList⁺ = id
+
+  ∪-congˡ : ys ≈ zs → xs ∪ ys ≈ xs ∪ zs
+  ∪-congˡ {ys = ys}{zs}{xs} (ys⊆ , zs⊆) = xs∪ys⊆ , xs∪zs⊆
+    where
+      xs∪ys⊆ : xs ∪ ys ⊆ˢ xs ∪ zs
+      xs∪ys⊆ = ∈-∪⁻ _ xs ys >≡> λ where
+        (inj₁ ∈xs) → ∈-∪⁺ˡ _ xs zs ∈xs
+        (inj₂ ∈ys) → ∈-∪⁺ʳ _ xs zs (ys⊆ ∈ys)
+
+      xs∪zs⊆ : xs ∪ zs ⊆ˢ xs ∪ ys
+      xs∪zs⊆ = ∈-∪⁻ _ xs zs >≡> λ where
+        (inj₁ ∈xs) → ∈-∪⁺ˡ _ xs ys ∈xs
+        (inj₂ ∈zs) → ∈-∪⁺ʳ _ xs ys (zs⊆ ∈zs)
+
+  ∪-congʳ : xs ≈ ys → xs ∪ zs ≈ ys ∪ zs
+  ∪-congʳ {xs = xs}{ys}{zs} (xs⊆ , ys⊆) = xs∪zs⊆ , ys∪zs⊆
+    where
+      xs∪zs⊆ : xs ∪ zs ⊆ˢ ys ∪ zs
+      xs∪zs⊆ = ∈-∪⁻ _ xs zs >≡> λ where
+        (inj₁ ∈xs) → ∈-∪⁺ˡ _ ys zs (xs⊆ ∈xs)
+        (inj₂ ∈zs) → ∈-∪⁺ʳ _ ys zs ∈zs
+
+      ys∪zs⊆ : ys ∪ zs ⊆ˢ xs ∪ zs
+      ys∪zs⊆ = ∈-∪⁻ _ ys zs >≡> λ where
+        (inj₁ ∈ys) → ∈-∪⁺ˡ _ xs zs (ys⊆ ∈ys)
+        (inj₂ ∈zs) → ∈-∪⁺ʳ _ xs zs ∈zs
+
 
 module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   private variable
@@ -59,7 +90,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   ... | inj₁ (here refl) = inj₁ refl
   ... | inj₂ x∈          = inj₂ x∈
 
-  from-∷ˢ : ∀ {xs} → from (x ∷ xs) ≈ˢ (x ∷ˢ from xs)
+  from-∷ˢ : ∀ {xs} → from (x ∷ xs) ≈ (x ∷ˢ from xs)
   from-∷ˢ {x = x}{xs} =
     (λ x∈ → case ∈ˢ-fromList⁻ {xs = x ∷ xs} x∈ of λ where
       (here refl) → hereˢ {xs = from xs}
@@ -71,7 +102,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
       (inj₂ x∈)   → there $ ∈ˢ-fromList⁻ {xs = xs} x∈
     )
 
-  from-++ˢ : ∀ {xs ys : List A} → from (xs ++ ys) ≈ˢ (from xs ∪ from ys)
+  from-++ˢ : ∀ {xs ys : List A} → from (xs ++ ys) ≈ (from xs ∪ from ys)
   from-++ˢ {xs = xs}{ys} =
     (λ x∈ →
       case L.Mem.∈-++⁻ xs (∈ˢ-fromList⁻ x∈) of λ where
@@ -85,12 +116,12 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
         (inj₂ x∈ʳ) → L.Mem.∈-++⁺ʳ xs $ ∈ˢ-fromList⁻ x∈ʳ
     )
 
-  from-≈ˢ : ∀ {xs ys : List A} →
+  from-≈ : ∀ {xs ys : List A} →
     xs ∼[set] ys
     ──────────────────
-    from xs ≈ˢ from ys
+    from xs ≈ from ys
 
-  from-≈ˢ {xs}{ys} eq =
+  from-≈ {xs}{ys} eq =
     ( ∈ˢ-fromList⁺ {xs = ys}
     ∘ eq .Fun.Equiv.Equivalence.to .Fun.Eq._⟨$⟩_
     ∘ ∈ˢ-fromList⁻
@@ -116,7 +147,6 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     where p? = _∉? [ x ]
           pattern 𝟘 = here refl
 
-
   headˢ : Set⟨ A ⟩ → Maybe A
   headˢ = L.head ∘ to
 
@@ -125,6 +155,12 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
 
   concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
   concatˢ = from ∘ concat ∘ map to ∘ to
+
+  instance
+    Indexable-Set : Indexable Set⟨ A ⟩ A
+    Indexable-Set = λ where
+      .Ix → Ix ∘ to
+      ._‼_ s i → to s ‼ i
 
   module _ {B : Set} ⦃ _ : DecEq B ⦄ where
 
@@ -150,7 +186,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
       ∈ˢ-mapMaybe⁻ : y ∈ˢ mapMaybeˢ f xs → ∃ λ x → (x ∈ˢ xs) × (f x ≡ just y)
       ∈ˢ-mapMaybe⁻ = ∈-mapMaybe⁻ f ∘ ∈ˢ-fromList⁻
 
-      mapMaybeˢ-∪ : mapMaybeˢ f (xs ∪ ys) ≈ˢ (mapMaybeˢ f xs ∪ mapMaybeˢ f ys)
+      mapMaybeˢ-∪ : mapMaybeˢ f (xs ∪ ys) ≈ (mapMaybeˢ f xs ∪ mapMaybeˢ f ys)
       mapMaybeˢ-∪ {xs}{ys} =
         let xs′ = mapMaybeˢ f xs; ys′ = mapMaybeˢ f ys in
         (λ y∈ →
@@ -171,8 +207,12 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
 
     mapWith∈ˢ : (xs : Set⟨ A ⟩) → (∀ {x} → x ∈ˢ xs → B) → Set⟨ B ⟩
     mapWith∈ˢ xs f = from
-                    $ L.Mem.mapWith∈ (to xs)
-                    $ f ∘ ∈-nub⁻ ∘ ∈ˢ-fromList⁺
+                   $ L.Mem.mapWith∈ (to xs)
+                   $ f ∘ ∈-nub⁻ ∘ ∈ˢ-fromList⁺
+
+  module _ {F : Set↑} ⦃ _ : Foldable F ⦄ ⦃ _ : Monad F ⦄ ⦃ _ : DecEq (F A) ⦄ where
+    sequenceMˢ : Set⟨ F A ⟩ → F (Set⟨ A ⟩)
+    sequenceMˢ = fmap from ∘ sequenceM ∘ to
 
   -- ** Set mappings
   infix 0 mk↦_
@@ -194,20 +234,16 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   codom : ⦃ _ : DecEq B ⦄ → xs ↦ B → Set⟨ B ⟩
   codom {xs = xs} (mk↦ f) = mapWith∈ˢ xs f
 
-  -- codom-↦ : (f : xs ↦ B) → codom f ↦ A
-  -- codom-↦ {xs = x ∷ _} f = λ where
-  --   (here  _)  → x
-  --   (there x∈) → codom-↦ (f ∘ there) x∈
-
   weaken-↦ : xs ↦′ P → ys ⊆ˢ xs → ys ↦′ P
   weaken-↦ (mk↦ f) ys⊆xs = mk↦ f ∘ ys⊆xs
 
-  -- cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ xs) ↦′ P
-  -- cons-↦ _ y _ (here refl) = y
-  -- cons-↦ _ _ f (there x∈)  = f x∈
+  cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ˢ xs) ↦′ P
+  cons-↦ {xs = xs} x y (mk↦ f) = mk↦ ∈ˢ-∷⁻ {x′ = x}{xs} >≡> λ where
+      (inj₁ refl) → y
+      (inj₂ x∈)   → f x∈
 
-  -- uncons-↦ : (x ∷ xs) ↦′ P → xs ↦′ P
-  -- uncons-↦ = _∘ there
+  uncons-↦ : (x ∷ˢ xs) ↦′ P → xs ↦′ P
+  uncons-↦ {x = x}{xs} (mk↦ f) = mk↦ f ∘ thereˢ {xs = xs}{x}
 
   _↭ˢ_ : Rel₀ (Set⟨ A ⟩)
   _↭ˢ_ = _↭_ on to
@@ -215,7 +251,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   module _ {xs ys} where
     permute-↦ : xs ↭ˢ ys → xs ↦′ P → ys ↦′ P
     permute-↦ xs↭ys (mk↦ xs↦) = mk↦
-      xs↦ ∘ ∈ˢ-toList⁺ {Xs = xs} ∘ L.Perm.∈-resp-↭ (↭-sym xs↭ys) ∘ ∈ˢ-toList⁻ {Xs = ys}
+      xs↦ ∘ ∈ˢ-toList⁺ {xs = xs} ∘ L.Perm.∈-resp-↭ (↭-sym xs↭ys) ∘ ∈ˢ-toList⁻ {xs = ys}
 
     _∪/↦_ : xs ↦′ P → ys ↦′ P → (xs ∪ ys) ↦′ P
     (mk↦ xs↦) ∪/↦ (mk↦ ys↦) = mk↦ ∈-∪⁻ _ xs ys >≡> λ where
@@ -232,9 +268,8 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   extend-↦ : zs ↭ˢ (xs ∪ ys) → xs ↦′ P → ys ↦′ P → zs ↦′ P
   extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ∪/↦ ys↦)
 
-  cong-↦ : xs ↦′ P → xs′ ≈ˢ xs → xs′ ↦′ P
+  cong-↦ : xs ↦′ P → xs′ ≈ xs → xs′ ↦′ P
   cong-↦ (mk↦ f) eq = mk↦ f ∘ eq .proj₁
-  --
 
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
@@ -243,37 +278,36 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   filterˢ₂ : Set⟨ A ⊎ B ⟩ → Set⟨ B ⟩
   filterˢ₂ = mapMaybeˢ isInj₂
 
--- private variable A B : Set
--- instance
+private variable A B : Set
 
--- module _ {A B C : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
---   alignWithˢ : (These A B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
---   alignWithˢ f xs ys = from $ L.alignWith f (to xs) (to ys)
+module _ {A B C : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
+  alignWithˢ : (These A B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
+  alignWithˢ f xs ys = from $ L.alignWith f (to xs) (to ys)
 
---   zipWithˢ : (A → B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
---   zipWithˢ f xs ys = from $ L.zipWith f (to xs) (to ys)
+  zipWithˢ : (A → B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
+  zipWithˢ f xs ys = from $ L.zipWith f (to xs) (to ys)
 
---   unalignWithˢ : (A → These B C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
---   unalignWithˢ f = (λ (xs , ys) → from xs , from ys) ∘ L.unalignWith f ∘ to
+  unalignWithˢ : (A → These B C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
+  unalignWithˢ f = (λ (xs , ys) → from xs , from ys) ∘ L.unalignWith f ∘ to
 
---   unzipWithˢ : (A → B × C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
---   unzipWithˢ f = (λ (xs , ys) → from xs , from ys) ∘ L.unzipWith f ∘ to
+  unzipWithˢ : (A → B × C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
+  unzipWithˢ f = (λ (xs , ys) → from xs , from ys) ∘ L.unzipWith f ∘ to
 
---   partitionSumsWithˢ : (A → B ⊎ C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
---   partitionSumsWithˢ f = unalignWithˢ (These.fromSum ∘′ f)
+  partitionSumsWithˢ : (A → B ⊎ C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
+  partitionSumsWithˢ f = unalignWithˢ (∣These∣.fromSum ∘′ f)
 
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
-  -- alignˢ : Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ These A B ⟩
-  -- alignˢ = alignWithˢ id
+  alignˢ : Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ These A B ⟩
+  alignˢ = alignWithˢ id
 
-  -- zipˢ : Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ A × B ⟩
-  -- zipˢ = zipWithˢ (_,_)
+  zipˢ : Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ A × B ⟩
+  zipˢ = zipWithˢ (_,_)
 
-  -- unalignˢ : Set⟨ These A B ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩
-  -- unalignˢ = unalignWithˢ id
+  unalignˢ : Set⟨ These A B ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩
+  unalignˢ = unalignWithˢ id
 
-  -- unzipˢ : Set⟨ A × B ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩
-  -- unzipˢ = unzipWithˢ id
+  unzipˢ : Set⟨ A × B ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩
+  unzipˢ = unzipWithˢ id
 
   -- partitionSumsˢ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩
   -- partitionSumsˢ = partitionSumsWithˢ id
@@ -287,17 +321,17 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   rightsˢ : Set⟨ A ⊎ B ⟩ → Set⟨ B ⟩
   rightsˢ = proj₂ ∘ partitionSumsˢ
 
-  open ≈ˢ-Reasoning
+  open ≈-Reasoning
 
   leftsˢ∘inj₁ : ∀ {a : A} {abs : Set⟨ A ⊎ B ⟩}
     →  leftsˢ (inj₁ a ∷ˢ abs)
-    ≈ˢ (a ∷ˢ leftsˢ abs)
+    ≈ (a ∷ˢ leftsˢ abs)
   leftsˢ∘inj₁ {a = a}{abs} =
     begin
       leftsˢ (inj₁ a ∷ˢ abs)
     ≡⟨⟩
       from (lefts $ to $ inj₁ a ∷ˢ abs)
-    ≈⟨ from-≈ˢ {xs = lefts $ to $ inj₁ a ∷ˢ abs}
+    ≈⟨ from-≈ {xs = lefts $ to $ inj₁ a ∷ˢ abs}
                {ys = lefts $ inj₁ a ∷ to abs}
      $ lefts-seteq
      $ to-∷ˢ {x = inj₁ a} {xs = abs}
@@ -313,13 +347,13 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
 
   leftsˢ∘inj₂ : ∀ {b : B} {abs : Set⟨ A ⊎ B ⟩}
     →  leftsˢ (inj₂ b ∷ˢ abs)
-    ≈ˢ leftsˢ abs
+    ≈ leftsˢ abs
   leftsˢ∘inj₂ {b = b}{abs} =
     begin
       leftsˢ (inj₂ b ∷ˢ abs)
     ≡⟨⟩
       from (lefts $ to $ inj₂ b ∷ˢ abs)
-    ≈⟨ from-≈ˢ {xs = lefts $ to $ inj₂ b ∷ˢ abs}
+    ≈⟨ from-≈ {xs = lefts $ to $ inj₂ b ∷ˢ abs}
                {ys = lefts $ inj₂ b ∷ to abs}
      $ lefts-seteq
      $ to-∷ˢ {x = inj₂ b} {xs = abs}
@@ -333,13 +367,13 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
 
   rightsˢ∘inj₁ : ∀ {a : A} {abs : Set⟨ A ⊎ B ⟩}
     →  rightsˢ (inj₁ a ∷ˢ abs)
-    ≈ˢ rightsˢ abs
+    ≈ rightsˢ abs
   rightsˢ∘inj₁ {a = a}{abs} =
     begin
       rightsˢ (inj₁ a ∷ˢ abs)
     ≡⟨⟩
       from (rights $ to $ inj₁ a ∷ˢ abs)
-    ≈⟨ from-≈ˢ {xs = rights $ to $ inj₁ a ∷ˢ abs}
+    ≈⟨ from-≈ {xs = rights $ to $ inj₁ a ∷ˢ abs}
                {ys = rights $ inj₁ a ∷ to abs}
      $ rights-seteq
      $ to-∷ˢ {x = inj₁ a} {xs = abs}
@@ -353,13 +387,13 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
 
   rightsˢ∘inj₂ : ∀ {b : B} {abs : Set⟨ A ⊎ B ⟩}
     →  rightsˢ (inj₂ b ∷ˢ abs)
-    ≈ˢ (b ∷ˢ rightsˢ abs)
+    ≈ (b ∷ˢ rightsˢ abs)
   rightsˢ∘inj₂ {b = b}{abs} =
     begin
       rightsˢ (inj₂ b ∷ˢ abs)
     ≡⟨⟩
       from (rights $ to $ inj₂ b ∷ˢ abs)
-    ≈⟨ from-≈ˢ {xs = rights $ to $ inj₂ b ∷ˢ abs}
+    ≈⟨ from-≈ {xs = rights $ to $ inj₂ b ∷ˢ abs}
                {ys = rights $ inj₂ b ∷ to abs}
      $ rights-seteq
      $ to-∷ˢ {x = inj₂ b} {xs = abs}

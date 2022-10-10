@@ -9,9 +9,11 @@ open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.Functor
 open import Prelude.Applicative
-open import Prelude.Maps.Interface
+open import Prelude.Apartness
 
-module Prelude.Maps.AsPartialFunctions4 {K V : Set} where
+open import Prelude.Maps.Abstract.Interface
+
+module Prelude.Maps.Abstract.AsPartialFunctions4 {K V : Set} where
 
 abstract
   Map : Set
@@ -31,8 +33,9 @@ abstract
   _⁉_ : Map → K → Maybe V
   m ⁉ k = m k
 
-  _♯_ : Rel₀ Map
-  m ♯ m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
+instance
+  Apart-Map : Map // Map
+  Apart-Map ._♯_ m m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
 
 {- COPIED from Maps.Interface.Mapᴵ -}
 infix 3 _≈_
@@ -103,7 +106,7 @@ abstract
       v : V
 
   -- Separation
-  ♯-comm : Symmetric _♯_
+  ♯-comm : Symmetric (Rel₀ Map ∋ _♯_)
   ♯-comm s₁♯s₂ k = s₁♯s₂ k ∘ Product.swap
 
   ♯-cong : s₁ ≈ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
@@ -187,7 +190,7 @@ abstract
   ... | just _  | pk = ⊥-elim $ pk (auto , k∈)
 
 mapᴵ : Mapᴵ K V 0ℓ
-mapᴵ = mkMapᴵ Map ∅ _∪_ _⁉_ _∈ᵈ_ _♯_
+mapᴵ = mkMapᴵ Map ∅ _∪_ _⁉_ _∈ᵈ_
               ⁉⇒∈ᵈ ∈ᵈ⇒⁉
               ↦-∪⁺ˡ ↦-∪⁺ʳ
               ♯-comm ∪-comm

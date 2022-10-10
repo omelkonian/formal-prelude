@@ -1,4 +1,4 @@
-module Prelude.Bags.Interface where
+module Prelude.Sets.Abstract.Interface where
 
 open import Prelude.Init
 open import Prelude.General
@@ -10,24 +10,22 @@ open import Prelude.Applicative
 open import Prelude.Measurable
 open import Prelude.Apartness
 
-import Relation.Binary.Reasoning.Setoid as BinSetoid
-
-record Bagᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
+record Setᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
   constructor mkSetᴵ
   field
-    Bag' : Set σ
-    ∅ : Bag'
-    singleton : A → Bag'
-    _∈ˢ_ : A → Bag' → Set
-    _─_ _∪_ _∩_ : Op₂ Bag'
+    Set' : Set σ
+    ∅ : Set'
+    singleton : A → Set'
+    _∈ˢ_ : A → Set' → Set
+    _─_ _∪_ _∩_ : Op₂ Set'
 
-  syntax Bag' {A = A} = Bag⟨ A ⟩
+  syntax Set' {A = A} = Set⟨ A ⟩
   infixr 8 _─_
   infixr 7 _∩_
   infixr 6 _∪_
   infix  4 _∈ˢ_ _∉ˢ_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
 
-  _∉ˢ_ : A → Bag' → Set _
+  _∉ˢ_ : A → Set' → Set _
   x ∉ˢ s = ¬ (x ∈ˢ s)
 
   -- ** relational properties
@@ -46,24 +44,24 @@ record Bagᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → x ∉ˢ ys → x ∈ˢ (xs ─ ys)
     ∉∅ : ∀ x → x ∉ˢ ∅
 
-  _♯ˢ_ : Rel₀ Bag'
+  _♯ˢ_ : Rel₀ Set'
   s ♯ˢ s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
 
   instance
-    Apart-Bag' : Bag' // Bag'
-    Apart-Bag' ._♯_ = _♯ˢ_
+    Apart-Set' : Set' // Set'
+    Apart-Set' ._♯_ = _♯ˢ_
 
   -- ♯-comm : Symmetric _♯_
-  ♯-comm : ∀ (x y : Bag') → x ♯ y → y ♯ x
+  ♯-comm : ∀ (x y : Set') → x ♯ y → y ♯ x
   ♯-comm x y x♯y = x♯y ∘ Product.swap
 
   ∈-∩⇒¬♯ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → ¬ (xs ♯ ys)
   ∈-∩⇒¬♯ x xs ys x∈ xs♯ys = xs♯ys $ ∈-∩⁻ _ xs ys x∈
 
-  ♯-skipˡ : ∀ xs ys (zs : Bag') → (xs ∪ ys) ♯ zs → ys ♯ zs
+  ♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
   ♯-skipˡ xs ys _ p (x∈ys , x∈zs) = p (∈-∪⁺ʳ _ xs ys x∈ys , x∈zs)
 
-  _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Bag' _
+  _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
   s ⊆ˢ s′ = ∀ {x} → x ∈ˢ s → x ∈ˢ s′
   s ⊈ˢ s′ = ¬ s ⊆ˢ s′
   s ⊇ˢ s′ = s′ ⊆ˢ s
@@ -72,7 +70,7 @@ record Bagᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
   ⊆ˢ-trans : Transitive _⊆ˢ_
   ⊆ˢ-trans ij ji = ji ∘ ij
 
-  _≈ˢ_ : Rel₀ Bag'
+  _≈ˢ_ : Rel₀ Set'
   s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
   ≈ˢ-refl : Reflexive _≈ˢ_
@@ -88,8 +86,9 @@ record Bagᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
   ≈ˢ-equiv = record { refl = ≈ˢ-refl; sym = ≈ˢ-sym; trans = ≈ˢ-trans }
 
   ≈ˢ-setoid : Setoid σ 0ℓ
-  ≈ˢ-setoid = record { Carrier = Bag'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
+  ≈ˢ-setoid = record { Carrier = Set'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
 
+  import Relation.Binary.Reasoning.Setoid as BinSetoid
   module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
 
   open Alg _≈ˢ_
@@ -115,8 +114,8 @@ record Bagᴵ (A : Set) (σ : Level) : Set (lsuc σ) where
     = (λ x∈ → case ∈-∪⁻ _ xs ys x∈ of λ{ (inj₁ x∈xs) → ∈-∪⁺ʳ _ ys xs x∈xs; (inj₂ x∈ys) → ∈-∪⁺ˡ _ ys xs x∈ys})
     , (λ x∈ → case ∈-∪⁻ _ ys xs x∈ of λ{ (inj₁ x∈ys) → ∈-∪⁺ʳ _ xs ys x∈ys; (inj₂ x∈xs) → ∈-∪⁺ˡ _ xs ys x∈xs})
 
-record DecBagᴵ (A : Set) (σ : Level) ⦃ _ : Bagᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
-  open Bagᴵ it
+record DecSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
+  open Setᴵ it
   field
     -- _≈ˢ?_ : Decidable² _≈ˢ_
     _∈ˢ?_ : Decidable² _∈ˢ_
@@ -128,17 +127,17 @@ record DecBagᴵ (A : Set) (σ : Level) ⦃ _ : Bagᴵ A σ ⦄ ⦃ _ : DecEq A 
   x ∉ˢ? s = ¬? (x ∈ˢ? s)
 
   instance
-    Dec-∈ˢ : ∀ {x : A} {xs : Bag'} → (x ∈ˢ xs) ⁇
+    Dec-∈ˢ : ∀ {x : A} {xs : Set'} → (x ∈ˢ xs) ⁇
     Dec-∈ˢ .dec = _ ∈ˢ? _
 
     Dec-♯ : _♯ˢ_ ⁇²
     Dec-♯ .dec = _ ♯ˢ? _
 
-record ListBagᴵ (A : Set) (σ : Level) ⦃ _ : Bagᴵ A σ ⦄ : Set (lsuc σ) where
-  open Bgaᴵ it
+record ListSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ : Set (lsuc σ) where
+  open Setᴵ it
   field
-    toList : Bag' → List A
-    fromList : List A → Bag'
+    toList : Set' → List A
+    fromList : List A → Set'
     from↔to : ∀ xs → Unique xs → toList (fromList xs) ≡ xs
     ∈ˢ-fromList : ∀ {x : A} {xs : List A} → x ∈ xs ↔ x ∈ˢ fromList xs
 
@@ -149,10 +148,9 @@ record ListBagᴵ (A : Set) (σ : Level) ⦃ _ : Bagᴵ A σ ⦄ : Set (lsuc σ)
   ∈ˢ-fromList⁻ = proj₂ ∈ˢ-fromList
 
   instance
-    Measurable-Bag : Measurable Bag'
-    Measurable-Bag = record {∣_∣ = length ∘ toList}
+    Measurable-Set : Measurable Set'
+    Measurable-Set = record {∣_∣ = length ∘ toList}
 
-record DecEqBagᴵ (A : Set) (σ : Level) ⦃ _ : Bagᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
-  open Bagᴵ it
-  field deceq : DecEq Bag'
-  instance DecEq-Bag' = deceq
+record DecEqSetᴵ (A : Set) (σ : Level) ⦃ _ : Setᴵ A σ ⦄ ⦃ _ : DecEq A ⦄ : Set (lsuc σ) where
+  open Setᴵ it
+  field ⦃ DecEq-Set ⦄ : DecEq Set'

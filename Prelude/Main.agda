@@ -71,16 +71,12 @@ open import Prelude.Lists
 
 open import Prelude.Sets
 open import Prelude.Sets.Example
-open import Prelude.Sets.Concrete
-open import Prelude.Sets.Concrete.Example
-open import Prelude.Sets.Concrete.Extra
-open import Prelude.Sets.Concrete.Abstract
-open import Prelude.Sets.Concrete.Abstract.Example
 
 open import Prelude.Maps
 open import Prelude.Maps.Example
-open import Prelude.Maps.Concrete
-open import Prelude.Maps.Concrete.Example
+
+open import Prelude.Bags
+open import Prelude.Bags.Example
 
 -- ** Utilities for cryptography
 open import Prelude.Serializable
