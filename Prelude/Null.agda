@@ -4,10 +4,10 @@ open import Prelude.Init
 open import Prelude.Monoid
 open import Prelude.Decidable.Base
 
-record Nullable (A : Set ℓ) : Set (lsuc ℓ) where
-  field Null : Pred A ℓ
+record Nullable (A : Set ℓ) {ℓ′ : Level} : Set (ℓ ⊔ₗ lsuc ℓ′) where
+  field Null : Pred A ℓ′
 
-  ¬Null : Pred A ℓ
+  ¬Null : Pred A ℓ′
   ¬Null = ¬_ ∘ Null
 
   Null? : ⦃ _ : Null ⁇¹ ⦄ → Decidable¹ Null
