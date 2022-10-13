@@ -1,4 +1,4 @@
-module Prelude.Sets.Example where
+module Prelude.Sets.Test where
 
 open import Prelude.Init
 open import Prelude.DecEq
@@ -10,11 +10,25 @@ open import Prelude.Ord
 open import Prelude.Apartness
 
 private
+  module Implementation1 where
+    open import Prelude.Sets.Abstract.Interface
+    import Prelude.Sets.AsPredicates as Imp
+    module _ {A : Set} where
+      _ = Setᴵ A 1ℓ ∋ record {Imp}
+
+  module Implementation2 where
+    open import Prelude.Sets.Abstract.Interface
+    import Prelude.Sets.AsUniqueLists as Imp
+    module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+      setᴵ = Setᴵ A 0ℓ ∋ record {Imp}
+      _ = FinSetᴵ A 0ℓ ∋ record {setᴵ = setᴵ; Imp}
+
   module AbstractExample where
     open import Prelude.Sets.Abstract
 
     _ = Set⟨ ℕ ⟩ ∋ singleton 5 ∪ singleton 10
-    -- _ = DecEq Set⟨ ℕ ⟩ ∋ it
+    _ = Decidable² {A = ℕ} _∈ˢ_ ∋ _∈ˢ?_
+    _ = DecEq Set⟨ ℕ ⟩ ∋ it
 
     _ : 1 ∈ˢ (singleton 0 ∪ singleton 1 ∪ singleton 2)
     -- _ = there (here refl) -- ✖ DOES NOT COMPUTE, AS EXPECTED!

@@ -2,8 +2,7 @@
 -- Sets as unique lists.
 ------------------------------------------------------------------------
 
-open import Prelude.Init
-open SetAsType
+open import Prelude.Init; open SetAsType
 open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open L.Uniq using (filter⁺; ++⁺; map⁺)
 open import Prelude.General
@@ -23,16 +22,15 @@ open import Prelude.InferenceRules
 open import Prelude.Null
 open import Prelude.Setoid
 
-module Prelude.Sets.Concrete.Core {A : Type} ⦃ _ : DecEq A ⦄ where
+module Prelude.Sets.AsUniqueLists.Core {A : Type} ⦃ _ : DecEq A ⦄ where
 
 -- ** basic definitions
 
 -- Sets as lists with no duplicates.
 record Set' : Set where
   constructor _⊣_
-  field
-    list  : List A
-    .uniq : Unique list
+  field list  : List A
+        .uniq : Unique list
 open Set'
 syntax Set' {A = A} = Set⟨ A ⟩
 
@@ -42,9 +40,7 @@ private variable
   Xs Ys Zs s s′ s″ : Set'
   P : Pred A 0ℓ
 
------------------------------------------------------------------------
--- Lifting from list predicates/relations to set predicates/relations.
-
+-- ** Lifting from list predicates/relations to set predicates/relations.
 private
   record Lift (F : Type → Type₁) : Type₁ where
     field ↑ : F (List A) → F Set'
@@ -71,9 +67,8 @@ anyˢ? P? = any? P? ∘ list
 infixr 8 _─_
 infixr 7 _∩_
 infixr 6 _∪_
-infix 4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
-infix 2 _≈ˢ_
-
+infix  4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
+infix  2 _≈ˢ_
 
 _∈ˢ_ _∉ˢ_ : A → Set' → Type
 o ∈ˢ (os ⊣ _) = o ∈ os
@@ -155,7 +150,7 @@ x ∪ y = x ++ (filter′ (_∉ˢ? x) y) ∶- disjoint-─ {xs = list x} {ys = l
 -- ** derived operations
 
 _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
-s ⊆ˢ s′ = list s ⊆ list s′
+_⊆ˢ_ = _⊆_ on list
 s ⊇ˢ s′ = s′ ⊆ˢ s
 s ⊈ˢ s′ = ¬ s ⊆ˢ s′
 s ⊉ˢ s′ = ¬ s ⊇ˢ s′
@@ -166,47 +161,25 @@ _⊆?ˢ_ = Decidable² _⊆ˢ_ ∋ dec²
 ⊆ˢ-trans ij ji = ji ∘ ij
 
 -- ** algebraic properties
--- instance
---   Setoid-Set : ISetoid Set'
---   Setoid-Set = λ where
---     .relℓ → 0ℓ
---     ._≈_ s s′ → (s ⊆ˢ s′) × (s′ ⊆ˢ s)
-
---   SetoidLaws-Set : Setoid-Laws Set'
---   SetoidLaws-Set .isEquivalence = record
---     { refl  = id , id
---     ; sym   = Product.swap
---     ; trans = λ where (ij , ji) (jk , kj) → jk ∘ ij , ji ∘ kj
---     }
-
-_≈ˢ_ : Rel₀ Set'
-s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
-
-_≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
-
-≈ˢ-equiv : IsEquivalence _≈ˢ_
-≈ˢ-equiv = record
-  { refl  = id , id
-  ; sym   = Product.swap
-  ; trans = λ where (ij , ji) (jk , kj) → jk ∘ ij , ji ∘ kj
-  }
-open IsEquivalence ≈ˢ-equiv renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans) public
-
-≈ˢ-setoid : Setoid 0ℓ 0ℓ
-≈ˢ-setoid = record { Carrier = Set'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
-
-import Relation.Binary.Reasoning.Setoid as BinSetoid
-module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
-open Alg _≈ˢ_
-
 instance
   Setoid-Set : ISetoid Set'
   Setoid-Set = λ where
-    .relℓ → 0ℓ
-    ._≈_ → _≈ˢ_
+    .relℓ → _
+    ._≈_ s s′ → (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
   SetoidLaws-Set : Setoid-Laws Set'
-  SetoidLaws-Set .isEquivalence = ≈ˢ-equiv
+  SetoidLaws-Set .isEquivalence = record
+    { refl  = id , id
+    ; sym   = Product.swap
+    ; trans = λ where (ij , ji) (jk , kj) → jk ∘ ij , ji ∘ kj
+    }
+
+  Nullable-Set : Nullable Set'
+  Nullable-Set .Null = _≈ ∅
+
+_≈ˢ_ = Rel₀ Set' ∋ _≈_
+module ≈ˢ-Reasoning = ≈-Reasoning {A = Set'}
+open Alg _≈ˢ_
 
 ≈⇒⊆ˢ : s ≈ s′ → s ⊆ˢ s′
 ≈⇒⊆ˢ = proj₁
@@ -255,30 +228,45 @@ instance
 -- ** apartness
 instance
   Apart-Set : Set' // Set'
-  -- Apart-Set ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
-  Apart-Set ._♯_ s s′ = (s ∩ s′) ≈ ∅
+  Apart-Set ._♯_ s s′ = s ∩ s′ ≈ ∅
 
-_♯?ˢ_ = Decidable² (_♯_ {A = Set'}) ∋ dec²
+_♯ˢ_  = Rel₀ Set'       ∋ _♯_
+_♯ˢ?_ = Decidable² _♯ˢ_ ∋ dec²
 
--- ♯-comm : Symmetric _♯_
-♯-comm : ∀ (x y : Set') → x ♯ y → y ♯ x
-♯-comm x y = ≈-trans {i = y ∩ x}{j = x ∩ y}{k = ∅} (∩-comm y x)
+-- ** alternative formulation of _♯_
+_♯′_ : Rel₀ Set'
+s ♯′ s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
 
-∈-∩⇒¬♯ : x ∈ˢ (Xs ∩ Ys) → ¬ (Xs ♯ Ys)
-∈-∩⇒¬♯ {Xs = Xs}{Ys} x∈ xs♯ys = contradict (≈⇒⊆ˢ {s = Xs ∩ Ys} {s′ = ∅} xs♯ys x∈)
+♯⇔♯′ : ∀ x y →
+  x ♯ y
+  ═══════
+  x ♯′ y
+♯⇔♯′ x  y = ♯⇒♯′ , ♯′⇒♯
+  module _ where
+    ♯⇒♯′ : x ♯ y → x ♯′ y
+    ♯⇒♯′ (⊆∅ , _) = ∉∅ _ ∘ ⊆∅ ∘ uncurry (∈-∩⁺ _ x y)
 
-♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
-♯-skipˡ xs ys zs p = ∪-∅ {xs ∩ zs}{ys ∩ zs}
-  (let open ≈ˢ-Reasoning in
-   begin
-    (xs ∩ zs) ∪ (ys ∩ zs)
-   ≈˘⟨ ∪-∩ {xs}{ys}{zs} ⟩
-    (xs ∪ ys) ∩ zs
-   ≈⟨ p ⟩
-     ∅
-   ∎)
-  .proj₂
+    ♯′⇒♯ : x ♯′ y → x ♯ y
+    ♯′⇒♯ x♯y = (⊥-elim ∘ x♯y ∘ ∈-∩⁻  _ x y) , ⊥-elim ∘ ∉∅ _
 
+-- ** properties of _♯_
+♯-comm : ∀ x y → x ♯′ y → y ♯′ x
+♯-comm x y x♯y = x♯y ∘ Product.swap
+
+♯′-comm : ∀ x y → x ♯ˢ y → y ♯ˢ x
+♯′-comm x y = ♯′⇒♯ y x ∘ ♯-comm x y ∘ ♯⇒♯′ x y
+
+∈-∩⇒¬♯ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → ¬ (xs ♯′ ys)
+∈-∩⇒¬♯ x xs ys x∈ xs♯ys = xs♯ys $ ∈-∩⁻ _ xs ys x∈
+
+∈-∩⇒¬♯′ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → ¬ (xs ♯ ys)
+∈-∩⇒¬♯′ x xs ys x∈ = ∈-∩⇒¬♯ x xs ys x∈ ∘ ♯⇒♯′ xs ys
+
+♯-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯′ zs → ys ♯′ zs
+♯-skipˡ xs ys _ p (x∈ys , x∈zs) = p (∈-∪⁺ʳ _ xs ys x∈ys , x∈zs)
+
+♯′-skipˡ : ∀ xs ys (zs : Set') → (xs ∪ ys) ♯ zs → ys ♯ zs
+♯′-skipˡ xs ys zs = ♯′⇒♯ ys zs ∘ ♯-skipˡ xs ys zs ∘ ♯⇒♯′ (xs ∪ ys) zs
 
 -- ** list conversion
 instance
@@ -304,7 +292,7 @@ from↔to _ Uxs rewrite nub-from∘to Uxs = refl
 instance
   DecEq-Set : DecEq Set'
   DecEq-Set ._≟_ s s′ with list s ≟ list s′
-  ... | no ¬p    = no λ{ refl → ¬p refl }
+  ... | no ¬p    = no λ where refl → ¬p refl
   ... | yes refl = yes refl
 
   Measurable-Set : Measurable Set'
@@ -336,10 +324,9 @@ instance
   Semigroup-Set : ∀ {A} ⦃ _ : DecEq A ⦄ → Semigroup Set⟨ A ⟩
   Semigroup-Set ._◇_ = _∪_
 
+  Functor-Set' : Functor {0ℓ} λ A {{_ : DecEq A}} → Set⟨ A ⟩
+  Functor-Set' ._<$>_ f = (f <$>_) ∘ list
+
   PFunctor-Set : PointedFunctor λ A ⦃ _ : DecEq A ⦄ → Set⟨ A ⟩
   PFunctor-Set .point = singleton
 -}
-
-instance
-  Nullable-Set : Nullable Set'
-  Nullable-Set .Null = _≈ ∅

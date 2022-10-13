@@ -1,7 +1,6 @@
-module Prelude.Sets.Concrete.Extra where
+module Prelude.Sets.AsUniqueLists.Extra where
 
-open import Prelude.Init
-open SetAsType
+open import Prelude.Init; open SetAsType
 open import Prelude.DecLists
 open import Prelude.Membership
 open import Prelude.DecEq
@@ -21,7 +20,7 @@ open import Prelude.Lists.SetEquality
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
-open import Prelude.Sets.Concrete.Core
+open import Prelude.Sets.AsUniqueLists.Core
 
 private to = toList; from = fromList
 
