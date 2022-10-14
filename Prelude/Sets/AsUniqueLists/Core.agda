@@ -67,7 +67,7 @@ anyˢ? P? = any? P? ∘ list
 infixr 8 _─_
 infixr 7 _∩_
 infixr 6 _∪_
-infix  4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
+infix  4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_
 infix  2 _≈ˢ_
 
 _∈ˢ_ _∉ˢ_ : A → Set' → Type
@@ -149,16 +149,12 @@ x ∪ y = x ++ (filter′ (_∉ˢ? x) y) ∶- disjoint-─ {xs = list x} {ys = l
 
 -- ** derived operations
 
-_⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
-_⊆ˢ_ = _⊆_ on list
-s ⊇ˢ s′ = s′ ⊆ˢ s
-s ⊈ˢ s′ = ¬ s ⊆ˢ s′
-s ⊉ˢ s′ = ¬ s ⊇ˢ s′
+open Derive-⊆-from-∈ _∈ˢ_ public renaming
+  ( _⊆_ to _⊆ˢ_; _⊈_ to _⊈ˢ_; ⊆-trans to ⊆ˢ-trans
+  ; _⊇_ to _⊇ˢ_; _⊉_ to _⊉ˢ_; ⊇-trans to ⊇ˢ-trans
+  )
 
 _⊆?ˢ_ = Decidable² _⊆ˢ_ ∋ dec²
-
-⊆ˢ-trans : Transitive _⊆ˢ_
-⊆ˢ-trans ij ji = ji ∘ ij
 
 -- ** algebraic properties
 instance

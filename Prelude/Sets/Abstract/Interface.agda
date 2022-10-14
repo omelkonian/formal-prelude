@@ -28,7 +28,7 @@ record Setᴵ : Type (lsuc σ) where
   infixr 8 _─_
   infixr 7 _∩_
   infixr 6 _∪_
-  infix  4 _∈ˢ_ _∉ˢ_ _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_
+  infix  4 _∈ˢ_ _∉ˢ_
 
   _∉ˢ_ : A → Set' → Type _
   x ∉ˢ s = ¬ (x ∈ˢ s)
@@ -49,14 +49,10 @@ record Setᴵ : Type (lsuc σ) where
     ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → x ∉ˢ ys → x ∈ˢ (xs ─ ys)
     ∉∅ : ∀ x → x ∉ˢ ∅
 
-  _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Set' _
-  s ⊆ˢ s′ = ∀ {x} → x ∈ˢ s → x ∈ˢ s′
-  s ⊈ˢ s′ = ¬ s ⊆ˢ s′
-  s ⊇ˢ s′ = s′ ⊆ˢ s
-  s ⊉ˢ s′ = ¬ s ⊇ˢ s′
-
-  ⊆ˢ-trans : Transitive _⊆ˢ_
-  ⊆ˢ-trans ij ji = ji ∘ ij
+  open Derive-⊆-from-∈ _∈ˢ_ public renaming
+    ( _⊆_ to _⊆ˢ_; _⊈_ to _⊈ˢ_; ⊆-trans to ⊆ˢ-trans
+    ; _⊇_ to _⊇ˢ_; _⊉_ to _⊉ˢ_; ⊇-trans to ⊇ˢ-trans
+    )
 
   instance
     Setoid-Set : ISetoid Set'
@@ -69,7 +65,6 @@ record Setᴵ : Type (lsuc σ) where
       { refl  = id , id
       ; sym   = Product.swap
       ; trans = λ where (ij , ji) (jk , kj) → jk ∘ ij , ji ∘ kj
-
       }
 
     Nullable-Set : Nullable Set'

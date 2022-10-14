@@ -2,7 +2,7 @@ module Prelude.SetCollections where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
-open import Prelude.Sets.Concrete
+open import Prelude.Sets
 open import Prelude.ToList
 
 open import Prelude.General
@@ -19,8 +19,8 @@ open _has_ ⦃...⦄ public
 -- NB: do not expose list/pair instances, let user decide
 
 module _ {X Y : Type} ⦃ _ : DecEq X ⦄ ⦃ _ : DecEq Y ⦄ where
-  collectFromList : (X → Set⟨ Y ⟩) → (Set⟨ X ⟩ → Set⟨ Y ⟩)
-  collectFromList f s = concatMapˢ f s
+  collectFromSet : (X → Set⟨ Y ⟩) → (Set⟨ X ⟩ → Set⟨ Y ⟩)
+  collectFromSet f s = concatMapˢ f s
 
 module _ {X Y Z : Type} ⦃ _ : DecEq Z ⦄ where
   collectFromPairˡ : (X → Set⟨ Z ⟩) → X × Y → Set⟨ Z ⟩

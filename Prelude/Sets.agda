@@ -1,3 +1,7 @@
 module Prelude.Sets where
 
-open import Prelude.Sets.Concrete public
+-- ** pick implementation to export
+open import
+  Prelude.Sets.AsUniqueLists
+  -- Prelude.Sets.AsPredicates
+  public

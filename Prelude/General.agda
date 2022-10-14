@@ -6,31 +6,32 @@ module Prelude.General where
 
 open import Data.Nat.Properties
 
-open import Prelude.Init
+open import Prelude.Init hiding (_⊆_; _⊈_)
+open SetAsType
 open Nat.Ord
 open import Prelude.Applicative
 open import Prelude.Functor
 open import Prelude.Bifunctor
 
 private variable
-  A : Set ℓ₁
-  B : Set ℓ₂
+  A : Type ℓ₁
+  B : Type ℓ₂
   x y x′ y′ : A
   xs ys : List A
 
 -- ** Functions
 infix -1 _`→`_ _↔_ _⇔_ _⊢_
 
-_`→`_ : Op₂ Set
+_`→`_ : Op₂ Type
 A `→` B = A → B
 
-_↔_ : Set ℓ → Set ℓ′ → Set (ℓ ⊔ₗ ℓ′)
+_↔_ : Type ℓ → Type ℓ′ → Type (ℓ ⊔ₗ ℓ′)
 A ↔ B = (A → B) × (B → A)
 
-_⇔_ : Set ℓ → Set ℓ′ → Set _
+_⇔_ : Type ℓ → Type ℓ′ → Type _
 A ⇔ B = (A → B) × (B → A)
 
-IdFun : ∀ {A : Set ℓ} → Pred (A → A) ℓ
+IdFun : ∀ {A : Type ℓ} → Pred (A → A) ℓ
 IdFun f = ∀ x → f x ≡ x
 
 IdFun-fmap : ∀ {f : A → A} → IdFun f → IdFun (M.map f)
@@ -38,7 +39,7 @@ IdFun-fmap f≗id = λ where
   nothing  → refl
   (just x) → cong just $ f≗id x
 
-module _ {A : Set ℓ} {B : Pred A ℓ′} where
+module _ {A : Type ℓ} {B : Pred A ℓ′} where
   implicitly : (∀ {x} → B x) → (∀ x → B x)
   implicitly f x = f {x}
 
@@ -60,15 +61,15 @@ open import Prelude.SubstDSL public
 
 -- ** Predicates
 
-_⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+_⊢_ : ∀ {A : Type ℓ} → (A → Type ℓ′) → (A → Type ℓ″) → Type _
 P ⊢ Q = ∀ {x} → P x → Q x
 
-_⊣⊢_ : ∀ {A : Set ℓ} → (A → Set ℓ′) → (A → Set ℓ″) → Set _
+_⊣⊢_ : ∀ {A : Type ℓ} → (A → Type ℓ′) → (A → Type ℓ″) → Type _
 P ⊣⊢ Q = (P ⊢ Q) × (Q ⊢ P)
 
 module ⊢-Reasoning where
   -- Reasoning newtype (for better type inference).
-  record ℝ⟨_⊢_⟩ {A : Set ℓ} (P Q : Pred A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+  record ℝ⟨_⊢_⟩ {A : Type ℓ} (P Q : Pred A ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
     constructor mkℝ_
     field begin_ : P ⊢ Q
     infix -2 begin_
@@ -100,11 +101,11 @@ module ⊢-Reasoning where
   _∎ : ∀ (P : Pred A ℓ) → ℝ⟨ P ⊢ P ⟩
   _∎ _ = mkℝ id
 
-_Respects˘_ : Rel A ℓ → Pred A ℓ′ → Set _
+_Respects˘_ : Rel A ℓ → Pred A ℓ′ → Type _
 _~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
 
 -- ** N-ary tuples
-_^_ : Set ℓ → ℕ → Set ℓ
+_^_ : Type ℓ → ℕ → Type ℓ
 A ^ 0     = A
 A ^ suc n = A × (A ^ n)
 
@@ -274,22 +275,22 @@ toMaybe-≡ : ∀ {x : A} {xs : List A}
   → ∃[ ys ] (xs ≡ x ∷ ys)
 toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
 
-ap-nothing : ∀ {A : Set ℓ} {B : Set ℓ′} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
+ap-nothing : ∀ {A : Type ℓ} {B : Type ℓ′} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
 ap-nothing {m = nothing} ()
 ap-nothing {m = just _ } ()
 
-Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Set}
+Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Type}
  → mx ≡ just x
  → M.Any.Any P mx
  → P x
 Any-just refl (M.Any.just p) = p
 
-Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Set}
+Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Type}
  → M.Any.Any P mx
  → Is-just mx
 Any⇒Is-just {mx = .(just _)} (M.Any.just _) = M.Any.just tt
 
-module _ {A : Set ℓ} where
+module _ {A : Type ℓ} where
   is-nothing? : Decidable¹ (T ∘ M.is-nothing {A = A})
   is-nothing? = T? ∘ M.is-nothing
 
@@ -330,6 +331,21 @@ module _ {A : Set ℓ} where
   mk-Is-just : ∀ {mx : Maybe A} {x : A} → mx ≡ just x → Is-just mx
   mk-Is-just refl = M.Any.just tt
 
+-- ** Deriving relations from more primitive ones.
+module Derive-⊆-from-∈ {A : Type ℓ} {B : Type ℓ′} (_∈_ : A → B → Type ℓ″) where
+  infix 4 _⊆_ _⊈_
+  _⊆_ _⊈_ _⊇_ _⊉_ : Rel B _
+  b ⊆ b′ = ∀ {a} → a ∈ b → a ∈ b′
+  b ⊈ b′ = ¬ b ⊆ b′
+  b ⊇ b′ = b′ ⊆ b
+  b ⊉ b′ = ¬ b ⊇ b′
+
+  ⊆-trans : Transitive _⊆_
+  ⊆-trans ij jk = jk ∘ ij
+
+  ⊇-trans : Transitive _⊇_
+  ⊇-trans = flip ⊆-trans
+
 -- ** Lists
 
 []-injective : [ x ] ≡ [ y ] → x ≡ y
@@ -351,7 +367,7 @@ mapWith∈⁺ {x = x} {xs = .x ∷ xs} (here refl) = (_ , here refl , refl)
 mapWith∈⁺ {x = x} {xs = x′ ∷ xs} (there x∈) with mapWith∈⁺ x∈
 ... | y , y∈ , refl = y , there y∈ , refl
 
-filter-singleton : ∀ {P : A → Set} {P? : Decidable¹ P} {px : P x}
+filter-singleton : ∀ {P : A → Type} {P? : Decidable¹ P} {px : P x}
   → P? x ≡ yes px
   → filter P? [ x ] ≡ [ x ]
 filter-singleton {P? = P?} p rewrite p = refl
@@ -363,7 +379,7 @@ case-singleton : ∀ {x xs} {f : A → B} {g : B}
 case-singleton refl = refl
 
 -- ** Singleton types
-data Is {A : Set ℓ} : A → Set ℓ where
+data Is {A : Type ℓ} : A → Type ℓ where
   ⟫_ : (x : A) → Is x
 infix -100 ⟫_
 
@@ -377,10 +393,10 @@ private module _ (n : ℕ) where
 
 -- ** ω-level
 
-itω : ∀ {A : Setω} → ⦃ A ⦄ → A
+itω : ∀ {A : Typeω} → ⦃ A ⦄ → A
 itω ⦃ x ⦄ = x
 
-_∋ω_ : (A : Setω) → A → A
+_∋ω_ : (A : Typeω) → A → A
 _ ∋ω x = x
 
 -- ** Testing
@@ -392,7 +408,7 @@ _ = ∃ (_≤ 3)
 -- syntactic sugar for giving multiple terms of the same type
 module MultiTest where
   -- only the first is actually returned, but all are type-checked
-  _∋⋮_ : (A : Set ℓ) → List⁺ A → A
+  _∋⋮_ : (A : Type ℓ) → List⁺ A → A
   _∋⋮_ _ (x ∷ _) = x
   pattern _⋮_ x xs = x L.NE.∷ xs
   pattern _⋮_ x xs = x ∷ xs

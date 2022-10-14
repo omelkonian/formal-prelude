@@ -1,4 +1,4 @@
-module Prelude.Sets.Test where
+module Prelude.Sets.Examples where
 
 open import Prelude.Init
 open import Prelude.DecEq
