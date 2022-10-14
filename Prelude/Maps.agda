@@ -1,3 +1,10 @@
-module Prelude.Maps where
+open import Prelude.Init; open SetAsType
 
-open import Prelude.Maps.Concrete public
+module Prelude.Maps {K V : Type} where
+
+open import
+  -- ** pick implementation to export
+  -- Prelude.Maps.AsPartialFunctions
+  Prelude.Maps.AsSets
+    {K = K} {V = V}
+  public

@@ -11,12 +11,12 @@ open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.Ord
 open import Prelude.Measurable
-open import Prelude.Apartness renaming (_♯_ to _♯₀_)
-open import Prelude.Setoid    renaming (_≈_ to _≈₀_)
+open import Prelude.Apartness
+open import Prelude.Setoid
 
-module Prelude.Maps.Concrete {K V : Type} ⦃ _ : DecEq K ⦄ ⦃ _ : DecEq V ⦄ where
+module Prelude.Maps.AsSets {K V : Type} ⦃ _ : DecEq K ⦄ ⦃ _ : DecEq V ⦄ where
 
-import Prelude.Sets.Concrete as S
+import Prelude.Sets as S
 
 record Map : Type where
   constructor _⊣_
@@ -32,8 +32,7 @@ instance
   ... | yes refl = yes refl
   ... | no  m≢m′ = no  λ where refl → m≢m′ refl
 
-∅ : Map
-∅ = S.∅ ⊣ auto
+pattern ∅ = S.∅ ⊣ []
 
 singleton : K × V → Map
 singleton (k , v) = S.singleton (k , v) ⊣ auto
@@ -46,14 +45,16 @@ module _ {a b} {A : Type a} {B : Type b} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄
   Unique-map∘nub∘nubBy : ∀ (xs : List A) → Unique (map f $ nub $ nubBy f xs)
   Unique-map∘nub∘nubBy xs rewrite nub∘nubBy≗nubBy xs = Unique-map∘nubBy f xs
 
--- NB: right-biased union
+infix  6 _⁉_
 infixr 5 _∪_
+infix  4 _∈ᵈ_ _∉ᵈ_ _∈ᵈ?_ _♯ᵐ_ _≈ᵐ_
+
+-- NB: right-biased union
 _∪_ : Op₂ Map
 (kvs ⊣ _) ∪ (kvs′ ⊣ _)
   = (fromList $ nubBy proj₁ (kvs ∙toList ++ kvs′ ∙toList))
   ⊣ Unique-map∘nub∘nubBy proj₁ (kvs ∙toList ++ kvs′ ∙toList)
 
-infix 4 _∈ᵈ_ _∉ᵈ_ _∈ᵈ?_
 _∈ᵈ_ : K → Map → Type
 k ∈ᵈ m = k ∈ (proj₁ <$> m .kvs ∙toList)
 
@@ -65,9 +66,9 @@ k ∈ᵈ? m = dec
 
 instance
   Apart-Map : Map // Map
-  Apart-Map ._♯₀_ m m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
+  Apart-Map ._♯_ m m′ = ∀ k → ¬ ((k ∈ᵈ m) × (k ∈ᵈ m′))
 
-private infix 4 _♯_; _♯_ = Rel₀ Map ∋ _♯₀_
+_♯ᵐ_ = Rel₀ Map ∋ _♯_
 
 _⁉_ : Map → K → Maybe V
 m ⁉ k with k ∈ᵈ? m
@@ -75,7 +76,8 @@ m ⁉ k with k ∈ᵈ? m
 ... | yes k∈ = just (L.Mem.∈-map⁻ proj₁ k∈ .proj₁ .proj₂)
 
 _[_↦_] : Map → K → V → Type
-m [ k ↦ v ] = (k , v) S.∈ˢ m .kvs
+-- m [ k ↦ v ] = (k , v) S.∈ˢ m .kvs
+m [ k ↦ v ] = m ⁉ k ≡ just v
 
 _[_↦?_] : Decidable³ _[_↦_]
 m [ k ↦? v ] = dec
@@ -127,8 +129,8 @@ postulate
   -- introduction/elimination of union
   ∈ᵈ-∪⁻ : ∀ k s₁ s₂ → k ∈ᵈ (s₁ ∪ s₂) → (k ∈ᵈ s₁) ⊎ (k ∈ᵈ s₂)
   ∈ᵈ-∪⁺ : ∀ k s₁ s₂ → (k ∈ᵈ s₁) ⊎ (k ∈ᵈ s₂) → k ∈ᵈ (s₁ ∪ s₂)
-  ∪-chooseₗ : ∀ {s₁ s₂} → s₁ ♯ s₂ → (∀ {k} → k ∉ᵈ s₂ → (s₁ ∪ s₂) ⁉ k ≡ s₁ ⁉ k)
-  ∪-chooseᵣ : ∀ {s₁ s₂} → s₁ ♯ s₂ → (∀ {k} → k ∈ᵈ s₂ → (s₁ ∪ s₂) ⁉ k ≡ s₂ ⁉ k)
+  ∪-chooseₗ : ∀ s₁ s₂ → s₁ ♯ s₂ → (∀ {k} → k ∉ᵈ s₂ → (s₁ ∪ s₂) ⁉ k ≡ s₁ ⁉ k)
+  ∪-chooseᵣ : ∀ s₁ s₂ → s₁ ♯ s₂ → (∀ {k} → k ∈ᵈ s₂ → (s₁ ∪ s₂) ⁉ k ≡ s₂ ⁉ k)
 
 ∈ᵈ-∪⁺ˡ : ∀ k s₁ s₂ → k ∈ᵈ s₁ → k ∈ᵈ (s₁ ∪ s₂)
 ∈ᵈ-∪⁺ˡ k s₁ s₂ = ∈ᵈ-∪⁺ k s₁ s₂ ∘ inj₁
@@ -136,12 +138,54 @@ postulate
 ∈ᵈ-∪⁺ʳ : ∀ k s₁ s₂ → k ∈ᵈ s₂ → k ∈ᵈ (s₁ ∪ s₂)
 ∈ᵈ-∪⁺ʳ k s₁ s₂ = ∈ᵈ-∪⁺ k s₁ s₂ ∘ inj₂
 
-module _
-  ⦃ _ : Ord V ⦄
-  ⦃ _ : _≤_ {A = V} ⁇² ⦄
-  ⦃ _ : _<_ {A = V} ⁇² ⦄
-  ⦃ _ : Monoid V ⦄
-  where
+instance
+  Setoid-Map : ISetoid Map
+  Setoid-Map = λ where
+    .relℓ → _
+    ._≈_ m m′ → ∀ k → m ⁉ k ≡ m′ ⁉ k
+
+  SetoidLaws-Map : Setoid-Laws Map
+  SetoidLaws-Map = record {isEquivalence = record
+    { refl = λ _ → refl
+    ; sym = λ p k → sym (p k)
+    ; trans = λ p q k → trans (p k) (q k)
+    }}
+
+_≈ᵐ_ = Rel₀ Map ∋ _≈_
+module ≈ᵐ-Reasoning = ≈-Reasoning {A = Map}
+open Alg _≈ᵐ_
+
+⟨_⊎_⟩≡_ : Map → Map → Map → Type
+⟨ m ⊎ m′ ⟩≡ m″ = (m ♯ m′) × ((m ∪ m′) ≈ m″)
+
+postulate
+  ⁉⇒∈ᵈ : ∀ s {k} → Is-just (s ⁉ k) → k ∈ᵈ s
+  ∈ᵈ⇒⁉ : ∀ s {k} → k ∈ᵈ s → Is-just (s ⁉ k)
+
+  -- _∪_ is left-biased
+  ↦-∪⁺ˡ : ∀ s₁ s₂ {k v} → s₁ [ k ↦ v ] → (s₁ ∪ s₂) [ k ↦ v ]
+  ↦-∪⁺ʳ : ∀ s₁ s₂ {k} → k ∉ᵈ s₁ → s₂ ⁉ k ≡ (s₁ ∪ s₂) ⁉ k
+
+  -- commutativity
+  ♯-comm : Symmetric _♯ᵐ_
+  ∪-comm : ∀ s₁ s₂ → s₁ ♯ s₂ → (s₁ ∪ s₂) ≈ (s₂ ∪ s₁)
+
+  -- congruences
+  ♯-cong : ∀ (s₁ s₂ s₃ : Map) → s₁ ≈ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
+  ∪-cong : ∀ s₁ s₂ s₃ → s₁ ≈ s₂ → (s₁ ∪ s₃) ≈ (s₂ ∪ s₃)
+  ∈ᵈ-cong : ∀ k s₁ s₂ → s₁ ≈ s₂ → k ∈ᵈ s₁ → k ∈ᵈ s₂
+
+  ♯-∪⁻ʳ : ∀ (s₁ s₂ s₃ : Map) → s₁ ♯ (s₂ ∪ s₃) → (s₁ ♯ s₂) × (s₁ ♯ s₃)
+  ♯-∪⁻ˡ : ∀ (s₁ s₂ s₃ : Map) → (s₁ ∪ s₂) ♯ s₃ → (s₁ ♯ s₃) × (s₂ ♯ s₃)
+  ♯-∪⁺ˡ : ∀ (s₁ s₂ s₃ : Map) → (s₁ ♯ s₃) × (s₂ ♯ s₃) → (s₁ ∪ s₂) ♯ s₃
+  ♯-∪⁺ʳ : ∀ (s₁ s₂ s₃ : Map) → (s₁ ♯ s₂) × (s₁ ♯ s₃) → s₁ ♯ (s₂ ∪ s₃)
+
+  -- associativity
+  ∪-assocʳ : ∀ s₁ s₂ s₃ → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
+  ∪≡-assocʳ : ∀ s₁ s₂ s₃ s → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
+
+module _ ⦃ _ : Ord V ⦄ ⦃ _ : _≤_ {A = V} ⁇² ⦄ ⦃ _ : _<_ {A = V} ⁇² ⦄
+         ⦃ _ : Monoid V ⦄ where
 
   normalize : Op₁ Map
   normalize = filterV (_>? ε)
@@ -154,46 +198,22 @@ module _
   _≤?ᵐ_ : Decidable² _≤ᵐ_
   m ≤?ᵐ m′ = dec
 
-  instance
-    Setoid-Map : ISetoid Map
-    Setoid-Map = λ where
-      .relℓ → _
-      ._≈₀_ m m′ → (m ≤ᵐ m′) × (m′ ≤ᵐ m)
-
-  private infix 4 _≈_; _≈_ = Rel₀ Map ∋ _≈₀_
-
-  ⟨_⊎_⟩≡_ : Map → Map → Map → Type
-  ⟨ m ⊎ m′ ⟩≡ m″ = (m ♯ m′) × ((m ∪ m′) ≈ m″)
+  _≈ᵐ′_ : Rel₀ Map
+  m ≈ᵐ′ m′ = (m ≤ᵐ m′) × (m′ ≤ᵐ m)
 
   postulate
-    ⁉⇒∈ᵈ : ∀ {s k} → Is-just (s ⁉ k) → k ∈ᵈ s
-    ∈ᵈ⇒⁉ : ∀ {s k} → k ∈ᵈ s → Is-just (s ⁉ k)
+    ≈⇒≈′ : _≈ᵐ_ ⇒² _≈ᵐ′_
+    ≈′⇒≈ : _≈ᵐ′_ ⇒² _≈ᵐ_
 
-    -- _∪_ is left-biased
-    ↦-∪⁺ˡ : ∀ {s₁ s₂ k v} → s₁ [ k ↦ v ] → (s₁ ∪ s₂) [ k ↦ v ]
-    ↦-∪⁺ʳ : ∀ {s₁ s₂ k} → k ∉ᵈ s₁ → s₂ ⁉ k ≡ (s₁ ∪ s₂) ⁉ k
+  ≈⇔≈′ : _≈ᵐ_ ⇔² _≈ᵐ′_
+  ≈⇔≈′ = ≈⇒≈′ , ≈′⇒≈
 
-    -- commutativity
-    ♯-comm : Symmetric _♯_
-    ∪-comm : ∀ {s₁}{s₂} → s₁ ♯ s₂ → (s₁ ∪ s₂) ≈ (s₂ ∪ s₁)
+  _≈ᵐ′?_ = Decidable² _≈ᵐ′_ ∋ dec²
 
-    -- congruences
-    ♯-cong : ∀ {s₁ s₂ s₃} → s₁ ≈ s₂ → s₁ ♯ s₃ → s₂ ♯ s₃
-    ∪-cong : ∀ {s₁ s₂ s₃} → s₁ ≈ s₂ → (s₁ ∪ s₃) ≈ (s₂ ∪ s₃)
-    ∈ᵈ-cong : ∀ {k s₁ s₂} → s₁ ≈ s₂ → k ∈ᵈ s₁ → k ∈ᵈ s₂
-
-    ♯-∪⁻ʳ : ∀ {s₁}{s₂}{s₃} → s₁ ♯ (s₂ ∪ s₃) → (s₁ ♯ s₂) × (s₁ ♯ s₃)
-    ♯-∪⁻ˡ : ∀ {s₁}{s₂}{s₃} → (s₁ ∪ s₂) ♯ s₃ → (s₁ ♯ s₃) × (s₂ ♯ s₃)
-    ♯-∪⁺ˡ : ∀ {s₁}{s₂}{s₃} → (s₁ ♯ s₃) × (s₂ ♯ s₃) → (s₁ ∪ s₂) ♯ s₃
-    ♯-∪⁺ʳ : ∀ {s₁}{s₂}{s₃} → (s₁ ♯ s₂) × (s₁ ♯ s₃) → s₁ ♯ (s₂ ∪ s₃)
-
-    -- associativity
-    ∪-assocʳ : ∀ {s₁ s₂ s₃} → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
-    ∪≡-assocʳ : ∀ {s₁}{s₂}{s₃}{s} → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
-
-
-  _≈?ᵐ_ : Decidable² (Rel₀ Map ∋ _≈_)
-  m ≈?ᵐ m′ = dec
+  _≈ᵐ?_ : Decidable² _≈ᵐ_
+  x ≈ᵐ? y with x ≈ᵐ′? y
+  ... | yes x≈y = yes $ ≈′⇒≈ x≈y
+  ... | no  x≉y = no  $ x≉y ∘ ≈⇒≈′
 
   module _ (_∸_ : Op₂ V) where
 
@@ -212,35 +232,6 @@ instance
   FromList-Map : FromList (K × V) Map
   FromList-Map .fromList xs = fromList (nubBy proj₁ xs)
                             ⊣ Unique-map∘nub∘nubBy proj₁ xs
-
-private
-  open import Prelude.General
-  open import Prelude.Nary
-
-  postulate
-    k k′ : K
-    v v′ v″ : V
-    k≢k′ : k ≢ k′
-
-  _ = singleton (k , v) ≡ fromList [ k , v ]
-    ∋ refl
-
-  k↦v   = singleton (k  , v)
-  k↦v′  = singleton (k  , v′)
-  k↦v″  = singleton (k  , v″)
-  k′↦v′ = singleton (k′ , v′)
-
-  -- _ : List (K × V)
-  -- _ = ⟦ (k , v) , (k′ , v′) ⟧
-
-  _ : (k↦v ∪ k′↦v′) ≡ fromList ((k , v) ∷ (k′ , v′) ∷ [])
-  _ = refl
-
-  -- ex : (k↦v ∪ k↦v′) ≡ singleton (k , v)
-  -- ex = {!refl!}
-  -- rewrite ≟-refl k | toWitnessFalse {Q = k ≟ k′} k≢k′
-
-  m₁ = Map ∋ singleton (k , v) ∪ singleton (k , v)
 
 instance
   Measurable-Map : Measurable Map
