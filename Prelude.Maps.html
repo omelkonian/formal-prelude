@@ -1,5 +1,12 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Prelude.Maps</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Maps.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.Maps.html" class="Module">Prelude.Maps</a> <a id="21" class="Keyword">where</a>
+<html><head><meta charset="utf-8"><title>Prelude.Maps</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Maps.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">open</a> <a id="6" class="Keyword">import</a> <a id="13" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="25" class="Symbol">;</a> <a id="27" class="Keyword">open</a> <a id="32" href="Prelude.Init.html#35" class="Module">SetAsType</a>
 
-<a id="28" class="Keyword">open</a> <a id="33" class="Keyword">import</a> <a id="40" href="Prelude.Maps.Concrete.html" class="Module">Prelude.Maps.Concrete</a> <a id="62" class="Keyword">public</a>
+<a id="43" class="Keyword">module</a> <a id="50" href="Prelude.Maps.html" class="Module">Prelude.Maps</a> <a id="63" class="Symbol">{</a><a id="64" href="Prelude.Maps.html#64" class="Bound">K</a> <a id="66" href="Prelude.Maps.html#66" class="Bound">V</a> <a id="68" class="Symbol">:</a> <a id="70" href="Agda.Primitive.html#326" class="Primitive">Type</a><a id="74" class="Symbol">}</a> <a id="76" class="Keyword">where</a>
+
+<a id="83" class="Keyword">open</a> <a id="88" class="Keyword">import</a>
+  <a id="97" class="Comment">-- ** pick implementation to export</a>
+  <a id="135" class="Comment">-- Prelude.Maps.AsPartialFunctions</a>
+  <a id="172" href="Prelude.Maps.AsSets.html" class="Module">Prelude.Maps.AsSets</a>
+    <a id="196" class="Symbol">{</a><a id="197" class="Argument">K</a> <a id="199" class="Symbol">=</a> <a id="201" href="Prelude.Maps.html#64" class="Bound">K</a><a id="202" class="Symbol">}</a> <a id="204" class="Symbol">{</a><a id="205" class="Argument">V</a> <a id="207" class="Symbol">=</a> <a id="209" href="Prelude.Maps.html#66" class="Bound">V</a><a id="210" class="Symbol">}</a>
+  <a id="214" class="Keyword">public</a>
 </pre></body></html>

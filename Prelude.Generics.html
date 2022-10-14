@@ -6,7 +6,7 @@
 <a id="178" class="Keyword">module</a> <a id="185" href="Prelude.Generics.html" class="Module">Prelude.Generics</a> <a id="202" class="Keyword">where</a>
 
 <a id="209" class="Keyword">open</a> <a id="214" class="Keyword">import</a> <a id="221" href="Prelude.Init.html" class="Module">Prelude.Init</a>
-<a id="234" class="Keyword">open</a> <a id="239" href="Prelude.Init.html#11000" class="Module">Meta</a>
+<a id="234" class="Keyword">open</a> <a id="239" href="Prelude.Init.html#11015" class="Module">Meta</a>
 <a id="244" class="Keyword">open</a> <a id="249" class="Keyword">import</a> <a id="256" href="Prelude.General.html" class="Module">Prelude.General</a>
 <a id="272" class="Keyword">open</a> <a id="277" class="Keyword">import</a> <a id="284" href="Prelude.Lists.html" class="Module">Prelude.Lists</a>
 <a id="298" class="Keyword">open</a> <a id="303" class="Keyword">import</a> <a id="310" href="Prelude.Show.html" class="Module">Prelude.Show</a>
@@ -22,7 +22,7 @@
 
 <a id="551" class="Keyword">open</a> <a id="556" class="Keyword">import</a> <a id="563" href="Prelude.DecEq.Core.html" class="Module">Prelude.DecEq.Core</a>
 
-<a id="583" class="Keyword">private</a> <a id="591" class="Keyword">variable</a> <a id="600" href="Prelude.Generics.html#600" class="Generalizable">A</a> <a id="602" href="Prelude.Generics.html#602" class="Generalizable">B</a> <a id="604" class="Symbol">:</a> <a id="606" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="610" href="Prelude.Init.html#330" class="Generalizable">ℓ</a>
+<a id="583" class="Keyword">private</a> <a id="591" class="Keyword">variable</a> <a id="600" href="Prelude.Generics.html#600" class="Generalizable">A</a> <a id="602" href="Prelude.Generics.html#602" class="Generalizable">B</a> <a id="604" class="Symbol">:</a> <a id="606" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="610" href="Prelude.Init.html#345" class="Generalizable">ℓ</a>
 
 <a id="613" class="Comment">-------------------------------------------------</a>
 <a id="663" class="Comment">-- ** Smart constructors</a>
@@ -331,11 +331,11 @@ absurd-clause₀ ps = absurd-clause (pats⇒tel ps) ps
                   <a id="9701" class="Symbol">)</a>
            <a id="9714" class="Symbol">→</a> <a id="9716" href="Agda.Builtin.Reflection.html#8218" class="Postulate">TC</a> <a id="9719" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a> <a id="9721" class="Comment">-- computed instance to unquote</a>
 
-<a id="9754" class="Keyword">record</a> <a id="Derivable"></a><a id="9761" href="Prelude.Generics.html#9761" class="Record">Derivable</a> <a id="9771" class="Symbol">(</a><a id="9772" href="Prelude.Generics.html#9772" class="Bound">F</a> <a id="9774" class="Symbol">:</a> <a id="9776" href="Prelude.Init.html#441" class="Function">Set↑</a><a id="9780" class="Symbol">)</a> <a id="9782" class="Symbol">:</a> <a id="9784" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="9788" class="Keyword">where</a>
+<a id="9754" class="Keyword">record</a> <a id="Derivable"></a><a id="9761" href="Prelude.Generics.html#9761" class="Record">Derivable</a> <a id="9771" class="Symbol">(</a><a id="9772" href="Prelude.Generics.html#9772" class="Bound">F</a> <a id="9774" class="Symbol">:</a> <a id="9776" href="Prelude.Init.html#456" class="Function">Set↑</a><a id="9780" class="Symbol">)</a> <a id="9782" class="Symbol">:</a> <a id="9784" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="9788" class="Keyword">where</a>
   <a id="9796" class="Keyword">field</a> <a id="Derivable.DERIVE&#39;"></a><a id="9802" href="Prelude.Generics.html#9802" class="Field">DERIVE&#39;</a> <a id="9810" class="Symbol">:</a> <a id="9812" href="Prelude.Generics.html#9536" class="Function">Derivation</a>
 <a id="9823" class="Keyword">open</a> <a id="9828" href="Prelude.Generics.html#9761" class="Module">Derivable</a> <a id="9838" class="Symbol">⦃...⦄</a> <a id="9844" class="Keyword">public</a>
 
-<a id="DERIVE"></a><a id="9852" href="Prelude.Generics.html#9852" class="Function">DERIVE</a> <a id="9859" class="Symbol">:</a> <a id="9861" class="Symbol">∀</a> <a id="9863" class="Symbol">(</a><a id="9864" href="Prelude.Generics.html#9864" class="Bound">F</a> <a id="9866" class="Symbol">:</a> <a id="9868" href="Prelude.Init.html#441" class="Function">Set↑</a><a id="9872" class="Symbol">)</a> <a id="9874" class="Symbol">→</a> <a id="9876" class="Symbol">⦃</a> <a id="9878" href="Prelude.Generics.html#9761" class="Record">Derivable</a> <a id="9888" href="Prelude.Generics.html#9864" class="Bound">F</a> <a id="9890" class="Symbol">⦄</a> <a id="9892" class="Symbol">→</a> <a id="9894" href="Prelude.Generics.html#9536" class="Function">Derivation</a>
+<a id="DERIVE"></a><a id="9852" href="Prelude.Generics.html#9852" class="Function">DERIVE</a> <a id="9859" class="Symbol">:</a> <a id="9861" class="Symbol">∀</a> <a id="9863" class="Symbol">(</a><a id="9864" href="Prelude.Generics.html#9864" class="Bound">F</a> <a id="9866" class="Symbol">:</a> <a id="9868" href="Prelude.Init.html#456" class="Function">Set↑</a><a id="9872" class="Symbol">)</a> <a id="9874" class="Symbol">→</a> <a id="9876" class="Symbol">⦃</a> <a id="9878" href="Prelude.Generics.html#9761" class="Record">Derivable</a> <a id="9888" href="Prelude.Generics.html#9864" class="Bound">F</a> <a id="9890" class="Symbol">⦄</a> <a id="9892" class="Symbol">→</a> <a id="9894" href="Prelude.Generics.html#9536" class="Function">Derivation</a>
 <a id="9905" href="Prelude.Generics.html#9852" class="Function">DERIVE</a> <a id="9912" href="Prelude.Generics.html#9912" class="Bound">F</a> <a id="9914" class="Symbol">=</a> <a id="9916" href="Prelude.Generics.html#9802" class="Field">DERIVE&#39;</a> <a id="9924" class="Symbol">{</a><a id="9925" class="Argument">F</a> <a id="9927" class="Symbol">=</a> <a id="9929" href="Prelude.Generics.html#9912" class="Bound">F</a><a id="9930" class="Symbol">}</a>
 
 <a id="9933" class="Comment">-------------------------------------------------</a>

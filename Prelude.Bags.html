@@ -1,5 +1,16 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Prelude.Bags</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Bags.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.Bags.html" class="Module">Prelude.Bags</a> <a id="21" class="Keyword">where</a>
+<html><head><meta charset="utf-8"><title>Prelude.Bags</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Bags.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">open</a> <a id="6" class="Keyword">import</a> <a id="13" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="25" class="Symbol">;</a> <a id="27" class="Keyword">open</a> <a id="32" href="Prelude.Init.html#35" class="Module">SetAsType</a>
+<a id="42" class="Keyword">open</a> <a id="47" class="Keyword">import</a> <a id="54" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
 
-<a id="28" class="Keyword">open</a> <a id="33" class="Keyword">import</a> <a id="40" href="Prelude.Bags.Concrete.html" class="Module">Prelude.Bags.Concrete</a> <a id="62" class="Keyword">public</a>
+<a id="69" class="Keyword">module</a> <a id="76" href="Prelude.Bags.html" class="Module">Prelude.Bags</a> <a id="89" class="Keyword">where</a>
+
+<a id="96" class="Keyword">open</a> <a id="101" class="Keyword">import</a>
+  <a id="110" class="Comment">-- ** pick implementation to export</a>
+  <a id="148" class="Comment">-- Prelude.Bags.AsMaps</a>
+  <a id="173" class="Comment">-- Prelude.Bags.AsPartialFunctions</a>
+  <a id="210" href="Prelude.Bags.AsLists.html" class="Module">Prelude.Bags.AsLists</a>
+  <a id="233" class="Keyword">public</a>
+
+<a id="Bag⟨_⟩"></a><a id="241" href="Prelude.Bags.html#241" class="Function Operator">Bag⟨_⟩</a> <a id="248" class="Symbol">:</a> <a id="250" class="Symbol">(</a><a id="251" href="Prelude.Bags.html#251" class="Bound">A</a> <a id="253" class="Symbol">:</a> <a id="255" href="Agda.Primitive.html#326" class="Primitive">Set</a><a id="258" class="Symbol">)</a> <a id="260" class="Symbol">⦃</a> <a id="262" href="Prelude.Bags.html#262" class="Bound">_</a> <a id="264" class="Symbol">:</a> <a id="266" href="Prelude.DecEq.Core.html#97" class="Record">DecEq</a> <a id="272" href="Prelude.Bags.html#251" class="Bound">A</a> <a id="274" class="Symbol">⦄</a> <a id="276" class="Symbol">→</a> <a id="278" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+<a id="282" href="Prelude.Bags.html#241" class="Function Operator">Bag⟨</a> <a id="287" href="Prelude.Bags.html#287" class="Bound">A</a> <a id="289" href="Prelude.Bags.html#241" class="Function Operator">⟩</a> <a id="291" class="Symbol">=</a> <a id="293" href="Prelude.Bags.AsLists.html#767" class="Record">Bag</a> <a id="297" class="Symbol">{</a><a id="298" class="Argument">A</a> <a id="300" class="Symbol">=</a> <a id="302" href="Prelude.Bags.html#287" class="Bound">A</a><a id="303" class="Symbol">}</a>
 </pre></body></html>
