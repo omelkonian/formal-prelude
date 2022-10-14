@@ -1,4 +1,4 @@
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Applicative
@@ -9,25 +9,22 @@ open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.Functor
 open import Prelude.Ord
+open import Prelude.Setoid
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
-module Prelude.Bags.Concrete.AsPartialFunctions {A : Set} where
+module Prelude.Bags.AsPartialFunctions {A : Type} where
 
-Bag : Set
+Bag : Type
 Bag = A → Maybe ℕ
 
 syntax Bag {A = A} = Bag⟨ A ⟩
-
--- private variable
---   s s₁ s₂ s₃ s₁₂ s₂₃ m m′ m₁ m₂ m₃ m₁₂ m₂₃ : Bag
---   f g : Bag → Bag
 
 ∅ : Bag
 ∅ = const nothing
 
 infix 3 _∈ᵈ_ _∉ᵈ_ _∈ᵈ?_ _∉ᵈ?_
-_∈ᵈ_ _∉ᵈ_ : A → Bag → Set
+_∈ᵈ_ _∉ᵈ_ : A → Bag → Type
 k ∈ᵈ m = M.Any.Any (_> 0) (m k)
 k ∉ᵈ m = ¬ (k ∈ᵈ m)
 
@@ -44,26 +41,18 @@ k ⊈ᵈ m = ¬ (k ⊆ᵈ m)
 
 -- ** equivalence
 
-infix 3 _≈_
-_≈_ : Rel₀ Bag
-m ≈ m′ = ∀ k → m k ≡ m′ k
+instance
+  Setoid-Bag : ISetoid Bag
+  Setoid-Bag = λ where
+    .relℓ → _
+    ._≈_ m m′ → ∀ k → m k ≡ m′ k
 
-≈-refl : Reflexive _≈_
-≈-refl _ = refl
-
-≈-sym : Symmetric _≈_
-≈-sym p k = sym (p k)
-
-≈-trans : Transitive _≈_
-≈-trans p q k = trans (p k) (q k)
-
-≈-equiv : IsEquivalence _≈_
-≈-equiv = record {refl = ≈-refl; sym = ≈-sym; trans = ≈-trans}
-
-≈-setoid : Setoid 0ℓ 0ℓ
-≈-setoid = record {Carrier = Bag; _≈_ = _≈_; isEquivalence = ≈-equiv}
-
-module ≈-Reasoning = BinSetoid ≈-setoid
+  SetoidLaws-Bag : Setoid-Laws Bag
+  SetoidLaws-Bag .isEquivalence = record
+    { refl = λ _ → refl
+    ; sym = λ p k → sym (p k)
+    ; trans = λ p q k → trans (p k) (q k)
+    }
 
 -- ≈-cong : ∀ {P : A → Maybe V → Set}
 --   → s₁ ≈ s₂

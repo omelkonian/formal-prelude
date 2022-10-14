@@ -1,21 +1,13 @@
-module Prelude.Bags.Abstract.Interface where
-
-open import Prelude.Init
-open SetAsType
+open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.Membership
 open import Prelude.DecEq
-open import Prelude.Decidable
-open import Prelude.Semigroup
-open import Prelude.Applicative
-open import Prelude.Measurable
 open import Prelude.Apartness
 open import Prelude.Ord
 open import Prelude.Setoid
 
-import Relation.Binary.Reasoning.Setoid as BinSetoid
+module Prelude.Bags.Abstract.Interface (A : Type) (σ : Level) where
 
-record Bagᴵ (A : Type) (σ : Level) : Type (lsuc σ) where
+record Bagᴵ : Type (lsuc σ) where
   constructor mkBagᴵ
   field
     Bag : Type σ
@@ -44,17 +36,11 @@ record Bagᴵ (A : Type) (σ : Level) : Type (lsuc σ) where
     occurs-─ : ∀ x xs ys → occurs (xs ─ ys) x ≡ occurs xs x ∸ occurs ys x
     occurs-scale : ∀ x xs n → occurs (scale xs n) x ≡ occurs xs x * n
 
-  postulate ∈-∪⁻ : ∀ x xs ys → x ∈ˢ (xs ∪ ys) → x ∈ˢ xs ⊎ x ∈ˢ ys
-  -- ∈-∪⁻ x xs ys x∈ = {!occurs-∪ x xs ys!}
-
-  postulate ∈-∪⁺ˡ : ∀ x xs ys → x ∈ˢ xs → x ∈ˢ (xs ∪ ys)
-  -- ∈-∪⁺ˡ x xs ys x∈ = {!!}
-
-  postulate ∈-∪⁺ʳ : ∀ x xs ys → x ∈ˢ ys → x ∈ˢ (xs ∪ ys)
-  -- ∈-∪⁺ʳ x xs ys x∈ = {!!}
-
-  postulate ∉∅ : ∀ x → x ∉ˢ ∅
-  -- ∉∅ x x∈ = {!!}
+  postulate
+    ∈-∪⁻ : ∀ x xs ys → x ∈ˢ (xs ∪ ys) → x ∈ˢ xs ⊎ x ∈ˢ ys
+    ∈-∪⁺ˡ : ∀ x xs ys → x ∈ˢ xs → x ∈ˢ (xs ∪ ys)
+    ∈-∪⁺ʳ : ∀ x xs ys → x ∈ˢ ys → x ∈ˢ (xs ∪ ys)
+    ∉∅ : ∀ x → x ∉ˢ ∅
 
   -- ∈-─⁻ : ∀ x xs ys → x ∈ˢ (xs ─ ys) → x ∈ˢ xs
   -- ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → x ∉ˢ ys → x ∈ˢ (xs ─ ys)

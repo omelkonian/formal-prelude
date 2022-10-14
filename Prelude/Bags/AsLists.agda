@@ -1,4 +1,4 @@
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open L.Uniq using (filter⁺; ++⁺; map⁺)
 open import Prelude.General
@@ -18,29 +18,29 @@ open import Prelude.InferenceRules
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
-module Prelude.Bags.Concrete.AsLists {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Bags.AsLists {A : Type} ⦃ _ : DecEq A ⦄ where
 
 -- ** basic definitions
 
 -- Bags as lists with no duplicates and a counter for each element.
-record Bag' : Set where
+record Bag : Type where
   constructor mkBag
   field list : List A
-open Bag'
-syntax Bag' {A = A} = Set⟨ A ⟩
+open Bag
+syntax Bag {A = A} = Set⟨ A ⟩
 
 private variable
   x x′ y y′ z z′ : A
   xs ys zs : List A
-  Xs Ys Zs s s′ s″ : Bag'
+  Xs Ys Zs s s′ s″ : Bag
   P : Pred A 0ℓ
 
 -----------------------------------------------------------------------
 -- Lifting from list predicates/relations to set predicates/relations.
 
 private
-  record Lift (F : Set → Set₁) : Set₁ where
-    field ↑ : F (List A) → F Bag'
+  record Lift (F : Type → Type₁) : Type₁ where
+    field ↑ : F (List A) → F Bag
   open Lift ⦃...⦄
 
   instance
@@ -51,7 +51,7 @@ private
     Lift-Rel .↑ _~_ = _~_ on list
 
 -- e.g. All/Any predicates for sets
-All' Any' : Pred₀ A → Pred₀ Bag'
+All' Any' : Pred₀ A → Pred₀ Bag
 All' = ↑ ∘ All
 Any' = ↑ ∘ Any
 
@@ -60,7 +60,7 @@ Any' = ↑ ∘ Any
 -- infixr 6 _∪_
 infix 4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_
 
-_∈ˢ_ _∉ˢ_ : A → Bag' → Set
+_∈ˢ_ _∉ˢ_ : A → Bag → Type
 o ∈ˢ xs = o ∈ list xs
 o ∉ˢ xs = ¬ (o ∈ˢ xs)
 
@@ -71,35 +71,35 @@ _∉ˢ?_ : Decidable² _∉ˢ_
 o ∉ˢ? xs = o ∉? list xs
 
 
--- _∷_∶-_ : (x : A) → (xs : Bag') → ¬ x ∈ˢ xs → Bag'
+-- _∷_∶-_ : (x : A) → (xs : Bag) → ¬ x ∈ˢ xs → Bag
 -- x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.¬Any⇒All¬ _ x∉ ∷ p)
 
--- _<$>_∶-_ : (f : A → A) → Bag' → (∀ {x y} → f x ≡ f y → x ≡ y) → Bag'
+-- _<$>_∶-_ : (f : A → A) → Bag → (∀ {x y} → f x ≡ f y → x ≡ y) → Bag
 -- f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ map⁺ inj p
 
-filter′ : Decidable¹ P → Bag' → Bag'
+filter′ : Decidable¹ P → Bag → Bag
 filter′ P? (mkBag xs) = mkBag (filter P? xs)
 
-count′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Bag' → ℕ
+count′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Bag → ℕ
 count′ P? = count P? ∘ list
 
-∅ : Bag'
+∅ : Bag
 ∅ = mkBag []
 
-singleton : A → Bag'
+singleton : A → Bag
 singleton a = mkBag [ a ]
 
-singletonN : A × ℕ → Bag'
+singletonN : A × ℕ → Bag
 singletonN (a , n) = mkBag $ L.replicate n a
 
 singleton∈ˢ : x′ ∈ˢ singleton x ↔ x′ ≡ x
 singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 
--- _++_∶-_ : ∀ (s s′ : Bag') → Disjoint (list s) (list s′) → Bag'
+-- _++_∶-_ : ∀ (s s′ : Bag) → Disjoint (list s) (list s′) → Bag
 -- (xs ⊣ pxs) ++ (ys ⊣ pys) ∶- dsj =
 --   (xs ++ ys) ⊣ ++⁺ pxs pys dsj
 
--- _∪_ _∩_ _─_ : Op₂ Bag'
+-- _∪_ _∩_ _─_ : Op₂ Bag
 -- x ∪ y = x ++ y
 
 -- x ─ y = filter′ (_∉ˢ? y) x
@@ -111,7 +111,7 @@ singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 --       = let _ , x∉ = ∈-filter⁻ (_∉? xs) {xs = ys} x∈ˢ
 --         in  x∉ x∈
 
--- ⋃ : (A → Bag') → Bag' → Bag'
+-- ⋃ : (A → Bag) → Bag → Bag
 -- ⋃ f = foldr _∪_ ∅ ∘ map f ∘ list
 
 -- -- ** relational properties
@@ -143,7 +143,7 @@ singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 
 -- ** derived operations
 {-# TERMINATING #-}
-_⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Bag' _
+_⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Bag _
 -- s ⊆ˢ s′ = list s ⊆ list s′
 (mkBag xs) ⊆ˢ (mkBag ys)
   with xs
@@ -165,7 +165,7 @@ s ⊉ˢ s′ = ¬ s ⊇ˢ s′
 -- ⊆ˢ-trans ij ji = ji ∘ ij
 
 -- ** algebraic properties
-_≈ˢ_ : Rel₀ Bag'
+_≈ˢ_ : Rel₀ Bag
 s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
 -- _≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
@@ -179,7 +179,7 @@ postulate ≈ˢ-equiv : IsEquivalence _≈ˢ_
 open IsEquivalence ≈ˢ-equiv renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans)
 
 ≈ˢ-setoid : Setoid 0ℓ 0ℓ
-≈ˢ-setoid = record { Carrier = Bag'; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
+≈ˢ-setoid = record { Carrier = Bag; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
 
 module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
 
@@ -187,13 +187,13 @@ open Alg _≈ˢ_
 
 open import Prelude.Setoid
 instance
-  Setoid-Bag' : ISetoid Bag'
-  Setoid-Bag' = λ where
+  Setoid-Bag : ISetoid Bag
+  Setoid-Bag = λ where
     .relℓ → 0ℓ
     ._≈_  → _≈ˢ_
 
-  SetoidLaws-Bag' : Setoid-Laws Bag'
-  SetoidLaws-Bag' .isEquivalence = ≈ˢ-equiv
+  SetoidLaws-Bag : Setoid-Laws Bag
+  SetoidLaws-Bag .isEquivalence = ≈ˢ-equiv
 
 -- ≈ˢ⇒⊆ˢ : s ≈ˢ s′ → s ⊆ˢ s′
 -- ≈ˢ⇒⊆ˢ = proj₁
@@ -242,18 +242,18 @@ instance
 
 -- ** apartness
 instance
-  Apart-Bag' : Bag' // Bag'
-  Apart-Bag' ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
+  Apart-Bag : Bag // Bag
+  Apart-Bag ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
 
-_♯?ˢ_ = Decidable² (_♯_ {A = Bag'}) ∋ dec²
+_♯?ˢ_ = Decidable² (_♯_ {A = Bag}) ∋ dec²
 
--- ♯-comm : ∀ (x y : Bag') → x ♯ y → y ♯ x
+-- ♯-comm : ∀ (x y : Bag) → x ♯ y → y ♯ x
 -- ♯-comm x y = ≈ˢ-trans {i = y ∩ x}{j = x ∩ y}{k = ∅} (∩-comm y x)
 
 -- ∈-∩⇒¬♯ : x ∈ˢ (Xs ∩ Ys) → ¬ (Xs ♯ Ys)
 -- ∈-∩⇒¬♯ {Xs = Xs}{Ys} x∈ xs♯ys = contradict (≈ˢ⇒⊆ˢ {s = Xs ∩ Ys} {s′ = ∅} xs♯ys x∈)
 
--- ♯-skipˡ : ∀ xs ys (zs : Bag') → (xs ∪ ys) ♯ zs → ys ♯ zs
+-- ♯-skipˡ : ∀ xs ys (zs : Bag) → (xs ∪ ys) ♯ zs → ys ♯ zs
 -- ♯-skipˡ xs ys zs p = ∪-∅ {xs ∩ zs}{ys ∩ zs}
 --   (let open ≈ˢ-Reasoning in
 --    begin
@@ -268,52 +268,52 @@ _♯?ˢ_ = Decidable² (_♯_ {A = Bag'}) ∋ dec²
 
 -- ** list conversion
 instance
-  ToList-Bag' : ToList Bag' A
-  ToList-Bag' .toList = list
+  ToList-Bag : ToList Bag A
+  ToList-Bag .toList = list
 
-  FromList-Bag' : FromList A Bag'
-  FromList-Bag' .fromList = mkBag
+  FromList-Bag : FromList A Bag
+  FromList-Bag .fromList = mkBag
 
 ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
 ∈ˢ-fromList = id , id
 
 -- ** decidability of set equality
-unquoteDecl DecEq-Bag' = DERIVE DecEq [ quote Bag' , DecEq-Bag' ]
+unquoteDecl DecEq-Bag = DERIVE DecEq [ quote Bag , DecEq-Bag ]
 instance
-  Measurable-Set : Measurable Bag'
+  Measurable-Set : Measurable Bag
   Measurable-Set = record {∣_∣ = length ∘ list}
 
-record Bag'⁺ : Set where
+record Bag⁺ : Type where
   constructor _⊣_
-  field set   : Bag'
+  field set   : Bag
         .set⁺ : ∣ set ∣ > 0
-syntax Bag'⁺ {A = A} = Bag⁺⟨ A ⟩
+syntax Bag⁺ {A = A} = Bag⁺⟨ A ⟩
 
 instance
-  DecEq-Bag'⁺ : DecEq Bag'⁺
-  DecEq-Bag'⁺ ._≟_ (s ⊣ _) (s′ ⊣ _) with s ≟ s′
+  DecEq-Bag⁺ : DecEq Bag⁺
+  DecEq-Bag⁺ ._≟_ (s ⊣ _) (s′ ⊣ _) with s ≟ s′
   ... | yes refl = yes refl
   ... | no  ¬eq  = no λ where refl → ¬eq refl
 
-mkSet⁺ : (s : Bag') ⦃ _ : True (∣ s ∣ >? 0) ⦄ → Bag'⁺
+mkSet⁺ : (s : Bag) ⦃ _ : True (∣ s ∣ >? 0) ⦄ → Bag⁺
 mkSet⁺ s ⦃ pr ⦄ = s ⊣ toWitness pr
 
-fromList⁺ : (xs : List A) ⦃ _ : True (length xs >? 0) ⦄ → Bag'⁺
+fromList⁺ : (xs : List A) ⦃ _ : True (length xs >? 0) ⦄ → Bag⁺
 fromList⁺ = mkSet⁺ ∘ fromList
 
-toList'⁺ : Bag'⁺ → List⁺ A
+toList'⁺ : Bag⁺ → List⁺ A
 toList'⁺ (s ⊣ _) with x ∷ xs ← list s = x ∷ xs
 
 instance
-  Semigroup-Bag' : ⦃ Semigroup A ⦄ → Semigroup Bag'
-  Semigroup-Bag' ._◇_ (mkBag xs) (mkBag ys) = mkBag (xs ◇ ys)
+  Semigroup-Bag : ⦃ Semigroup A ⦄ → Semigroup Bag
+  Semigroup-Bag ._◇_ (mkBag xs) (mkBag ys) = mkBag (xs ◇ ys)
 
-  SemigroupLaws-Bag' : ⦃ _ : Semigroup A ⦄ → SemigroupLaws Bag' _≈ˢ_
-  SemigroupLaws-Bag' = record {◇-assocʳ = p; ◇-comm = q}
+  SemigroupLaws-Bag : ⦃ _ : Semigroup A ⦄ → SemigroupLaws Bag _≈ˢ_
+  SemigroupLaws-Bag = record {◇-assocʳ = p; ◇-comm = q}
     where
-      p : Associative (_◇_ {A = Bag'})
+      p : Associative (_◇_ {A = Bag})
       p xs ys zs = ≈-reflexive $ cong mkBag $ L.++-assoc (list xs) (list ys) (list zs)
 
-      postulate q : Commutative (_◇_ {A = Bag'})
+      postulate q : Commutative (_◇_ {A = Bag})
       -- q (mkBag []) (mkBag ys) rewrite L.++-identityʳ ys = ≈-refl
       -- q (mkBag (x ∷ xs)) (mkBag ys) = {!!}

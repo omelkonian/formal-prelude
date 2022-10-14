@@ -70,13 +70,13 @@ open import Prelude.Traces
 open import Prelude.Lists
 
 open import Prelude.Sets
-open import Prelude.Sets.Example
+open import Prelude.Sets.Examples
 
 open import Prelude.Maps
-open import Prelude.Maps.Example
+open import Prelude.Maps.Examples
 
 open import Prelude.Bags
-open import Prelude.Bags.Example
+open import Prelude.Bags.Examples
 
 -- ** Utilities for cryptography
 open import Prelude.Serializable
