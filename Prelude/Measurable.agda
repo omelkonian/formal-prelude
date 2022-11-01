@@ -27,7 +27,6 @@ private
     B : Set b
 
 instance
-
   Measurable-ℕ : Measurable ℕ
   Measurable-ℕ .∣_∣ x = x
 
@@ -35,12 +34,6 @@ instance
   Measurable-⊎ .∣_∣ (inj₁ x) = ∣ x ∣
   Measurable-⊎ .∣_∣ (inj₂ x) = ∣ x ∣
 
-  Measurable-List : ⦃ _ : Measurable A ⦄ → Measurable (List A)
-  Measurable-List .∣_∣ []       = 1
-  Measurable-List .∣_∣ (x ∷ xs) = ∣ x ∣ + ∣ xs ∣
-
-  -- Measurable-× : ⦃ _ : Measurable B ⦄ → Measurable (A × B)
-  -- Measurable-× .∣_∣ (_ , x) = ∣ x ∣
 
 ∃Measurable : Set₁
 ∃Measurable = Σ[ A ∈ Set ] (Measurable A) × A
@@ -67,13 +60,34 @@ module _ ⦃ _ : Measurable A ⦄ where
 _≺ᵐ_ : ∀ {A B : Set} ⦃ _ : Measurable A ⦄ ⦃ _ : Measurable B ⦄ → A → B → Set
 x ≺ᵐ y = toMeasure x ≺ toMeasure y
 
-list>0 : ∀ ⦃ _ : Measurable A ⦄ (xs : List A)
-  → ∣ xs ∣ > 0
-list>0 []      = s≤s z≤n
-list>0 (x ∷ xs) with ∣ x ∣
-... | 0     = list>0 xs
-... | suc _ = s≤s z≤n
+-- alternatives for products
+Measurable-×ˡ : ⦃ _ : Measurable A ⦄ → Measurable (A × B)
+Measurable-×ˡ .∣_∣ (x , _) = ∣ x ∣
 
-≺ᵐ-∷ : ∀ {A : Set} ⦃ _ : Measurable A ⦄ (x : A) (xs : List A)
-  → (x ≺ᵐ (x ∷ xs))
-≺ᵐ-∷ x xs = x<x+y ∣ x ∣ (list>0 xs)
+Measurable-×ʳ : ⦃ _ : Measurable B ⦄ → Measurable (A × B)
+Measurable-×ʳ .∣_∣ (_ , x) = ∣ x ∣
+
+-- alternatives for lists
+Measurable-List₀ : Measurable (List A)
+Measurable-List₀ .∣_∣ = length
+
+Measurable-List₁ : ⦃ _ : Measurable A ⦄ → Measurable (List A)
+Measurable-List₁ {A = A} .∣_∣ = go
+  where
+    go : List A → ℕ
+    go [] = 1
+    go (x ∷ xs) = ∣ x ∣ + go xs
+
+private
+  instance _ = Measurable-List₁
+
+  list>0 : ∀ ⦃ _ : Measurable A ⦄ (xs : List A)
+    → ∣ xs ∣ > 0
+  list>0 [] = s≤s z≤n
+  list>0 (x ∷ xs) with ∣ x ∣
+  ... | 0     = list>0 xs
+  ... | suc _ = s≤s z≤n
+
+  ≺ᵐ-∷ : ∀ {A : Set} ⦃ _ : Measurable A ⦄ (x : A) (xs : List A)
+    → (x ≺ᵐ (x ∷ xs))
+  ≺ᵐ-∷ x xs = x<x+y ∣ x ∣ (list>0 xs)
