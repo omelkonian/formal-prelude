@@ -22,7 +22,10 @@ record Mapᴵ : Type (lsuc σ) where
     _∪_ : Op₂ Map -- left-biased
     _⁉_ : Map → K → Maybe V
     _∈ᵈ_ : K → Map → Type
-    ⦃ Apart-Map ⦄ : Map //^⦅ 0ℓ ⦆ Map
+    instance Apart-Map : Map //^⦅ 0ℓ ⦆ Map
+
+  instance _ = Apart-Map
+    -- ⦃ Apart-Map ⦄ : Map //^⦅ 0ℓ ⦆ Map
 
   -- syntactic sugar
   syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩
