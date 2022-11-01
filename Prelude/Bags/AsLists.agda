@@ -15,6 +15,7 @@ open import Prelude.ToList
 open import Prelude.FromList
 open import Prelude.Semigroup
 open import Prelude.InferenceRules
+open import Prelude.Setoid
 
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
@@ -32,7 +33,7 @@ syntax Bag {A = A} = Set⟨ A ⟩
 private variable
   x x′ y y′ z z′ : A
   xs ys zs : List A
-  Xs Ys Zs s s′ s″ : Bag
+  Xs Ys Zs s s′ s″ s₁ s₂ s₃ s₁₂ s₂₃ : Bag
   P : Pred A 0ℓ
 
 -----------------------------------------------------------------------
@@ -55,9 +56,8 @@ All' Any' : Pred₀ A → Pred₀ Bag
 All' = ↑ ∘ All
 Any' = ↑ ∘ Any
 
--- infixr 8 _─_
--- infixr 7 _∩_
--- infixr 6 _∪_
+infixr 8 _─_
+infixr 6 _∪_
 infix 4 _∈ˢ_ _∉ˢ_ _∈ˢ?_ _∉ˢ?_
 
 _∈ˢ_ _∉ˢ_ : A → Bag → Type
@@ -69,13 +69,6 @@ o ∈ˢ? xs = o ∈? list xs
 
 _∉ˢ?_ : Decidable² _∉ˢ_
 o ∉ˢ? xs = o ∉? list xs
-
-
--- _∷_∶-_ : (x : A) → (xs : Bag) → ¬ x ∈ˢ xs → Bag
--- x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.¬Any⇒All¬ _ x∉ ∷ p)
-
--- _<$>_∶-_ : (f : A → A) → Bag → (∀ {x y} → f x ≡ f y → x ≡ y) → Bag
--- f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ map⁺ inj p
 
 filter′ : Decidable¹ P → Bag → Bag
 filter′ P? (mkBag xs) = mkBag (filter P? xs)
@@ -95,34 +88,10 @@ singletonN (a , n) = mkBag $ L.replicate n a
 singleton∈ˢ : x′ ∈ˢ singleton x ↔ x′ ≡ x
 singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 
--- _++_∶-_ : ∀ (s s′ : Bag) → Disjoint (list s) (list s′) → Bag
--- (xs ⊣ pxs) ++ (ys ⊣ pys) ∶- dsj =
---   (xs ++ ys) ⊣ ++⁺ pxs pys dsj
+_∪_ _─_ : Op₂ Bag
+mkBag xs ∪ mkBag ys = mkBag (xs ◇ ys)
+mkBag xs ─ mkBag ys = mkBag (xs ∸[bag] ys)
 
--- _∪_ _∩_ _─_ : Op₂ Bag
--- x ∪ y = x ++ y
-
--- x ─ y = filter′ (_∉ˢ? y) x
--- x ∩ y = filter′ (_∈ˢ? y) x
--- x ∪ y = x ++ (filter′ (_∉ˢ? x) y) ∶- disjoint-─ {xs = list x} {ys = list y}
---   where
---     disjoint-─ : Disjoint xs (filter (_∉? xs) ys)
---     disjoint-─ {xs = xs} {ys = ys} (x∈ , x∈ˢ)
---       = let _ , x∉ = ∈-filter⁻ (_∉? xs) {xs = ys} x∈ˢ
---         in  x∉ x∈
-
--- ⋃ : (A → Bag) → Bag → Bag
--- ⋃ f = foldr _∪_ ∅ ∘ map f ∘ list
-
--- -- ** relational properties
--- ∉∅ : ∀ x → ¬ x ∈ˢ ∅
--- ∉∅ _ ()
-
--- ∈-─⁻ : ∀ x xs ys → x ∈ˢ (xs ─ ys) → x ∈ˢ xs
--- ∈-─⁻ x xs ys x∈ = proj₁ (∈-filter⁻ (_∉ˢ? ys) x∈)
-
--- ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → ¬ x ∈ˢ ys → x ∈ˢ (xs ─ ys)
--- ∈-─⁺ x xs ys x∈ x∉ = ∈-filter⁺ ((_∉ˢ? ys)) x∈ x∉
 
 -- ∈-∪⁻ : ∀ x xs ys → x ∈ˢ (xs ∪ ys) → x ∈ˢ xs ⊎ x ∈ˢ ys
 -- ∈-∪⁻ x xs ys x∈ = map₂ (∈-─⁻ x ys xs) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
@@ -135,40 +104,32 @@ singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 -- ... | yes x∈ˢ = ∈-∪⁺ˡ x xs ys x∈ˢ
 -- ... | no  x∉  = ∈-++⁺ʳ (list xs) (∈-filter⁺ (_∉ˢ? xs) x∈ x∉)
 
--- ∈-∩⁺ : ∀ x xs ys → x ∈ˢ xs → x ∈ˢ ys → x ∈ˢ (xs ∩ ys)
--- ∈-∩⁺ _ _ ys = ∈-filter⁺ ((_∈ˢ? ys))
+-- ⋃ : (A → Bag) → Bag → Bag
+-- ⋃ f = foldr _∪_ ∅ ∘ map f ∘ list
 
--- ∈-∩⁻ : ∀ x xs ys → x ∈ˢ (xs ∩ ys) → (x ∈ˢ xs) × (x ∈ˢ ys)
--- ∈-∩⁻ _ xs ys = ∈-filter⁻ (_∈ˢ? ys) {xs = list xs}
+-- ** relational properties
+∉∅ : ∀ x → ¬ x ∈ˢ ∅
+∉∅ _ ()
 
--- ** derived operations
-{-# TERMINATING #-}
+-- ∈-─⁻ : ∀ x xs ys → x ∈ˢ (xs ─ ys) → x ∈ˢ xs
+-- ∈-─⁻ x xs ys x∈ = proj₁ (∈-filter⁻ (_∉ˢ? ys) x∈)
+
+-- ∈-─⁺ : ∀ x xs ys → x ∈ˢ xs → ¬ x ∈ˢ ys → x ∈ˢ (xs ─ ys)
+-- ∈-─⁺ x xs ys x∈ x∉ = ∈-filter⁺ ((_∉ˢ? ys)) x∈ x∉
+
 _⊆ˢ_ _⊇ˢ_ _⊈ˢ_ _⊉ˢ_ : Rel Bag _
--- s ⊆ˢ s′ = list s ⊆ list s′
-(mkBag xs) ⊆ˢ (mkBag ys)
-  with xs
-... | [] = ⊤
-... | x ∷ xs =
-  let ♯x  = 1 + count (_≟ x) xs
-      xs′ = filter (¬? ∘ (_≟ x)) xs
-      ♯x′ = count (_≟ x) ys
-      ys′ = filter (¬? ∘ (_≟ x)) ys
-  in (♯x ≤ ♯x′)
-   × (mkBag xs′ ⊆ˢ mkBag ys′)
+_⊆ˢ_ = _⊆[bag]_ on list
 s ⊇ˢ s′ = s′ ⊆ˢ s
 s ⊈ˢ s′ = ¬ s ⊆ˢ s′
 s ⊉ˢ s′ = ¬ s ⊇ˢ s′
 
--- _⊆?ˢ_ = Decidable² _⊆ˢ_ ∋ dec²
-
 -- ⊆ˢ-trans : Transitive _⊆ˢ_
 -- ⊆ˢ-trans ij ji = ji ∘ ij
 
--- ** algebraic properties
 _≈ˢ_ : Rel₀ Bag
 s ≈ˢ s′ = (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
--- _≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
+_≈?ˢ_ = Decidable² _≈ˢ_ ∋ dec²
 
 postulate ≈ˢ-equiv : IsEquivalence _≈ˢ_
 -- ≈ˢ-equiv = record
@@ -176,7 +137,8 @@ postulate ≈ˢ-equiv : IsEquivalence _≈ˢ_
 --   ; sym   = {!!}
 --   ; trans = {!!}
 --   }
-open IsEquivalence ≈ˢ-equiv renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans)
+open IsEquivalence ≈ˢ-equiv public
+  renaming (refl to ≈ˢ-refl; sym to ≈ˢ-sym; trans to ≈ˢ-trans)
 
 ≈ˢ-setoid : Setoid 0ℓ 0ℓ
 ≈ˢ-setoid = record { Carrier = Bag; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
@@ -185,7 +147,6 @@ module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
 
 open Alg _≈ˢ_
 
-open import Prelude.Setoid
 instance
   Setoid-Bag : ISetoid Bag
   Setoid-Bag = λ where
@@ -194,6 +155,20 @@ instance
 
   SetoidLaws-Bag : Setoid-Laws Bag
   SetoidLaws-Bag .isEquivalence = ≈ˢ-equiv
+
+  Semigroup-Bag : Semigroup Bag
+  Semigroup-Bag ._◇_ = _∪_
+
+  SemigroupLaws-Bag : SemigroupLaws Bag _≈ˢ_
+  SemigroupLaws-Bag = record {◇-assocʳ = p; ◇-comm = q}
+    where
+      p : Associative (_◇_ {A = Bag})
+      p xs ys zs = ≈-reflexive
+                 $ cong mkBag $ L.++-assoc (list xs) (list ys) (list zs)
+
+      postulate q : Commutative (_◇_ {A = Bag})
+      -- q (mkBag []) (mkBag ys) rewrite L.++-identityʳ ys = ≈-refl
+      -- q (mkBag (x ∷ xs)) (mkBag ys) = {!!}
 
 -- ≈ˢ⇒⊆ˢ : s ≈ˢ s′ → s ⊆ˢ s′
 -- ≈ˢ⇒⊆ˢ = proj₁
@@ -211,9 +186,6 @@ instance
 --         xs ∎
 --   where open ≈ˢ-Reasoning
 
--- ∩-comm : Commutative _∩_
--- ∩-comm s s′ = uncurry (∈-∩⁺ _ s′ s) ∘ Product.swap ∘ ∈-∩⁻ _ s s′
---             , uncurry (∈-∩⁺ _ s s′) ∘ Product.swap ∘ ∈-∩⁻ _ s′ s
 
 -- ∪-∅ : (Xs ∪ Ys) ≈ˢ ∅ → (Xs ≈ˢ ∅) × (Ys ≈ˢ ∅)
 -- ∪-∅ {Xs}{Ys} p = (≈ˢ⇒⊆ˢ {Xs ∪ Ys}{∅} p ∘ ∈-∪⁺ˡ _ Xs Ys , λ ())
@@ -225,21 +197,6 @@ instance
 -- ∪-∅ʳ : (Xs ∪ Ys) ≈ˢ ∅ → Ys ≈ˢ ∅
 -- ∪-∅ʳ {Xs}{Ys} = proj₂ ∘ ∪-∅ {Xs}{Ys}
 
--- ∪-∩ : ((Xs ∪ Ys) ∩ Zs) ≈ˢ ((Xs ∩ Zs) ∪ (Ys ∩ Zs))
--- ∪-∩ {Xs}{Ys}{Zs} =
---   (λ x∈ →
---   let x∈∪ , x∈Zs = ∈-∩⁻ _ (Xs ∪ Ys) Zs x∈
---   in  case ∈-∪⁻ _ Xs Ys x∈∪ of λ where
---         (inj₁ x∈Xs) → ∈-∪⁺ˡ _ (Xs ∩ Zs) (Ys ∩ Zs)
---                               (∈-∩⁺ _ Xs Zs x∈Xs x∈Zs)
---         (inj₂ x∈Ys) → ∈-∪⁺ʳ _ (Xs ∩ Zs) (Ys ∩ Zs)
---                               (∈-∩⁺ _ Ys Zs x∈Ys x∈Zs))
---   , (∈-∪⁻ _ (Xs ∩ Zs) (Ys ∩ Zs) >≡> λ where
---        (inj₁ x∈) → let x∈Xs , x∈Zs = ∈-∩⁻ _ Xs Zs x∈
---                    in ∈-∩⁺ _ (Xs ∪ Ys) Zs (∈-∪⁺ˡ _ Xs Ys x∈Xs) x∈Zs
---        (inj₂ x∈) → let x∈Ys , x∈Zs = ∈-∩⁻ _ Ys Zs x∈
---                    in ∈-∩⁺ _ (Xs ∪ Ys) Zs (∈-∪⁺ʳ _ Xs Ys x∈Ys) x∈Zs)
-
 -- ** apartness
 instance
   Apart-Bag : Bag // Bag
@@ -247,8 +204,14 @@ instance
 
 _♯?ˢ_ = Decidable² (_♯_ {A = Bag}) ∋ dec²
 
--- ♯-comm : ∀ (x y : Bag) → x ♯ y → y ♯ x
--- ♯-comm x y = ≈ˢ-trans {i = y ∩ x}{j = x ∩ y}{k = ∅} (∩-comm y x)
+-- _[_↦_] : Bag → A → ℕ → Type
+-- m [ k ↦ n ] = m ⁉ k ≡ n
+
+-- _[_↦_]∅ : Bag → K → ℕ → Type
+-- m [ k ↦ n ]∅ = m [ k ↦ n ] × ∀ k′ → k′ ≢ k → k′ ∉ᵈ m
+
+♯-comm : s ♯ s′ → s′ ♯ s
+♯-comm elim = elim ∘ Product.swap
 
 -- ∈-∩⇒¬♯ : x ∈ˢ (Xs ∩ Ys) → ¬ (Xs ♯ Ys)
 -- ∈-∩⇒¬♯ {Xs = Xs}{Ys} x∈ xs♯ys = contradict (≈ˢ⇒⊆ˢ {s = Xs ∩ Ys} {s′ = ∅} xs♯ys x∈)
@@ -265,6 +228,8 @@ _♯?ˢ_ = Decidable² (_♯_ {A = Bag}) ∋ dec²
 --    ∎)
 --   .proj₂
 
+⟨_◇_⟩≡_ : 3Rel₀ Bag
+⟨ m ◇ m′ ⟩≡ m″ = (m ∪ m′) ≈ m″
 
 -- ** list conversion
 instance
@@ -276,6 +241,10 @@ instance
 
 ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
 ∈ˢ-fromList = id , id
+
+postulate
+  ∪-comm : Commutative _∪_
+  ⊎≡-comm : Symmetric (⟨_◇_⟩≡ s)
 
 -- ** decidability of set equality
 unquoteDecl DecEq-Bag = DERIVE DecEq [ quote Bag , DecEq-Bag ]
@@ -303,17 +272,3 @@ fromList⁺ = mkSet⁺ ∘ fromList
 
 toList'⁺ : Bag⁺ → List⁺ A
 toList'⁺ (s ⊣ _) with x ∷ xs ← list s = x ∷ xs
-
-instance
-  Semigroup-Bag : ⦃ Semigroup A ⦄ → Semigroup Bag
-  Semigroup-Bag ._◇_ (mkBag xs) (mkBag ys) = mkBag (xs ◇ ys)
-
-  SemigroupLaws-Bag : ⦃ _ : Semigroup A ⦄ → SemigroupLaws Bag _≈ˢ_
-  SemigroupLaws-Bag = record {◇-assocʳ = p; ◇-comm = q}
-    where
-      p : Associative (_◇_ {A = Bag})
-      p xs ys zs = ≈-reflexive $ cong mkBag $ L.++-assoc (list xs) (list ys) (list zs)
-
-      postulate q : Commutative (_◇_ {A = Bag})
-      -- q (mkBag []) (mkBag ys) rewrite L.++-identityʳ ys = ≈-refl
-      -- q (mkBag (x ∷ xs)) (mkBag ys) = {!!}

@@ -7,6 +7,8 @@ open import Prelude.Lists
 open import Prelude.DecEq
 open import Prelude.Membership
 open import Prelude.Decidable
+open import Prelude.Ord
+open import Prelude.Lists.Count
 
 module Prelude.DecLists {a} {A : Set a} ⦃ _ : DecEq A ⦄ where
 
@@ -296,3 +298,14 @@ instance
       (keepʳ l↔r′) → x≢×¬pʳ (refl , l↔r′)
 
 _∥_≟_ = ¿ _∥_≡_ {A = A} ¿³
+
+-- ** bag inclusion
+_⊆[bag]_ _⊈[bag]_ : Rel (List A) _
+xs ⊆[bag] ys = All (λ x → count (_≟ x) xs ≤ count (_≟ x) ys) (nub xs)
+_⊈[bag]_ = ¬_ ∘₂ _⊆[bag]_
+
+_⊆[bag]?_ = Decidable² _⊆[bag]_ ∋ dec²
+
+_∸[bag]_ _*[bag]_ : Op₂ (List A)
+xs ∸[bag] ys = concatMap (λ x → L.replicate (count (_≟ x) xs ∸ count (_≟ x) ys) x) (nub xs)
+ys *[bag] xs = concatMap (λ x → L.replicate (count (_≟ x) xs * count (_≟ x) ys) x) (nub xs)
