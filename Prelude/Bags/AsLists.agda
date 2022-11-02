@@ -144,7 +144,7 @@ open IsEquivalence ≈ˢ-equiv public
 ≈ˢ-setoid = record { Carrier = Bag; _≈_ = _≈ˢ_; isEquivalence = ≈ˢ-equiv }
 
 module ≈ˢ-Reasoning = BinSetoid ≈ˢ-setoid
-
+open ≈ˢ-Reasoning
 open Alg _≈ˢ_
 
 instance
@@ -159,43 +159,15 @@ instance
   Semigroup-Bag : Semigroup Bag
   Semigroup-Bag ._◇_ = _∪_
 
+∪-assocʳ : Associative _∪_
+∪-assocʳ xs ys zs =
+  ≈-reflexive $ cong mkBag $ L.++-assoc (list xs) (list ys) (list zs)
+
+postulate ∪-comm : Commutative _∪_
+
+instance
   SemigroupLaws-Bag : SemigroupLaws Bag _≈ˢ_
-  SemigroupLaws-Bag = record {◇-assocʳ = p; ◇-comm = q}
-    where
-      p : Associative (_◇_ {A = Bag})
-      p xs ys zs = ≈-reflexive
-                 $ cong mkBag $ L.++-assoc (list xs) (list ys) (list zs)
-
-      postulate q : Commutative (_◇_ {A = Bag})
-      -- q (mkBag []) (mkBag ys) rewrite L.++-identityʳ ys = ≈-refl
-      -- q (mkBag (x ∷ xs)) (mkBag ys) = {!!}
-
--- ≈ˢ⇒⊆ˢ : s ≈ˢ s′ → s ⊆ˢ s′
--- ≈ˢ⇒⊆ˢ = proj₁
-
--- ≈ˢ⇒⊆ˢ˘ : s ≈ˢ s′ → s′ ⊆ˢ s
--- ≈ˢ⇒⊆ˢ˘ = proj₂
-
--- ∅─-identityʳ : RightIdentity ∅ _─_
--- ∅─-identityʳ s rewrite L.filter-all (_∉? []) {xs = list s} All∉[] = ≈ˢ-refl {x = s}
-
--- ∅∪-identityˡ : LeftIdentity ∅ _∪_
--- ∅∪-identityˡ xs =
---   begin ∅ ∪ xs ≈⟨ ≈ˢ-refl {xs ─ ∅} ⟩
---         xs ─ ∅ ≈⟨ ∅─-identityʳ xs ⟩
---         xs ∎
---   where open ≈ˢ-Reasoning
-
-
--- ∪-∅ : (Xs ∪ Ys) ≈ˢ ∅ → (Xs ≈ˢ ∅) × (Ys ≈ˢ ∅)
--- ∪-∅ {Xs}{Ys} p = (≈ˢ⇒⊆ˢ {Xs ∪ Ys}{∅} p ∘ ∈-∪⁺ˡ _ Xs Ys , λ ())
---                , (≈ˢ⇒⊆ˢ {Xs ∪ Ys}{∅} p ∘ ∈-∪⁺ʳ _ Xs Ys , λ ())
-
--- ∪-∅ˡ : (Xs ∪ Ys) ≈ˢ ∅ → Xs ≈ˢ ∅
--- ∪-∅ˡ {Xs}{Ys} = proj₁ ∘ ∪-∅ {Xs}{Ys}
-
--- ∪-∅ʳ : (Xs ∪ Ys) ≈ˢ ∅ → Ys ≈ˢ ∅
--- ∪-∅ʳ {Xs}{Ys} = proj₂ ∘ ∪-∅ {Xs}{Ys}
+  SemigroupLaws-Bag = record {◇-assocʳ = ∪-assocʳ; ◇-comm = ∪-comm}
 
 -- ** apartness
 instance
@@ -207,29 +179,49 @@ _♯?ˢ_ = Decidable² (_♯_ {A = Bag}) ∋ dec²
 -- _[_↦_] : Bag → A → ℕ → Type
 -- m [ k ↦ n ] = m ⁉ k ≡ n
 
--- _[_↦_]∅ : Bag → K → ℕ → Type
--- m [ k ↦ n ]∅ = m [ k ↦ n ] × ∀ k′ → k′ ≢ k → k′ ∉ᵈ m
-
 ♯-comm : s ♯ s′ → s′ ♯ s
 ♯-comm elim = elim ∘ Product.swap
 
--- ∈-∩⇒¬♯ : x ∈ˢ (Xs ∩ Ys) → ¬ (Xs ♯ Ys)
--- ∈-∩⇒¬♯ {Xs = Xs}{Ys} x∈ xs♯ys = contradict (≈ˢ⇒⊆ˢ {s = Xs ∩ Ys} {s′ = ∅} xs♯ys x∈)
-
--- ♯-skipˡ : ∀ xs ys (zs : Bag) → (xs ∪ ys) ♯ zs → ys ♯ zs
--- ♯-skipˡ xs ys zs p = ∪-∅ {xs ∩ zs}{ys ∩ zs}
---   (let open ≈ˢ-Reasoning in
---    begin
---     (xs ∩ zs) ∪ (ys ∩ zs)
---    ≈˘⟨ ∪-∩ {xs}{ys}{zs} ⟩
---     (xs ∪ ys) ∩ zs
---    ≈⟨ p ⟩
---      ∅
---    ∎)
---   .proj₂
-
 ⟨_◇_⟩≡_ : 3Rel₀ Bag
 ⟨ m ◇ m′ ⟩≡ m″ = (m ∪ m′) ≈ m″
+
+◇≡-comm : Symmetric (⟨_◇_⟩≡ s)
+◇≡-comm {s = s}{s₁}{s₂} ≈s = ≈-trans {i = s₂ ∪ s₁}{j = s₁ ∪ s₂}{k = s} (∪-comm s₂ s₁) ≈s
+
+postulate
+  ◇-congˡ :
+    s₁ ≈ s₂
+    ───────────────────
+    (s₁ ◇ s₃) ≈ (s₂ ◇ s₃)
+
+◇-congʳ : s₂ ≈ s₃ → (s₁ ◇ s₂) ≈ (s₁ ◇ s₃)
+◇-congʳ {s₂}{s₃}{s₁} s₂≈s₃ =
+  begin s₁ ◇ s₂ ≈⟨ ∪-comm s₁ s₂ ⟩
+        s₂ ◇ s₁ ≈⟨ ◇-congˡ {s₂}{s₃} s₂≈s₃ ⟩
+        s₃ ◇ s₁ ≈⟨ ∪-comm s₃ s₁ ⟩
+        s₁ ◇ s₃ ∎
+
+◇≈-assocˡ :
+  ∙ ⟨ s₁₂ ◇ s₃ ⟩≡ s
+  ∙ ⟨ s₁ ◇ s₂  ⟩≡ s₁₂
+    ───────────────────
+    ⟨ s₁ ◇ (s₂ ◇ s₃) ⟩≡ s
+◇≈-assocˡ {s₁₂}{s₃}{s}{s₁}{s₂} ≡s ≡s₁₂ =
+  begin s₁ ◇ (s₂ ◇ s₃) ≈˘⟨ ◇-assocʳ s₁ s₂ s₃ ⟩
+        (s₁ ◇ s₂) ◇ s₃ ≈⟨ ◇-congˡ {s₁ ◇ s₂}{s₁₂}{s₃} ≡s₁₂ ⟩
+        s₁₂ ◇ s₃       ≈⟨ ≡s ⟩
+        s              ∎
+
+◇≈-assocʳ :
+  ∙ ⟨ s₁ ◇ s₂₃ ⟩≡ s
+  ∙ ⟨ s₂ ◇ s₃  ⟩≡ s₂₃
+    ─────────────────────
+    ⟨ (s₁ ◇ s₂) ◇ s₃ ⟩≡ s
+◇≈-assocʳ {s₁}{s₂₃}{s}{s₂}{s₃} ≡s ≡s₂₃ =
+  begin (s₁ ◇ s₂) ◇ s₃ ≈⟨ ◇-assocʳ s₁ s₂ s₃ ⟩
+        s₁ ◇ (s₂ ◇ s₃) ≈⟨ ◇-congʳ {s₂ ◇ s₃}{s₂₃}{s₁} ≡s₂₃ ⟩
+        s₁ ◇ s₂₃       ≈⟨ ≡s ⟩
+        s              ∎
 
 -- ** list conversion
 instance
@@ -241,10 +233,6 @@ instance
 
 ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
 ∈ˢ-fromList = id , id
-
-postulate
-  ∪-comm : Commutative _∪_
-  ⊎≡-comm : Symmetric (⟨_◇_⟩≡ s)
 
 -- ** decidability of set equality
 unquoteDecl DecEq-Bag = DERIVE DecEq [ quote Bag , DecEq-Bag ]
