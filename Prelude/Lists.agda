@@ -72,8 +72,8 @@ open import Data.List.Relation.Ternary.Interleaving using (_∷ˡ_; _∷ʳ_)
 _∥_≡_ : 3Rel (List A) _
 _∥_≡_ = Interleaving _≡_ _≡_
 
-pattern keepˡ p = refl ∷ˡ p
-pattern keepʳ p = refl ∷ʳ p
+pattern keepˡ_ p = refl ∷ˡ p
+pattern keepʳ_ p = refl ∷ʳ p
 
 -- ** Finite sets.
 Finite : Set a → Set a
