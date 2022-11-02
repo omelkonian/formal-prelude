@@ -1,6 +1,7 @@
 module Prelude.Sets.AsUniqueLists.Extra where
 
 open import Prelude.Init; open SetAsType
+open L.Mem using (∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open import Prelude.DecLists
 open import Prelude.Membership
 open import Prelude.DecEq
@@ -17,8 +18,11 @@ open import Prelude.Indexable
 open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
 open import Prelude.Lists.SetEquality
+open import Prelude.Lists.Concat
 
+open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
 import Relation.Binary.Reasoning.Setoid as BinSetoid
+open ≈-Reasoning
 
 open import Prelude.Sets.AsUniqueLists.Core
 
@@ -119,7 +123,6 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     xs ∼[set] ys
     ──────────────────
     from xs ≈ from ys
-
   from-≈ {xs}{ys} eq =
     ( ∈ˢ-fromList⁺ {xs = ys}
     ∘ eq .Fun.Equiv.Equivalence.to .Fun.Eq._⟨$⟩_
@@ -130,8 +133,22 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     ∘ ∈ˢ-fromList⁻
     )
 
+  from-≈˘ : ∀ {xs ys : List A} →
+    from xs ≈ from ys
+    ──────────────────
+    xs ∼[set] ys
+  from-≈˘ {xs}{ys} eq = ⊆⊇⇒∼set $
+    ( ∈ˢ-fromList⁻
+    ∘ eq .proj₁
+    ∘ ∈ˢ-fromList⁺ {xs = xs}
+    ) ,
+    ( ∈ˢ-fromList⁻
+    ∘ eq .proj₂
+    ∘ ∈ˢ-fromList⁺ {xs = ys}
+    )
+
   to-∷ˢ : (to $ x ∷ˢ xs) ∼[set] (x ∷ to xs)
-  to-∷ˢ {x = x} = ⊆⊇⇒~set $
+  to-∷ˢ {x = x} = ⊆⊇⇒∼set $
     (λ where
       𝟘 → 𝟘
       (there {x = x} x∈) → there $′ L.Mem.∈-filter⁻ p? x∈ .proj₁
@@ -146,14 +163,29 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     where p? = _∉? [ x ]
           pattern 𝟘 = here refl
 
+  to-++ˢ : (to $ xs ∪ ys) ∼[set] (to xs ++ to ys)
+  to-++ˢ {xs}{ys} = ⊆⊇⇒∼set $
+    (∈-++⁻ (to xs) >≡> λ where
+      (inj₁ x∈ˡ) → ∈-++⁺ˡ x∈ˡ
+      (inj₂ x∈ʳ) → ∈-++⁺ʳ (to xs) (L.Mem.∈-filter⁻ (_∉ˢ? xs) x∈ʳ .proj₁)
+    ) ,
+    (∈-++⁻ (to xs) >≡> λ where
+      (inj₁ x∈ˡ) → ∈-++⁺ˡ x∈ˡ
+      (inj₂ x∈ʳ) → case _ ∈ˢ? xs of λ where
+        (yes x∈ˡ) → ∈-++⁺ˡ x∈ˡ
+        (no  x∉ˡ) → ∈-++⁺ʳ (to xs) (L.Mem.∈-filter⁺ (_∉ˢ? xs) x∈ʳ x∉ˡ))
+
+  to-≈ :
+    xs ≈ ys
+    ──────────────────
+    to xs ∼[set] to ys
+  to-≈ = ⊆⊇⇒∼set
+
   headˢ : Set⟨ A ⟩ → Maybe A
   headˢ = L.head ∘ to
 
   filterˢ : ∀ {P : Pred₀ A} → Decidable¹ P → Set⟨ A ⟩ → Set⟨ A ⟩
   filterˢ P? = from ∘ filter P? ∘ to
-
-  concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
-  concatˢ = from ∘ concat ∘ map to ∘ to
 
   instance
     Indexable-Set : Indexable Set⟨ A ⟩ A
@@ -270,9 +302,90 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   cong-↦ : xs ↦′ P → xs′ ≈ xs → xs′ ↦′ P
   cong-↦ (mk↦ f) eq = mk↦ f ∘ eq .proj₁
 
+module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+  concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
+  concatˢ = from ∘ concatMap to ∘ to
+
+  private variable xss yss : Set⟨ Set⟨ A ⟩ ⟩
+
+  concatˢ-∪ : concatˢ xss ∪ concatˢ yss ≈ concatˢ (xss ∪ yss)
+  concatˢ-∪ {xss}{yss} =
+    begin
+      concatˢ xss ∪ concatˢ yss
+    ≡⟨⟩
+      from (concatMap to $ to xss) ∪ from (concatMap to $ to yss)
+    ≈˘⟨ from-++ˢ {xs = concatMap to $ to xss} ⟩
+      from (concatMap to (to xss) ++ concatMap to (to yss))
+    ≡˘⟨ cong from $ concatMap-++ to (to xss) _ ⟩
+      from (concatMap to (to xss ++ to yss))
+    ≈˘⟨ from-≈ $ ∼[set]-concatMap⁺ to $ to-++ˢ {xs = xss}{yss} ⟩
+      from (concatMap to $ to (xss ∪ yss))
+    ≡⟨⟩
+      concatˢ (xss ∪ yss)
+    ∎
+
+  ≈ˢ-concat⁺ :
+    xss ≈ yss
+    ─────────────────────────
+    concatˢ xss ≈ concatˢ yss
+  ≈ˢ-concat⁺ {xss}{yss} eq =
+    begin
+      concatˢ xss
+    ≡⟨⟩
+      from (concatMap to $ to xss)
+    ≈⟨ from-≈ $ ∼[set]-concatMap⁺ to $ to-≈ {xs = xss}{yss} eq ⟩
+      from (concatMap to $ to yss)
+    ≡⟨⟩
+      concatˢ yss
+    ∎
+    -- (λ x∈xss → {!Any-resp-⊆ xss⊆ $ ∈-concatMap⁻ to ?!})
+    -- -- L.Any.concat⁺ $ L.Mem.∈-concat⁻ {!!} x∈xss
+    -- , {!!}
+
+module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+  private variable xs ys : Set⟨ A ⟩
+  module _ (f : A → B) where
+    ≈ˢ-map⁺ :
+      xs ≈ ys
+      ─────────────────────
+      mapˢ f xs ≈ mapˢ f ys
+    ≈ˢ-map⁺ {xs}{ys} = from-≈ ∘ ∼[set]-map⁺ f ∘ to-≈ {xs = xs}{ys}
+
+    mapˢ-∪-commute : mapˢ f (xs ∪ ys) ≈ mapˢ f xs ∪ mapˢ f ys
+    mapˢ-∪-commute {xs}{ys} =
+      begin
+        mapˢ f (xs ∪ ys)
+      ≡⟨⟩
+        from (map f $ to (xs ∪ ys))
+      ≈⟨ from-≈ $ ∼[set]-map⁺ f $ to-++ˢ {xs = xs}{ys} ⟩
+        from (map f $ to xs ++ to ys)
+      ≡⟨ cong from $ L.map-++-commute f (to xs) _ ⟩
+        from (map f (to xs) ++ map f (to ys))
+      ≈⟨ from-++ˢ {xs = map f $ to xs} ⟩
+        from (map f $ to xs) ∪ from (map f $ to ys)
+      ≡⟨⟩
+        mapˢ f xs ∪ mapˢ f ys
+      ∎
+
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   concatMapˢ : (A → Set⟨ B ⟩) → (Set⟨ A ⟩ → Set⟨ B ⟩)
   concatMapˢ f = concatˢ ∘ mapˢ f
+
+  module _ (f : A → Set⟨ B ⟩) {xs ys} where
+    concatMapˢ-∪ : concatMapˢ f (xs ∪ ys) ≈ concatMapˢ f xs ∪ concatMapˢ f ys
+    concatMapˢ-∪ =
+      begin
+        concatMapˢ f (xs ∪ ys)
+      ≡⟨⟩
+        concatˢ (mapˢ f (xs ∪ ys))
+      ≈⟨ ≈ˢ-concat⁺ {xss = mapˢ f (xs ∪ ys)}{yss = mapˢ f xs ∪ mapˢ f ys}
+                  $ mapˢ-∪-commute f {xs}{ys} ⟩
+        concatˢ (mapˢ f xs ∪ mapˢ f ys)
+      ≈˘⟨ concatˢ-∪ {xss = mapˢ f xs}{mapˢ f ys} ⟩
+        concatˢ (mapˢ f xs) ∪ concatˢ (mapˢ f ys)
+      ≡⟨⟩
+        concatMapˢ f xs ∪ concatMapˢ f ys
+      ∎
 
   filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
   filterˢ₁ = mapMaybeˢ isInj₁
@@ -322,8 +435,6 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
 
   rightsˢ : Set⟨ A ⊎ B ⟩ → Set⟨ B ⟩
   rightsˢ = proj₂ ∘ partitionSumsˢ
-
-  open ≈-Reasoning
 
   leftsˢ∘inj₁ : ∀ {a : A} {abs : Set⟨ A ⊎ B ⟩}
     →  leftsˢ (inj₁ a ∷ˢ abs)

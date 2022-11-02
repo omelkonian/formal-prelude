@@ -64,7 +64,7 @@ record Mapᴵ : Type (lsuc σ) where
   open Alg _≈ᵐ_
 
   -- derived relations
-  ⟨_⊎_⟩≡_ : Map → Map → Map → Type
+  ⟨_⊎_⟩≡_ : 3Rel₀ Map
   ⟨ m ⊎ m′ ⟩≡ m″ = (m ♯ m′) × ((m ∪ m′) ≈ m″)
 
   _[_↦_] : Map → K → V → Type
@@ -282,7 +282,7 @@ record FinMapᴵ : Type (lsuc σ) where
     ◇-⁉ : ∀ m m′ → (m ◇ m′) ⁉ k ≡ (m ⁉ k) ◇ (m′ ⁉ k)
     ◇-⁉ {k} m m′ = buildMap-sound (λ k → (m ⁉ k) ◇ (m′ ⁉ k)) k
 
-    ⟨_◇_⟩≡_ : 3Rel Map 0ℓ
+    ⟨_◇_⟩≡_ : 3Rel₀ Map
     ⟨ m₁ ◇ m₂ ⟩≡ m = m₁ ◇ m₂ ≈ m
 
     open Alg _≈ᵐ_
