@@ -52,6 +52,15 @@ module _ {A : Type ℓ} {B : Pred A ℓ′} where
   manually : (∀ x → B x) → (∀ ⦃ x ⦄ → B x)
   manually f ⦃ x ⦄ = f x
 
+-- ** Products
+module _ {A : Type ℓ} {B : Type ℓ′} {C : Type ℓ″} {D : Type ℓ‴} where
+  map×-injective : ∀ {f : A → B} {g : C → D}
+    → Injective≡ f → Injective≡ g
+    → Injective≡ (Product.map f g)
+  map×-injective inj-f inj-g {_ , _} {_ , _} eq
+    with eqˡ , eqʳ ← Product.,-injective eq
+    rewrite inj-f eqˡ | inj-g eqʳ = refl
+
 -- ** Equality
 
 ≗-sym : ∀ {f g : A → B} → f ≗ g → g ≗ f
