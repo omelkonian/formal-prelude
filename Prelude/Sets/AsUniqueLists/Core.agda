@@ -31,6 +31,10 @@ record Set' : Set where
   constructor _⊣_
   field list  : List A
         .uniq : Unique list
+
+  .set-∈-irr : ∀ {x : A} → Irrelevant (x ∈ list)
+  set-∈-irr = ∈-irr uniq
+
 open Set'
 syntax Set' {A = A} = Set⟨ A ⟩
 
@@ -138,8 +142,38 @@ x ∪ y = x ++ (filter′ (_∉ˢ? x) y) ∶- disjoint-─ {xs = list x} {ys = l
 
 ∈-∪⁺ʳ : ∀ x xs ys → x ∈ˢ ys → x ∈ˢ (xs ∪ ys)
 ∈-∪⁺ʳ x xs ys x∈ with x ∈ˢ? xs
-... | yes x∈ˢ = ∈-∪⁺ˡ x xs ys x∈ˢ
-... | no  x∉  = ∈-++⁺ʳ (list xs) (∈-filter⁺ (_∉ˢ? xs) x∈ x∉)
+... | yes x∈ = ∈-∪⁺ˡ x xs ys x∈
+... | no  x∉ = ∈-++⁺ʳ (list xs) (∈-filter⁺ (_∉ˢ? xs) x∈ x∉)
+
+destruct-∈ˢ-∪ : ∀ l r {x} (x∈ : x ∈ˢ l ∪ r) →
+    (∃ λ (x∈ˡ : x ∈ˢ l) → x∈ ≡ ∈-∪⁺ˡ _ l r x∈ˡ)
+  ⊎ (∃ λ (x∈ʳ : x ∈ˢ r) → x∈ ≡ ∈-∪⁺ʳ _ l r x∈ʳ)
+destruct-∈ˢ-∪ l r {x} x∈
+  with destruct-∈-++ x∈
+... | inj₁ (x∈ˡ , x∈≡) = inj₁ (x∈ˡ , x∈≡)
+... | inj₂ (x∈ʳ , x∈≡)
+  with ∈-filter⁻ (_∉ˢ? l) {xs = list r} x∈ʳ in x∈ʳ≡
+... | x∈ʳ′ , x∉ˡ
+  with x ∈? list l
+... | yes x∈ˡ = ⊥-elim $ x∉ˡ x∈ˡ
+... | no x∉
+  = inj₂
+  $ x∈ʳ′
+  , (begin
+        x∈
+      ≡⟨ x∈≡ ⟩
+        ∈-++⁺ʳ (list l) x∈ʳ
+      ≡⟨ cong (∈-++⁺ʳ (list l)) $ ∈-filter⁻∙proj₁-injective (_∉ˢ? l) _ _ $
+         begin
+           ∈-filter⁻ (_∉ˢ? l) x∈ʳ .proj₁
+         ≡⟨ cong proj₁ x∈ʳ≡ ⟩
+           x∈ʳ′
+         ≡˘⟨ destruct-∈-filter (_∉ˢ? l) x∈ʳ′ x∉ ⟩
+           ∈-filter⁻ (_∉ˢ? l) (∈-filter⁺ (_∉ˢ? l) x∈ʳ′ x∉) .proj₁
+         ∎ ⟩
+        ∈-++⁺ʳ (list l) (∈-filter⁺ (_∉ˢ? l) x∈ʳ′ x∉)
+      ∎
+    ) where open ≡-Reasoning
 
 ∈-∩⁺ : ∀ x xs ys → x ∈ˢ xs → x ∈ˢ ys → x ∈ˢ (xs ∩ ys)
 ∈-∩⁺ _ _ ys = ∈-filter⁺ ((_∈ˢ? ys))
@@ -176,6 +210,10 @@ instance
 _≈ˢ_ = Rel₀ Set' ∋ _≈_
 module ≈ˢ-Reasoning = ≈-Reasoning {A = Set'}
 open Alg _≈ˢ_
+
+.≈ˢ-cancel : ∀ s s′ (p : s ≈ˢ s′) (x∈ : x ∈ˢ s) →
+  p .proj₂ (p .proj₁ x∈) ≡ x∈
+≈ˢ-cancel s s′ p x∈ = set-∈-irr s (p .proj₂ $ p .proj₁ x∈) x∈
 
 ≈⇒⊆ˢ : s ≈ s′ → s ⊆ˢ s′
 ≈⇒⊆ˢ = proj₁

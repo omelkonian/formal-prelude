@@ -22,6 +22,11 @@ module _ {X Y : Type} ⦃ _ : DecEq X ⦄ ⦃ _ : DecEq Y ⦄ where
   collectFromSet : (X → Set⟨ Y ⟩) → (Set⟨ X ⟩ → Set⟨ Y ⟩)
   collectFromSet f s = concatMapˢ f s
 
+  collectFromSet≈ : ∀ (f : X → Set⟨ Y ⟩) {xs ys : Set⟨ X ⟩}
+    → xs ≈ ys
+    → collectFromSet f xs ≈ collectFromSet f ys
+  collectFromSet≈ f {xs}{ys} = ≈ˢ-concatMap⁺ f {xs}{ys}
+
 module _ {X Y Z : Type} ⦃ _ : DecEq Z ⦄ where
   collectFromPairˡ : (X → Set⟨ Z ⟩) → X × Y → Set⟨ Z ⟩
   collectFromPairˡ = _∘ proj₁

@@ -200,6 +200,11 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     mapˢ : (A → B) → (Set⟨ A ⟩ → Set⟨ B ⟩)
     mapˢ f = from ∘ map f ∘ to
 
+    mapWith∈ˢ : (xs : Set⟨ A ⟩) → (∀ {x} → x ∈ˢ xs → B) → Set⟨ B ⟩
+    mapWith∈ˢ xs f = from
+                  $ L.Mem.mapWith∈ (to xs)
+                  $ f ∘ ∈-nub⁻ ∘ ∈ˢ-fromList⁺
+
     module _ (f : A → B) where
       ∈ˢ-map⁺ : x ∈ˢ xs → f x ∈ˢ mapˢ f xs
       ∈ˢ-map⁺ = ∈ˢ-fromList⁺ ∘ L.Mem.∈-map⁺ f
@@ -236,72 +241,11 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
               in  ∈ˢ-mapMaybe⁺ {xs = xs ∪ ys} (∈-∪⁺ʳ _ xs ys x∈ʳ) eq
         )
 
-    mapWith∈ˢ : (xs : Set⟨ A ⟩) → (∀ {x} → x ∈ˢ xs → B) → Set⟨ B ⟩
-    mapWith∈ˢ xs f = from
-                   $ L.Mem.mapWith∈ (to xs)
-                   $ f ∘ ∈-nub⁻ ∘ ∈ˢ-fromList⁺
-
   module _ {F : Set↑} ⦃ _ : Foldable F ⦄ ⦃ _ : Monad F ⦄ ⦃ _ : DecEq (F A) ⦄ where
     sequenceMˢ : Set⟨ F A ⟩ → F (Set⟨ A ⟩)
     sequenceMˢ = fmap from ∘ sequenceM ∘ to
 
-  -- ** Set mappings
-  infix 0 mk↦_
-  data _↦′_ : Set⟨ A ⟩ → Pred₀ A → Type where
-    mk↦_ : (∀ {x} → x ∈ˢ xs → P x) → xs ↦′ P
-
-  unmk↦_ : xs ↦′ P → (∀ {x} → x ∈ˢ xs → P x)
-  unmk↦ (mk↦ p) = p
-
-  map↦ = _↦′_
-  syntax map↦ xs (λ x → f) = ∀[ x ∈ xs ] f
-
-  _↦_ : Set⟨ A ⟩ → Type → Type
-  xs ↦ B = xs ↦′ const B
-
-  dom : xs ↦′ P → Set⟨ A ⟩
-  dom {xs = xs} _ = xs
-
-  codom : ⦃ _ : DecEq B ⦄ → xs ↦ B → Set⟨ B ⟩
-  codom {xs = xs} (mk↦ f) = mapWith∈ˢ xs f
-
-  weaken-↦ : xs ↦′ P → ys ⊆ˢ xs → ys ↦′ P
-  weaken-↦ (mk↦ f) ys⊆xs = mk↦ f ∘ ys⊆xs
-
-  cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ˢ xs) ↦′ P
-  cons-↦ {xs = xs} x y (mk↦ f) = mk↦ ∈ˢ-∷⁻ {x′ = x}{xs} >≡> λ where
-      (inj₁ refl) → y
-      (inj₂ x∈)   → f x∈
-
-  uncons-↦ : (x ∷ˢ xs) ↦′ P → xs ↦′ P
-  uncons-↦ {x = x}{xs} (mk↦ f) = mk↦ f ∘ thereˢ {xs = xs}{x}
-
-  _↭ˢ_ : Rel₀ (Set⟨ A ⟩)
-  _↭ˢ_ = _↭_ on to
-
-  module _ {xs ys} where
-    permute-↦ : xs ↭ˢ ys → xs ↦′ P → ys ↦′ P
-    permute-↦ xs↭ys (mk↦ xs↦) = mk↦
-      xs↦ ∘ ∈ˢ-toList⁺ {xs = xs} ∘ L.Perm.∈-resp-↭ (↭-sym xs↭ys) ∘ ∈ˢ-toList⁻ {xs = ys}
-
-    _∪/↦_ : xs ↦′ P → ys ↦′ P → (xs ∪ ys) ↦′ P
-    (mk↦ xs↦) ∪/↦ (mk↦ ys↦) = mk↦ ∈-∪⁻ _ xs ys >≡> λ where
-      (inj₁ x∈) → xs↦ x∈
-      (inj₂ y∈) → ys↦ y∈
-
-    destruct-∪/↦ : (xs ∪ ys) ↦′ P → (xs ↦′ P) × (ys ↦′ P)
-    destruct-∪/↦ (mk↦ xys↦) = (mk↦ xys↦ ∘ ∈-∪⁺ˡ _ xs ys)
-                            , (mk↦ xys↦ ∘ ∈-∪⁺ʳ _ xs ys)
-
-    destruct≡-∪/↦ : zs ≡ xs ∪ ys → zs ↦′ P → (xs ↦′ P) × (ys ↦′ P)
-    destruct≡-∪/↦ refl = destruct-∪/↦
-
-  extend-↦ : zs ↭ˢ (xs ∪ ys) → xs ↦′ P → ys ↦′ P → zs ↦′ P
-  extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ∪/↦ ys↦)
-
-  cong-↦ : xs ↦′ P → xs′ ≈ xs → xs′ ↦′ P
-  cong-↦ (mk↦ f) eq = mk↦ f ∘ eq .proj₁
-
+-- ** concat
 module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
   concatˢ = from ∘ concatMap to ∘ to
@@ -338,10 +282,8 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     ≡⟨⟩
       concatˢ yss
     ∎
-    -- (λ x∈xss → {!Any-resp-⊆ xss⊆ $ ∈-concatMap⁻ to ?!})
-    -- -- L.Any.concat⁺ $ L.Mem.∈-concat⁻ {!!} x∈xss
-    -- , {!!}
 
+-- ** map
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   private variable xs ys : Set⟨ A ⟩
   module _ (f : A → B) where
@@ -367,7 +309,21 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
         mapˢ f xs ∪ mapˢ f ys
       ∎
 
+  module _ (f : A → Maybe B) where
+    ≈ˢ-mapMaybe⁺ :
+      xs ≈ ys
+      ───────────────────────────────
+      mapMaybeˢ f xs ≈ mapMaybeˢ f ys
+    ≈ˢ-mapMaybe⁺ {xs}{ys} = from-≈ ∘ ∼[set]-mapMaybe⁺ f ∘ to-≈ {xs = xs}{ys}
+
+-- ** concatMap
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+  filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
+  filterˢ₁ = mapMaybeˢ isInj₁
+
+  filterˢ₂ : Set⟨ A ⊎ B ⟩ → Set⟨ B ⟩
+  filterˢ₂ = mapMaybeˢ isInj₂
+
   concatMapˢ : (A → Set⟨ B ⟩) → (Set⟨ A ⟩ → Set⟨ B ⟩)
   concatMapˢ f = concatˢ ∘ mapˢ f
 
@@ -387,14 +343,15 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
         concatMapˢ f xs ∪ concatMapˢ f ys
       ∎
 
-  filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
-  filterˢ₁ = mapMaybeˢ isInj₁
-
-  filterˢ₂ : Set⟨ A ⊎ B ⟩ → Set⟨ B ⟩
-  filterˢ₂ = mapMaybeˢ isInj₂
+    ≈ˢ-concatMap⁺ :
+      xs ≈ ys
+      ─────────────────────────────────
+      concatMapˢ f xs ≈ concatMapˢ f ys
+    ≈ˢ-concatMap⁺ = ≈ˢ-concat⁺ {xss = mapˢ f xs}{mapˢ f ys} ∘ ≈ˢ-map⁺ f {xs}{ys}
 
 private variable A B : Set
 
+-- ** align/zip/partition
 module _ {A B C : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
   alignWithˢ : (These A B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
   alignWithˢ f xs ys = from $ L.alignWith f (to xs) (to ys)
@@ -520,5 +477,6 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
       (b ∷ˢ rightsˢ abs)
     ∎
 
+-- ** sum
 sumˢ : Set⟨ ℕ ⟩ → ℕ
 sumˢ = sum ∘ to
