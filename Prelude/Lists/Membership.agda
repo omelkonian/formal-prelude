@@ -123,6 +123,43 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
     let x∈ , Px = ∈-filter⁻ P? y∈
     in ∈-filter⁺ P? (xs⊆ x∈) Px
 
+  destruct-∈-filter : ∀ {x xs} (x∈ : x ∈ xs) (Px : P x) →
+    ∈-filter⁻ P? (∈-filter⁺ P? x∈ Px) .proj₁ ≡ x∈
+  destruct-∈-filter {x} (here refl) Px rewrite dec-yes (P? x) Px .proj₂ = refl
+  destruct-∈-filter (there {x = y} x∈) Px
+    with IH ← destruct-∈-filter x∈ Px
+    with P? y
+  ... | yes p = cong there IH
+  ... | no ¬p = cong there IH
+
+  ∈-filter⁻-injective : ∀ {xs} (x∈ x∈′ : x ∈ filter P? xs)
+    → ∈-filter⁻ P? {xs = xs} x∈ ≡ ∈-filter⁻ P? {xs = xs} x∈′
+    → x∈ ≡ x∈′
+  ∈-filter⁻-injective {xs = x ∷ xs} x∈ x∈′ eq
+    with P? x | x∈ | x∈′ | eq
+  ... | no  _ | x∈ | x∈′ | eq
+    = ∈-filter⁻-injective x∈ x∈′
+    $ map×-injective L.Any.there-injective id eq
+  ... | yes _ | here px | here .px | refl = refl
+  ... | yes _ | there x∈ | there x∈′ | eq
+      = cong there
+      $ ∈-filter⁻-injective x∈ x∈′
+      $ map×-injective L.Any.there-injective id eq
+
+  ∈-filter⁻∙proj₁-injective : ∀ {xs} (x∈ x∈′ : x ∈ filter P? xs)
+    → ∈-filter⁻ P? {xs = xs} x∈ .proj₁ ≡ ∈-filter⁻ P? {xs = xs} x∈′ .proj₁
+    → x∈ ≡ x∈′
+  ∈-filter⁻∙proj₁-injective {xs = x ∷ xs} x∈ x∈′ eq
+    with P? x | x∈ | x∈′ | eq
+  ... | no  _ | x∈ | x∈′ | eq
+    = ∈-filter⁻∙proj₁-injective x∈ x∈′
+    $ L.Any.there-injective eq
+  ... | yes _ | here px | here .px | refl = refl
+  ... | yes _ | there x∈ | there x∈′ | eq
+    = cong there
+    $ ∈-filter⁻∙proj₁-injective x∈ x∈′
+    $ L.Any.there-injective eq
+
 -- ** map
 ∈-map⁻inverseˡ : ∀ (f : A → B) (f⁻¹ : B → A) →
   ∙ Inverse≡ˡ {A = B} f⁻¹ f

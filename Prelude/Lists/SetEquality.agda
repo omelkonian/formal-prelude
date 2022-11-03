@@ -4,13 +4,14 @@ open import Data.List.Relation.Binary.BagAndSetEquality
 
 open import Prelude.Init
 open L.Mem
+open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
+open import Prelude.General
 open import Prelude.InferenceRules
 open import Prelude.DecLists
 open import Prelude.DecEq
 open import Prelude.Lists.Core
 open import Prelude.Lists.Membership
-open import Prelude.General
-open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
+open import Prelude.Lists.MapMaybe
 
 private variable
   A : Set ℓ; B : Set ℓ′
@@ -102,6 +103,17 @@ module _ (f : A → B) where
       (_ , x∈ , refl) → ∈-map⁺ f $ ∼set⇒⊆ xs~ys x∈) ,
     (∈-map⁻ f >≡> λ where
       (_ , x∈ , refl) → ∈-map⁺ f $ ∼set⇒⊇ xs~ys x∈)
+
+module _ (f : A → Maybe B) where
+  ∼[set]-mapMaybe⁺ :
+    xs ∼[set] ys
+    ──────────────────────────────────
+    mapMaybe f xs ∼[set] mapMaybe f ys
+  ∼[set]-mapMaybe⁺ xs~ys = ⊆⊇⇒∼set $
+    (∈-mapMaybe⁻ f >≡> λ where
+      (_ , x∈ , f≡) → ∈-mapMaybe⁺ f (∼set⇒⊆ xs~ys x∈) f≡) ,
+    (∈-mapMaybe⁻ f >≡> λ where
+      (_ , x∈ , f≡) → ∈-mapMaybe⁺ f (∼set⇒⊇ xs~ys x∈) f≡)
 
 module _ (f : A → List B) where
   ∼[set]-concatMap⁺ :
