@@ -191,6 +191,12 @@ map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate {A}{B}{m} (x ∷
 ‼-map {xs = x ∷ xs} fzero    = fzero
 ‼-map {xs = x ∷ xs} (fsuc i) = fsuc (‼-map {xs = xs} i)
 
+‼-mapWith∈ : ∀ {xs : List A} {f : ∀ {x} → x ∈ xs → B}
+  → Index xs
+  → Index (mapWith∈ xs f)
+‼-mapWith∈ {xs = x ∷ xs} fzero    = fzero
+‼-mapWith∈ {xs = x ∷ xs} (fsuc i) = fsuc (‼-mapWith∈ {xs = xs} i)
+
 map-‼ : ∀ {xs : List A} {x : A} {f : A → B} (x∈ : x ∈ xs)
   → (map f xs ‼ ‼-map {xs = xs} {f = f} (L.Any.index x∈)) ≡ f x
 map-‼ (here refl) = refl
