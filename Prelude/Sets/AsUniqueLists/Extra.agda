@@ -77,6 +77,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   ∈ˢ-singleton : x ∈ˢ singleton x
   ∈ˢ-singleton = singleton∈ˢ .proj₂ refl
 
+  infixr 5 _∷ˢ_
   _∷ˢ_ : A → Set⟨ A ⟩ → Set⟨ A ⟩
   x ∷ˢ xs = singleton x ∪ xs
 
@@ -187,14 +188,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   filterˢ : ∀ {P : Pred₀ A} → Decidable¹ P → Set⟨ A ⟩ → Set⟨ A ⟩
   filterˢ P? = from ∘ filter P? ∘ to
 
-  instance
-    Indexable-Set : Indexable Set⟨ A ⟩ A
-    Indexable-Set = λ where
-      .Ix → Ix ∘ to
-      ._‼_ s i → to s ‼ i
-
   module _ {B : Set} ⦃ _ : DecEq B ⦄ where
-
     private variable y : B
 
     mapˢ : (A → B) → (Set⟨ A ⟩ → Set⟨ B ⟩)
@@ -247,6 +241,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
 
 -- ** concat
 module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+
   concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
   concatˢ = from ∘ concatMap to ∘ to
 
@@ -286,7 +281,9 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
 -- ** map
 module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   private variable xs ys : Set⟨ A ⟩
+
   module _ (f : A → B) where
+
     ≈ˢ-map⁺ :
       xs ≈ ys
       ─────────────────────
