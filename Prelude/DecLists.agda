@@ -119,6 +119,19 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 ... | here  eq   = here eq
 ... | there fx∈′ = there $ ∈-map∘nub⁻ f x xs fx∈′
 
+‼-nub⁺ : Index xs → Index (nub xs)
+‼-nub⁺ {x ∷ xs} i with x ∈? xs
+... | yes x∈ = ‼-nub⁺ {xs} $ L.Any.index x∈
+... | no  _ = case i of λ where
+  0F → 0F
+  (fsuc j) → fsuc $ ‼-nub⁺ {xs} j
+
+‼-nub⁻ : Index (nub xs) → Index xs
+‼-nub⁻ {x ∷ xs} i with x ∈? xs
+... | yes x∈ = fsuc $ ‼-nub⁻ {xs} i
+... | no  _ = case i of λ where
+  0F → 0F
+  (fsuc j) → fsuc $ ‼-nub⁻ {xs} j
 
 -- ** nubBy
 
