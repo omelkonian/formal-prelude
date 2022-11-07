@@ -27,6 +27,18 @@ private variable
 ↭-concatMap⁺ : (f : A → List B) → xs ↭ ys → concatMap f xs ↭ concatMap f ys
 ↭-concatMap⁺ f = ↭-concat⁺ ∘ map⁺ f
 
+Unique-resp-↭ : Unique {A = A} Respects _↭_
+Unique-resp-↭ ↭-refl = id
+Unique-resp-↭ (↭-prep _ xs↭) (x∉ ∷ p)
+  = L.Perm.All-resp-↭ xs↭ x∉
+  ∷ Unique-resp-↭ xs↭ p
+Unique-resp-↭ (↭-swap _ _ xs↭) ((x≢y ∷ x∉xs) ∷ y∉xs ∷ p)
+  = (≢-sym x≢y ∷ L.Perm.All-resp-↭ xs↭ y∉xs)
+  ∷ (L.Perm.All-resp-↭ xs↭ x∉xs ∷ Unique-resp-↭ xs↭ p)
+Unique-resp-↭ (↭-trans p₁ p₂)
+  = Unique-resp-↭ p₂
+  ∘ Unique-resp-↭ p₁
+
 ↭-sym∘++⁺ˡ :
   (p : xs ↭ ys)
   --——————————————————————————
