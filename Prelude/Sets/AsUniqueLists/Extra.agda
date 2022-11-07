@@ -207,6 +207,33 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
       ∈ˢ-map⁻ : y ∈ˢ mapˢ f xs → ∃ λ x → x ∈ˢ xs × y ≡ f x
       ∈ˢ-map⁻ = L.Mem.∈-map⁻ f ∘ ∈ˢ-fromList⁻
 
+      mapˢ-∪ : mapˢ f (xs ∪ ys) ≈ (mapˢ f xs ∪ mapˢ f ys)
+      mapˢ-∪ {xs}{ys} =
+        let xs′ = mapˢ f xs; ys′ = mapˢ f ys; xys′ = mapˢ f (xs ∪ ys) in
+        (λ y∈ →
+          let x , x∈ , eq = ∈ˢ-map⁻ {xs = xs ∪ ys} y∈
+          in case ∈-∪⁻ x xs ys x∈ of λ where
+               (inj₁ x∈ˡ) → ∈-∪⁺ˡ _ xs′ ys′
+                          $ subst (_∈ˢ xs′) (sym eq)
+                          $ ∈ˢ-map⁺ {xs = xs} x∈ˡ
+               (inj₂ x∈ʳ) → ∈-∪⁺ʳ _ xs′ ys′
+                          $ subst (_∈ˢ ys′) (sym eq)
+                          $ ∈ˢ-map⁺ {xs = ys} x∈ʳ
+        ) ,
+        (λ y∈ →
+          case ∈-∪⁻ _ xs′ ys′ y∈ of λ where
+            (inj₁ y∈ˡ) →
+              let x , x∈ˡ , eq = ∈ˢ-map⁻ {xs = xs} y∈ˡ
+              in  subst (_∈ˢ xys′) (sym eq)
+                $ ∈ˢ-map⁺ {xs = xs ∪ ys}
+                $ ∈-∪⁺ˡ _ xs ys x∈ˡ
+            (inj₂ y∈ʳ) →
+              let x , x∈ʳ , eq = ∈ˢ-map⁻ {xs = ys} y∈ʳ
+              in  subst (_∈ˢ xys′) (sym eq)
+                $ ∈ˢ-map⁺ {xs = xs ∪ ys}
+                $ ∈-∪⁺ʳ _ xs ys x∈ʳ
+        )
+
     mapMaybeˢ : (A → Maybe B) → (Set⟨ A ⟩ → Set⟨ B ⟩)
     mapMaybeˢ f = from ∘ mapMaybe f ∘ to
 
