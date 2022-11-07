@@ -52,6 +52,7 @@ open import Prelude.Orders
 open import Prelude.Ord
 
 open import Prelude.Setoid
+open import Prelude.CongSetoid
 
 open import Prelude.Collections
 open import Prelude.Membership
