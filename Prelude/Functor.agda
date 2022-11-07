@@ -1,16 +1,18 @@
 module Prelude.Functor where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
 {-
-Functor : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
+Functor : (Type ℓ → Type ℓ) → Type (lsuc ℓ)
 Functor {ℓ = ℓ} = RawFunctor {ℓ = ℓ} {ℓ′ = ℓ}
 open RawFunctor ⦃ ... ⦄ public
 -}
 
-private variable A B C : Set ℓ
+private variable
+  a b c : Level
+  A : Type a; B : Type b; C : Type c
 
-record Functor (F : Set↑) : Setω where
+record Functor (F : Type↑) : Typeω where
   infixl 4 _<$>_ _<$_
   infixl 1 _<&>_
 
@@ -24,17 +26,18 @@ record Functor (F : Set↑) : Setω where
   _<&>_ = flip _<$>_
 open Functor ⦃...⦄ public
 
-record FunctorLaws (F : Set↑) ⦃ _ : Functor F ⦄ : Setω where
+record FunctorLaws (F : Type↑) ⦃ _ : Functor F ⦄ : Typeω where
   field
     -- preserves identity morphisms
-    fmap-id : ∀ {A : Set ℓ} (x : F A) →
+    fmap-id : ∀ {A : Type a} (x : F A) →
       fmap id x ≡ x
     -- preserves composition of morphisms
-    fmap-∘  : ∀ {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {f : B → C} {g : A → B} (x : F A) →
+    fmap-∘  : ∀ {A : Type a} {B : Type b} {C : Type c}
+                {f : B → C} {g : A → B} (x : F A) →
       fmap (f ∘ g) x ≡ (fmap f ∘ fmap g) x
 open FunctorLaws ⦃...⦄ public
 
--- Id : Set↑
+-- Id : Type↑
 -- Id x = x
 
 instance
@@ -55,12 +58,12 @@ instance
   FunctorLaws-List : FunctorLaws List
   FunctorLaws-List = record {fmap-id = p; fmap-∘ = q}
     where
-      p : ∀ {A : Set ℓ} (x : List A) → fmap id x ≡ x
+      p : ∀ {A : Type ℓ} (x : List A) → fmap id x ≡ x
       p = λ where
         [] → refl
         (x ∷ xs) → cong (x ∷_) (p xs)
 
-      q : ∀ {A : Set ℓ} {B : Set ℓ′} {C : Set ℓ″} {f : B → C} {g : A → B} (x : List A) →
+      q : ∀ {A : Type ℓ} {B : Type ℓ′} {C : Type ℓ″} {f : B → C} {g : A → B} (x : List A) →
         fmap (f ∘ g) x ≡ (fmap f ∘ fmap g) x
       q {f = f}{g} = λ where
         [] → refl

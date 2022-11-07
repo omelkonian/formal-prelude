@@ -1,7 +1,7 @@
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 
-module Prelude.Sets.Abstract {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Sets.Abstract {A : Type} ⦃ _ : DecEq A ⦄ where
 
 open import Prelude.Sets.Abstract.Interface
 import Prelude.Sets as Imp

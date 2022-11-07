@@ -3,13 +3,13 @@
 
 module Prelude.Lists.Empty where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; mapWith∈)
 open import Prelude.Null
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   x : A
   xs ys : List A
   xss : List (List A)
@@ -61,7 +61,7 @@ mapWith∈≡[] {xs = []} _ = refl
 ∀mapWith∈≡[] {xs = []}     {f} _  xs≢[]  _    = xs≢[] refl
 ∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (L.All.lookup ∀≡[] (here refl))
 
-filter≡[] : {P : A → Set} {P? : Decidable¹ P} {xs : List A}
+filter≡[] : {P : A → Type} {P? : Decidable¹ P} {xs : List A}
   → filter P? xs ≡ []
   → All (¬_ ∘ P) xs
 filter≡[] {P = P} {P?} {[]}     _  = []

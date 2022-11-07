@@ -1,6 +1,6 @@
 module Prelude.Sets.Examples where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.DecLists
 open import Prelude.Decidable
@@ -13,13 +13,13 @@ private
   module Implementation1 where
     open import Prelude.Sets.Abstract.Interface
     import Prelude.Sets.AsPredicates as Imp
-    module _ {A : Set} where
+    module _ {A : Type} where
       _ = Setᴵ A 1ℓ ∋ record {Imp}
 
   module Implementation2 where
     open import Prelude.Sets.Abstract.Interface
     import Prelude.Sets.AsUniqueLists as Imp
-    module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+    module _ {A : Type} ⦃ _ : DecEq A ⦄ where
       setᴵ = Setᴵ A 0ℓ ∋ record {Imp}
       _ = FinSetᴵ A 0ℓ ∋ record {setᴵ = setᴵ; Imp}
 

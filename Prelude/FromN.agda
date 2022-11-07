@@ -1,8 +1,8 @@
 module Prelude.FromN where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-record Fromℕ (A : Set ℓ) : Set ℓ where
+record Fromℕ (A : Type ℓ) : Type ℓ where
   field fromℕ : ℕ → A
 open Fromℕ ⦃...⦄ public
 

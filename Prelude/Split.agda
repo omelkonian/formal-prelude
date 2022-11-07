@@ -1,8 +1,8 @@
 module Prelude.Split where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-record _-splitsInto-_ (A : Set ℓ) (B : Set ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record _-splitsInto-_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field split : A → B × B
 
   left _∙left right _∙right : A → B

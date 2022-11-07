@@ -1,8 +1,5 @@
 module Prelude.Init where
 
-module SetAsType where
-  open import Agda.Primitive using () renaming (Set to Type; Setω to Typeω) public
-
 -- ** Universes
 module Lvl where
   open import Level public
@@ -20,6 +17,17 @@ Set[ ℓ ↝ ℓ′ ] = Set ℓ → Set ℓ′
 
 Set↑ : Setω
 Set↑ = ∀ {ℓ} → Set[ ℓ ↝ ℓ ]
+
+module SetAsType where
+  open import Agda.Primitive using () renaming (Set to Type; Setω to Typeω) public
+
+  Type↑ : Typeω
+  Type↑ = Set↑
+
+  Type[_↝_] : ∀ ℓ ℓ′ → Type (lsuc ℓ ⊔ₗ lsuc ℓ′)
+  Type[_↝_] = Set[_↝_]
+
+open SetAsType
 
 -- ** Equality
 open import Relation.Binary.PropositionalEquality public
@@ -45,7 +53,7 @@ module Fun where
     open import Function.Equivalence public
 open import Function.Definitions public
   using (Congruent; Injective; Surjective; Bijective; Inverseˡ; Inverseʳ; Inverseᵇ)
-module _ {a b} {A : Set a} {B : Set b} where
+module _ {a b} {A : Type a} {B : Type b} where
   open import Function.Definitions {A = A} {B = B} _≡_ _≡_ public
     using ()
     renaming
@@ -58,7 +66,7 @@ open import Function.Bundles public
 
 -- forward composition (= kleene composition of `Monad Id`)
 infixr 0 _>≡>_
-_>≡>_ : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c} → (A → B) → (B → C) → A → C
+_>≡>_ : ∀ {a b c} {A : Type a} {B : Type b} {C : Type c} → (A → B) → (B → C) → A → C
 f >≡> g = g ∘ f
 
 -- ** Categories
@@ -291,7 +299,7 @@ module PropEq where
 module Binary where
   open import Relation.Binary.Core public
   open import Relation.Binary.Definitions public
-  module _ {A : Set ℓ} where
+  module _ {A : Type ℓ} where
     open import Relation.Binary.Structures (_≡_ {A = A}) public
   open import Relation.Binary.Bundles public
 
@@ -307,9 +315,9 @@ open import Relation.Ternary public
 -- ** Algebra
 open import Algebra public
   using (Op₁; Op₂; Opₗ; Opᵣ)
-module Alg {a ℓ} {A : Set a} (_~_ : Rel A ℓ) where
+module Alg {a ℓ} {A : Type a} (_~_ : Rel A ℓ) where
   open import Algebra.Definitions {A = A} _~_ public
-module Alg≡ {a} {A : Set a} where
+module Alg≡ {a} {A : Type a} where
   open import Algebra.Definitions {A = A} _≡_ public
 
 -- ** Induction
@@ -355,7 +363,7 @@ module Meta where
 
 
 -- ** Shorthands
-Pred₀ Rel₀ 3Rel₀ : ∀ {ℓ} → Set ℓ → Set (1ℓ ⊔ₗ ℓ)
+Pred₀ Rel₀ 3Rel₀ : ∀ {ℓ} → Type ℓ → Type (1ℓ ⊔ₗ ℓ)
 Pred₀ A = Pred A 0ℓ
 Rel₀  A = Rel  A 0ℓ
 3Rel₀ A = 3Rel A 0ℓ

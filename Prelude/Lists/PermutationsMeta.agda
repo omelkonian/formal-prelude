@@ -3,7 +3,7 @@
 
 module Prelude.Lists.PermutationsMeta where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; mapWith∈; ∈-map⁻)
 open L.Perm hiding (trans)
 open import Prelude.InferenceRules
@@ -17,8 +17,8 @@ open import Prelude.Lists.Concat
 open import Prelude.Lists.MapMaybe
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   x y : A
   xs ys zs ws : List A
   xss yss : List (List A)
@@ -99,7 +99,7 @@ Any-resp-↭∘Any-map f xs↭ x∈
   rewrite Any-resp-↭∘Any-map f p x∈
   = Any-resp-↭∘Any-map f q (Any-resp-↭ p x∈)
 
-Any-map∘∈-resp-↭ : ∀ {A : Set} {x y : A} {xs ys : List A}
+Any-map∘∈-resp-↭ : ∀ {A : Type} {x y : A} {xs ys : List A}
   (f : (x ≡_) ⊆¹ (y ≡_))
   (p : xs ↭ ys)
   (x∈ : x ∈ xs)
@@ -1208,7 +1208,7 @@ module _ {f : A → B} {P : Pred B ℓ} where
           | Any-map⁻∘Any-resp-↭∘map⁺ p y∈
           = refl
 
-module _ {A B : Set} (f : A → B) where
+module _ {A B : Type} (f : A → B) where
 
   ∈-map⁻∘∈-resp-↭∘map⁺ : ∀ {y : B} {xs ys : List A}
     (p : xs ↭ ys)
@@ -1326,7 +1326,7 @@ Any-resp-↭∘Any-catMaybes⁺ (swap nothing nothing xs↭) (there (there x∈)
   = Any-resp-↭∘Any-catMaybes⁺ xs↭ x∈
 
 -- ** subst
-subst-ƛ : ∀ {X : Set ℓ′} {Y : Set ℓ″} {y z : Y} {P : Pred Y ℓ}
+subst-ƛ : ∀ {X : Type ℓ′} {Y : Type ℓ″} {y z : Y} {P : Pred Y ℓ}
   (eq : y ≡ z)
   (p : X → P y)
   (x : X)

@@ -1,20 +1,15 @@
 module Prelude.Measurable where
 
-open import Function
-open import Level renaming (suc to lsuc)
 open import Induction
 open import Induction.WellFounded
-open import Data.Sum
-open import Data.Product
-open import Data.List
-open import Data.Nat hiding (_⊔_)
 open import Data.Nat.Induction
-open import Relation.Binary
 import Relation.Binary.Construct.On as On
 
+open import Prelude.Init; open SetAsType
 open import Prelude.General
+open import Prelude.Ord
 
-record Measurable {ℓ} (A : Set ℓ) : Set ℓ where
+record Measurable {ℓ} (A : Type ℓ) : Type ℓ where
   field
     ∣_∣ : A → ℕ
 
@@ -23,8 +18,8 @@ open Measurable ⦃...⦄ public
 private
   variable
     a b : Level
-    A : Set a
-    B : Set b
+    A : Type a
+    B : Type b
 
 instance
   Measurable-ℕ : Measurable ℕ
@@ -35,10 +30,10 @@ instance
   Measurable-⊎ .∣_∣ (inj₂ x) = ∣ x ∣
 
 
-∃Measurable : Set₁
-∃Measurable = Σ[ A ∈ Set ] (Measurable A) × A
+∃Measurable : Type₁
+∃Measurable = Σ[ A ∈ Type ] (Measurable A) × A
 
-toMeasure : ∀ {A : Set} ⦃ _ : Measurable A ⦄ → A → ∃Measurable
+toMeasure : ∀ {A : Type} ⦃ _ : Measurable A ⦄ → A → ∃Measurable
 toMeasure ⦃ mx ⦄ x = _ , mx , x
 
 -- NB: this can be used when you want a *heterogeneous* well-founded relation
@@ -57,7 +52,7 @@ module _ ⦃ _ : Measurable A ⦄ where
   ≺-rec : Recursor (WfRec _≺_)
   ≺-rec = All.wfRec ≺-wf 0ℓ
 
-_≺ᵐ_ : ∀ {A B : Set} ⦃ _ : Measurable A ⦄ ⦃ _ : Measurable B ⦄ → A → B → Set
+_≺ᵐ_ : ∀ {A B : Type} ⦃ _ : Measurable A ⦄ ⦃ _ : Measurable B ⦄ → A → B → Type
 x ≺ᵐ y = toMeasure x ≺ toMeasure y
 
 -- alternatives for products
@@ -88,6 +83,6 @@ private
   ... | 0     = list>0 xs
   ... | suc _ = s≤s z≤n
 
-  ≺ᵐ-∷ : ∀ {A : Set} ⦃ _ : Measurable A ⦄ (x : A) (xs : List A)
+  ≺ᵐ-∷ : ∀ {A : Type} ⦃ _ : Measurable A ⦄ (x : A) (xs : List A)
     → (x ≺ᵐ (x ∷ xs))
   ≺ᵐ-∷ x xs = x<x+y ∣ x ∣ (list>0 xs)

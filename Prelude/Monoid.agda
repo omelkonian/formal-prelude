@@ -1,15 +1,15 @@
 module Prelude.Monoid where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Semigroup public
 
-record Monoid (A : Set ℓ) : Set ℓ where
+record Monoid (A : Type ℓ) : Type ℓ where
   field
     overlap ⦃ sm ⦄ : Semigroup A
     ε : A
 open Monoid ⦃ ... ⦄ public hiding (sm)
 
-record MonoidLaws (A : Set ℓ) ⦃ _ : Monoid A ⦄ (_~_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record MonoidLaws (A : Type ℓ) ⦃ _ : Monoid A ⦄ (_~_ : Rel A ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   open Alg _~_
   field ε-identity : Identity ε _◇_
 
@@ -20,10 +20,10 @@ record MonoidLaws (A : Set ℓ) ⦃ _ : Monoid A ⦄ (_~_ : Rel A ℓ′) : Set 
   ε-identityʳ = ε-identity .proj₂
 open MonoidLaws ⦃...⦄ public
 
-MonoidLaws≡ : (A : Set ℓ) ⦃ _ : Monoid A ⦄ → Set ℓ
+MonoidLaws≡ : (A : Type ℓ) ⦃ _ : Monoid A ⦄ → Type ℓ
 MonoidLaws≡ A = MonoidLaws A _≡_
 
-private variable A : Set ℓ
+private variable A : Type ℓ
 
 instance
   Monoid-List : Monoid (List A)
@@ -75,13 +75,13 @@ module _ where
 
 -- ** maybes
 
-just-◇ˡ : ∀ {A : Set} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
+just-◇ˡ : ∀ {A : Type} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
   just x ◇ mx ≡ just (x ◇ fromMaybe ε mx)
 just-◇ˡ x = λ where
   (just _) → refl
   nothing  → cong just $ sym $ ε-identityʳ x
 
-just-◇ʳ : ∀ {A : Set} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
+just-◇ʳ : ∀ {A : Type} ⦃ _ : Monoid A ⦄ ⦃ _ : MonoidLaws≡ A ⦄ (x : A) (mx : Maybe A) →
   mx ◇ just x ≡ just (fromMaybe ε mx ◇ x)
 just-◇ʳ x = λ where
   (just _) → refl

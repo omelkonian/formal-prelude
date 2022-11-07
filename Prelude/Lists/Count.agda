@@ -1,6 +1,6 @@
 module Prelude.Lists.Count where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open Nat.Ord
 open Nat using (_≤_)
 open import Prelude.General
@@ -8,7 +8,7 @@ open import Prelude.Null
 open import Prelude.Lists.Empty
 
 private variable
-  A : Set ℓ; B : Set ℓ′
+  A : Type ℓ; B : Type ℓ′
   x : A; xs ys : List A
 
 count : ∀ {P : Pred A ℓ} → Decidable¹ P → List A → ℕ

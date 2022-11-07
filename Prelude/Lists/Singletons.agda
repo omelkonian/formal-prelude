@@ -3,7 +3,7 @@
 
 module Prelude.Lists.Singletons where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open Nat using (_≤_)
 open L.Mem using (_∈_; mapWith∈)
 open L.NE using (toList)
@@ -14,13 +14,13 @@ open import Prelude.Lists.Empty
 open import Prelude.Lists.NonEmpty
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   x : A
   xs : List A
   xss : List (List A)
 
-Singleton : List A → Set
+Singleton : List A → Type
 Singleton []       = ⊥
 Singleton (_ ∷ []) = ⊤
 Singleton (_ ∷ _)  = ⊥
@@ -69,7 +69,7 @@ singleton-concat : ∀ {x : A} {xss : List (List A)}
   → Singleton (concat xss)
 singleton-concat refl = tt
 
-All-singleton : {x : A} {xs : List A} {P : A → Set}
+All-singleton : {x : A} {xs : List A} {P : A → Type}
  → xs ≡ [ x ]
  → All P xs
  → P x
@@ -96,7 +96,7 @@ ams-∈ {xs = []}        _  ()
 ams-∈ {xs = x ∷ []}    _  (here refl) = refl
 ams-∈ {xs = _ ∷ _ ∷ _} () _
 
-ams-filter⁺ : ∀ {xs : List A} {P : A → Set} {P? : Decidable¹ P}
+ams-filter⁺ : ∀ {xs : List A} {P : A → Type} {P? : Decidable¹ P}
   → AtMostSingleton xs
   → AtMostSingleton (filter P? xs)
 ams-filter⁺ {xs = []}                  tt = tt
@@ -141,7 +141,7 @@ am-¬null⇒singleton {xs = (_ ∷ _ ∷ _)} ()
 
 ---
 
-Singleton⁺ : List⁺ A → Set
+Singleton⁺ : List⁺ A → Type
 Singleton⁺ (_ ∷ []) = ⊤
 Singleton⁺ (_ ∷ _)  = ⊥
 
@@ -151,7 +151,7 @@ destruct-Singleton⁺ : ∀ {xs : List⁺ A}
 destruct-Singleton⁺ {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton⁺ {xs = _ ∷ (_ ∷ _)} ()
 
-singleton⁺ : ∀ {A : Set ℓ} {xs : List A}
+singleton⁺ : ∀ {A : Type ℓ} {xs : List A}
   → AtMostSingleton xs
   → (xs≢[] : ¬Null xs)
   → Singleton⁺ (toList⁺ xs xs≢[])
@@ -168,7 +168,7 @@ singleton-concatMap {f = f} h⁺ s-f
   rewrite L.++-identityʳ (f h)
     = s-f h
 
-singleton⇒singleton⁺ : ∀ {A : Set ℓ} {xs : List A} {xs≢[] : ¬ Null xs}
+singleton⇒singleton⁺ : ∀ {A : Type ℓ} {xs : List A} {xs≢[] : ¬ Null xs}
   → Singleton xs
   → Singleton⁺ (toList⁺ xs xs≢[])
 singleton⇒singleton⁺ p rewrite destruct-Singleton p .proj₂ = tt

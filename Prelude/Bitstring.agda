@@ -2,7 +2,7 @@ module Prelude.Bitstring where
 
 open import Data.Digit as D public using (Bit)
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open Nat renaming (suc to 1+_)
 open F using () renaming (suc to 1+_)
 open import Prelude.DecEq
@@ -16,12 +16,12 @@ open import Prelude.Monad
 open import Prelude.ToN
 open import Prelude.FromN
 
-Bin⁺ : Set
+Bin⁺ : Type
 Bin⁺ = List Bit
 
 infix 8 _1#
 
-data Bin : Set where
+data Bin : Type where
   0#  : Bin
   _1# : (bs : Bin⁺) → Bin
 unquoteDecl DecEq-Bin = DERIVE DecEq [ quote Bin , DecEq-Bin ]

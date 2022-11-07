@@ -10,7 +10,8 @@ open import Prelude.Bifunctor
 private variable
   n : ℕ
   ns : List ℕ
-  X Y : ℕ → Set
+  X : Pred₀ ℕ
+  Y : Pred₀ ℕ
 
 ∑ℕ : List ℕ → ℕ
 ∑ℕ = sum

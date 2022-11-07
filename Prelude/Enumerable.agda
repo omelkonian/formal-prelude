@@ -4,7 +4,7 @@
 
 module Prelude.Enumerable where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Nary
 open import Prelude.Lists
 open import Prelude.Decidable
@@ -15,8 +15,7 @@ open import Data.List.Relation.Unary.Enumerates.Setoid using (IsEnumeration)
 
 private variable
   a b : Level
-  A : Set a
-  B : Set b
+  A : Type a; B : Type b
 
 IsEnumeration≡ : Pred (List A) _
 IsEnumeration≡ {A = A} = IsEnumeration (setoid A)
@@ -24,7 +23,7 @@ IsEnumeration≡ {A = A} = IsEnumeration (setoid A)
 module EnumerableProperties where
   open import Data.List.Relation.Unary.Enumerates.Setoid.Properties public
 
-record Enumerable (A : Set ℓ) : Set ℓ where
+record Enumerable (A : Type ℓ) : Type ℓ where
   field witness : List A
         finite  : IsEnumeration≡ witness
 open Enumerable ⦃...⦄ public

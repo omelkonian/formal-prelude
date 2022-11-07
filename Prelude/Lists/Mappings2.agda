@@ -3,15 +3,14 @@
 
 module Prelude.Lists.Mappings2 where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.InferenceRules
 open import Prelude.Lists.Membership
 open import Prelude.Lists.Mappings
 
 private variable
   a b p : Level
-  A : Set a
-  B : Set b
+  A : Type a; B : Type b
   P : Pred A p
 
   x : A

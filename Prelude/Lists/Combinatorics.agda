@@ -3,13 +3,13 @@
 
 module Prelude.Lists.Combinatorics where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open import Prelude.Bifunctor
 
 private variable
-  A : Set ℓ;  x : A; xs : List A
-  B : Set ℓ′; y : B; ys : List B
+  A : Type ℓ;  x : A; xs : List A
+  B : Type ℓ′; y : B; ys : List B
 
 -- ** Adjacent pairs.
 pairs : List A → List (A × A)

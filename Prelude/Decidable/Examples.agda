@@ -1,6 +1,6 @@
 module Prelude.Decidable.Examples where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Nary
 
@@ -16,14 +16,14 @@ private
         × (8 ≡ 17 ∸ 10) )
     ∋ auto
 
-  _ : ∀ {A : Set ℓ}
+  _ : ∀ {A : Type ℓ}
     → ⦃ DecEq A ⦄
     → {m : Maybe (List A)} {x₁ x₂ : A}
     → Dec $ M.Any.Any (λ xs → (xs ≡ ⟦ x₁ , x₂ ⟧) ⊎ Any (const ⊤) xs) m
   _ = dec
 
   -- ** Non-dependent records
-  record Valid : Set where
+  record Valid : Type where
     field
       p₁ : ¬ ( (¬ ¬ (true ≡ true))
              × (8 ≡ 17 ∸ 10) )
@@ -42,7 +42,7 @@ private
 
 {-
   -- ** Dependent records (simple)
-  record Valid : Set where
+  record Valid : Type where
     field
       p₁ : ⊤
       p₂ : ¬ ( (¬ ¬ (tt ≡ p₁))
@@ -61,7 +61,7 @@ private
 
 {-
   -- ** Dependent records (advanced)
-  record Valid ⦃ da : DecEq A ⦄ (m : Maybe (List A)) (x₁ x₂ : A) : Set where
+  record Valid ⦃ da : DecEq A ⦄ (m : Maybe (List A)) (x₁ x₂ : A) : Type where
     field
       p₁ : M.Any.Any (λ xs → ( (xs ≡ ⟦ x₁ , x₂ ⟧)
                             × (Any (const ⊤) xs)

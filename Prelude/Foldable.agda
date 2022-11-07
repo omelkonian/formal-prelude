@@ -1,11 +1,11 @@
 module Prelude.Foldable where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Monoid
 
-record Foldable (F : Set↑) : Setω where
+record Foldable (F : Type↑) : Typeω where
   field
-    foldMap : ∀ {A : Set ℓ} {M : Set ℓ′} ⦃ _ : Monoid M ⦄ → (A → M) → F A → M
+    foldMap : ∀ {A : Type ℓ} {M : Type ℓ′} ⦃ _ : Monoid M ⦄ → (A → M) → F A → M
 
 open Foldable ⦃ ... ⦄ public
 

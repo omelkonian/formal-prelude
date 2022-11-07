@@ -3,7 +3,7 @@
 
 module Prelude.Lists.DecMappings where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; mapWith∈; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open L.Perm using (∈-resp-↭; Any-resp-↭)
 open import Prelude.General using (⟫_)
@@ -14,8 +14,8 @@ open import Prelude.DecEq
 
 private variable
   a b p : Level
-  A : Set a
-  B : Set b
+  A : Type a
+  B : Type b
   P : Pred A p
 
   x : A
@@ -24,13 +24,13 @@ private variable
 -- ** Mappings from membership proofs.
 infixr 0 _↦′_ _↦_
 
-_↦′_ : List A → (A → Set ℓ) → Set _
+_↦′_ : List A → (A → Type ℓ) → Type _
 xs ↦′ P = All P xs
 
 map↦ = _↦′_
 syntax map↦ xs (λ x → f) = ∀[ x ∈ xs ] f
 
-_↦_ : List A → Set b → Set _
+_↦_ : List A → Type b → Type _
 xs ↦ B = xs ↦′ const B
 
 instance
@@ -87,12 +87,12 @@ codom-↦ {xs = x ∷ _} (_ ∷ f) = x ∷ codom-↦ f
 -- open ≡-Reasoning
 
 -- -- ** Pointwise equality of same-domain mappings.
--- module _ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} where
+-- module _ {A : Type ℓ} {xs : List A} {P : Pred A ℓ′} where
 --   _≗↦_ : Rel (xs ↦′ P) _
 --   f ≗↦ f′ = ∀ {x : A} (x∈ : x ∈ xs) → f x∈ ≡ f′ x∈
 
 --   _≗⟨_⟩↦_ : ∀ {ys : List A} →
---     (ys ↦′ P) → (p↭ : xs ↭ ys) → (xs ↦′ P) → Set _
+--     (ys ↦′ P) → (p↭ : xs ↭ ys) → (xs ↦′ P) → Type _
 --   f′ ≗⟨ p↭ ⟩↦ f = ∀ {x : A} (x∈ : x ∈ xs) → f′ (∈-resp-↭ p↭ x∈) ≡ f x∈
 
 --   permute-≗↦ : ∀ {ys : List A}
@@ -145,7 +145,7 @@ codom-↦ {xs = x ∷ _} (_ ∷ f) = x ∷ codom-↦ f
 --   destruct≡-++/↦∘cong-↦ refl = destruct-++/↦∘++/↦
 
 -- -- T0D0 use for permute-↦∘permute-↦˘ to simplify
--- module _ {A : Set ℓ} {P : A → Set ℓ′} {x : A} {xs ys zs : List A} where
+-- module _ {A : Type ℓ} {P : A → Type ℓ′} {x : A} {xs ys zs : List A} where
 --   permute-↦∘permute-↦ :
 --     (p : xs ↭ ys) (q : ys ↭ zs) (f : xs ↦′ P) →
 --     --——————————————————————————————————————————————————————
@@ -162,15 +162,15 @@ codom-↦ {xs = x ∷ _} (_ ∷ f) = x ∷ codom-↦ f
 --     ∎
 
 -- -- ** Pointwise equality of ⊆-related mappings.
--- module _ {A : Set ℓ} {xs ys : List A} {P : Pred A ℓ′} where
---   _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Set _
+-- module _ {A : Type ℓ} {xs ys : List A} {P : Pred A ℓ′} where
+--   _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Type _
 --   f′ ≗⟨ p ⊆⟩↦ f = f′ ≗↦ (f ∘ p)
 
 --   weaken-≗↦ : (p : ys ⊆ xs) (f : xs ↦′ P)
 --     → weaken-↦ f p ≗⟨ p ⊆⟩↦ f
 --   weaken-≗↦ _ _ _ = refl
 
---   _≗↦ˡ_ : xs ++ ys ↦′ P → xs ↦′ P → Set _
+--   _≗↦ˡ_ : xs ++ ys ↦′ P → xs ↦′ P → Type _
 --   fg ≗↦ˡ f = (fg ∘ L.Mem.∈-++⁺ˡ) ≗↦ f
 
 --   ++-≗↦ˡ : (f : xs ↦′ P) (g : ys ↦′ P)
@@ -178,7 +178,7 @@ codom-↦ {xs = x ∷ _} (_ ∷ f) = x ∷ codom-↦ f
 --   ++-≗↦ˡ _ _ (here _) = refl
 --   ++-≗↦ˡ _ _ (there x∈) rewrite ∈-++⁻∘∈-++⁺ˡ {ys = ys} x∈ = refl
 
---   _≗↦ʳ_ : xs ++ ys ↦′ P → ys ↦′ P → Set _
+--   _≗↦ʳ_ : xs ++ ys ↦′ P → ys ↦′ P → Type _
 --   fg ≗↦ʳ g = (fg ∘ L.Mem.∈-++⁺ʳ _) ≗↦ g
 
 --   ++-≗↦ʳ : (f : xs ↦′ P) (g : ys ↦′ P)
@@ -187,7 +187,7 @@ codom-↦ {xs = x ∷ _} (_ ∷ f) = x ∷ codom-↦ f
 --   ... | ⟫ [] = refl
 --   ... | ⟫ _ ∷ xs′ rewrite ∈-++⁻∘∈-++⁺ʳ {xs = xs} y∈ = refl
 
---   _≗↦ˡʳ_,_ : xs ++ ys ↦′ P → xs ↦′ P → ys ↦′ P → Set _
+--   _≗↦ˡʳ_,_ : xs ++ ys ↦′ P → xs ↦′ P → ys ↦′ P → Type _
 --   fg ≗↦ˡʳ f , g = (fg ≗↦ˡ f) × (fg ≗↦ʳ g)
 
 --   ++-≗↦ˡʳ : (f : xs ↦′ P) (g : ys ↦′ P)

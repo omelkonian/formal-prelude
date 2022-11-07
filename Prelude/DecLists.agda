@@ -1,4 +1,4 @@
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Any using (index)
 open L.Mem using (∈-map⁺; ∈-map⁻)
 open L.All using (lookup; ¬All⇒Any¬; ¬Any⇒All¬)
@@ -10,7 +10,7 @@ open import Prelude.Decidable
 open import Prelude.Ord
 open import Prelude.Lists.Count
 
-module Prelude.DecLists {a} {A : Set a} ⦃ _ : DecEq A ⦄ where
+module Prelude.DecLists {a} {A : Type a} ⦃ _ : DecEq A ⦄ where
 
 private variable
   x y z : A
@@ -110,7 +110,7 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 ... | yes x∈ˢ = ∈-nub⁺ x∈
 ... | no  _   = there $ ∈-nub⁺ x∈
 
-∈-map∘nub⁻ : ∀ {B : Set ℓ} (f : A → B) x xs →
+∈-map∘nub⁻ : ∀ {B : Type ℓ} (f : A → B) x xs →
   f x L.Mem.∈ map f (nub xs) → f x L.Mem.∈ map f xs
 ∈-map∘nub⁻ f _ []       fx∈ = fx∈
 ∈-map∘nub⁻ f x (y ∷ xs) fx∈ with y ∈? xs
@@ -135,7 +135,7 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 
 -- ** nubBy
 
-module _ {B : Set ℓ} where
+module _ {B : Type ℓ} where
 
   -- NB: right-biased, e.g. nubBy ∣_∣ [-1,0,1] = [0,1]
   nubBy : (B → A) → List B → List B

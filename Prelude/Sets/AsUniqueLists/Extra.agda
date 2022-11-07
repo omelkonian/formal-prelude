@@ -14,6 +14,7 @@ open import Prelude.Foldable
 open import Prelude.Traversable
 open import Prelude.Monad
 open import Prelude.Indexable
+open import Prelude.Bifunctor
 
 open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
@@ -28,7 +29,7 @@ open import Prelude.Sets.AsUniqueLists.Core
 
 private to = toList; from = fromList
 
-module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+module _ {A : Type} ⦃ _ : DecEq A ⦄ where
   private variable x : A; xs ys zs : Set⟨ A ⟩
 
   toList∘singleton : toList (singleton x) ≡ [ x ]
@@ -69,7 +70,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
         (inj₂ ∈zs) → ∈-∪⁺ʳ _ xs zs ∈zs
 
 
-module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+module _ {A : Type} ⦃ _ : DecEq A ⦄ where
   private variable
     x x′ : A; xs xs′ ys zs : Set⟨ A ⟩
     B : Type; P : Pred₀ A
@@ -188,7 +189,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
   filterˢ : ∀ {P : Pred₀ A} → Decidable¹ P → Set⟨ A ⟩ → Set⟨ A ⟩
   filterˢ P? = from ∘ filter P? ∘ to
 
-  module _ {B : Set} ⦃ _ : DecEq B ⦄ where
+  module _ {B : Type} ⦃ _ : DecEq B ⦄ where
     private variable y : B
 
     mapˢ : (A → B) → (Set⟨ A ⟩ → Set⟨ B ⟩)
@@ -240,7 +241,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     sequenceMˢ = fmap from ∘ sequenceM ∘ to
 
 -- ** concat
-module _ {A : Set} ⦃ _ : DecEq A ⦄ where
+module _ {A : Type} ⦃ _ : DecEq A ⦄ where
 
   concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
   concatˢ = from ∘ concatMap to ∘ to
@@ -279,7 +280,7 @@ module _ {A : Set} ⦃ _ : DecEq A ⦄ where
     ∎
 
 -- ** map
-module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   private variable xs ys : Set⟨ A ⟩
 
   module _ (f : A → B) where
@@ -314,7 +315,7 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
     ≈ˢ-mapMaybe⁺ {xs}{ys} = from-≈ ∘ ∼[set]-mapMaybe⁺ f ∘ to-≈ {xs = xs}{ys}
 
 -- ** concatMap
-module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   filterˢ₁ : Set⟨ A ⊎ B ⟩ → Set⟨ A ⟩
   filterˢ₁ = mapMaybeˢ isInj₁
 
@@ -346,10 +347,8 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
       concatMapˢ f xs ≈ concatMapˢ f ys
     ≈ˢ-concatMap⁺ = ≈ˢ-concat⁺ {xss = mapˢ f xs}{mapˢ f ys} ∘ ≈ˢ-map⁺ f {xs}{ys}
 
-private variable A B : Set
-
 -- ** align/zip/partition
-module _ {A B C : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
+module _ {A B C : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
   alignWithˢ : (These A B → C) → Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ C ⟩
   alignWithˢ f xs ys = from $ L.alignWith f (to xs) (to ys)
 
@@ -365,7 +364,7 @@ module _ {A B C : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C �
   partitionSumsWithˢ : (A → B ⊎ C) → Set⟨ A ⟩ → Set⟨ B ⟩ × Set⟨ C ⟩
   partitionSumsWithˢ f = unalignWithˢ (∣These∣.fromSum ∘′ f)
 
-module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
+module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   alignˢ : Set⟨ A ⟩ → Set⟨ B ⟩ → Set⟨ These A B ⟩
   alignˢ = alignWithˢ id
 
@@ -474,6 +473,27 @@ module _ {A B : Set} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
       (b ∷ˢ rightsˢ abs)
     ∎
 
+module _ {A B C : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where
+  unzip₃ˢ : Set⟨ A × B × C ⟩ → Set⟨ A ⟩ × Set⟨ B ⟩ × Set⟨ C ⟩
+  unzip₃ˢ = map₂ unzipˢ ∘ unzipˢ
+
 -- ** sum
 sumˢ : Set⟨ ℕ ⟩ → ℕ
 sumˢ = sum ∘ to
+
+-- ** bimap
+
+module _ {A A′ B B′ : Type}
+  ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq A′ ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq B′ ⦄
+  where
+
+  bimapˢ : (f : A → A′) (g : B → B′) → Set⟨ A × B ⟩ → Set⟨ A′ × B′ ⟩
+  bimapˢ = mapˢ ∘₂ bimap
+
+module _ {A A′ B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq A′ ⦄ ⦃ _ : DecEq B ⦄ where
+  map₁ˢ  : (A → A′) → Set⟨ A × B ⟩ → Set⟨ A′ × B ⟩
+  map₁ˢ = flip bimapˢ id
+
+module _ {A B B′ : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq B′ ⦄ where
+  map₂ˢ : (B → B′) → Set⟨ A × B ⟩ → Set⟨ A × B′ ⟩
+  map₂ˢ = bimapˢ id

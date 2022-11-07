@@ -1,10 +1,10 @@
 module Prelude.Lenses where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Lenses.Core public
 open import Prelude.Lenses.Derive public
 
-private variable A B C : Set
+private variable A B C : Type
 
 lens-id : Lens A A
 lens-id = λ where
@@ -36,7 +36,7 @@ lens-×ʳ = λ where
 --  where _∙b↝_ = modify A⟫B
 
 private
-  record R₀ : Set where
+  record R₀ : Type where
     field
       x : ℕ
       y : String

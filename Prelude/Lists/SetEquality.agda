@@ -2,7 +2,7 @@ module Prelude.Lists.SetEquality where
 
 open import Data.List.Relation.Binary.BagAndSetEquality
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
 open import Prelude.General
@@ -14,7 +14,7 @@ open import Prelude.Lists.Membership
 open import Prelude.Lists.MapMaybe
 
 private variable
-  A : Set ℓ; B : Set ℓ′
+  A : Type ℓ; B : Type ℓ′
   xs ys : List A
   xss yss : List (List A)
   P Q : Pred A ℓ″
@@ -70,14 +70,14 @@ nub-seteq : ∀ ⦃ _ : DecEq A ⦄ {xs : List A} →
   nub xs ∼[set] xs
 nub-seteq = ⊆⊇⇒∼set (∈-nub⁻ , ∈-nub⁺)
 
-lefts-seteq : ∀ {A B : Set} {abs abs′ : List (A ⊎ B)} →
+lefts-seteq : ∀ {abs abs′ : List (A ⊎ B)} →
         abs ∼[set] abs′
   ───────────────────────────
   lefts abs ∼[set] lefts abs′
 lefts-seteq eq = let ↝ , ↜ = ∼set⇒⊆⊇ eq in
   ⊆⊇⇒∼set (∈-lefts⁺ ∘ ↝ ∘ ∈-lefts⁻ , ∈-lefts⁺ ∘ ↜ ∘ ∈-lefts⁻)
 
-rights-seteq : ∀ {A B : Set} {abs abs′ : List (A ⊎ B)} →
+rights-seteq : ∀ {abs abs′ : List (A ⊎ B)} →
         abs ∼[set] abs′
   ───────────────────────────
   rights abs ∼[set] rights abs′

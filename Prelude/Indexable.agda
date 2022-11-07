@@ -1,14 +1,14 @@
 module Prelude.Indexable where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 import Prelude.Lists as L
 
-record Indexable (A : Set ℓ) (B : Set ℓ′) {ℓ″} : Set (lsuc (ℓ ⊔ₗ ℓ′ ⊔ₗ ℓ″)) where
+record Indexable (A : Type ℓ) (B : Type ℓ′) {ℓ″} : Type (lsuc (ℓ ⊔ₗ ℓ′ ⊔ₗ ℓ″)) where
   field Ix  : Pred A ℓ″
         _‼_ : (a : A) → Ix a → B
 open Indexable ⦃...⦄ public
 
-private variable A : Set ℓ
+private variable A : Type ℓ
 
 instance
   Index-List : Indexable (List A) A

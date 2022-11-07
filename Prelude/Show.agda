@@ -10,9 +10,7 @@ open import Prelude.ToN
 
 open Meta hiding (module Show)
 
-private variable A B : Set
-
-record Show (A : Set) : Set where
+record Show (A : Set ℓ) : Set ℓ where
   field show : A → String
 open Show ⦃...⦄ public
 
@@ -22,6 +20,8 @@ private
   visibilityParen visible   s = parensIfSpace s
   visibilityParen hidden    s = braces s
   visibilityParen instance′ s = braces (braces s)
+
+private variable A : Set ℓ; B : Set ℓ′
 
 instance
   Show-⊤ : Show ⊤

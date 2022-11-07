@@ -1,18 +1,18 @@
 module Prelude.Coercions where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.General
 
 infix -1 _↝_
-record _↝_ (A : Set ℓ) (B : Set ℓ′) : Setω where
+record _↝_ (A : Type ℓ) (B : Type ℓ′) : Typeω where
   field to : A → B
   -- syntax to {A}{B} x = [ A ∋ x ]↝ B
   syntax to {B = B} = to[ B ]
 open _↝_ ⦃...⦄ public
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   P : Pred A ℓ″
   Q : Pred A ℓ‴
 
@@ -51,7 +51,7 @@ private
   _ = it
 
 infix -1 _⁇_↝_
-record _⁇_↝_ (A : Set ℓ) (P : Pred A ℓ′) (B : Set ℓ′) : Setω where
+record _⁇_↝_ (A : Type ℓ) (P : Pred A ℓ′) (B : Type ℓ′) : Typeω where
   field toBecause : (x : A) .{_ : P x} → B
   ⌞_⌟ = toBecause
   syntax toBecause x {p} = ⌞ x ⊣ p ⌟

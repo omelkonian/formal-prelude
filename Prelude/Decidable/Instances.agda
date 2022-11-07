@@ -1,11 +1,11 @@
 module Prelude.Decidable.Instances where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Decidable.Base
 open import Prelude.DecEq
 
 private variable
-  A : Set ℓ; B : Set ℓ′
+  A : Type ℓ; B : Type ℓ′
   P¹ : Pred A ℓ″; P² : Rel A ℓ″
 
 instance

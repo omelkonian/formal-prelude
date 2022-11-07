@@ -1,17 +1,17 @@
 module Prelude.FromList where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Lists
 
-record FromList (A : Set ℓ) (B : Set ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record FromList (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field fromList : List A → B
   _∙fromList = fromList
 open FromList ⦃ ... ⦄ public
 
 private
   variable
-    A : Set ℓ
-    B : Set ℓ′
+    A : Type ℓ
+    B : Type ℓ′
 
 instance
   FromList-List : FromList A (List A)

@@ -1,6 +1,6 @@
 module Prelude.Lists.SuffixSubset where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open Nat; open Nat.Ord
 open import Prelude.General
@@ -18,7 +18,7 @@ open import Prelude.Lists.Membership
 open import Prelude.Lists.MapMaybe
 
 -- ** Suffix⊆
-module _ {A : Set ℓ} where
+module _ {A : Type ℓ} where
 
   Suffix⊆ : ∀ {xs ys : List A} → Pred (xs ⊆ ys) ℓ
   Suffix⊆ {xs = xs}{ys} xs⊆ = ∀ {x} (x∈ : x ∈ xs) →
@@ -32,8 +32,8 @@ module _ {A : Set ℓ} where
   Suffix≗ {xs = xs} xs⊆ = ∀ {x} (x∈ : x ∈ xs) → indexℕ (xs⊆ x∈) ≡ indexℕ x∈
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   x x′ y z : A
   xs xs′ ys zs : List A
   xss yss : List (List A)
@@ -96,12 +96,12 @@ Suffix⊆-there⁺ {xs = xs} {ys = ys} {y = y} p l≤ suffix-p x∈
     H (suc m) (suc n) k (s≤s n≤m) rewrite H m n k n≤m = refl
 
 -- ** Suffix⊆
-Σ-over-∀′ : ∀ {A : Set ℓ} {X : A → Set ℓ′} {Y : (a : A) → X a → Set ℓ″}
+Σ-over-∀′ : ∀ {A : Type ℓ} {X : A → Type ℓ′} {Y : (a : A) → X a → Type ℓ″}
   → ({a : A} → Σ (X a) (Y a))
   → Σ ({a : A} → X a) λ x → ({a : A} → Y a x)
 Σ-over-∀′ go = (λ {a} → go {a} .proj₁) , (λ {a} → go {a} .proj₂)
 
-Σ-over-∀ : ∀ {A : Set ℓ} {X : A → Set ℓ′} {Y : (a : A) → X a → Set ℓ″}
+Σ-over-∀ : ∀ {A : Type ℓ} {X : A → Type ℓ′} {Y : (a : A) → X a → Type ℓ″}
   → ((a : A) → Σ (X a) (Y a))
   → Σ ((a : A) → X a) λ x → ((a : A) → Y a (x a))
 Σ-over-∀ go = (proj₁ ∘ go) , (proj₂ ∘ go)
@@ -361,7 +361,7 @@ Suffix⊆-step? {xs = xs} {ys = ys} {x = x} {y = y} xs⊆ p | inj₂ (s≤s len<
         | splitAt-∈-++⁺ˡ {ys = ys} x∈
   = ∈-++⁺ʳ ys , Suffix⊆-++⁺ʳ
 
-module _ {A B : Set} (f : A → Maybe B) where
+module _ {A B : Type} (f : A → Maybe B) where
 
   open MapMaybeDSL f
 

@@ -1,5 +1,4 @@
-open import Prelude.Init
-open SetAsType
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 
 module Prelude.Lenses.VanLaarhoven where

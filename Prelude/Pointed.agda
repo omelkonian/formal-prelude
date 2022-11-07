@@ -1,9 +1,9 @@
 module Prelude.Pointed where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-record Pointed (F : Set↑) : Setω where
-  field point : ∀ {A : Set ℓ} → A → F A
+record Pointed (F : Type↑) : Typeω where
+  field point : ∀ {A : Type ℓ} → A → F A
 open Pointed ⦃...⦄ public
 
 instance

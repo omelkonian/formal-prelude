@@ -1,9 +1,9 @@
-module Prelude.Serializable (DATA : Set) where
-
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.InferenceRules
 
-record Serializable (A : Set) : Set where
+module Prelude.Serializable (DATA : Type) where
+
+record Serializable (A : Type) : Type where
   field
     encode : A → DATA
     encode-injective : Injective≡ encode
@@ -23,9 +23,9 @@ record Serializable (A : Set) : Set where
     = no λ (x , x≡) → case trans (sym $ encode-decode m x .proj₂ x≡) m≡ of λ ()
 open Serializable ⦃...⦄ public
 
-decode_as_ : DATA → (A : Set) → ⦃ Serializable A ⦄ → Maybe A
+decode_as_ : DATA → (A : Type) → ⦃ Serializable A ⦄ → Maybe A
 decode m as A = decode {A = A} m
 
-decode′_as_ : ∀ (m : DATA) (A : Set) ⦃ _ : Serializable A ⦄
+decode′_as_ : ∀ (m : DATA) (A : Type) ⦃ _ : Serializable A ⦄
   → Dec (∃ λ (x : A) → m ≡ encode x)
 decode′ m as A = decode′ {A = A} m

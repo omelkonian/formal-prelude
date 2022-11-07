@@ -1,7 +1,7 @@
 {-# OPTIONS --guardedness #-}
 module Prelude.Musical where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.InferenceRules
@@ -11,11 +11,11 @@ open import Codata.Musical.Notation
 open import Codata.Musical.Stream
   renaming (_∈_ to _∈∞_)
 
-private variable A B : Set
+private variable A B : Type
 
 infix 4 _∉∞_
 
--- _∉∞_ : A → Stream A → Set
+-- _∉∞_ : A → Stream A → Type
 -- _∉∞_ = ¬_ ∘₂ _∈∞_
 
 data Any∞ (P : Pred₀ A) : Pred₀ (Stream A) where
@@ -49,10 +49,10 @@ All∞-map : ∀ {P Q : Pred₀ A} {xs : Stream A} →
 All∞-map f (px ∷ pxs) = f px ∷ ♯ All∞-map f (♭ pxs)
 -- All∞-map f (px ∷ pxs) = f px ∷ map∞ (All∞-map f) pxs
 
-_∉∞_ : A → Stream A → Set
+_∉∞_ : A → Stream A → Type
 x ∉∞ xs = All∞ (_≢ x) xs
 
--- data _∉∞_ : A → Stream A → Set where
+-- data _∉∞_ : A → Stream A → Type where
 --   _∷_ : ∀ {x y : A} {ys : ∞ (Stream A)} →
 --     ∙ x ≢ y
 --     ∙ ∞ (x ∉∞ ♭ ys)

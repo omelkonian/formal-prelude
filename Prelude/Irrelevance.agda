@@ -1,20 +1,20 @@
 module Prelude.Irrelevance where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
 
 private variable
   a b p : Level
-  A : Set a
-  B : A → Set b
-  P : A → Set p
+  A : Type a
+  B : A → Type b
+  P : A → Type p
 
 -- A type is squashed when all of its values are equal.
-record Squashed (A : Set a) : Set a where
+record Squashed (A : Type a) : Type a where
   field
     ∀≡ : ∀ (x y : A) → x ≡ y
 
-  _∀≡↝_ : ∀ {P : A → Set p} → ∃ P → (x : A) → P x
+  _∀≡↝_ : ∀ {P : A → Type p} → ∃ P → (x : A) → P x
   _∀≡↝_ (y , p) x rewrite ∀≡ y x = p
 
   -- A dependent product indexed by a squashed type is decidable!
@@ -37,10 +37,10 @@ instance
   Squashed-⊤ : Squashed ⊤
   Squashed-⊤ .∀≡ tt tt = refl
 
-  Squashed-≡ : ∀ {A : Set ℓ} {x y : A} → Squashed (x ≡ y)
+  Squashed-≡ : ∀ {A : Type ℓ} {x y : A} → Squashed (x ≡ y)
   Squashed-≡ .∀≡ refl refl = refl
 
-  Squashed-× : ∀ {A : Set ℓ} {B : Set ℓ′} →
+  Squashed-× : ∀ {A : Type ℓ} {B : Type ℓ′} →
     ⦃ Squashed A ⦄ → ⦃ Squashed B ⦄ → Squashed (A × B)
   Squashed-× .∀≡ (x , y) (x′ , y′) rewrite ∀≡ x x′ | ∀≡ y y′ = refl
 
@@ -54,7 +54,7 @@ Dec-Σ .dec = dec ∃-dec λ _ → dec
 
 -- ** Products with erased proj₂, aka refinements.
 
-record Σ₀ (A : Set ℓ) (P : A → Set ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record Σ₀ (A : Type ℓ) (P : A → Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   constructor _,₀_
   field
     element   : A
@@ -64,14 +64,14 @@ infixr 4 _,₀_
 
 infixr 2 _×₀_
 
-_×₀_ : ∀ (A : Set ℓ) (B : Set ℓ′) → Set (ℓ ⊔ₗ ℓ′)
+_×₀_ : ∀ (A : Type ℓ) (B : Type ℓ′) → Type (ℓ ⊔ₗ ℓ′)
 A ×₀ B = Σ₀ A (const B)
 
-∃₀ : ∀ {A : Set ℓ} → (A → Set ℓ′) → Set (ℓ ⊔ₗ ℓ′)
+∃₀ : ∀ {A : Type ℓ} → (A → Type ℓ′) → Type (ℓ ⊔ₗ ℓ′)
 ∃₀ = Σ₀ _
 
 {-
-  record Squash {a} (A : Set a) : Set a where
+  record Squash {a} (A : Type a) : Type a where
     constructor squash
     field
       .unsquash : A

@@ -1,10 +1,10 @@
 module Prelude.DecEq.Core where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-private variable A B : Set ℓ
+private variable A B : Type ℓ
 
-record DecEq (A : Set ℓ) : Set ℓ where
+record DecEq (A : Type ℓ) : Type ℓ where
   field _≟_ : Decidable² {A = A} _≡_
 
   _==_ : A → A → Bool
@@ -24,7 +24,7 @@ instance
   DecEq-⊤ : DecEq ⊤
   DecEq-⊤ ._≟_ = Unit._≟_
 
-  DecEq-Σ : ∀ {B : A → Set} ⦃ _ : DecEq A ⦄ ⦃ _ : ∀ {x} → DecEq (B x) ⦄ → DecEq (Σ A B)
+  DecEq-Σ : ∀ {B : A → Type} ⦃ _ : DecEq A ⦄ ⦃ _ : ∀ {x} → DecEq (B x) ⦄ → DecEq (Σ A B)
   DecEq-Σ ._≟_ (x , y) (x′ , y′)
     with x ≟ x′
   ... | no ¬p    = no λ{ refl → ¬p refl }

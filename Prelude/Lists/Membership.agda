@@ -1,6 +1,6 @@
 module Prelude.Lists.Membership where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open import Prelude.General
 open import Prelude.InferenceRules
@@ -10,13 +10,13 @@ open import Prelude.Lists.Indexed
 open import Prelude.Lists.Empty
 
 private variable
-  A : Set ℓ; B : Set ℓ′; C : Set ℓ″
+  A : Type ℓ; B : Type ℓ′; C : Type ℓ″
   x x′ y : A; xs ys : List A
   P Q : Pred A ℓ
 
 -- ** Any
 
-module _ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} where
+module _ {A : Type ℓ} {P : Pred A ℓ′} {xs : List A} where
   Is-here Is-there : Pred₀ (Any P xs)
   Is-here = λ where
     (here _)  → ⊤
@@ -178,7 +178,7 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
 ∈-mapWith∈⁻ {xs = x ∷ _}  (here refl) = x , here refl , refl
 ∈-mapWith∈⁻ {xs = x ∷ xs} (there p)   = let x , x∈ , y≡ = ∈-mapWith∈⁻ p in x , there x∈ , y≡
 
-mapWith∈-∀ : ∀ {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Set}
+mapWith∈-∀ : ∀ {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B → Type}
   → (∀ {x} x∈ → P (f {x} x∈))
   → (∀ {y} → y ∈ mapWith∈ xs f → P y)
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (L.Any.here refl)
@@ -232,7 +232,7 @@ unique-∈ {xs = []} u ()
 unique-∈ {xs = x ∷ xs} ((x≢x ∷ _) ∷ _) (here refl) = x≢x refl
 unique-∈ {xs = x ∷ xs} ((_ ∷ p) ∷ _)   (there x∈)  = L.All.All¬⇒¬Any p x∈
 
-Unique-mapWith∈ : ∀ {A B : Set} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
+Unique-mapWith∈ : ∀ {A B : Type} {xs : List A} {f : ∀ {x} → x ∈ xs → B}
   → (∀ {x x′} {x∈ : x ∈ xs} {x∈′ : x′ ∈ xs} → f x∈ ≡ f x∈′ → L.Any.index x∈ ≡ L.Any.index x∈′)
   → Unique (mapWith∈ xs f)
 Unique-mapWith∈ {xs = []}     {f = f} f≡ = []
@@ -287,7 +287,7 @@ postulate
 
 -- ** drop
 
-∈-drop⁻ : ∀ {n} {A : Set} {x : A} {xs : List A}
+∈-drop⁻ : ∀ {n} {A : Type} {x : A} {xs : List A}
   → x ∈ drop n xs
   → x ∈ xs
 ∈-drop⁻ {n = 0} x∈ = x∈
@@ -331,7 +331,7 @@ indexℕ-++⁻ {xs = x ∷ xs} y∈ (there y∈′) i≡ = qed
 
 -- ** Last∈
 
-LastAny : ∀ {A : Set ℓ} {P : Pred A ℓ′} {xs : List A} → Pred (Any P xs) ℓ
+LastAny : ∀ {A : Type ℓ} {P : Pred A ℓ′} {xs : List A} → Pred (Any P xs) ℓ
 LastAny (there p) = LastAny p
 LastAny {xs = _ ∷ xs} (here _) = Null xs
 

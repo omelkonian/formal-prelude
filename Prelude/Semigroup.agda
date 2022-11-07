@@ -1,15 +1,15 @@
 module Prelude.Semigroup where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 
-record Semigroup (A : Set ℓ) : Set ℓ where
+record Semigroup (A : Type ℓ) : Type ℓ where
   infixr 5 _◇_ _<>_
   field _◇_ : A → A → A
   _<>_ = _◇_
 open Semigroup ⦃...⦄ public
 
-record SemigroupLaws (A : Set ℓ) ⦃ _ : Semigroup A ⦄ (_≈_ : Rel A ℓ′) : Set (ℓ ⊔ₗ ℓ′) where
+record SemigroupLaws (A : Type ℓ) ⦃ _ : Semigroup A ⦄ (_≈_ : Rel A ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   open Alg _≈_
   field
     -- doesn't work when you have multiple laws simultaneously
@@ -18,10 +18,10 @@ record SemigroupLaws (A : Set ℓ) ⦃ _ : Semigroup A ⦄ (_≈_ : Rel A ℓ′
     ◇-assocʳ : Associative _◇_
 open SemigroupLaws ⦃...⦄ public
 
-SemigroupLaws≡ : (A : Set ℓ) ⦃ _ : Semigroup A ⦄ → Set ℓ
+SemigroupLaws≡ : (A : Type ℓ) ⦃ _ : Semigroup A ⦄ → Type ℓ
 SemigroupLaws≡ A = SemigroupLaws A _≡_
 
-private variable A : Set ℓ
+private variable A : Type ℓ
 
 module _ ⦃ _ : Semigroup A ⦄ ⦃ _ : SemigroupLaws≡ A ⦄ where
   ◇-assocˡ : ∀ (x y z : A) → (x ◇ (y ◇ z)) ≡ ((x ◇ y) ◇ z)

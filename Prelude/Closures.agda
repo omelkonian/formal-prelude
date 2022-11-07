@@ -1,21 +1,21 @@
 module Prelude.Closures where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.General hiding (_⊢_)
 open import Prelude.Setoid
 open import Prelude.Decidable
 open import Prelude.Bifunctor
 
 -- labelled relations
-LRel : Set ℓ × Set → (ℓ′ : Level) → Set (ℓ ⊔ₗ lsuc ℓ′)
-LRel (A , L) ℓ = A → L → A → Set ℓ
+LRel : Type ℓ × Type → (ℓ′ : Level) → Type (ℓ ⊔ₗ lsuc ℓ′)
+LRel (A , L) ℓ = A → L → A → Type ℓ
 
-LRel₀ : Set ℓ × Set → Set _
+LRel₀ : Type ℓ × Type → Type _
 LRel₀ (A , L) = LRel (A , L) 0ℓ
 
 private variable
-  A : Set ℓ
-  L : Set
+  A : Type ℓ
+  L : Type
 
 unlabel : LRel (A , L) ℓ′ → Rel A ℓ′
 unlabel _—→[_]_ x y = ∃ λ α → x —→[ α ] y
@@ -28,7 +28,7 @@ emitting_∶_ = _,_
 emit∶_ = -,_
 
 -- transitive operations
-TransitiveOp : Rel A ℓ → Set _
+TransitiveOp : Rel A ℓ → Type _
 TransitiveOp _~_ = ∀ x {y z} → x ~ y → y ~ z → x ~ z
 
 mkTransitiveOp : ∀ {_~_ : Rel A ℓ} → Transitive _~_ → TransitiveOp _~_
@@ -37,7 +37,7 @@ mkTransitiveOp trans _ = trans
 -- [RECOMMENDED] infix -1 _—→_
 
 module LabelledReflexiveTransitiveClosure
-  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) where
+  {A : Type ℓ} {L : Type} (_—[_]→_ : LRel (A , L) ℓ) where
 
   private
     variable
@@ -165,7 +165,7 @@ module LabelledReflexiveTransitiveClosure
 -- [BUG] this needs to be placed above the simpler `ReflexiveTransitiveClosure`:
 -- Agda complains that we're re-definining `_—→⟨_⟩_`, although they should leave in different namespaces.
 module UpToLabelledReflexiveTransitiveClosure
-  {A : Set ℓ} {L : Set} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
+  {A : Type ℓ} {L : Type} (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
 
   open LabelledReflexiveTransitiveClosure _—[_]→_ public
     using (_—→_; _←[_]—_; _←—_)
@@ -275,7 +275,7 @@ module UpToLabelledReflexiveTransitiveClosure
   view↔ : (x —[ αs ]↠ y) ↔ (y ↞[ αs ]— x)
   view↔ = viewLeft , viewRight
 
-module ReflexiveTransitiveClosure {A : Set ℓ} (_—→_ : Rel A ℓ) where
+module ReflexiveTransitiveClosure {A : Type ℓ} (_—→_ : Rel A ℓ) where
 
   private variable x y z : A
 
@@ -339,7 +339,7 @@ module ReflexiveTransitiveClosure {A : Set ℓ} (_—→_ : Rel A ℓ) where
   view↔ = viewLeft , viewRight
 
 module UpToReflexiveTransitiveClosure
-  {A : Set ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ⦄ where
+  {A : Type ℓ} (_—→_ : Rel A ℓ) ⦃ _ : ISetoid A ⦄ where
 
   open ReflexiveTransitiveClosure _—→_ public
     using (_←—_)
@@ -484,109 +484,111 @@ module UpToReflexiveTransitiveClosure
   view↔ : (x —↠ y) ↔ (y ↞— x)
   view↔ = viewLeft , viewRight
 
--- private
---   open import Prelude.Nary
---   variable n : ℕ
+private
+  open import Prelude.Nary
+  variable n : ℕ
 
---   module _ where
+  module _ where
 
---     infix -1 _—→_
---     data _—→_ : Rel₀ ℕ where
---       [inc] : n —→ suc n
---       [dec] : suc n —→ n
+    infix -1 _—→_
+    data _—→_ : Rel₀ ℕ where
+      [inc] : n —→ suc n
+      [dec] : suc n —→ n
 
---     open ReflexiveTransitiveClosure _—→_
+    open ReflexiveTransitiveClosure _—→_
 
---     _ : 10 —↠ 10
---     _ = begin 10 ∎
+    _ : 10 —↠ 10
+    _ = begin 10 ∎
 
---     _ : 10 —↠⁺ 12
---     _ = begin
---       10 —→⟨ [inc] ⟩
---       11 —→⟨ [dec] ⟩
---       10 —→⟨ [inc] ⟩
---       11 —→⟨ [inc] ⟩
---       12 ∎
+    _ : 10 —↠⁺ 12
+    _ = begin
+      10 —→⟨ [inc] ⟩
+      11 —→⟨ [dec] ⟩
+      10 —→⟨ [inc] ⟩
+      11 —→⟨ [inc] ⟩
+      12 ∎
 
---     _ : 12 ⁺↞— 10
---     _ = begin
---       12 ⟨ [inc] ⟩←—
---       11 ⟨ [inc] ⟩←—
---       10 ⟨ [dec] ⟩←—
---       11 ⟨ [inc] ⟩←—
---       10 ∎
+    _ : 12 ⁺↞— 10
+    _ = begin
+      12 ⟨ [inc] ⟩←—
+      11 ⟨ [inc] ⟩←—
+      10 ⟨ [dec] ⟩←—
+      11 ⟨ [inc] ⟩←—
+      10 ∎
 
---   -- module _ where
+  -- module _ where
 
---   --   infix -1 _—[_]→_
---   --   data _—[_]→_ : LRel₀ (ℕ , String) where
---   --     [inc] : n —[ "inc" ]→ suc n
---   --     [dec] : suc n —[ "dec" ]→ n
+  --   infix -1 _—[_]→_
+  --   data _—[_]→_ : LRel₀ (ℕ , String) where
+  --     [inc] : n —[ "inc" ]→ suc n
+  --     [dec] : suc n —[ "dec" ]→ n
 
---   --   open LabelledReflexiveTransitiveClosure _—[_]→_
+  --   open LabelledReflexiveTransitiveClosure _—[_]→_
 
---   --   _ : 10 —[ [] ]↠ 10
---   --   _ = begin 10 ∎
+  --   _ : 10 —[ [] ]↠ 10
+  --   _ = begin 10 ∎
 
---   --   _ : 10 —↠ 10
---   --   _ = emit∶ begin 10 ∎
+  --   _ : 10 —↠ 10
+  --   _ = emit∶ begin 10 ∎
 
---   --   _ : 10 —↠ 10
---   --   _ = emitting [] ∶ begin 10 ∎
+  --   _ : 10 —↠ 10
+  --   _ = emitting [] ∶ begin 10 ∎
 
---   --   _ : 10 —↠⁺ 12
---   --   _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
---   --       begin 10 —→⟨ [inc] ⟩
---   --             11 —→⟨ [dec] ⟩
---   --             10 —→⟨ [inc] ⟩
---   --             11 —→⟨ [inc] ⟩
---   --             12 ∎
+  --   _ : 10 —↠⁺ 12
+  --   _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
+  --       begin 10 —→⟨ [inc] ⟩
+  --             11 —→⟨ [dec] ⟩
+  --             10 —→⟨ [inc] ⟩
+  --             11 —→⟨ [inc] ⟩
+  --             12 ∎
 
---   --   _ : 12 ⁺↞— 10
---   --   _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
---   --       begin 12 ⟨ [inc] ⟩←—
---   --             11 ⟨ [inc] ⟩←—
---   --             10 ⟨ [dec] ⟩←—
---   --             11 ⟨ [inc] ⟩←—
---   --             10 ∎
+  --   _ : 12 ⁺↞— 10
+  --   _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
+  --       begin 12 ⟨ [inc] ⟩←—
+  --             11 ⟨ [inc] ⟩←—
+  --             10 ⟨ [dec] ⟩←—
+  --             11 ⟨ [inc] ⟩←—
+  --             10 ∎
 
---   module _ where
+  module _ where
 
---     infix -1 _—[_]→_
---     data _—[_]→_ : LRel₀ (ℕ , String) where
---       [inc] : n —[ "inc" ]→ suc n
---       [dec] : suc n —[ "dec" ]→ n
+    infix -1 _—[_]→_
+    data _—[_]→_ : LRel₀ (ℕ , String) where
+      [inc] : n —[ "inc" ]→ suc n
+      [dec] : suc n —[ "dec" ]→ n
 
---     instance
---       Setoidℕ : ISetoid ℕ
---       Setoidℕ ._≈_ = _≡_
+    instance
+      Setoidℕ : ISetoid ℕ
+      Setoidℕ = λ where
+        .relℓ → _
+        ._≈_  → _≡_
 
---     open import Prelude.DecEq
---     open UpToLabelledReflexiveTransitiveClosure _—[_]→_
+    open import Prelude.DecEq
+    open UpToLabelledReflexiveTransitiveClosure _—[_]→_
 
---     _ : 10 —[ [] ]↠ 10
---     _ = begin 10 ∎
+    _ : 10 —[ [] ]↠ 10
+    _ = begin 10 ∎
 
---     _ : 10 —↠ 10
---     _ = emit∶ begin 10 ∎
+    _ : 10 —↠ 10
+    _ = emit∶ begin 10 ∎
 
---     _ : 10 —↠ 10
---     _ = emitting [] ∶ begin 10 ∎
+    _ : 10 —↠ 10
+    _ = emitting [] ∶ begin 10 ∎
 
---     _ : 10 —↠⁺ 12
---     _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
---         begin 10 —→⟨ [inc]      ⟩ it , it ⊢
---               11 —→⟨ [dec] {10} ⟩
---               10 —→⟨ [inc] {10} ⟩
---               11 —→⟨ [inc] {11} ⟩
---               12 ∎
---               -- [BUG] cannot replace with begin 10 —→⟨ [inc] ⟩ 11 ⋯
---               -- i.e. unnecessary implicits + first two equivalence proofs
+    _ : 10 —↠⁺ 12
+    _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
+        begin 10 —→⟨ [inc]      ⟩ it , it ⊢
+              11 —→⟨ [dec] {10} ⟩
+              10 —→⟨ [inc] {10} ⟩
+              11 —→⟨ [inc] {11} ⟩
+              12 ∎
+              -- [BUG] cannot replace with begin 10 —→⟨ [inc] ⟩ 11 ⋯
+              -- i.e. unnecessary implicits + first two equivalence proofs
 
---     _ : 12 ⁺↞— 10
---     _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
---         begin 12 ⟨ [inc]      ⟩←— it , it ⊢
---               11 ⟨ [inc] {10} ⟩←—
---               10 ⟨ [dec] {10} ⟩←—
---               11 ⟨ [inc] {10} ⟩←—
---               10 ∎
+    _ : 12 ⁺↞— 10
+    _ = emitting ⟦ "inc" , "dec" , "inc" , "inc" ⟧ ∶
+        begin 12 ⟨ [inc]      ⟩←— it , it ⊢
+              11 ⟨ [inc] {10} ⟩←—
+              10 ⟨ [dec] {10} ⟩←—
+              11 ⟨ [inc] {10} ⟩←—
+              10 ∎

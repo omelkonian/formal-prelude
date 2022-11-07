@@ -1,10 +1,11 @@
 module Prelude.Allable where
 
 open import Prelude.Init hiding (All)
+open SetAsType
 
-record Allable (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
+record Allable (F : Type ℓ → Type ℓ) : Type (lsuc ℓ) where
   field
-    All : ∀ {A} → Pred₀ A → F A → Set ℓ
+    All : ∀ {A} → Pred₀ A → F A → Type ℓ
 
   syntax All P xs = ∀[∈ xs ] P
   All′ = All
@@ -19,6 +20,7 @@ instance
 private
   open import Prelude.Nary
   open import Prelude.Decidable
+  open import Prelude.Ord
 
   _ : ∀[ x ∈ ⟦ 1 ,  2 , 3 ⟧ ] (x > 0)
   _ = auto

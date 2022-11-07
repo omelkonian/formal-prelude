@@ -1,6 +1,6 @@
 module Prelude.Orders where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
 open import Prelude.DecEq
 

@@ -3,14 +3,14 @@
 
 module Prelude.Lists.Permutations where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Bifunctor
 open L.Mem using (_∈_; mapWith∈)
 open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm)
 
 private variable
-  A : Set ℓ
-  B : Set ℓ′
+  A : Type ℓ
+  B : Type ℓ′
   x y : A
   xs ys zs ws : List A
   xss yss : List (List A)
@@ -189,7 +189,7 @@ Any-resp-↭˘∘Any-resp-↭ p↭ x∈ =
 ∈-resp-↭˘∘∈-resp-↭ = Any-resp-↭˘∘Any-resp-↭
 
 -- ** map
-module _ {A : Set ℓ} {B : Set ℓ′} (f : A → B) where
+module _ {A : Type ℓ} {B : Type ℓ′} (f : A → B) where
 
   ∈-map-resp-↭ : ∀ {xs ys} → xs ↭ ys → map f xs ⊆ map f ys
   ∈-map-resp-↭ xs↭ys = ∈-resp-↭ $ map⁺ f xs↭ys

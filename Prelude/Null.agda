@@ -1,10 +1,10 @@
 module Prelude.Null where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Monoid
 open import Prelude.Decidable.Base
 
-record Nullable (A : Set ℓ) {ℓ′ : Level} : Set (ℓ ⊔ₗ lsuc ℓ′) where
+record Nullable (A : Type ℓ) {ℓ′ : Level} : Type (ℓ ⊔ₗ lsuc ℓ′) where
   field Null : Pred A ℓ′
 
   ¬Null : Pred A ℓ′
@@ -17,7 +17,7 @@ record Nullable (A : Set ℓ) {ℓ′ : Level} : Set (ℓ ⊔ₗ lsuc ℓ′) wh
   ¬Null? = dec¹
 open Nullable ⦃...⦄ public
 
-private variable A : Set ℓ
+private variable A : Type ℓ
 
 Monoid⇒Nullable : ⦃ Monoid A ⦄ → Nullable A
 Monoid⇒Nullable = λ where .Null → _≡ ε

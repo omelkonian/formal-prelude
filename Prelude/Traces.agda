@@ -1,6 +1,6 @@
 module Prelude.Traces where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Closures
 open import Prelude.Decidable
 open import Prelude.Setoid
@@ -9,16 +9,16 @@ open import Prelude.Validity
 
 -- Well-rooted traces.
 
-record HasInitial (A : Set ℓ) : Set (1ℓ ⊔ₗ ℓ) where
+record HasInitial (A : Type ℓ) : Type (1ℓ ⊔ₗ ℓ) where
   field Initial : Pred₀ A
 
   Initial? : ⦃ Initial ⁇¹ ⦄ → Decidable¹ Initial
   Initial? = dec¹
 open HasInitial ⦃ ... ⦄ public
 
-module _ {A : Set ℓ} ⦃ _ : HasInitial A ⦄ (_—↠_ : Rel A ℓ′) where
+module _ {A : Type ℓ} ⦃ _ : HasInitial A ⦄ (_—↠_ : Rel A ℓ′) where
 
-  record Trace : Set (ℓ ⊔ₗ ℓ′) where
+  record Trace : Type (ℓ ⊔ₗ ℓ′) where
     field
       start end : A
       trace : start —↠ end
@@ -30,9 +30,9 @@ module _ {A : Set ℓ} ⦃ _ : HasInitial A ⦄ (_—↠_ : Rel A ℓ′) where
 
 
 {-
-module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ (_—[_]↠_ : LRel (A , List L) ℓ′) where
+module _ {A : Type ℓ} {L} ⦃ _ : HasInitial A ⦄ (_—[_]↠_ : LRel (A , List L) ℓ′) where
 
-  record Trace : Set (ℓ ⊔ₗ ℓ′) where
+  record Trace : Type (ℓ ⊔ₗ ℓ′) where
     field
       start end : A
       labels : List L
@@ -42,10 +42,10 @@ module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ (_—[_]↠_ : LRel (A , Lis
 -}
 
 {-
-record Traceable (R : ∀ {ℓ} → Set ℓ → (ℓ′ : Level) → Set (ℓ ⊔ₗ lsuc ℓ′)) : Set ? where
+record Traceable (R : ∀ {ℓ} → Type ℓ → (ℓ′ : Level) → Type (ℓ ⊔ₗ lsuc ℓ′)) : Type ? where
   field
   --     {ℓ′} : Level
-  --     Trace : Set ℓ
+  --     Trace : Type ℓ
 
 instance
   TRel : Traceable Rel
@@ -55,9 +55,9 @@ instance
   TLRel = ?
 
 
-module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ where
+module _ {A : Type ℓ} {L} ⦃ _ : HasInitial A ⦄ where
 
-  record Trace : Set (ℓ ⊔ₗ ℓ′) where
+  record Trace : Type (ℓ ⊔ₗ ℓ′) where
     field
       start end : A
       labels : List L
@@ -67,11 +67,11 @@ module _ {A : Set ℓ} {L} ⦃ _ : HasInitial A ⦄ where
 -}
 
 {-
-module ReflTrans {A : Set ℓ} ⦃ _ : HasInitial A ⦄ (_—→_ : Rel A ℓ) where
+module ReflTrans {A : Type ℓ} ⦃ _ : HasInitial A ⦄ (_—→_ : Rel A ℓ) where
 
   open ReflexiveTransitiveClosure _—→_
 
-  record Trace : Set ℓ where
+  record Trace : Type ℓ where
     field
       start end : A
       trace : start —↠ end
@@ -79,11 +79,11 @@ module ReflTrans {A : Set ℓ} ⦃ _ : HasInitial A ⦄ (_—→_ : Rel A ℓ) w
 
   open Trace public
 
-module LReflTrans {A : Set ℓ} {L : Set} ⦃ _ : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) where
+module LReflTrans {A : Type ℓ} {L : Type} ⦃ _ : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) where
 
   open LabelledReflexiveTransitiveClosure _—[_]→_
 
-  record Trace : Set ℓ where
+  record Trace : Type ℓ where
     field
       start end : A
       trace : start —↠ end
@@ -91,18 +91,18 @@ module LReflTrans {A : Set ℓ} {L : Set} ⦃ _ : HasInitial A ⦄ (_—[_]→_ 
 
   open Trace public
 
-module UpToLReflTrans {A : Set ℓ} {L : Set} ⦃ i : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
+module UpToLReflTrans {A : Type ℓ} {L : Type} ⦃ i : HasInitial A ⦄ (_—[_]→_ : LRel (A , L) ℓ) ⦃ _ : ISetoid A ⦄ where
 
   open UpToLabelledReflexiveTransitiveClosure _—[_]→_
 
-  record Trace : Set ℓ where
+  record Trace : Type ℓ where
     field
       start end : A
       trace : start —↠ end
       .init : Initial start
   open Trace public
 
-  -- data Trace′ : Set ℓ where
+  -- data Trace′ : Type ℓ where
   --     _∙     : (x : A) → Trace′
   --     _∷⟦_⟧_ : A → L → Trace′ → Trace′
 

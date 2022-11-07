@@ -25,7 +25,7 @@ open ≈-Reasoning
 open import Prelude.Sets.AsUniqueLists.Core
 open import Prelude.Sets.AsUniqueLists.Extra
 
-module Prelude.Sets.AsUniqueLists.SetMappings {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Sets.AsUniqueLists.SetMappings {A : Type} ⦃ _ : DecEq A ⦄ where
 
 private variable
   x x′ : A; xs xs′ ys zs : Set⟨ A ⟩

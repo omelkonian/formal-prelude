@@ -1,12 +1,12 @@
 module Prelude.Nary where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.General
 -- NB: re-export Semigroup/Pointed for convenience
 open import Prelude.Semigroup public
 open import Prelude.Pointed   public
 
-⟦_⟧ : ∀ {n} {A : Set ℓ} {F : Set↑} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : Pointed F ⦄ → A ^ n → F A
+⟦_⟧ : ∀ {n} {A : Type ℓ} {F : Type↑} ⦃ _ : Semigroup (F A) ⦄ ⦃ _ : Pointed F ⦄ → A ^ n → F A
 ⟦_⟧ {n = zero}  x        = point x
 ⟦_⟧ {n = suc n} (x , xs) = point x ◇ ⟦ xs ⟧
 
@@ -63,9 +63,9 @@ module _ where
 
 -- [WORKAROUND] define ad-hoc typeclass
 
-private variable A B C D R : Set
+private variable A B C D R : Type
 
-record Focus₁_⟪_⟫_ (A : Set) (B : Set) (C : Set) : Set where
+record Focus₁_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
   field
     focus₁ : A → B × C
   select₁ = proj₁ ∘ focus₁
@@ -95,7 +95,7 @@ private
   _ : (select₁ t₄ ≡ 1) × (drop₁ t₄ ≡ (2 , 3 , 4))
   _ = refl , refl
 
-record Focus₂_⟪_⟫_ (A : Set) (B : Set) (C : Set) : Set where
+record Focus₂_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
   field
     focus₂ : A → B × C
   select₂ = proj₁ ∘ focus₂
@@ -126,7 +126,7 @@ private
   _ : (select₂ t₅ ≡ 2) × (drop₂ t₅ ≡ (1 , 3 , 4 , 5))
   _ = refl , refl
 
-record Focus₃_⟪_⟫_ (A : Set) (B : Set) (C : Set) : Set where
+record Focus₃_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
   field
     focus₃ : A → B × C
   select₃ = proj₁ ∘ focus₃

@@ -1,6 +1,6 @@
 module Prelude.Lists.MapMaybe where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open Nat.Ord
 open L.Mem
 open import Prelude.General
@@ -15,7 +15,7 @@ open import Prelude.Lists.Count
 open import Prelude.Lists.Membership
 
 private variable
-  a b : Level; A : Set a; B : Set b
+  a b : Level; A : Type a; B : Type b
   x x′ y : A; xs ys : List A
 
 -- ** mapMaybe
@@ -272,7 +272,7 @@ module _ (f : A → Maybe B) where
   ∈-mapMaybe⁺ : x ∈ xs → f x ≡ just y → y ∈ mapMaybe f xs
   ∈-mapMaybe⁺ {x = x} {xs = xs} {y = y} x∈ eq = Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈
 
-  Is-here∘map : ∀ {X : Set ℓ} {P : Pred A ℓ′} {Q : Pred A ℓ″} (g : P ⊆¹ Q)
+  Is-here∘map : ∀ {X : Type ℓ} {P : Pred A ℓ′} {Q : Pred A ℓ″} (g : P ⊆¹ Q)
     → (p : Any P xs)
     → Is-here p
     → Is-here $ L.Any.map g p

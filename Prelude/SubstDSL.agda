@@ -1,9 +1,9 @@
 module Prelude.SubstDSL where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
 private variable
-  A : Set ℓ
+  A : Type ℓ
   x y : A
 
 -- forward

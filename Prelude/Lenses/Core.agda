@@ -1,5 +1,4 @@
-open import Prelude.Init
-open SetAsType
+open import Prelude.Init; open SetAsType
 
 module Prelude.Lenses.Core (A : Type ℓ) (B : Type ℓ′) where
 

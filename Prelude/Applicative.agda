@@ -1,20 +1,20 @@
 -- T0D0 add indexed version like stdlib
 module Prelude.Applicative where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 
 {-
-Applicative : (Set ℓ → Set ℓ) → Set (lsuc ℓ)
+Applicative : (Type ℓ → Type ℓ) → Type (lsuc ℓ)
 Applicative {ℓ = ℓ} = RawApplicative {f = ℓ}
 open RawApplicative ⦃ ... ⦄ public
   using (pure)
   renaming ( _⊛_ to _<*>_; _<⊛_ to _<*_ ; _⊛>_ to _*>_)
 -}
 
-private variable A B C : Set ℓ; M F : Set↑
+private variable A B C : Type ℓ; M F : Type↑
 
-record Applicative (F : Set↑) : Setω where
+record Applicative (F : Type↑) : Typeω where
   infixl 4 _<*>_ _⊛_ _<*_ _<⊛_ _*>_ _⊛>_
   infix  4 _⊗_
 
@@ -43,7 +43,7 @@ record Applicative (F : Set↑) : Setω where
 
 open Applicative ⦃...⦄ public
 
--- record Applicative′ (F : Set ℓ → Set ℓ′) : Set (lsuc ℓ ⊔ₗ ℓ′) where
+-- record Applicative′ (F : Type ℓ → Type ℓ′) : Type (lsuc ℓ ⊔ₗ ℓ′) where
 --   infixl 4 _<*>′_ _⊛′_ _<*′_ _<⊛′_ _*>′_ _⊛>′_
 --   infix  4 _⊗′_
 
@@ -102,7 +102,7 @@ instance
   --   .pure x → 1 , pure x
   --   ._<*>_ (n , xs) (m , ys) → {! (n ⊔ m) , zipWith _$_ xs ys  -- (+ zipWith-⊔ lemma) !}
 
-record Applicative₀ (F : Set↑) : Setω where
+record Applicative₀ (F : Type↑) : Typeω where
   field
     overlap ⦃ super ⦄ : Applicative F
     ε₀ : F A
@@ -119,7 +119,7 @@ instance
   Applicative₀-Vec .ε₀ = []
 
 
-record Alternative (F : Set↑) : Setω where
+record Alternative (F : Type↑) : Typeω where
   infixr 3 _<|>_
   field _<|>_ : F A → F A → F A
     -- overlap ⦃ ap₀ ⦄ : Applicative₀ F

@@ -1,10 +1,9 @@
 module Prelude.Setoid where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
--- open import Prelude.Equivalence
 
-record ISetoid (A : Set ℓ) : Setω where
+record ISetoid (A : Type ℓ) : Typeω where
   infix 4 _≈_ _≉_
   field
     {relℓ} : Level
@@ -21,10 +20,10 @@ record ISetoid (A : Set ℓ) : Setω where
     _≉?_ = dec²
 open ISetoid ⦃...⦄ public
 
-IDecSetoid : ∀ (A : Set ℓ) ⦃ _ : ISetoid A ⦄ → Set (ℓ ⊔ₗ relℓ)
+IDecSetoid : ∀ (A : Type ℓ) ⦃ _ : ISetoid A ⦄ → Type (ℓ ⊔ₗ relℓ)
 IDecSetoid A = _≈_ {A = A} ⁇²
 
-record Setoid-Laws (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Setω where
+record Setoid-Laws (A : Type ℓ) ⦃ _ : ISetoid A ⦄ : Typeω where
   field isEquivalence : IsEquivalence _≈_
 
   open IsEquivalence isEquivalence public
@@ -37,21 +36,21 @@ record Setoid-Laws (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Setω where
   module ≈-Reasoning = BinSetoid mkSetoid
 open Setoid-Laws ⦃...⦄ public
 
-record Lawful-Setoid (A : Set ℓ) : Setω where
+record Lawful-Setoid (A : Type ℓ) : Typeω where
   field
     ⦃ isSetoid ⦄ : ISetoid A
     ⦃ hasSetoidLaws ⦄ : Setoid-Laws A
 open Lawful-Setoid ⦃...⦄ using () public
 
 instance
-  mkLawful-Setoid : {A : Set ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ Setoid-Laws A ⦄ → Lawful-Setoid A
+  mkLawful-Setoid : {A : Type ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ Setoid-Laws A ⦄ → Lawful-Setoid A
   mkLawful-Setoid = record {}
 
-_⟶_ : (A : Set ℓ) (B : Set ℓ′) ⦃ _ : Lawful-Setoid A ⦄ ⦃ _ : Lawful-Setoid B ⦄ → Set _
+_⟶_ : (A : Type ℓ) (B : Type ℓ′) ⦃ _ : Lawful-Setoid A ⦄ ⦃ _ : Lawful-Setoid B ⦄ → Set _
 A ⟶ B = mkSetoid {A = A} Fun.Eq.⟶ mkSetoid {A = B}
 
 {-
-  record IDecSetoid (A : Set ℓ) ⦃ _ : ISetoid A ⦄ : Set (lsuc ℓ) where
+  record IDecSetoid (A : Type ℓ) ⦃ _ : ISetoid A ⦄ : Type (lsuc ℓ) where
     infix 4 _≈?_ _≉?_
     field _≈?_ : Decidable² _≈_
 
@@ -60,6 +59,6 @@ A ⟶ B = mkSetoid {A = A} Fun.Eq.⟶ mkSetoid {A = B}
   open IDecSetoid ⦃ ... ⦄ public
 
   instance
-    Decide-Setoid : ∀ {A : Set ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ _≈_ ⁇² ⦄ → IDecSetoid A
+    Decide-Setoid : ∀ {A : Type ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ _≈_ ⁇² ⦄ → IDecSetoid A
     Decide-Setoid ._≈?_ = dec²
 -}

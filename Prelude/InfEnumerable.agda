@@ -4,7 +4,7 @@
 
 module Prelude.InfEnumerable where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open import Prelude.Membership using (_∈?_)
 open import Prelude.Nary
@@ -16,11 +16,11 @@ open import Prelude.FromN
 open import Prelude.Ord
 
 -- Enumerable∞ A = A ↔ ℕ
-record Enumerable∞ (A : Set ℓ) : Set ℓ where
+record Enumerable∞ (A : Type ℓ) : Type ℓ where
   field enum : A Fun.↔ ℕ
 open Enumerable∞ ⦃...⦄ public
 
-private variable A : Set ℓ
+private variable A : Type ℓ
 
 instance
   Enumerable∞-ℕ : Enumerable∞ ℕ

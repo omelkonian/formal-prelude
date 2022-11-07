@@ -1,6 +1,6 @@
 module Prelude.SerializableBitstring where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Bitstring
 open import Prelude.ToN
 open import Prelude.FromN
@@ -26,8 +26,8 @@ open import Prelude.Monad
 
 private variable
   a b : Level
-  A : Set a
-  B : Set b
+  A : Type a
+  B : Type b
 
 instance
   Serializable-⊎ : ⦃ Serializable A ⦄ → ⦃ Serializable B ⦄ → Serializable (A ⊎ B)
@@ -70,7 +70,7 @@ private
   instance
     postulate Serializable-String : Serializable String
 
-  data X : Set where
+  data X : Type where
     mk₁ : ℕ → X
     mk₂ : String → X
 

@@ -1,8 +1,8 @@
 module Prelude.ToN where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-record Toℕ (A : Set ℓ) : Set ℓ where
+record Toℕ (A : Type ℓ) : Type ℓ where
   field toℕ : A → ℕ
 open Toℕ ⦃...⦄ public
 

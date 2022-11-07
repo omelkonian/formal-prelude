@@ -1,10 +1,9 @@
 module Prelude.Hashable where
 
-open import Prelude.Init
-
+open import Prelude.Init; open SetAsType
 open import Prelude.Bitstring
 
-record Hashable (A : Set ℓ) : Set ℓ where
+record Hashable (A : Type ℓ) : Type ℓ where
   field _♯ : A → Bitstring
 open Hashable ⦃...⦄ public
 

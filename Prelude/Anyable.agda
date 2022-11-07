@@ -1,10 +1,11 @@
 module Prelude.Anyable where
 
 open import Prelude.Init hiding (Any)
+open SetAsType
 
-record Anyable (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
+record Anyable (F : Type ℓ → Type ℓ) : Type (lsuc ℓ) where
   field
-    Any : ∀ {A} → Pred₀ A → F A → Set ℓ
+    Any : ∀ {A} → Pred₀ A → F A → Type ℓ
 
   syntax Any P xs = ∃[∈ xs ] P
   Any′ = Any

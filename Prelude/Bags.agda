@@ -10,5 +10,5 @@ open import
   Prelude.Bags.AsLists
   public
 
-Bag⟨_⟩ : (A : Set) ⦃ _ : DecEq A ⦄ → Set
+Bag⟨_⟩ : (A : Type) ⦃ _ : DecEq A ⦄ → Type
 Bag⟨ A ⟩ = Bag {A = A}

@@ -252,7 +252,7 @@ splitAt⁺ʳ (x ∷ xs) (fsuc i) = let xsˡ , xsʳ , p = splitAt⁺ʳ xs i
                               in  x ∷⁺ xsˡ , xsʳ , cong suc p
 
 instance
-  Split-∈ : ∀ {A : Set ℓ} {xs : List A} {P : Pred A ℓ′} →
+  Split-∈ : ∀ {A : Type ℓ} {xs : List A} {P : Pred A ℓ′} →
     Any P xs -splitsInto- List A
   Split-∈ {xs = xs} .split = splitAt xs ∘ index⁺
 
@@ -267,14 +267,14 @@ length-∈∙left : {xs : List A} (x∈ : Any P xs) → length (x∈ ∙left) �
 length-∈∙left {xs = x ∷ xs} (here _) = refl
 length-∈∙left {xs = x ∷ xs} (there x∈) rewrite length-∈∙left {xs = xs} x∈ = refl
 
-map-map₁-zip : ∀ {A B C : Set} {xs : List A} {ys : List B} (f : A → C)
+map-map₁-zip : ∀ {A B C : Type} {xs : List A} {ys : List B} (f : A → C)
   → map (map₁ f) (zip xs ys)
   ≡ zip (map f xs) ys
 map-map₁-zip {xs = []}     {ys = _}      f = refl
 map-map₁-zip {xs = _ ∷ xs} {ys = []}     f = refl
 map-map₁-zip {xs = _ ∷ xs} {ys = _ ∷ ys} f rewrite map-map₁-zip {xs = xs} {ys = ys} f = refl
 
-enum∈-∷ : ∀ {A : Set} {x y : A} {xs : List A} {i : Index xs}
+enum∈-∷ : ∀ {A : Type} {x y : A} {xs : List A} {i : Index xs}
   → (i , y) ∈ enumerate xs
   → (fsuc i , y) ∈ enumerate (x ∷ xs)
 enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
@@ -284,7 +284,7 @@ enum∈-∷ {x = x} {y = y} {xs = xs} {i = i} ix∈
         | L.map-tabulate {n = length xs} (λ x → x) fsuc
         = there ix∈′
 
-x∈→ix∈ : ∀ {A : Set} {xs : List A} {x : A}
+x∈→ix∈ : ∀ {A : Type} {xs : List A} {x : A}
   → (x∈ : x ∈ xs) → ((L.Any.index x∈ , x) ∈ enumerate xs)
 x∈→ix∈ (here refl) = here refl
 x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
@@ -292,7 +292,7 @@ x∈→ix∈ {xs = _ ∷ xs} (there x∈) = enum∈-∷ (x∈→ix∈ x∈)
 mapEnumWith∈ : (xs : List A) → (∀ (i : Index xs) (x : A) → x ∈ xs → B) → List B
 mapEnumWith∈ xs f = mapWith∈ (enumerate xs) λ{ {(i , x)} ix∈ → f i x (ix∈→x∈ ix∈) }
 
-map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate : ∀ {A B : Set} {m : ℕ} (xs : List A) {P : Fin (suc m) × A → B} {f : Index xs → Fin m}
+map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate : ∀ {A B : Type} {m : ℕ} (xs : List A) {P : Fin (suc m) × A → B} {f : Index xs → Fin m}
  → map P (zip (L.tabulate {n = length xs} (fsuc ∘ f)) xs)
  ≡ map (P ∘ map₁ fsuc) (zip (L.tabulate {n = length xs} f) xs)
 map∘zip∘tabulate⟨fsuc⟩≈map⟨fsuc⟩∘zip∘tabulate [] = refl

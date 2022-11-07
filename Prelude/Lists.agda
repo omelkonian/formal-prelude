@@ -7,6 +7,7 @@ module Prelude.Lists where
 import Data.List.Relation.Binary.Pointwise as PW
 
 open import Prelude.Init hiding (_∷ʳ_)
+open SetAsType
 open Nat
 open L.Mem
 open import Prelude.General
@@ -15,9 +16,9 @@ open import Prelude.Bifunctor
 
 private variable
   a b c : Level
-  A : Set a
-  B : Set b
-  C : Set c
+  A : Type a
+  B : Type b
+  C : Type c
 
   x y : A
   xs ys : List A
@@ -43,11 +44,11 @@ open import Prelude.Lists.SuffixSubset public
 open import Prelude.Lists.Sublists public
 
 -- ** Prefix relation, instantiated for propositional equality.
-Prefix≡ : List A → List A → Set _
+Prefix≡ : List A → List A → Type _
 Prefix≡ = Prefix _≡_
 
 -- ** Suffix relation, instantiated for propositional equality.
-Suffix≡ : List A → List A → Set _
+Suffix≡ : List A → List A → Type _
 Suffix≡ = Suffix _≡_
 
 suffix-refl : (xs : List A) → Suffix≡ xs xs
@@ -76,7 +77,7 @@ pattern keepˡ_ p = refl ∷ˡ p
 pattern keepʳ_ p = refl ∷ʳ p
 
 -- ** Finite sets.
-Finite : Set a → Set a
+Finite : Type a → Type a
 Finite A = ∃[ n ] (A Fun.↔ Fin n)
 
 finList : Finite A → List A

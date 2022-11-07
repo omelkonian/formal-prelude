@@ -1,14 +1,14 @@
 module Prelude.Traversable where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 open import Prelude.Foldable
 open import Prelude.Applicative
 open import Prelude.Monad
 
-private variable A : Set ℓ; B : Set ℓ′; M : Set↑
+private variable A : Type ℓ; B : Type ℓ′; M : Type↑
 
-record TraversableA (F : Set↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Setω where
+record TraversableA (F : Type↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Typeω where
   field
     sequenceA : ⦃ Applicative M ⦄ → F (M A) → M (F A)
 
@@ -17,7 +17,7 @@ record TraversableA (F : Set↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : 
 
 open TraversableA ⦃ ... ⦄ public
 
-record TraversableM (F : Set↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Setω where
+record TraversableM (F : Type↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Typeω where
   field
     sequenceM : ⦃ Monad M ⦄ → F (M A) → M (F A)
 

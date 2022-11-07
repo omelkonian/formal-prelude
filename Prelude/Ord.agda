@@ -1,13 +1,13 @@
 module Prelude.Ord where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Lists
 open import Prelude.Decidable
 open import Prelude.Orders
 open import Prelude.DecEq
 open import Prelude.InferenceRules
 
-record Ord (A : Set ℓ) : Set (lsuc ℓ) where
+record Ord (A : Type ℓ) : Type (lsuc ℓ) where
   field _≤_ _<_ : Rel₀ A
   _≰_ = ¬_ ∘₂ _≤_
   _≮_ = ¬_ ∘₂ _<_
@@ -111,7 +111,7 @@ record Ord (A : Set ℓ) : Set (lsuc ℓ) where
 
 open Ord ⦃...⦄ public
 
-private variable X : Set ℓ
+private variable X : Type ℓ
 
 instance
   Ord-ℕ : Ord ℕ

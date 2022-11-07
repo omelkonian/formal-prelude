@@ -1,12 +1,12 @@
 module Prelude.Lists.Concat where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open Nat.Ord
 open import Prelude.InferenceRules
 
 private variable
-  A : Set ℓ; B : Set ℓ′
+  A : Type ℓ; B : Type ℓ′
   x : A; xs ys : List A; xss : List (List A)
 
 concat-∷ : concat (x ∷ xs) ≡ x ++ concat xs
@@ -46,11 +46,11 @@ Any-concatMap⁺ = L.Any.concat⁺ ∘ L.Any.map⁺
   → y ∈ concatMap f xs
 ∈-concatMap⁺ = ∈-concat⁺ ∘ L.Any.map⁺
 
-concatMap-∷ : ∀ {A B : Set} {x : A} {xs : List A} {f : A → List B}
+concatMap-∷ : ∀ {x : A} {xs : List A} {f : A → List B}
   → concatMap f (x ∷ xs) ≡ f x ++ concatMap f xs
 concatMap-∷ {x = x}{xs}{f} rewrite concat-∷ {x = f x}{map f xs} = refl
 
-concatMap-++ : ∀ {A B : Set} (f : A → List B) (xs ys : List A)
+concatMap-++ : ∀ (f : A → List B) (xs ys : List A)
   → concatMap f (xs ++ ys) ≡ concatMap f xs ++ concatMap f ys
 concatMap-++ f xs ys =
   begin concatMap f (xs ++ ys)                 ≡⟨⟩

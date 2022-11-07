@@ -1,6 +1,6 @@
 module Prelude.Membership where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 open import Prelude.DecEq
 import Data.List.Membership.DecPropositional as DL
@@ -8,17 +8,17 @@ import Data.Vec.Membership.DecPropositional as DV
 
 private
   variable
-    A : Set ℓ₁
-    B : Set ℓ₂
+    A : Type ℓ₁
+    B : Type ℓ₂
     n : ℕ
 
-record HasMembership (F : Set ℓ → Set ℓ) : Set (lsuc $ lsuc ℓ) where
+record HasMembership (F : Type ℓ → Type ℓ) : Type (lsuc $ lsuc ℓ) where
   infix 4 _∈_ _∉_ _∈?_
   field
-    _∈_ : A → F A → Set ℓ
+    _∈_ : A → F A → Type ℓ
     _∈?_ : ⦃ DecEq A ⦄ → Decidable² {A = A} _∈_
 
-  _∉_ : A → F A → Set ℓ
+  _∉_ : A → F A → Type ℓ
   _∉_ = ¬_ ∘₂ _∈_
 
   module _ {A} ⦃ _ : DecEq A ⦄ where
@@ -50,9 +50,9 @@ instance
   M-Maybe ._∈_ x mx = M.Any.Any (_≡ x) mx
   M-Maybe ._∈?_ x mx = M.Any.dec (_≟ x) mx
 
-record Functor∈ (F : Set ℓ → Set ℓ) ⦃ _ : HasMembership F ⦄ : Set (lsuc ℓ) where
+record Functor∈ (F : Type ℓ → Type ℓ) ⦃ _ : HasMembership F ⦄ : Type (lsuc ℓ) where
   field
-    mapWith∈ : ∀ {A B : Set ℓ} → (xs : F A) → (∀ {x : A} → x ∈ xs → B) → F B
+    mapWith∈ : ∀ {A B : Type ℓ} → (xs : F A) → (∀ {x : A} → x ∈ xs → B) → F B
 
 open Functor∈ ⦃ ... ⦄ public
 
@@ -70,7 +70,7 @@ private
   _ : mapWith∈ (List ℕ ∋ ⟦ 10 , 20 , 30 ⟧) (toℕ ∘ L.Any.index) ≡ ⟦ 0 , 1 , 2 ⟧
   _ = refl
 
-module _ {A B : Set} (f : A → B) where
+module _ {A B : Type} (f : A → B) where
   ∈⁺-map⁺ : ∀ {x xs} → x ∈ xs → f x ∈ L.NE.map f xs
   ∈⁺-map⁺ = L.Mem.∈-map⁺ f
 

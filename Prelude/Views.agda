@@ -1,10 +1,10 @@
 module Prelude.Views where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-private variable A : Set
+private variable A : Type ℓ
 
-record _▷_ (A B : Set) : Set where
+record _▷_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field
     view : A → B
     unview : B → A
@@ -13,11 +13,11 @@ record _▷_ (A B : Set) : Set where
 
 open _▷_ ⦃...⦄ public
 
-view_as_ : A → (B : Set) ⦃ _ : A ▷ B ⦄ → B
+view_as_ : A → (B : Type ℓ′) ⦃ _ : A ▷ B ⦄ → B
 view x as B = view {B = B} x
 
 private
-  data SnocList (A : Set ℓ) : Set ℓ where
+  data SnocList (A : Type ℓ) : Type ℓ where
     [] : SnocList A
     _∷_ : SnocList A → A → SnocList A
 

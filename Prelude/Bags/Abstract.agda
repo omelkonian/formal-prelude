@@ -1,7 +1,7 @@
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 
-module Prelude.Bags.Abstract {A : Set} ⦃ _ : DecEq A ⦄ where
+module Prelude.Bags.Abstract {A : Type} ⦃ _ : DecEq A ⦄ where
 
 import Prelude.Bags.AsMaps {A = A} as Imp
   hiding (singleton∈ˢ) renaming (singleton∈ˢ′ to singleton∈ˢ)

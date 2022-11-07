@@ -1,11 +1,11 @@
 module Prelude.Lists.Core where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open L.Mem
 open import Prelude.Bifunctor
 
 private variable
-  A : Set ℓ; B : Set ℓ′; C : Set ℓ″
+  A : Type ℓ; B : Type ℓ′; C : Type ℓ″
   x : A; y : B
   xs ys : List A
 
@@ -18,7 +18,7 @@ length-++-∸ {xs = xs}{ys}
 
 -- ** map
 
-map-proj₁-map₁ : ∀ {A B C : Set} {xs : List (A × B)} {f : A → C}
+map-proj₁-map₁ : ∀ {A B C : Type} {xs : List (A × B)} {f : A → C}
   → map proj₁ (map (map₁ f) xs)
   ≡ map (f ∘ proj₁) xs
 map-proj₁-map₁ {xs = []} = refl
@@ -75,7 +75,7 @@ All-Any-refl : ∀ {xs : List A} {f : A → B}
 All-Any-refl {xs = []}     = []
 All-Any-refl {xs = _ ∷ xs} = here refl ∷ L.All.map there (All-Any-refl {xs = xs})
 
-all-filter⁺ : ∀ {P Q : A → Set ℓ} {P? : Decidable¹ P} {xs : List A}
+all-filter⁺ : ∀ {P Q : A → Type ℓ} {P? : Decidable¹ P} {xs : List A}
   → All (λ x → P x → Q x) xs
   → All Q (filter P? xs)
 all-filter⁺ {xs = _} [] = []

@@ -1,17 +1,17 @@
 module Prelude.Accessors where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 
-variable A B : Set; n : ℕ
+variable A B : Type; n : ℕ
 
 -- general indexed version
-record HasField′ (A : Set) (B : A → Set) : Set where
+record HasField′ (A : Type) (B : A → Type) : Type where
   constructor mkHasField
   field _∙ : (a : A) → B a
 open HasField′ ⦃...⦄ public
 
 -- simple non-indexed version
-HasField : Op₂ Set
+HasField : Op₂ Type
 HasField A B = HasField′ A (const B)
 
 -- instance
@@ -20,13 +20,13 @@ HasField A B = HasField′ A (const B)
 -- private _ = [ "single" ] ∙ ≡ 1 ∋ refl
 
 -- Deriving
-AccessorTy : Set → (Set → Set)
+AccessorTy : Type → (Type → Type)
 AccessorTy = flip HasField
 
-Accessor : Set → Set₁
+Accessor : Type → Type₁
 Accessor B = ∀ {A} → ⦃ HasField A B ⦄ → A → B
 
-AccessorBuilder : Set → Set₁
+AccessorBuilder : Type → Type₁
 AccessorBuilder B = ∀ {A} → (A → B) → HasField A B
 
 open import Prelude.Tactics

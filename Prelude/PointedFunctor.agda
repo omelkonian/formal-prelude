@@ -1,19 +1,19 @@
 module Prelude.PointedFunctor where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 open import Prelude.Applicative
 
-record PointedFunctor (F : Set↑) : Setω where
+record PointedFunctor (F : Type↑) : Typeω where
   field
     overlap ⦃ super ⦄ : Functor F
-    point : ∀ {A : Set ℓ} → A → F A
+    point : ∀ {A : Type ℓ} → A → F A
 
 open PointedFunctor ⦃...⦄ public
 
 instance
   -- [ISSUE] leads to unresolved metavariables
-  -- Applicative⇒PFunctor : ∀ {F : Set ℓ → Set ℓ} ⦃ _ : Functor F ⦄ ⦃ _ : Applicative F ⦄ → PointedFunctor F
+  -- Applicative⇒PFunctor : ∀ {F : Type ℓ → Type ℓ} ⦃ _ : Functor F ⦄ ⦃ _ : Applicative F ⦄ → PointedFunctor F
   -- Applicative⇒PFunctor .point = pure
 
   PFunctor-Maybe : PointedFunctor Maybe

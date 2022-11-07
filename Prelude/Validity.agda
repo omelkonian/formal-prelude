@@ -1,13 +1,13 @@
 module Prelude.Validity where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
 
--- record DecValidable (A : Set ℓ) ⦃ _ : Validable A ⦄ : Set (lsuc ℓ) where
+-- record DecValidable (A : Type ℓ) ⦃ _ : Validable A ⦄ : Type (lsuc ℓ) where
 --   field Valid? : Decidable¹ Valid
 -- open DecValidable ⦃ ... ⦄ public
 
-record Validable (A : Set ℓ) : Set (ℓ ⊔ₗ lsuc ℓ′) where
+record Validable (A : Type ℓ) : Type (ℓ ⊔ₗ lsuc ℓ′) where
   field Valid : Pred A ℓ′
 
   Valid? : ⦃ Valid ⁇¹ ⦄ → Decidable¹ Valid
@@ -15,15 +15,15 @@ record Validable (A : Set ℓ) : Set (ℓ ⊔ₗ lsuc ℓ′) where
 
 open Validable ⦃ ... ⦄ public
 
--- record DecValidable (A : Set ℓ) : Set (lsuc ℓ) where
+-- record DecValidable (A : Type ℓ) : Type (lsuc ℓ) where
 --   field
 --     overlap ⦃ super ⦄ : Validable A
 --     Valid? : Decidable¹ Valid
 -- open DecValidable ⦃ ... ⦄ public
 
 -- instance
---   DecValidable→Dec : ∀ {A : Set ℓ} ⦃ _ : DecValidable A ⦄ → {x : A} → (Valid x) ⁇
+--   DecValidable→Dec : ∀ {A : Type ℓ} ⦃ _ : DecValidable A ⦄ → {x : A} → (Valid x) ⁇
 --   DecValidable→Dec .dec = Valid? _
 
-𝕍 : (A : Set ℓ) → ⦃ Validable {ℓ′ = ℓ′} A ⦄ → Set _
+𝕍 : (A : Type ℓ) → ⦃ Validable {ℓ′ = ℓ′} A ⦄ → Type _
 𝕍 A = ∃ λ (a : A) → Valid a

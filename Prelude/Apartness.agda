@@ -1,28 +1,28 @@
 module Prelude.Apartness where
 
-open import Prelude.Init
+open import Prelude.Init; open SetAsType
 open import Prelude.ToList
 open import Prelude.DecLists
 open import Prelude.Decidable
 
-record _//_ (A : Set ℓ) (B : Set ℓ′) : Set (ℓ ⊔ₗ ℓ′ ⊔ₗ lsuc ℓ″) where
+record _//_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ lsuc ℓ″) where
   infix 4 _♯_
-  field _♯_ : A → B → Set ℓ″
+  field _♯_ : A → B → Type ℓ″
 
   _♯?_ : ⦃ _ : ∀ {x y} → (x ♯ y) ⁇ ⦄ → Decidable² _♯_
   _♯?_ _ _ = dec
 open _//_ ⦃...⦄ public
 
-_//^⦅_⦆_ : ∀ (A : Set ℓ) ℓ (B : Set ℓ′) → Set _
+_//^⦅_⦆_ : ∀ (A : Type ℓ) ℓ (B : Type ℓ′) → Type _
 A //^⦅ ℓ″ ⦆ B = _//_ {ℓ″ = ℓ″} A B
 
 private variable
-  X : Set ℓ; Y : Set ℓ′; Z : Set ℓ″
+  X : Type ℓ; Y : Type ℓ′; Z : Type ℓ″
   n : ℕ
 
 -- Unit test to check support for relating types at different levels.
 private
-  postulate X₁ : Set₁
+  postulate X₁ : Type₁
   _ : ℕ // X₁
   _ = λ where ._♯_ _ → const ⊤
 
