@@ -322,3 +322,14 @@ _⊆[bag]?_ = Decidable² _⊆[bag]_ ∋ dec²
 _∸[bag]_ _*[bag]_ : Op₂ (List A)
 xs ∸[bag] ys = concatMap (λ x → L.replicate (count (_≟ x) xs ∸ count (_≟ x) ys) x) (nub xs)
 ys *[bag] xs = concatMap (λ x → L.replicate (count (_≟ x) xs * count (_≟ x) ys) x) (nub xs)
+
+postulate
+  ⊆[bag]⇒⊆ : xs ⊆[bag] ys → xs ⊆ ys
+  ⊆[bag]-++ˡ : xs ⊆[bag] (xs ++ ys)
+  ⊆[bag]-++ʳ : ys ⊆[bag] (xs ++ ys)
+
+⊆[bag]-trans : Transitive (Rel (List A) _ ∋ _⊆[bag]_)
+⊆[bag]-trans {i = i}{j}{k} p q =
+  L.All.tabulate (λ {x} x∈ →
+    Nat.≤-trans (L.All.lookup p {x} x∈)
+                (lookup q {x} (∈-nub⁺ {xs = j} $ ⊆[bag]⇒⊆ p (∈-nub⁻ {xs = i} x∈))))

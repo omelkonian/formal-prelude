@@ -92,7 +92,6 @@ _∪_ _─_ : Op₂ Bag
 mkBag xs ∪ mkBag ys = mkBag (xs ◇ ys)
 mkBag xs ─ mkBag ys = mkBag (xs ∸[bag] ys)
 
-
 -- ∈-∪⁻ : ∀ x xs ys → x ∈ˢ (xs ∪ ys) → x ∈ˢ xs ⊎ x ∈ˢ ys
 -- ∈-∪⁻ x xs ys x∈ = map₂ (∈-─⁻ x ys xs) (∈-++⁻ {v = x} (list xs) {ys = list (ys ─ xs)} x∈)
 
@@ -122,6 +121,9 @@ _⊆ˢ_ = _⊆[bag]_ on list
 s ⊇ˢ s′ = s′ ⊆ˢ s
 s ⊈ˢ s′ = ¬ s ⊆ˢ s′
 s ⊉ˢ s′ = ¬ s ⊇ˢ s′
+
+⊆ˢ-trans : Transitive _⊆ˢ_
+⊆ˢ-trans {i}{j}{k} p q = ⊆[bag]-trans {i = list i}{list j}{list k} p q
 
 -- ⊆ˢ-trans : Transitive _⊆ˢ_
 -- ⊆ˢ-trans ij ji = ji ∘ ij
@@ -169,8 +171,6 @@ instance
   SemigroupLaws-Bag : SemigroupLaws Bag _≈ˢ_
   SemigroupLaws-Bag = record {◇-assocʳ = ∪-assocʳ; ◇-comm = ∪-comm}
 
--- ** apartness
-instance
   Apart-Bag : Bag // Bag
   Apart-Bag ._♯_ s s′ = ∀ {k} → ¬ (k ∈ˢ s × k ∈ˢ s′)
 
@@ -188,7 +188,25 @@ _♯?ˢ_ = Decidable² (_♯_ {A = Bag}) ∋ dec²
 ◇≡-comm : Symmetric (⟨_◇_⟩≡ s)
 ◇≡-comm {s = s}{s₁}{s₂} ≈s = ≈-trans {i = s₂ ∪ s₁}{j = s₁ ∪ s₂}{k = s} (∪-comm s₂ s₁) ≈s
 
+⊆ˢ-◇ˡ : s ⊆ˢ (s ◇ s′)
+⊆ˢ-◇ˡ {s}{s′} = ⊆[bag]-++ˡ {xs = list s}{list s′}
+
+⊆ˢ-◇ʳ : s′ ⊆ˢ (s ◇ s′)
+⊆ˢ-◇ʳ {s′}{s} = ⊆[bag]-++ʳ {ys = list s′}{list s}
+
 postulate
+  ─-congˡ :
+    s ≈ s′
+    ────────────────
+    s ─ s″ ≈ s′ ─ s″
+  ─-congʳ :
+    s ≈ s′
+    ────────────────
+    s″ ─ s ≈ s″ ─ s′
+  ◇-─-commute :
+    s ⊆ˢ s₁
+    ───────────────
+    (s₁ ◇ s₂) ─ s ≈ (s₁ ─ s) ◇ s₂
   ◇-congˡ :
     s₁ ≈ s₂
     ───────────────────
