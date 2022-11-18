@@ -15,6 +15,8 @@ open import Prelude.Traversable
 open import Prelude.Monad
 open import Prelude.Indexable
 open import Prelude.Bifunctor
+open import Prelude.Decidable
+open import Prelude.Null
 
 open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
@@ -30,6 +32,11 @@ open import Prelude.Sets.AsUniqueLists.Core
 private to = toList; from = fromList
 
 module _ {A : Type} ⦃ _ : DecEq A ⦄ where
+
+  Nullˢ = Null {A = Set⟨ A ⟩}
+  Null?ˢ = Null? {A = Set⟨ A ⟩}
+  Nullᵇˢ = Nullᵇ {A = Set⟨ A ⟩}
+
   private variable x : A; xs ys zs : Set⟨ A ⟩
 
   toList∘singleton : toList (singleton x) ≡ [ x ]
