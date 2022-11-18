@@ -10,11 +10,9 @@ record Nullable (A : Type ℓ) {ℓ′ : Level} : Type (ℓ ⊔ₗ lsuc ℓ′) 
   ¬Null : Pred A ℓ′
   ¬Null = ¬_ ∘ Null
 
-  Null? : ⦃ _ : Null ⁇¹ ⦄ → Decidable¹ Null
-  Null? = dec¹
-
-  ¬Null? : ⦃ _ : Null ⁇¹ ⦄ → Decidable¹ ¬Null
-  ¬Null? = dec¹
+  module _ ⦃ _ : Null ⁇¹ ⦄ where
+    Null?  = Decidable¹ Null ∋ dec¹; Nullᵇ = isYes ∘ Null?
+    ¬Null? = Decidable¹ ¬Null ∋ dec¹; ¬Nullᵇ = isYes ∘ ¬Null?
 open Nullable ⦃...⦄ public
 
 private variable A : Type ℓ
