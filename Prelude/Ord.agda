@@ -23,14 +23,10 @@ record Ord (A : Type ℓ) : Type (lsuc ℓ) where
 
   module _ ⦃ _ : _≤_ ⁇² ⦄ where
     _≤?_ : Decidable² _≤_
-    _≤?_ = dec²
-    _≤ᵇ_ = isYes ∘₂ _≤?_
-    _≰?_ = ¬? ∘₂ _≤?_
-    _≰ᵇ_ = isYes ∘₂ _≰?_
-    _≥?_ = flip _≤?_
-    _≥ᵇ_ = isYes ∘₂ _≥?_
-    _≱?_ = ¬? ∘₂ _≥?_
-    _≱ᵇ_ = isYes ∘₂ _≱?_
+    _≤?_ = dec²; _≤ᵇ_ = isYes ∘₂ _≤?_
+    _≰?_ = ¬? ∘₂ _≤?_; _≰ᵇ_ = isYes ∘₂ _≰?_
+    _≥?_ = flip _≤?_; _≥ᵇ_ = isYes ∘₂ _≥?_
+    _≱?_ = ¬? ∘₂ _≥?_; _≱ᵇ_ = isYes ∘₂ _≱?_
     infix 4 _≤?_ _≤ᵇ_ _≰?_ _≰ᵇ_ _≥?_ _≥ᵇ_ _≱?_ _≱ᵇ_
 
     min max : Op₂ A
@@ -92,12 +88,11 @@ record Ord (A : Type ℓ) : Type (lsuc ℓ) where
 
   module _ ⦃ _ : _<_ ⁇² ⦄ where
     _<?_ : Decidable² _<_
-    _<?_ = dec²
-    _≮?_ = ¬? ∘₂ _<?_
-    _>?_ = flip _<?_
-    _≯?_ = ¬? ∘₂ _>?_
-
-    infix 4 _<?_ _>?_ _≮?_ _≯?_
+    _<?_ = dec²; _<ᵇ_ = isYes ∘₂ _<?_
+    _≮?_ = ¬? ∘₂ _<?_; _≮ᵇ_ = isYes ∘₂ _≮?_
+    _>?_ = flip _<?_; _>ᵇ_ = isYes ∘₂ _>?_
+    _≯?_ = ¬? ∘₂ _>?_; _≯ᵇ_ = isYes ∘₂ _≯?_
+    infix 4 _<?_ _<ᵇ_ _≮?_ _≮ᵇ_ _>?_ _>ᵇ_ _≯?_ _≯ᵇ_
 
   module _ ⦃ _ : DecEq A ⦄ ⦃ _ : StrictTotalOrder _<_ ⦄ where
     private STO = record { isStrictTotalOrder = it }
