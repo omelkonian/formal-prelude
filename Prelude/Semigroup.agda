@@ -21,7 +21,7 @@ open SemigroupLaws ⦃...⦄ public
 SemigroupLaws≡ : (A : Type ℓ) ⦃ _ : Semigroup A ⦄ → Type ℓ
 SemigroupLaws≡ A = SemigroupLaws A _≡_
 
-private variable A : Type ℓ
+private variable A : Type ℓ; B : Type ℓ′
 
 module _ ⦃ _ : Semigroup A ⦄ ⦃ _ : SemigroupLaws≡ A ⦄ where
   ◇-assocˡ : ∀ (x y z : A) → (x ◇ (y ◇ z)) ≡ ((x ◇ y) ◇ z)
@@ -49,7 +49,7 @@ instance
     (just x) nothing  → just x
     nothing  m        → m
 
-  SemigroupLaws-Maybe : ⦃ sm : Semigroup A ⦄ → ⦃ SemigroupLaws≡ A ⦄ → SemigroupLaws≡ (Maybe A)
+  SemigroupLaws-Maybe : ⦃ _ : Semigroup A ⦄ → ⦃ SemigroupLaws≡ A ⦄ → SemigroupLaws≡ (Maybe A)
   SemigroupLaws-Maybe {A = A} = record {◇-assocʳ = p; ◇-comm = q}
     where
       open Alg≡
@@ -67,6 +67,21 @@ instance
       q nothing  (just _) = refl
       q nothing  nothing  = refl
 
+  Semigroup-× : ⦃ Semigroup A ⦄ → ⦃ Semigroup B ⦄ → Semigroup (A × B)
+  Semigroup-× ._◇_ (a , b) (a′ , b′) = (a ◇ a′ , b ◇ b′)
+
+  SemigroupLaws-× : ⦃ _ : Semigroup A ⦄ ⦃ _ : Semigroup B ⦄
+                  → ⦃ SemigroupLaws≡ A ⦄ → ⦃ SemigroupLaws≡ B ⦄
+                  → SemigroupLaws≡ (A × B)
+  SemigroupLaws-× {A = A} {B = B} = record {◇-assocʳ = p; ◇-comm = q}
+    where
+      open Alg≡
+
+      p : Associative (_◇_ {A = A × B})
+      p (a , b) (c , d) (e , f) rewrite ◇-assocʳ a c e | ◇-assocʳ b d f = refl
+
+      q : Commutative (_◇_ {A = A × B})
+      q (a , b) (c , d) rewrite ◇-comm a c | ◇-comm b d = refl
 
 -- ** nats
 module _ where

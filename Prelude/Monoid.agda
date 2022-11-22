@@ -23,7 +23,7 @@ open MonoidLaws ⦃...⦄ public
 MonoidLaws≡ : (A : Type ℓ) ⦃ _ : Monoid A ⦄ → Type ℓ
 MonoidLaws≡ A = MonoidLaws A _≡_
 
-private variable A : Type ℓ
+private variable A : Type ℓ; B : Type ℓ′
 
 instance
   Monoid-List : Monoid (List A)
@@ -41,11 +41,27 @@ instance
   Monoid-Maybe : ⦃ Monoid A ⦄ → Monoid (Maybe A)
   Monoid-Maybe .ε = nothing
 
-  MonoidLaws-Maybe : ⦃ m : Monoid A ⦄ → ⦃ MonoidLaws≡ A ⦄ → MonoidLaws≡ (Maybe A)
+  MonoidLaws-Maybe : ⦃ _ : Monoid A ⦄ → ⦃ MonoidLaws≡ A ⦄ → MonoidLaws≡ (Maybe A)
   MonoidLaws-Maybe {A = A} = record {ε-identity = p , q}
     where open Alg≡
           p = LeftIdentity ε  _◇_ ∋ λ _ → refl
           q = RightIdentity ε _◇_ ∋ λ where (just _) → refl; nothing → refl
+
+  Monoid-× : ⦃ Monoid A ⦄ → ⦃ Monoid B ⦄ → Monoid (A × B)
+  Monoid-× .ε = ε , ε
+
+  MonoidLaws-× : ⦃ _ : Monoid A ⦄ ⦃ _ : Monoid B ⦄
+               → ⦃ MonoidLaws≡ A ⦄ → ⦃ MonoidLaws≡ B ⦄
+               → MonoidLaws≡ (A × B)
+  MonoidLaws-× {A = A} {B = B} = record {ε-identity = p , q}
+    where
+      open Alg≡
+
+      p : LeftIdentity (A × B ∋ ε)  _◇_
+      p (a , b) rewrite ε-identityˡ a | ε-identityˡ b = refl
+
+      q : RightIdentity (A × B ∋ ε) _◇_
+      q (a , b) rewrite ε-identityʳ a | ε-identityʳ b = refl
 
 -- ** nats
 module _ where
