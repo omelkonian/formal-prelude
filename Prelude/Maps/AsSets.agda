@@ -122,6 +122,9 @@ filterKV P? m@(_ ⊣ uniq-kvs) = S.filter′ P? (m .kvs) ⊣ Unique-map∘filter
 filterK : {P : Pred₀ K} → Decidable¹ P → Op₁ Map
 filterK = filterKV ∘ (_∘ proj₁)
 
+_⋪_ : K → Op₁ Map
+k ⋪ m = filterK ( ¬? ∘ (_≟ k)) m
+
 filterV : {P : Pred₀ V} → Decidable¹ P → Op₁ Map
 filterV = filterKV ∘ (_∘ proj₂)
 
