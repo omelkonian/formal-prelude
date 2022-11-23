@@ -1,12 +1,12 @@
 module Prelude.SetCollections where
 
 open import Prelude.Init; open SetAsType
+open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Sets
 open import Prelude.ToList
-
-open import Prelude.General
 open import Prelude.Setoid
+open import Prelude.Apartness
 
 record _has_ (A B : Type) ⦃ _ : DecEq B ⦄ : Type where
   field collect : A → Set⟨ B ⟩
@@ -51,7 +51,10 @@ syntax relateOn _~_ a f b = a ⦅ _~_ on f ⦆ b
 
 module _ {Z}{A}{B}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ where
   _→⦅_⦆_ = relateOn {Z = Z}{A}{B}{Type}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _`→`_
+  _⊆⦅_⦆_ = relateOn {ℓ′ = 0ℓ}{Z = Z}{A}{B}{Set⟨ Z ⟩}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _⊆ˢ_
   module _ {Z′} where
-    _≡⦅_⦆_ = relateOn {ℓ′ = 0ℓ} {Z = Z}{A}{B}{Z′}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _≡_
+    _≡⦅_⦆_ = relateOn {ℓ′ = 0ℓ}{Z = Z}{A}{B}{Z′}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _≡_
     module _ ⦃ _ : ISetoid Z′ ⦄ where
       _≈⦅_⦆_ = relateOn {Z = Z}{A}{B}{Z′}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _≈_
+    module _ ⦃ _ : Z′ // Z′ ⦄ where
+      _♯⦅_⦆_ = relateOn {ℓ′ = 0ℓ}{Z = Z}{A}{B}{Z′}⦃ dz ⦄ ⦃ ia ⦄ ⦃ ib ⦄ _♯_
