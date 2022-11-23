@@ -17,6 +17,7 @@ open import Prelude.Indexable
 open import Prelude.Bifunctor
 open import Prelude.Decidable
 open import Prelude.Null
+open import Prelude.General
 
 open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
@@ -197,8 +198,6 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
   filterˢ P? = from ∘ filter P? ∘ to
 
   module _ {B : Type} ⦃ _ : DecEq B ⦄ where
-    private variable y : B
-
     mapˢ : (A → B) → (Set⟨ A ⟩ → Set⟨ B ⟩)
     mapˢ f = from ∘ map f ∘ to
 
@@ -208,10 +207,21 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
                   $ f ∘ ∈-nub⁻ ∘ ∈ˢ-fromList⁺
 
     module _ (f : A → B) where
+
+      module _ {P : Pred₀ B} {xs} where
+        Anyˢ-map⁺ : Anyˢ (P ∘ f) xs → Anyˢ P (mapˢ f xs)
+        Anyˢ-map⁺ = Anyˢ-fromList⁺ ∘ L.Any.map⁺
+
+        Anyˢ-map⁻ :  Anyˢ P (mapˢ f xs) → Anyˢ (P ∘ f) xs
+        Anyˢ-map⁻ = L.Any.map⁻ ∘ Anyˢ-fromList⁻
+
+        Anyˢ-map : Anyˢ (P ∘ f) xs ↔ Anyˢ P (mapˢ f xs)
+        Anyˢ-map = Anyˢ-map⁺ , Anyˢ-map⁻
+
       ∈ˢ-map⁺ : x ∈ˢ xs → f x ∈ˢ mapˢ f xs
       ∈ˢ-map⁺ = ∈ˢ-fromList⁺ ∘ L.Mem.∈-map⁺ f
 
-      ∈ˢ-map⁻ : y ∈ˢ mapˢ f xs → ∃ λ x → x ∈ˢ xs × y ≡ f x
+      ∈ˢ-map⁻ : ∀ {y} → y ∈ˢ mapˢ f xs → ∃ λ x → x ∈ˢ xs × y ≡ f x
       ∈ˢ-map⁻ = L.Mem.∈-map⁻ f ∘ ∈ˢ-fromList⁻
 
       mapˢ-∪ : mapˢ f (xs ∪ ys) ≈ (mapˢ f xs ∪ mapˢ f ys)
@@ -245,11 +255,13 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
     mapMaybeˢ f = from ∘ mapMaybe f ∘ to
 
     module _ (f : A → Maybe B) where
-      ∈ˢ-mapMaybe⁺ : x ∈ˢ xs → f x ≡ just y → y ∈ˢ mapMaybeˢ f xs
-      ∈ˢ-mapMaybe⁺ = ∈ˢ-fromList⁺ ∘₂ ∈-mapMaybe⁺ f
 
-      ∈ˢ-mapMaybe⁻ : y ∈ˢ mapMaybeˢ f xs → ∃ λ x → (x ∈ˢ xs) × (f x ≡ just y)
-      ∈ˢ-mapMaybe⁻ = ∈-mapMaybe⁻ f ∘ ∈ˢ-fromList⁻
+      module _ {y} where
+        ∈ˢ-mapMaybe⁺ : x ∈ˢ xs → f x ≡ just y → y ∈ˢ mapMaybeˢ f xs
+        ∈ˢ-mapMaybe⁺ = ∈ˢ-fromList⁺ ∘₂ ∈-mapMaybe⁺ f
+
+        ∈ˢ-mapMaybe⁻ : y ∈ˢ mapMaybeˢ f xs → ∃ λ x → (x ∈ˢ xs) × (f x ≡ just y)
+        ∈ˢ-mapMaybe⁻ = ∈-mapMaybe⁻ f ∘ ∈ˢ-fromList⁻
 
       mapMaybeˢ-∪ : mapMaybeˢ f (xs ∪ ys) ≈ (mapMaybeˢ f xs ∪ mapMaybeˢ f ys)
       mapMaybeˢ-∪ {xs}{ys} =
@@ -279,6 +291,16 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
 
   concatˢ : Set⟨ Set⟨ A ⟩ ⟩ → Set⟨ A ⟩
   concatˢ = from ∘ concatMap to ∘ to
+
+  module _ {x} {xss} where
+    ∈ˢ-concat⁺ : Anyˢ (x ∈ˢ_) xss → x ∈ˢ concatˢ xss
+    ∈ˢ-concat⁺ = ∈ˢ-fromList⁺ ∘ ∈-concatMap⁺ to
+
+    ∈ˢ-concat⁻ : x ∈ˢ concatˢ xss → Anyˢ (x ∈ˢ_) xss
+    ∈ˢ-concat⁻ = ∈-concatMap⁻ to ∘ ∈ˢ-fromList⁻
+
+    ∈ˢ-concat : Anyˢ (x ∈ˢ_) xss ↔ x ∈ˢ concatˢ xss
+    ∈ˢ-concat = ∈ˢ-concat⁺ , ∈ˢ-concat⁻
 
   private variable xss yss : Set⟨ Set⟨ A ⟩ ⟩
 
@@ -359,27 +381,37 @@ module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where
   concatMapˢ : (A → Set⟨ B ⟩) → (Set⟨ A ⟩ → Set⟨ B ⟩)
   concatMapˢ f = concatˢ ∘ mapˢ f
 
-  module _ (f : A → Set⟨ B ⟩) {xs ys} where
-    concatMapˢ-∪ : concatMapˢ f (xs ∪ ys) ≈ concatMapˢ f xs ∪ concatMapˢ f ys
-    concatMapˢ-∪ =
-      begin
-        concatMapˢ f (xs ∪ ys)
-      ≡⟨⟩
-        concatˢ (mapˢ f (xs ∪ ys))
-      ≈⟨ ≈ˢ-concat⁺ {xss = mapˢ f (xs ∪ ys)}{yss = mapˢ f xs ∪ mapˢ f ys}
-                  $ mapˢ-∪-commute f {xs}{ys} ⟩
-        concatˢ (mapˢ f xs ∪ mapˢ f ys)
-      ≈˘⟨ concatˢ-∪ {xss = mapˢ f xs}{mapˢ f ys} ⟩
-        concatˢ (mapˢ f xs) ∪ concatˢ (mapˢ f ys)
-      ≡⟨⟩
-        concatMapˢ f xs ∪ concatMapˢ f ys
-      ∎
+  module _ (f : A → Set⟨ B ⟩) {xs} where
 
-    ≈ˢ-concatMap⁺ :
-      xs ≈ ys
-      ─────────────────────────────────
-      concatMapˢ f xs ≈ concatMapˢ f ys
-    ≈ˢ-concatMap⁺ = ≈ˢ-concat⁺ {xss = mapˢ f xs}{mapˢ f ys} ∘ ≈ˢ-map⁺ f {xs}{ys}
+    module _ {y} where
+      ∈ˢ-concatMap⁺ : Anyˢ ((y ∈ˢ_) ∘ f) xs → y ∈ˢ concatMapˢ f xs
+      ∈ˢ-concatMap⁺ = ∈ˢ-concat⁺ {xss = mapˢ f xs} ∘ Anyˢ-map⁺ f {xs = xs}
+      ∈ˢ-concatMap⁻ : y ∈ˢ concatMapˢ f xs → Anyˢ ((y ∈ˢ_) ∘ f) xs
+      ∈ˢ-concatMap⁻ = Anyˢ-map⁻ f {xs = xs} ∘ ∈ˢ-concat⁻ {xss = mapˢ f xs}
+      ∈ˢ-concatMap : Anyˢ ((y ∈ˢ_) ∘ f) xs ↔ y ∈ˢ concatMapˢ f xs
+      ∈ˢ-concatMap = ∈ˢ-concatMap⁺ , ∈ˢ-concatMap⁻
+
+    module _ {ys} where
+      concatMapˢ-∪ : concatMapˢ f (xs ∪ ys) ≈ concatMapˢ f xs ∪ concatMapˢ f ys
+      concatMapˢ-∪ =
+        begin
+          concatMapˢ f (xs ∪ ys)
+        ≡⟨⟩
+          concatˢ (mapˢ f (xs ∪ ys))
+        ≈⟨ ≈ˢ-concat⁺ {xss = mapˢ f (xs ∪ ys)}{yss = mapˢ f xs ∪ mapˢ f ys}
+                    $ mapˢ-∪-commute f {xs}{ys} ⟩
+          concatˢ (mapˢ f xs ∪ mapˢ f ys)
+        ≈˘⟨ concatˢ-∪ {xss = mapˢ f xs}{mapˢ f ys} ⟩
+          concatˢ (mapˢ f xs) ∪ concatˢ (mapˢ f ys)
+        ≡⟨⟩
+          concatMapˢ f xs ∪ concatMapˢ f ys
+        ∎
+
+      ≈ˢ-concatMap⁺ :
+        xs ≈ ys
+        ─────────────────────────────────
+        concatMapˢ f xs ≈ concatMapˢ f ys
+      ≈ˢ-concatMap⁺ = ≈ˢ-concat⁺ {xss = mapˢ f xs}{mapˢ f ys} ∘ ≈ˢ-map⁺ f {xs}{ys}
 
 -- ** align/zip/partition
 module _ {A B C : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : DecEq C ⦄ where

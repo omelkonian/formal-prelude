@@ -310,17 +310,26 @@ instance
   FromList-Set : FromList A Set'
   FromList-Set .fromList xs = nub xs ⊣ Unique-nub {xs = xs}
 
-from↔to : ∀ xs → Unique xs → toList (fromList {B = Set'} xs) ≡ xs
+private
+  to   = (Set' → List A) ∋ toList
+  from = (List A → Set') ∋ fromList
+
+from↔to : ∀ xs → Unique xs → to (from xs) ≡ xs
 from↔to _ Uxs rewrite nub-from∘to Uxs = refl
 
-∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
-∈ˢ-fromList = ∈-nub⁺ , ∈-nub⁻
+Anyˢ-fromList⁺ : Any P xs → Anyˢ P (from xs)
+Anyˢ-fromList⁺ = Any-nub⁺
+Anyˢ-fromList⁻ : Anyˢ P (from xs) → Any P xs
+Anyˢ-fromList⁻ = Any-nub⁻
+Anyˢ-fromList : Any P xs ↔ Anyˢ P (from xs)
+Anyˢ-fromList = Anyˢ-fromList⁺ , Anyˢ-fromList⁻
 
 ∈ˢ-fromList⁺ : x ∈ xs → x ∈ˢ fromList xs
-∈ˢ-fromList⁺ = ∈ˢ-fromList .proj₁
-
+∈ˢ-fromList⁺ = ∈-nub⁺
 ∈ˢ-fromList⁻ : x ∈ˢ fromList xs → x ∈ xs
-∈ˢ-fromList⁻ = ∈ˢ-fromList .proj₂
+∈ˢ-fromList⁻ = ∈-nub⁻
+∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs
+∈ˢ-fromList = ∈ˢ-fromList⁺ , ∈ˢ-fromList⁻
 
 -- ** decidability of set equality
 instance
