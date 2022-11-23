@@ -70,17 +70,48 @@ nub-⊆⁻ {xs = x ∷ xs}
   (here refl) → here refl
   (there y∈)  → there $ nub-⊆⁻ {xs = xs} y∈
 
-All-nub : ∀ {p}{P : Pred A p} → All P xs → All P (nub xs)
-All-nub {xs = []}     []       = []
-All-nub {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
-... | yes _ = All-nub ps
-... | no  _ = p ∷ All-nub ps
+open import Prelude.General
+private variable p : Level; P : Pred A p
+
+All-nub⁺ : All P xs → All P (nub xs)
+All-nub⁺ {xs = []}     []       = []
+All-nub⁺ {xs = x ∷ xs} (p ∷ ps) with x ∈? xs
+... | yes _ = All-nub⁺ ps
+... | no  _ = p ∷ All-nub⁺ ps
+
+All-nub⁻ : All P (nub xs) → All P xs
+All-nub⁻ {xs = []} [] = []
+All-nub⁻ {xs = x ∷ xs} p with x ∈? xs | p
+... | yes x∈ | p = let IH = All-nub⁻ p in lookup IH x∈ ∷ IH
+... | no  _  | p ∷ ps = p ∷ All-nub⁻ ps
+
+All-nub : All P xs ↔ All P (nub xs)
+All-nub = All-nub⁺ , All-nub⁻
+
+Any-nub⁺ : Any P xs → Any P (nub xs)
+Any-nub⁺ {xs = x ∷ xs} (here px)
+  with x ∈? xs
+... | yes x∈ = Any-nub⁺ $ L.Any.map (λ where refl → px) x∈
+... | no  _  = here px
+Any-nub⁺ {xs = x ∷ xs} (there p)
+  with IH ← Any-nub⁺ p
+  with x ∈? xs
+... | yes _ = IH
+... | no  _ = there IH
+
+Any-nub⁻ : Any P (nub xs) → Any P xs
+Any-nub⁻ {xs = x ∷ xs} with x ∈? xs
+... | yes _ = there ∘ Any-nub⁻ {xs = xs}
+... | no  _ = λ where (here px) → here px; (there p) → there (Any-nub⁻ p)
+
+Any-nub : Any P xs ↔ Any P (nub xs)
+Any-nub = Any-nub⁺ , Any-nub⁻
 
 Unique-nub : Unique (nub xs)
 Unique-nub {[]} = []
 Unique-nub {x ∷ xs} with x ∈? xs
 ... | yes _ = Unique-nub {xs}
-... | no x∉ = All-nub {xs = xs} {P = _≢_ x} (¬Any⇒All¬ xs x∉) ∷ Unique-nub {xs}
+... | no x∉ = All-nub⁺ (¬Any⇒All¬ xs x∉) ∷ Unique-nub {xs}
 
 nub-from∘to : Unique xs → nub xs ≡ xs
 nub-from∘to {[]}     _ = refl

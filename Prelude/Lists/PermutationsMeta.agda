@@ -1232,15 +1232,15 @@ module _ {f : A → List B} where
     (x∈ : Any (Any P ∘ f) xs) →
     --————————————————————————————————————————————————
       ( Any-resp-↭ (↭-concatMap⁺ f xs↭) -- Any P (concatMap f ys)
-      ∘ Any-concatMap⁺                  -- Any P (concatMap f xs)
+      ∘ Any-concatMap⁺ f                -- Any P (concatMap f xs)
       ) x∈                              -- Any (Any P ∘ f) xs
-    ≡ ( Any-concatMap⁺ -- Any P (concatMap f ys)
-      ∘ Any-resp-↭ xs↭ -- Any (Any P ∘ f) ys
-      ) x∈             -- Any (Any P ∘ f) xs
+    ≡ ( Any-concatMap⁺ f -- Any P (concatMap f ys)
+      ∘ Any-resp-↭ xs↭   -- Any (Any P ∘ f) ys
+      ) x∈               -- Any (Any P ∘ f) xs
   Any-resp-↭∘Any-concatMap⁺ xs↭ x∈ =
     begin
       ( Any-resp-↭ (↭-concatMap⁺ f xs↭)
-      ∘ Any-concatMap⁺
+      ∘ Any-concatMap⁺ f
       ) x∈
     ≡⟨⟩
       ( Any-resp-↭ (↭-concat⁺ $ map⁺ f xs↭)
@@ -1258,7 +1258,7 @@ module _ {f : A → List B} where
       ∘ Any-resp-↭ xs↭
       ) x∈
     ≡⟨⟩
-      ( Any-concatMap⁺
+      ( Any-concatMap⁺ f
       ∘ Any-resp-↭ xs↭
       ) x∈
     ∎
@@ -1268,9 +1268,9 @@ module _ {f : A → List B} where
     (x∈ : Any (λ x → y ∈ f x) xs) →
     --————————————————————————————————————————————————
       ( ∈-resp-↭ (↭-concatMap⁺ f xs↭)
-      ∘ ∈-concatMap⁺
+      ∘ ∈-concatMap⁺ f
       ) x∈
-    ≡ ( ∈-concatMap⁺
+    ≡ ( ∈-concatMap⁺ f
       ∘ Any-resp-↭ xs↭
       ) x∈
   ∈-resp-↭∘∈-concatMap⁺ = Any-resp-↭∘Any-concatMap⁺
