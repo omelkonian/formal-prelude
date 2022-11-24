@@ -4,7 +4,6 @@
 
 open import Prelude.Init; open SetAsType
 open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
-open L.Uniq using (filter⁺; ++⁺; map⁺)
 open import Prelude.General
 open import Prelude.Lists
 open import Prelude.DecLists
@@ -21,6 +20,8 @@ open import Prelude.Semigroup
 open import Prelude.InferenceRules
 open import Prelude.Null
 open import Prelude.Setoid
+open import Prelude.Irrelevance
+open import Prelude.Lists.Irrelevance
 
 module Prelude.Sets.AsUniqueLists.Core {A : Type} ⦃ _ : DecEq A ⦄ where
 
@@ -30,10 +31,16 @@ module Prelude.Sets.AsUniqueLists.Core {A : Type} ⦃ _ : DecEq A ⦄ where
 record Set' : Set where
   constructor _⊣_
   field list  : List A
-        .uniq : Unique list
+        ·uniq : ·Unique list
 
-  .set-∈-irr : ∀ {x : A} → Irrelevant (x ∈ list)
+  uniq : Unique list
+  uniq = ·Unique⇒Unique ·uniq
+
+  set-∈-irr : ∀ {x : A} → Irrelevant (x ∈ list)
   set-∈-irr = ∈-irr uniq
+
+  uniq-map⁺ : ∀ {B : Type} {f : A → B} → Injective≡ f → Unique (map f list)
+  uniq-map⁺ f-inj = L.Uniq.map⁺ f-inj uniq
 
 open Set'
 syntax Set' {A = A} = Set⟨ A ⟩
@@ -79,16 +86,16 @@ o ∈ˢ (os ⊣ _) = o ∈ os
 o ∉ˢ s = ¬ (o ∈ˢ s)
 
 ∈ˢ-irr : Irrelevant (x ∈ˢ Xs)
-∈ˢ-irr {Xs = _ ⊣ un} = ∈-irr (recompute dec un)
+∈ˢ-irr {Xs = Xs} = ∈-irr (uniq Xs)
 
 _∷_∶-_ : (x : A) → (xs : Set') → ¬ x ∈ˢ xs → Set'
-x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.¬Any⇒All¬ _ x∉ ∷ p)
+x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.map ⊥⇒·⊥ (L.All.¬Any⇒All¬ _ x∉) ∷ p)
 
 _<$>_∶-_ : (f : A → A) → Set' → (∀ {x y} → f x ≡ f y → x ≡ y) → Set'
-f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ map⁺ inj p
+f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ ·Unique-map⁺ inj p
 
 filter′ : Decidable¹ P → Set' → Set'
-filter′ P? (xs ⊣ p) = filter P? xs ⊣ filter⁺ P? p
+filter′ P? (xs ⊣ p) = filter P? xs ⊣ ·Unique-filter⁺ P? p
 
 -- ** decidability
 _∈ˢ?_ : Decidable² _∈ˢ_
@@ -109,7 +116,7 @@ singleton∈ˢ = (λ where (here refl) → refl) , (λ where refl → here refl)
 
 _++_∶-_ : ∀ (s s′ : Set') → Disjoint (list s) (list s′) → Set'
 (xs ⊣ pxs) ++ (ys ⊣ pys) ∶- dsj =
-  (xs ++ ys) ⊣ ++⁺ pxs pys dsj
+  (xs ++ ys) ⊣ ·Unique-++⁺ pxs pys dsj
 
 _∪_ _∩_ _─_ : Op₂ Set'
 x ─ y = filter′ (_∉ˢ? y) x
@@ -308,7 +315,8 @@ instance
   ToList-Set .toList = list
 
   FromList-Set : FromList A Set'
-  FromList-Set .fromList xs = nub xs ⊣ Unique-nub {xs = xs}
+  FromList-Set .fromList xs = nub xs
+                            ⊣ Unique⇒·Unique (Unique-nub {xs = xs})
 
 private
   to   = (Set' → List A) ∋ toList
@@ -334,9 +342,9 @@ Anyˢ-fromList = Anyˢ-fromList⁺ , Anyˢ-fromList⁻
 -- ** decidability of set equality
 instance
   DecEq-Set : DecEq Set'
-  DecEq-Set ._≟_ s s′ with list s ≟ list s′
-  ... | no ¬p    = no λ where refl → ¬p refl
-  ... | yes refl = yes refl
+  DecEq-Set ._≟_ (xs ⊣ p) (ys ⊣ q) with xs ≟ ys
+  ... | no ¬p = no λ where refl → ¬p refl
+  ... | yes refl rewrite ∀≡ p q = yes refl
 
   Measurable-Set : Measurable Set'
   Measurable-Set = record {∣_∣ = length ∘ list}
