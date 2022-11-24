@@ -2,19 +2,17 @@ module Prelude.Irrelevance where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
+open import Prelude.General
 
 private variable
-  a b p : Level
-  A : Type a
-  B : A → Type b
-  P : A → Type p
+  A : Type ℓ
+  B : A → Type ℓ′
 
 -- A type is squashed when all of its values are equal.
-record Squashed (A : Type a) : Type a where
-  field
-    ∀≡ : ∀ (x y : A) → x ≡ y
+record ·_ (A : Type ℓ) : Type ℓ where
+  field ∀≡ : Irrelevant A
 
-  _∀≡↝_ : ∀ {P : A → Type p} → ∃ P → (x : A) → P x
+  _∀≡↝_ : ∃ B → (x : A) → B x
   _∀≡↝_ (y , p) x rewrite ∀≡ y x = p
 
   -- A dependent product indexed by a squashed type is decidable!
@@ -28,28 +26,37 @@ record Squashed (A : Type a) : Type a where
   ... | no ¬b  = no $ ¬b ∘ (_∀≡↝ a✓)
   ... | yes b✓ = yes (a✓ , b✓)
 
-open Squashed ⦃...⦄ public
+open ·_ ⦃...⦄ public
+
+·¹_ : ∀ {A : Type ℓ} → Pred A ℓ′ → Type (ℓ ⊔ₗ ℓ′)
+·¹ P = ∀ {x} → · P x
+
+·²_ : ∀ {A B : Type ℓ} → REL A B ℓ′ → Type (ℓ ⊔ₗ ℓ′)
+·² _~_ = ∀ {x y} → · (x ~ y)
+
+·³_ : ∀ {A B C : Type ℓ} → 3REL A B C ℓ′ → Type (ℓ ⊔ₗ ℓ′)
+·³ _~_~_ = ∀ {x y z} → · (x ~ y ~ z)
 
 instance
-  Squashed-⊥ : Squashed ⊥
-  Squashed-⊥ .∀≡ ()
+  ·-⊥ : · ⊥
+  ·-⊥ .∀≡ ()
 
-  Squashed-⊤ : Squashed ⊤
-  Squashed-⊤ .∀≡ tt tt = refl
+  ·-⊤ : · ⊤
+  ·-⊤ .∀≡ tt tt = refl
 
-  Squashed-≡ : ∀ {A : Type ℓ} {x y : A} → Squashed (x ≡ y)
-  Squashed-≡ .∀≡ refl refl = refl
+  ·-≡ : ∀ {A : Type ℓ} {x y : A} → · (x ≡ y)
+  ·-≡ .∀≡ refl refl = refl
 
-  Squashed-× : ∀ {A : Type ℓ} {B : Type ℓ′} →
-    ⦃ Squashed A ⦄ → ⦃ Squashed B ⦄ → Squashed (A × B)
-  Squashed-× .∀≡ (x , y) (x′ , y′) rewrite ∀≡ x x′ | ∀≡ y y′ = refl
+  ·-× : ∀ {A : Type ℓ} {B : Type ℓ′} →
+    ⦃ · A ⦄ → ⦃ · B ⦄ → · (A × B)
+  ·-× .∀≡ (x , y) (x′ , y′) rewrite ∀≡ x x′ | ∀≡ y y′ = refl
 
 -- instance
-Dec-Σ : ⦃ _ : Squashed A ⦄ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → B x ⁇ ⦄ → Σ A B ⁇
+Dec-Σ : ⦃ _ : · A ⦄ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → B x ⁇ ⦄ → Σ A B ⁇
 Dec-Σ .dec = dec ∃-dec λ _ → dec
 
--- Squashed-Unique×⊆ : Unique xs → Unique ys → Squashed (xs ⊆ ys)
--- Squashed-Unique×⊆ {xs = xs} {ys = ys} ∀xs≡ ∀ys≡ .∀≡ xs⊆ xs⊆′ = {!!}
+-- ·-Unique×⊆ : Unique xs → Unique ys → · (xs ⊆ ys)
+-- ·-Unique×⊆ {xs = xs} {ys = ys} ∀xs≡ ∀ys≡ .∀≡ xs⊆ xs⊆′ = {!!}
 -- -- need extensionality...
 
 -- ** Products with erased proj₂, aka refinements.
@@ -96,3 +103,30 @@ A ×₀ B = Σ₀ A (const B)
     ... | no ¬Xx = no λ{ (squash _ , Xx) → ¬Xx Xx }
     ... | yes Xx = yes (x , Xx)
 -}
+
+
+-- ** irrelevant bottom type
+
+private data ∅ : Set where
+record ·⊥ : Set where
+  field .absurd : ∅
+
+infix 3 ·¬_
+·¬_ : Type ℓ → Type ℓ
+·¬_ A = A → ·⊥
+
+instance
+  ·-·¬ : · (·¬ A)
+  ·-·¬ .∀≡ _ _ = refl
+
+·⊥-elim : ·⊥ → A
+·⊥-elim ()
+
+·⊥⇒⊥ : ·¬ A → ¬ A
+·⊥⇒⊥ ¬p = ·⊥-elim ∘ ¬p
+
+⊥⇒·⊥ : ¬ A → ·¬ A
+⊥⇒·⊥ ¬p = ⊥-elim ∘ ¬p
+
+·⊥⇔⊥ : ·¬ A ↔ ¬ A
+·⊥⇔⊥ = ·⊥⇒⊥ , ⊥⇒·⊥

@@ -19,7 +19,8 @@ Set↑ : Setω
 Set↑ = ∀ {ℓ} → Set[ ℓ ↝ ℓ ]
 
 module SetAsType where
-  open import Agda.Primitive using () renaming (Set to Type; Setω to Typeω) public
+  open import Agda.Primitive using (SSet; SSetω)
+    renaming (Set to Type; Setω to Typeω) public
 
   Type↑ : Typeω
   Type↑ = Set↑
@@ -31,18 +32,19 @@ open SetAsType
 
 -- ** Equality
 open import Relation.Binary.PropositionalEquality public
-  using ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst; inspect; _≗_
-        ; module ≡-Reasoning
-        ; setoid )
+  using
+  ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst
+  ; inspect; _≗_; setoid
+  ; module ≡-Reasoning
+  )
   renaming ([_] to ≡[_])
 
 -- ** Functions
 open import Function public
-  using ( id; const; constᵣ
-        ; _∘_; flip; _$_; _$!_; _$-; _|>_; case_return_of_
-        ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_
-        ; _∋_; _on_; typeOf; it
-        )
+  using
+  ( id; const; constᵣ; _∘_; flip; _$_; _$!_; _$-; _|>_; case_return_of_
+  ; _∘′_; _∘₂_; _$′_; _$!′_; _|>′_; case_of_; _∋_; _on_; typeOf; it
+  )
 module Fun where
   open import Function public
   module Inv where
@@ -52,22 +54,20 @@ module Fun where
   module Equiv where
     open import Function.Equivalence public
 open import Function.Definitions public
-  using (Congruent; Injective; Surjective; Bijective; Inverseˡ; Inverseʳ; Inverseᵇ)
+  using
+  ( Congruent; Injective; Surjective; Bijective
+  ; Inverseˡ; Inverseʳ; Inverseᵇ
+  )
 module _ {a b} {A : Type a} {B : Type b} where
   open import Function.Definitions {A = A} {B = B} _≡_ _≡_ public
     using ()
     renaming
-      ( Congruent to Congruent≡; Injective to Injective≡
-      ; Surjective to Surjective≡; Bijective to Bijective≡
-      ; Inverseˡ to Inverse≡ˡ; Inverseʳ to Inverse≡ʳ; Inverseᵇ to Inverse≡ᵇ
-      )
+    ( Congruent to Congruent≡; Injective to Injective≡
+    ; Surjective to Surjective≡; Bijective to Bijective≡
+    ; Inverseˡ to Inverse≡ˡ; Inverseʳ to Inverse≡ʳ; Inverseᵇ to Inverse≡ᵇ
+    )
 open import Function.Bundles public
   using (module Injection; _↣_)
-
--- forward composition (= kleene composition of `Monad Id`)
-infixr 0 _>≡>_
-_>≡>_ : ∀ {a b c} {A : Type a} {B : Type b} {C : Type c} → (A → B) → (B → C) → A → C
-f >≡> g = g ∘ f
 
 -- ** Categories
 open import Category.Functor public
@@ -88,7 +88,10 @@ module Unit where
   open import Data.Unit.Properties public
 
 open import Data.Product public
-  using (Σ; Σ-syntax; _,_; proj₁; proj₂; ∃; ∃-syntax; _×_; _,′_; <_,_>; curry; uncurry; -,_)
+  using
+  ( Σ; Σ-syntax; _,_; proj₁; proj₂; ∃; ∃-syntax; _×_; _,′_; <_,_>
+  ; curry; uncurry; -,_
+  )
 module Product where
   open import Data.Product public
   open import Data.Product.Properties public
@@ -123,7 +126,8 @@ module Nat where
   open import Data.Nat.Properties public
   open import Data.Nat.Show public
   module Ord where
-    open import Data.Nat public using (_≤_; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_)
+    open import Data.Nat public
+      using (_≤_; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_)
   module Ind where
     open import Data.Nat.Induction public
 
@@ -166,7 +170,10 @@ module Str where
   open import Data.String public
 
 open import Data.Maybe public
-  using (Maybe; just; nothing; Is-just; Is-nothing; maybe; maybe′; fromMaybe)
+  using
+  ( Maybe; just; nothing; maybe; maybe′; fromMaybe
+  ; Is-just; Is-nothing
+  )
 module M where
   open import Data.Maybe public
   open import Data.Maybe.Properties public
@@ -198,10 +205,12 @@ module V where
     -- open import Data.Vec.Membership.DecPropositional public
 
 open import Data.List public
-  using ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length; _++_; foldl; foldr
-        ; upTo; applyUpTo; mapMaybe; all; any; and; or; partitionSums; zip; unzip; sum; null; allFin
-        ; take; drop; takeWhile; dropWhile
-        )
+  using
+  ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length
+  ; _++_; foldl; foldr; upTo; applyUpTo; mapMaybe; all; any; and; or
+  ; partitionSums; zip; unzip; sum; null; allFin; take; drop
+  ; takeWhile; dropWhile
+  )
 module L where
   open import Data.List public
   open import Data.List.Properties public
@@ -267,15 +276,16 @@ module Nullary where
   open import Relation.Nullary public
   open import Relation.Nullary.Negation public
 open import Relation.Nullary public
-  using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
+  using
+  (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
 open import Relation.Nullary.Negation public
   using (¬?; contradiction)
 open import Relation.Nullary.Decidable public
-  using ( ⌊_⌋; isNo; isYes; True; False
-        ; toWitness; fromWitness; toWitnessFalse; fromWitnessFalse
-        ; dec-yes; dec-no; dec-true; dec-false; dec-yes-irr
-        ; isYes≗does
-        )
+  using
+  ( ⌊_⌋; isNo; isYes; True; False; isYes≗does
+  ; toWitness; fromWitness; toWitnessFalse; fromWitnessFalse
+  ; dec-yes; dec-no; dec-true; dec-false; dec-yes-irr
+  )
 open import Relation.Nullary.Implication public
   using (_→-dec_)
 open import Relation.Nullary.Sum public
@@ -287,13 +297,20 @@ module Unary where
   open import Relation.Unary public
 open import Relation.Unary public
   using (Pred)
-  renaming (Decidable to Decidable¹; _⇒_ to _⇒¹_; _⊆_ to _⊆¹_)
-
+  renaming
+  ( Decidable to Decidable¹; Irrelevant to Irrelevant¹
+  ; _⇒_ to _⇒¹_; _⊆_ to _⊆¹_
+  )
 open import Relation.Binary public
-  using ( REL; Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric; Trans; Transitive; Total
-        ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
-        ; DecidableEquality; IsEquivalence; Setoid)
-  renaming (Decidable to Decidable²; _⇒_ to _⇒²_; _⇔_ to _⇔²_)
+  using
+  ( REL; Rel; Reflexive; Irreflexive; Symmetric; Antisymmetric
+  ; Trans; Transitive; Total; DecidableEquality; IsEquivalence; Setoid
+  ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
+  )
+  renaming
+  ( Decidable to Decidable²; Irrelevant to Irrelant²
+  ; _⇒_ to _⇒²_; _⇔_ to _⇔²_
+  )
 module PropEq where
   open import Relation.Binary.PropositionalEquality public
 module Binary where
@@ -306,12 +323,14 @@ module Binary where
 module Ternary where
   open import Relation.Ternary public
 open import Relation.Ternary public
-  renaming (_⇒_ to _⇒³_; _⇔_ to _⇔³_; _=[_]⇒_ to _=[_]⇒³_
-           ; _Preserves_⟶_ to _Preserves³_⟶_; _Preserves_⟶_⟶_ to _Preserves³_⟶_⟶_
-           ; Reflexive to Reflexive³; Decidable to Decidable³; WeaklyDecidable to WeaklyDecidable³
-           ; Irrelevant to Irrelevant³; Recomputable to Recomputable³; Universal to Universal³
-           ; NonEmpty to NonEmpty³
-           )
+  renaming
+  ( _⇒_ to _⇒³_; _⇔_ to _⇔³_; _=[_]⇒_ to _=[_]⇒³_
+  ; _Preserves_⟶_ to _Preserves³_⟶_; _Preserves_⟶_⟶_ to _Preserves³_⟶_⟶_
+  ; Reflexive to Reflexive³; Decidable to Decidable³
+  ; WeaklyDecidable to WeaklyDecidable³
+  ; Irrelevant to Irrelevant³; Recomputable to Recomputable³
+  ; Universal to Universal³; NonEmpty to NonEmpty³
+  )
 -- ** Algebra
 open import Algebra public
   using (Op₁; Op₂; Opₗ; Opᵣ)
@@ -332,11 +351,10 @@ module Meta where
     using (onlyReduceDefs; dontReduceDefs)
   open import Reflection public
     hiding (_≟_; _>>_; _>>=_; return; visibility)
-
   open import Reflection.Term public
-    hiding ( _≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_; _≟-Clause_
-           ; _≟-Clauses_; _≟_; _≟-Sort_; _≟-Pattern_ )
-
+    hiding
+    ( _≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_
+    ; _≟-Clause_; _≟-Clauses_; _≟_; _≟-Sort_; _≟-Pattern_ )
   open import Reflection.Argument public
     using (unArg)
   open import Reflection.Argument.Visibility public
@@ -363,7 +381,16 @@ module Meta where
 
 
 -- ** Shorthands
-Pred₀ Rel₀ 3Rel₀ : ∀ {ℓ} → Type ℓ → Type (1ℓ ⊔ₗ ℓ)
+Op₃ : Type ℓ → Type ℓ
+Op₃ A = A → A → A → A
+
+Pred₀ Rel₀ 3Rel₀ : Type ℓ → Type (1ℓ ⊔ₗ ℓ)
 Pred₀ A = Pred A 0ℓ
 Rel₀  A = Rel  A 0ℓ
 3Rel₀ A = 3Rel A 0ℓ
+
+-- forward composition (= kleene composition of `Monad Id`)
+infixr 0 _>≡>_
+_>≡>_ : ∀ {a b c} {A : Type a} {B : Type b} {C : Type c} →
+  (A → B) → (B → C) → A → C
+f >≡> g = g ∘ f
