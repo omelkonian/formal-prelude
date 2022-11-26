@@ -22,6 +22,8 @@ open import Prelude.DecEq
 open import Prelude.Decidable
 
 -- ** Typeclasses
+open import Prelude.ConjClass
+
 open import Prelude.Functor
 open import Prelude.Bifunctor
 open import Prelude.Pointed
