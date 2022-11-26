@@ -8,6 +8,7 @@ open import Prelude.Init
 
 -- ** General properties of standard types
 open import Prelude.General
+open import Prelude.LiftOmega
 open import Prelude.SubstDSL
 
 -- ** Convenient syntax for inference rules
