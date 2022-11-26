@@ -308,7 +308,7 @@ open import Relation.Binary public
   ; _⟶_Respects_; _Respects_; _Respectsʳ_; _Respectsˡ_; _Respects₂_
   )
   renaming
-  ( Decidable to Decidable²; Irrelevant to Irrelant²
+  ( Decidable to Decidable²; Irrelevant to Irrelevant²
   ; _⇒_ to _⇒²_; _⇔_ to _⇔²_
   )
 module PropEq where
