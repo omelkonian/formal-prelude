@@ -104,29 +104,29 @@ A ×₀ B = Σ₀ A (const B)
     ... | yes Xx = yes (x , Xx)
 -}
 
-
 -- ** irrelevant bottom type
 
-private data ∅ : Set where
-record ·⊥ : Set where
-  field .absurd : ∅
+module _ {ℓ : Level} where
+  private data ∅ : Type ℓ where
+  record ·⊥ : Type ℓ where
+    field .absurd : ∅
 
-infix 3 ·¬_
-·¬_ : Type ℓ → Type ℓ
-·¬_ A = A → ·⊥
+  infix 3 ·¬_
+  ·¬_ : Type ℓ → Type ℓ
+  ·¬_ A = A → ·⊥
 
-instance
-  ·-·¬ : · (·¬ A)
-  ·-·¬ .∀≡ _ _ = refl
+  instance
+    ·-·¬ : · (·¬ A)
+    ·-·¬ .∀≡ _ _ = refl
 
-·⊥-elim : ·⊥ → A
-·⊥-elim ()
+  ·⊥-elim : ·⊥ → A
+  ·⊥-elim ()
 
-·⊥⇒⊥ : ·¬ A → ¬ A
-·⊥⇒⊥ ¬p = ·⊥-elim ∘ ¬p
+  ·⊥⇒⊥ : ·¬ A → ¬ A
+  ·⊥⇒⊥ ¬p = ·⊥-elim ∘ ¬p
 
-⊥⇒·⊥ : ¬ A → ·¬ A
-⊥⇒·⊥ ¬p = ⊥-elim ∘ ¬p
+  ⊥⇒·⊥ : ¬ A → ·¬ A
+  ⊥⇒·⊥ ¬p = ⊥-elim ∘ ¬p
 
-·⊥⇔⊥ : ·¬ A ↔ ¬ A
-·⊥⇔⊥ = ·⊥⇒⊥ , ⊥⇒·⊥
+  ·⊥⇔⊥ : ·¬ A ↔ ¬ A
+  ·⊥⇔⊥ = ·⊥⇒⊥ , ⊥⇒·⊥
