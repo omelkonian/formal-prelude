@@ -10,6 +10,8 @@ open import Prelude.Irrelevance
 open import Prelude.Apartness
 open import Prelude.DecEq
 open import Prelude.Functor
+open import Prelude.InferenceRules
+open import Prelude.Newtype
 
 private variable
   A : Type ℓ; B : Type ℓ′
@@ -81,9 +83,10 @@ module _ {A : Type ℓ} ⦃ _ : DecEq A ⦄ where
   ... | nothing  = refl
   ... | just ys′ = ∀≡↭ xs ys′ p q
 
-  instance
-    ·Perm : ·² _·↭_
-    ·Perm {xs}{ys} .∀≡ = ∀≡↭ xs ys
+  -- ** breaks instance resolution (e.g. for ·Unique)
+  -- instance
+  --   ··↭ : ·² _·↭_
+  --   ··↭ {xs} .∀≡ = ∀≡↭ xs _
 
   ·↭-prep : ∀ x → xs ·↭ ys → x ∷ xs ·↭ x ∷ ys
   ·↭-prep x rewrite ≟-refl x = id
@@ -195,3 +198,71 @@ module _ {A : Type ℓ} ⦃ _ : DecEq A ⦄ where
 
   All-resp-·↭ : All P Respects _·↭_
   All-resp-·↭ = All-resp-↭ ∘ ·↭⇒↭
+
+  -- alternative inductive definition (better type inference)
+  infix 3 _·↭′_
+  data _·↭′_ : Rel (List A) ℓ where
+    [] :
+      ────────
+      [] ·↭′ []
+
+    _∷_ : ∀ x → let ys′ = removeFirst x ys in
+
+      M.Any.Any (xs ·↭′_) ys′
+      ───────────────────────────
+      x ∷ xs ·↭′ ys
+
+  ·↭⇒·↭′ :
+    xs ·↭ ys
+    ─────────
+    xs ·↭′ ys
+  ·↭⇒·↭′ {[]} {.[]} refl = []
+  ·↭⇒·↭′ {x ∷ xs} {ys} p
+    with removeFirst x ys in eq
+  ... | nothing  = ·⊥-elim p
+  ... | just ys′ =
+   x ∷ subst (M.Any.Any $ xs ·↭′_) (sym eq)
+             (M.Any.just $ ·↭⇒·↭′ p)
+
+  ·↭′⇒·↭ :
+    xs ·↭′ ys
+    ─────────
+    xs ·↭ ys
+  ·↭′⇒·↭ {[]} {.[]} [] = refl
+  ·↭′⇒·↭ {x ∷ xs} {ys} (.x ∷ p)
+    with removeFirst x ys | p
+  ... | just _ | M.Any.just p = ·↭′⇒·↭ p
+
+  ∀≡↭′ : ∀ (xs ys : List A) (p q : xs ·↭′ ys) → p ≡ q
+  ∀≡↭′ .[] .[] [] [] = refl
+  ∀≡↭′ (x ∷ xs) _ (.x ∷ p) (.x ∷ q)
+    rewrite M.Any.irrelevant (∀≡↭′ xs _) p q
+    = refl
+
+  instance
+    ··↭′ : ·² _·↭′_
+    ··↭′ .∀≡ = ∀≡↭′ _ _
+
+  ·↭′-prep : ∀ x → xs ·↭′ ys → x ∷ xs ·↭′ x ∷ ys
+  ·↭′-prep x = ·↭⇒·↭′ ∘ ·↭-prep x ∘ ·↭′⇒·↭
+
+  ·↭′-drop-∷ : ∀ x → x ∷ xs ·↭′ x ∷ ys → xs ·↭′ ys
+  ·↭′-drop-∷ x = ·↭⇒·↭′ ∘ ·↭-drop-∷ x ∘ ·↭′⇒·↭
+
+  -- version using newtype (better type inference)
+  infix 3 _·↭″_
+  _·↭″_ : Rel (List A) ℓ
+  _·↭″_ = newtype² _·↭_
+
+  ∀≡↭″ : ∀ (xs ys : List A) (p q : xs ·↭″ ys) → p ≡ q
+  ∀≡↭″ xs ys (mk p) (mk q) rewrite ∀≡↭ xs ys p q = refl
+
+  instance
+    ··↭″ : ·² _·↭″_
+    ··↭″ {xs} .∀≡ = ∀≡↭″ xs _
+
+  ·↭″-prep : ∀ x → xs ·↭″ ys → x ∷ xs ·↭″ x ∷ ys
+  ·↭″-prep x = mk ∘ ·↭-prep x ∘ unmk
+
+  ·↭″-drop-∷ : ∀ x → x ∷ xs ·↭″ x ∷ ys → xs ·↭″ ys
+  ·↭″-drop-∷ x = mk ∘ ·↭-drop-∷ x ∘ unmk
