@@ -81,11 +81,11 @@ open import Prelude.Traces
 -- ** Data structures
 open import Prelude.Lists
 open import Prelude.Lists.Irrelevance
-open import Prelude.Collections
+open import Prelude.Lists.Collections
 
 open import Prelude.Sets
 open import Prelude.Sets.Examples
-open import Prelude.SetCollections
+open import Prelude.Sets.Collections
 
 open import Prelude.Maps
 open import Prelude.Maps.Examples

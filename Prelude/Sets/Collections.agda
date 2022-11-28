@@ -1,4 +1,4 @@
-module Prelude.SetCollections where
+module Prelude.Sets.Collections where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
