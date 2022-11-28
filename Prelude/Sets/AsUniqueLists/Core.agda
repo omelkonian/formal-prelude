@@ -49,23 +49,23 @@ private variable
   x x′ y y′ z z′ : A
   xs ys zs : List A
   Xs Ys Zs s s′ s″ : Set'
-  P : Pred A 0ℓ
+  P : Pred A ℓ
 
 -- ** Lifting from list predicates/relations to set predicates/relations.
 private
-  record Lift (F : Type → Type₁) : Type₁ where
-    field ↑ : F (List A) → F Set'
+  record Lift (F : ∀ {ℓ} → Type ℓ → (ℓ′ : Level) → Type (ℓ ⊔ₗ lsuc ℓ′)) : Typeω where
+    field ↑ : F (List A) ℓ → F Set' ℓ
   open Lift ⦃...⦄
 
   instance
-    Lift-Pred : Lift Pred₀
+    Lift-Pred : Lift Pred
     Lift-Pred .↑ P = P ∘ list
 
-    Lift-Rel : Lift Rel₀
+    Lift-Rel : Lift Rel
     Lift-Rel .↑ _~_ = _~_ on list
 
 -- e.g. All/Any predicates for sets
-Allˢ Anyˢ : Pred₀ A → Pred₀ Set'
+Allˢ Anyˢ : Pred A ℓ → Pred Set' ℓ
 Allˢ = ↑ ∘ All
 Anyˢ = ↑ ∘ Any
 
@@ -103,7 +103,7 @@ o ∈ˢ? (os ⊣ _) = o ∈? os
 _∉ˢ?_ : Decidable² _∉ˢ_
 o ∉ˢ? (os ⊣ _) = o ∉? os
 
-count′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Set' → ℕ
+count′ : Decidable¹ P → Set' → ℕ
 count′ P? = count P? ∘ list
 
 pattern ∅ = [] ⊣ []

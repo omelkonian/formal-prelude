@@ -6,9 +6,12 @@ open import Prelude.Decidable
 open import Prelude.Orders
 open import Prelude.DecEq
 open import Prelude.InferenceRules
+open import Prelude.Lift
 
-record Ord (A : Type ℓ) : Type (lsuc ℓ) where
-  field _≤_ _<_ : Rel₀ A
+record Ord (A : Type ℓ) : Typeω where
+  field
+    {relℓ} : Level
+    _≤_ _<_ : Rel A relℓ
   _≰_ = ¬_ ∘₂ _≤_
   _≮_ = ¬_ ∘₂ _<_
   _≥_ = flip _≤_
@@ -73,7 +76,7 @@ record Ord (A : Type ℓ) : Type (lsuc ℓ) where
       open import Data.List.Sort.MergeSort
         (record { Carrier = A ; _≈_ = _ ; _≤_ = _ ; isDecTotalOrder = it })
         public
-        using (sort)
+        using (sort; sort-↗; sort-↭)
       open import Data.List.Relation.Unary.Sorted.TotalOrder
         (record {isTotalOrder = it})
         as S public
@@ -161,21 +164,21 @@ instance
   Ord-Maybe {X = X} = record {_≤_ = _≤ᵐ_; _<_ = _<ᵐ_}
     where
       _≤ᵐ_ _<ᵐ_ : Rel (Maybe X) _
-      nothing ≤ᵐ _       = ⊤
-      just _  ≤ᵐ nothing = ⊥
+      nothing ≤ᵐ _       = ↑ℓ ⊤
+      just _  ≤ᵐ nothing = ↑ℓ ⊥
       just v  ≤ᵐ just v′ = v ≤ v′
 
       -- m <ᵐ m′ = (m ≤ᵐ m′) × (m ≢ m′)
-      nothing <ᵐ nothing = ⊥
-      nothing <ᵐ just _  = ⊤
-      just _  <ᵐ nothing = ⊥
+      nothing <ᵐ nothing = ↑ℓ ⊥
+      nothing <ᵐ just _  = ↑ℓ ⊤
+      just _  <ᵐ nothing = ↑ℓ ⊥
       just v  <ᵐ just v′ = v < v′
 
 -- T0D0: cannot declare these as instances without breaking instance resolution.
 module Maybe-DecOrd where
 --   instance
   DecOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _≤_ {A = X} ⁇² ⦄ → _≤_ {A = Maybe X} ⁇²
-  DecOrd-Maybe              {x = nothing} {_}       .dec = yes tt
+  DecOrd-Maybe              {x = nothing} {_}       .dec = yes it
   DecOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
   DecOrd-Maybe ⦃ _ ⦄ ⦃ ≤? ⦄ {x = just _}  {just _}  .dec = dec ⦃ ≤? ⦄
 
@@ -184,7 +187,7 @@ module Maybe-DecOrd where
 
   DecStrictOrd-Maybe : ⦃ _ : Ord X ⦄ → ⦃ _ : _<_ {A = X} ⁇² ⦄ → _<_ {A = Maybe X} ⁇²
   DecStrictOrd-Maybe              {x = nothing} {nothing} .dec = no λ ()
-  DecStrictOrd-Maybe              {x = nothing} {just _}  .dec = yes tt
+  DecStrictOrd-Maybe              {x = nothing} {just _}  .dec = yes it
   DecStrictOrd-Maybe              {x = just _}  {nothing} .dec = no λ ()
   DecStrictOrd-Maybe ⦃ _ ⦄ ⦃ <? ⦄ {x = just _}  {just _}  .dec = dec ⦃ <? ⦄
 

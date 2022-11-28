@@ -97,7 +97,7 @@ instance
   Semigroup-Map : ⦃ Semigroup V ⦄ → Semigroup Map
   Semigroup-Map ._◇_ m m′ = unionWith _◇_ m m′
 
-module _ {A B : Type} (f : A → B) {P : Pred₀ A} (P? : Decidable¹ P) where
+module _ {A B : Type} (f : A → B) {P : Pred A ℓ} (P? : Decidable¹ P) where
   All-map∘filter : ∀ (Q : Pred₀ B) (xs : List A) →
     All Q (map f xs) → All Q (map f $ filter P? xs)
   All-map∘filter Q []       _          = []
@@ -116,16 +116,16 @@ module _ {A B : Type} (f : A → B) {P : Pred₀ A} (P? : Decidable¹ P) where
   ... | yes _ = All-map∘filter (f x ≢_) _ x∉ ∷ IH
   ... | no  _ = IH
 
-filterKV : {P : Pred₀ (K × V)} → Decidable¹ P → Op₁ Map
+filterKV : {P : Pred (K × V) ℓ} → Decidable¹ P → Op₁ Map
 filterKV P? m@(_ ⊣ uniq-kvs) = S.filter′ P? (m .kvs) ⊣ Unique-map∘filter proj₁ P? _ uniq-kvs
 
-filterK : {P : Pred₀ K} → Decidable¹ P → Op₁ Map
+filterK : {P : Pred K ℓ} → Decidable¹ P → Op₁ Map
 filterK = filterKV ∘ (_∘ proj₁)
 
 _⋪_ : K → Op₁ Map
 k ⋪ m = filterK ( ¬? ∘ (_≟ k)) m
 
-filterV : {P : Pred₀ V} → Decidable¹ P → Op₁ Map
+filterV : {P : Pred V ℓ} → Decidable¹ P → Op₁ Map
 filterV = filterKV ∘ (_∘ proj₂)
 
 postulate
@@ -193,7 +193,7 @@ module _ ⦃ _ : Ord V ⦄ ⦃ _ : _≤_ {A = V} ⁇² ⦄ ⦃ _ : _<_ {A = V} �
   normalize : Op₁ Map
   normalize = filterV (_>? ε)
 
-  _≤ᵐ_ : Rel₀ Map
+  _≤ᵐ_ : Rel Map _
   m ≤ᵐ m′ =
     S.Allˢ (λ where (k , v) → v ≤ fromMaybe ε (m′ ⁉ k))
            (m .kvs)
@@ -201,7 +201,7 @@ module _ ⦃ _ : Ord V ⦄ ⦃ _ : _≤_ {A = V} ⁇² ⦄ ⦃ _ : _<_ {A = V} �
   _≤?ᵐ_ : Decidable² _≤ᵐ_
   m ≤?ᵐ m′ = dec
 
-  _≈ᵐ′_ : Rel₀ Map
+  _≈ᵐ′_ : Rel Map _
   m ≈ᵐ′ m′ = (m ≤ᵐ m′) × (m′ ≤ᵐ m)
 
   postulate
