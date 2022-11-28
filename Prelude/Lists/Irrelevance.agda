@@ -1,6 +1,7 @@
 module Prelude.Lists.Irrelevance where
 
 import Data.List.Relation.Unary.AllPairs as AP
+open import Data.List.Relation.Unary.Linked as LI using (Linked)
 
 open import Prelude.Init; open SetAsType
 open L.Perm hiding (↭-trans; ↭-refl)
@@ -26,6 +27,9 @@ instance
 
   ·-AllPairs : ⦃ ·² R ⦄ → ·¹ AllPairs R
   ·-AllPairs .∀≡ = AP.irrelevant ∀≡
+
+  ·Linked : ⦃ ·² R ⦄ → ·¹ Linked R
+  ·Linked .∀≡ p q = LI.irrelevant ∀≡ p q
 
 -- ** irrelevant version of Data.List.Unary.Unique
 private
