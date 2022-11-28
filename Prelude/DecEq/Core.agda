@@ -24,7 +24,9 @@ instance
   DecEq-⊤ : DecEq ⊤
   DecEq-⊤ ._≟_ = Unit._≟_
 
-  DecEq-Σ : ∀ {B : A → Type} ⦃ _ : DecEq A ⦄ ⦃ _ : ∀ {x} → DecEq (B x) ⦄ → DecEq (Σ A B)
+  DecEq-Σ : ∀ {A : Type ℓ} {B : A → Type ℓ}
+    → ⦃ _ : DecEq A ⦄ ⦃ _ : ∀ {x} → DecEq (B x) ⦄
+    → DecEq (Σ A B)
   DecEq-Σ ._≟_ (x , y) (x′ , y′)
     with x ≟ x′
   ... | no ¬p    = no λ{ refl → ¬p refl }
