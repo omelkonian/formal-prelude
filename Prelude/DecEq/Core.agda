@@ -18,7 +18,7 @@ record DecEq (A : Type ℓ) : Type ℓ where
   ≟-refl : ∀ x → (x ≟ x) ≡ yes refl
   ≟-refl x with refl , p ← dec-yes (x ≟ x) refl = p
 
-open DecEq ⦃ ... ⦄ public
+open DecEq ⦃...⦄ public
 
 instance
   DecEq-⊤ : DecEq ⊤

@@ -18,7 +18,7 @@ record _-matches-_ (A∗ : Set) (A : Set) : Set where
 
   _≁_ : A → A∗ → Bool
   x ≁ x∗ = not (x ~ x∗)
-open _-matches-_ ⦃ ... ⦄ public
+open _-matches-_ ⦃...⦄ public
 
 match : ∀ {A : Set} ⦃ _ : DecEq A ⦄ → A → Maybe A → Bool
 match a mx = M.fromMaybe true ⦇ pure a == mx ⦈

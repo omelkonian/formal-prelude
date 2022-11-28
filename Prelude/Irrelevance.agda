@@ -6,18 +6,19 @@ open import Prelude.General
 
 private variable
   A : Type ℓ
-  B : A → Type ℓ′
+  B : Type ℓ′
+  P : A → Type ℓ″
 
 -- A type is squashed when all of its values are equal.
 record ·_ (A : Type ℓ) : Type ℓ where
   field ∀≡ : Irrelevant A
 
-  _∀≡↝_ : ∃ B → (x : A) → B x
+  _∀≡↝_ : ∃ P → (x : A) → P x
   _∀≡↝_ (y , p) x rewrite ∀≡ y x = p
 
   -- A dependent product indexed by a squashed type is decidable!
   -- T0D0: generalize to enumerable indices
-  _∃-dec_ : Dec A → (∀ a → Dec (B a)) → Dec (Product.Σ A B)
+  _∃-dec_ : Dec A → (∀ a → Dec (P a)) → Dec (Product.Σ A P)
   a? ∃-dec b?
     with a?
   ... | no ¬a  = no $ ¬a ∘ proj₁
@@ -44,15 +45,14 @@ instance
   ·-⊤ : · ⊤
   ·-⊤ .∀≡ tt tt = refl
 
-  ·-≡ : ∀ {A : Type ℓ} {x y : A} → · (x ≡ y)
+  ·-≡ : ∀ {x y : A} → · (x ≡ y)
   ·-≡ .∀≡ refl refl = refl
 
-  ·-× : ∀ {A : Type ℓ} {B : Type ℓ′} →
-    ⦃ · A ⦄ → ⦃ · B ⦄ → · (A × B)
+  ·-× : ⦃ · A ⦄ → ⦃ · B ⦄ → · (A × B)
   ·-× .∀≡ (x , y) (x′ , y′) rewrite ∀≡ x x′ | ∀≡ y y′ = refl
 
 -- instance
-Dec-Σ : ⦃ _ : · A ⦄ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → B x ⁇ ⦄ → Σ A B ⁇
+Dec-Σ : ⦃ _ : · A ⦄ ⦃ _ : A ⁇ ⦄ ⦃ _ : ∀ {x} → P x ⁇ ⦄ → Σ A P ⁇
 Dec-Σ .dec = dec ∃-dec λ _ → dec
 
 -- ·-Unique×⊆ : Unique xs → Unique ys → · (xs ⊆ ys)

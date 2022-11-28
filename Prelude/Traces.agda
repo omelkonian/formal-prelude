@@ -14,7 +14,7 @@ record HasInitial (A : Type ℓ) : Type (1ℓ ⊔ₗ ℓ) where
 
   Initial? : ⦃ Initial ⁇¹ ⦄ → Decidable¹ Initial
   Initial? = dec¹
-open HasInitial ⦃ ... ⦄ public
+open HasInitial ⦃...⦄ public
 
 module _ {A : Type ℓ} ⦃ _ : HasInitial A ⦄ (_—↠_ : Rel A ℓ′) where
 

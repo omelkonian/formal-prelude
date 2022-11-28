@@ -70,7 +70,7 @@ record Focus₁_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
     focus₁ : A → B × C
   select₁ = proj₁ ∘ focus₁
   drop₁   = proj₂ ∘ focus₁
-open Focus₁_⟪_⟫_ ⦃ ... ⦄ public
+open Focus₁_⟪_⟫_ ⦃...⦄ public
 
 instance
   -- works for triplets
@@ -100,7 +100,7 @@ record Focus₂_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
     focus₂ : A → B × C
   select₂ = proj₁ ∘ focus₂
   drop₂ = proj₂ ∘ focus₂
-open Focus₂_⟪_⟫_ ⦃ ... ⦄ public
+open Focus₂_⟪_⟫_ ⦃...⦄ public
 
 instance
   -- works for triplets
@@ -131,7 +131,7 @@ record Focus₃_⟪_⟫_ (A : Type) (B : Type) (C : Type) : Type where
     focus₃ : A → B × C
   select₃ = proj₁ ∘ focus₃
   drop₃ = proj₂ ∘ focus₃
-open Focus₃_⟪_⟫_ ⦃ ... ⦄ public
+open Focus₃_⟪_⟫_ ⦃...⦄ public
 
 instance
   -- works for triplets

@@ -7,7 +7,7 @@ record Foldable (F : Type↑) : Typeω where
   field
     foldMap : ∀ {A : Type ℓ} {M : Type ℓ′} ⦃ _ : Monoid M ⦄ → (A → M) → F A → M
 
-open Foldable ⦃ ... ⦄ public
+open Foldable ⦃...⦄ public
 
 instance
   Foldable-Maybe : Foldable Maybe

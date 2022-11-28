@@ -1,36 +1,40 @@
 module Prelude.Orders where
 
 open import Prelude.Init; open SetAsType
+open import Prelude.General
 open import Prelude.Decidable
 open import Prelude.DecEq
 
-module _ {A : Set ℓ} where
+module _ {A : Type ℓ} where
 
   module _ (_≤_ : Rel A ℓ′) where
 
-    record Preorder : Set (ℓ ⊔ₗ ℓ′) where
+    record Preorder : Type (ℓ ⊔ₗ ℓ′) where
       field
         ≤-refl  : Reflexive _≤_
         ≤-trans : Transitive _≤_
-    open Preorder ⦃ ... ⦄ public
 
-    record TotalPreorder : Set (ℓ ⊔ₗ ℓ′) where
+      ≤-reflexive : ∀ {x y} → x ≡ y → x ≤ y
+      ≤-reflexive refl = ≤-refl
+    open Preorder ⦃...⦄ public
+
+    record TotalPreorder : Type (ℓ ⊔ₗ ℓ′) where
       field
         ⦃ super ⦄ : Preorder
         ≤-pre-total : Total _≤_
-    open TotalPreorder ⦃ ... ⦄ public
+    open TotalPreorder ⦃...⦄ public
 
-    record PartialOrder : Set (ℓ ⊔ₗ ℓ′) where
+    record PartialOrder : Type (ℓ ⊔ₗ ℓ′) where
       field
         ⦃ super ⦄ : Preorder
         ≤-antisym : Antisymmetric _≡_ _≤_
-    open PartialOrder ⦃ ... ⦄ public
+    open PartialOrder ⦃...⦄ public
 
-    record TotalOrder : Set (ℓ ⊔ₗ ℓ′) where
+    record TotalOrder : Type (ℓ ⊔ₗ ℓ′) where
       field
         ⦃ super ⦄ : PartialOrder
         ≤-total : Total _≤_
-    open TotalOrder ⦃ ... ⦄ public
+    open TotalOrder ⦃...⦄ public
 
   module _ {_≤_ : Rel A ℓ′} where
     instance
@@ -55,18 +59,18 @@ module _ {A : Set ℓ} where
 
   module _ (_<_ : Rel A ℓ′) where
 
-    record StrictPartialOrder : Set (ℓ ⊔ₗ ℓ′) where
+    record StrictPartialOrder : Type (ℓ ⊔ₗ ℓ′) where
       field
         <-irrefl  : Irreflexive _≡_ _<_
         <-trans   : Transitive _<_
         <-resp₂-≡ : _<_ Respects₂ _≡_
-    open StrictPartialOrder ⦃ ... ⦄ public
+    open StrictPartialOrder ⦃...⦄ public
 
-    record StrictTotalOrder : Set (ℓ ⊔ₗ ℓ′) where
+    record StrictTotalOrder : Type (ℓ ⊔ₗ ℓ′) where
       field
         ⦃ super ⦄ : StrictPartialOrder
         <-cmp     : Binary.Trichotomous _≡_ _<_
-    open StrictTotalOrder ⦃ ... ⦄ public
+    open StrictTotalOrder ⦃...⦄ public
 
   module _ {_<_ : Rel A ℓ′} where
     instance
@@ -84,3 +88,46 @@ module _ {A : Set ℓ} where
       ⇒IsStrictTotalOrder = record
         { isEquivalence = PropEq.isEquivalence
         ; trans = <-trans; compare = <-cmp }
+
+  module _ (_≤_ : Rel A ℓ′) (_<_ : Rel A ℓ″) where
+
+    record NonStrictToStrict : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ ℓ″) where
+      field <⇔≤∧≢ : _<_ ⇔² (_≤_ ∩² _≢_)
+
+      <⇒≤∧≢ : _<_ ⇒² (_≤_ ∩² _≢_)
+      <⇒≤∧≢ = <⇔≤∧≢ .proj₁
+
+      ≤∧≢⇒< : _≤_ ∩² _≢_ ⇒² _<_
+      ≤∧≢⇒< = <⇔≤∧≢ .proj₂
+
+      <⇒≤ : _<_ ⇒² _≤_
+      <⇒≤ = proj₁ ∘ <⇒≤∧≢
+
+      <⇒≢ : _<_ ⇒² _≢_
+      <⇒≢ = proj₂ ∘ <⇒≤∧≢
+  open NonStrictToStrict ⦃...⦄ public
+
+  module _ (_≤_ : Rel A ℓ′) (_<_ : Rel A ℓ″) where
+    module _
+      ⦃ _ : TotalOrder _≤_ ⦄
+      ⦃ _ : StrictTotalOrder _<_ ⦄
+      ⦃ _ : NonStrictToStrict _≤_ _<_ ⦄
+      where
+
+      <⇒≱ : _<_ ⇒² ¬_ ∘₂ flip _≤_
+      <⇒≱ x<y = <⇒≢ x<y ∘ ≤-antisym (<⇒≤ x<y)
+
+      ≤⇒≯ : _≤_ ⇒² ¬_ ∘₂ flip _<_
+      ≤⇒≯ = flip <⇒≱
+
+      ≰⇒> : ¬_ ∘₂ _≤_ ⇒² flip _<_
+      ≰⇒> {x} {y} x≰y with ≤-total x y
+      ... | inj₁ x≤y = ⊥-elim $ x≰y x≤y
+      ... | inj₂ y≤x = ≤∧≢⇒< (y≤x , x≰y ∘ (λ where refl → ≤-refl) ∘ sym)
+
+      module _ ⦃ _ : DecEq A ⦄ where
+        ≮⇒≥ : ¬_ ∘₂ _<_ ⇒² flip _≤_
+        ≮⇒≥ {x} {y} x≮y with x ≟ y | ≤-total y x
+        ... | yes refl | _        = ≤-refl
+        ... | _        | inj₁ y≤x = y≤x
+        ... | no  x≉y  | inj₂ x≤y = ⊥-elim $ x≮y $ ≤∧≢⇒< (x≤y , x≉y)

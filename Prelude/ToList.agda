@@ -6,7 +6,7 @@ open import Prelude.Lists
 record ToList (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field toList : A → List B
   _∙toList = toList
-open ToList ⦃ ... ⦄ public
+open ToList ⦃...⦄ public
 
 private
   variable

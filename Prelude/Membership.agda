@@ -31,7 +31,7 @@ record HasMembership (F : Type ℓ → Type ℓ) : Type (lsuc $ lsuc ℓ) where
     _∈ᵇ_ = isYes ∘₂ _∈?_
     _∉ᵇ_ = isYes ∘₂ _∉?_
 
-open HasMembership ⦃ ... ⦄ public
+open HasMembership ⦃...⦄ public
 
 instance
   M-List : HasMembership {ℓ} List
@@ -54,7 +54,7 @@ record Functor∈ (F : Type ℓ → Type ℓ) ⦃ _ : HasMembership F ⦄ : Type
   field
     mapWith∈ : ∀ {A B : Type ℓ} → (xs : F A) → (∀ {x : A} → x ∈ xs → B) → F B
 
-open Functor∈ ⦃ ... ⦄ public
+open Functor∈ ⦃...⦄ public
 
 instance
   F∈-List : Functor∈ {ℓ} List

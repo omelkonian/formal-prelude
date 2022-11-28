@@ -5,7 +5,7 @@ open import Prelude.Init; open SetAsType
 {-
 Functor : (Type ℓ → Type ℓ) → Type (lsuc ℓ)
 Functor {ℓ = ℓ} = RawFunctor {ℓ = ℓ} {ℓ′ = ℓ}
-open RawFunctor ⦃ ... ⦄ public
+open RawFunctor ⦃...⦄ public
 -}
 
 private variable

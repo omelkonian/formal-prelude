@@ -110,8 +110,44 @@ module ⊢-Reasoning where
   _∎ : ∀ (P : Pred A ℓ) → ℝ⟨ P ⊢ P ⟩
   _∎ _ = mkℝ id
 
+-- ** Binary relations
+
 _Respects˘_ : Rel A ℓ → Pred A ℓ′ → Type _
 _~_ Respects˘ P = ∀ {x y} → x ~ y → P x → P y
+
+infix 4 _∈²_ _∉²_
+
+_∈²_ : A × A → Rel A ℓ → Type _
+(x , y) ∈² P = P x y
+
+_∉²_ : A × A → Rel A ℓ → Type _
+xy ∉² P = ¬ xy ∈² P
+
+∁² : Rel A ℓ → Rel A ℓ
+∁² P = ¬_ ∘₂ P
+
+infix 10 ⋃² ⋂²
+infixr 7 _∩²_
+infixr 6 _∪²_
+infix  4 _≬²_
+
+_∪²_ : Rel A ℓ → Rel A ℓ′ → Rel A _
+(P ∪² Q) x y = P x y ⊎ Q x y
+
+_∩²_ : Rel A ℓ → Rel A ℓ′ → Rel A _
+(P ∩² Q) x y = P x y × Q x y
+
+⋃² : (I : Type ℓ) → (I → Rel A ℓ′) → Rel A _
+(⋃² I P) x y = Σ[ i ∈ I ] P i x y
+syntax ⋃² I (λ i → P) = ⋃²[ i ∶ I ] P
+
+⋂² : ∀ {i} (I : Type i) → (I → Rel A ℓ′) → Rel A _
+(⋂² I P) x y = (i : I) → P i x y
+syntax ⋂² I (λ i → P) = ⋂²[ i ∶ I ] P
+
+_≬²_ : Rel A ℓ₁ → Rel A ℓ₂ → Type _
+P ≬² Q = ∃ λ x → ∃ λ y → P x y × Q x y
+
 
 -- ** N-ary tuples
 _^_ : Type ℓ → ℕ → Type ℓ

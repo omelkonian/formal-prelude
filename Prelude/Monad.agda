@@ -8,7 +8,7 @@ open import Prelude.General
 {-
 Monad : (Type ℓ → Type ℓ) → Type (lsuc ℓ)
 Monad {ℓ = ℓ} = RawMonad {f = ℓ}
-open RawMonad ⦃ ... ⦄ public
+open RawMonad ⦃...⦄ public
   using (return; _>>=_; _>>_; _=<<_; _>=>_; _<=<_; join)
 -}
 

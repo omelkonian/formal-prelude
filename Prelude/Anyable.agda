@@ -11,7 +11,7 @@ record Anyable (F : Type ℓ → Type ℓ) : Type (lsuc ℓ) where
   Any′ = Any
   syntax Any′ (λ x → P) xs = ∃[ x ∈ xs ] P
 
-open Anyable ⦃ ... ⦄ public
+open Anyable ⦃...⦄ public
 
 instance
   Anyable-List : Anyable {ℓ} List

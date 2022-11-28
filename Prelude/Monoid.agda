@@ -7,7 +7,7 @@ record Monoid (A : Type ℓ) : Type ℓ where
   field
     overlap ⦃ sm ⦄ : Semigroup A
     ε : A
-open Monoid ⦃ ... ⦄ public hiding (sm)
+open Monoid ⦃...⦄ public hiding (sm)
 
 record MonoidLaws (A : Type ℓ) ⦃ _ : Monoid A ⦄ (_~_ : Rel A ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   open Alg _~_

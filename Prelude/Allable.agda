@@ -11,7 +11,7 @@ record Allable (F : Type ℓ → Type ℓ) : Type (lsuc ℓ) where
   All′ = All
   syntax All′ (λ x → P) xs = ∀[ x ∈ xs ] P
 
-open Allable ⦃ ... ⦄ public
+open Allable ⦃...⦄ public
 
 instance
   Allable-List : Allable {ℓ} List

@@ -57,6 +57,7 @@ open import Prelude.Anyable
 
 open import Prelude.Orders
 open import Prelude.Ord
+open import Prelude.Ord.Tests
 
 open import Prelude.Setoid
 open import Prelude.CongSetoid

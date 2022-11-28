@@ -56,7 +56,7 @@ A ⟶ B = mkSetoid {A = A} Fun.Eq.⟶ mkSetoid {A = B}
 
     _≉?_ : Decidable² _≉_
     x ≉? y = ¬? (x ≈? y)
-  open IDecSetoid ⦃ ... ⦄ public
+  open IDecSetoid ⦃...⦄ public
 
   instance
     Decide-Setoid : ∀ {A : Type ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ _≈_ ⁇² ⦄ → IDecSetoid A

@@ -15,7 +15,7 @@ record TraversableA (F : Type↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ :
   traverseA : ⦃ Applicative M ⦄ → (A → M B) → F A → M (F B)
   traverseA f = sequenceA ∘ fmap f
 
-open TraversableA ⦃ ... ⦄ public
+open TraversableA ⦃...⦄ public
 
 record TraversableM (F : Type↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ : Typeω where
   field
@@ -24,7 +24,7 @@ record TraversableM (F : Type↑) ⦃ _ : Functor F ⦄ ⦃ _ : Foldable F ⦄ :
   traverseM : ⦃ Monad M ⦄ → (A → M B) → F A → M (F B)
   traverseM f = sequenceM ∘ fmap f
 
-open TraversableM ⦃ ... ⦄ public
+open TraversableM ⦃...⦄ public
 
 instance
   TraversableA-Maybe : TraversableA  Maybe
