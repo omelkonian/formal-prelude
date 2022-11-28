@@ -1,4 +1,4 @@
-module Prelude.Lists.Irrelevance where
+module Prelude.Irrelevance.List where
 
 import Data.List.Relation.Unary.AllPairs as AP
 open import Data.List.Relation.Unary.Linked as LI using (Linked)
@@ -7,12 +7,13 @@ open import Prelude.Init; open SetAsType
 open L.Perm hiding (↭-trans; ↭-refl)
 open L.Mem
 open import Prelude.General
-open import Prelude.Irrelevance
-open import Prelude.Apartness
 open import Prelude.DecEq
 open import Prelude.Functor
 open import Prelude.InferenceRules
 open import Prelude.Newtype
+
+open import Prelude.Irrelevance.Core
+open import Prelude.Irrelevance.Empty
 
 private variable
   A : Type ℓ; B : Type ℓ′
@@ -60,7 +61,7 @@ module _ (P? : Decidable¹ P) where
   ·Unique-filter⁺ : ·Unique xs → ·Unique (filter P? xs)
   ·Unique-filter⁺ = Unique⇒·Unique ∘ L.Uniq.filter⁺ P? ∘ ·Unique⇒Unique
 
-·Unique-++⁺ : ·Unique xs → ·Unique ys → xs ♯ ys → ·Unique (xs ++ ys)
+·Unique-++⁺ : ·Unique xs → ·Unique ys → Disjoint xs ys → ·Unique (xs ++ ys)
 ·Unique-++⁺ p q dis =
   Unique⇒·Unique $ L.Uniq.++⁺ (·Unique⇒Unique p) (·Unique⇒Unique q) dis
 
