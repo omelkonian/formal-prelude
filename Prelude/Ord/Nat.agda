@@ -30,3 +30,7 @@ instance
 
   StrictTotalOrderℕ-< : StrictTotalOrder _<_
   StrictTotalOrderℕ-< = record {Nat}
+
+  NonStrictToStrict-ℕ : NonStrictToStrict {A = ℕ} _≤_ _<_
+  NonStrictToStrict-ℕ .<⇔≤∧≢ =
+    (λ p → Nat.<⇒≤ p , Nat.<⇒≢ p) , uncurry Nat.≤∧≢⇒<
