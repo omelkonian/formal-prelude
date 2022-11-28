@@ -10,6 +10,7 @@ open import Prelude.Init
 open import Prelude.General
 open import Prelude.LiftOmega
 open import Prelude.SubstDSL
+open import Prelude.Newtype
 
 -- ** Convenient syntax for inference rules
 open import Prelude.InferenceRules
@@ -21,6 +22,9 @@ open import Prelude.Match
 -- ** Decidability
 open import Prelude.DecEq
 open import Prelude.Decidable
+
+-- ** Utilities for working with irrelevance
+open import Prelude.Irrelevance
 
 -- ** Typeclasses
 open import Prelude.ConjClass
@@ -57,7 +61,6 @@ open import Prelude.Ord
 open import Prelude.Setoid
 open import Prelude.CongSetoid
 
-open import Prelude.Collections
 open import Prelude.Membership
 open import Prelude.Apartness
 
@@ -76,9 +79,12 @@ open import Prelude.Traces
 
 -- ** Data structures
 open import Prelude.Lists
+open import Prelude.Lists.Irrelevance
+open import Prelude.Collections
 
 open import Prelude.Sets
 open import Prelude.Sets.Examples
+open import Prelude.SetCollections
 
 open import Prelude.Maps
 open import Prelude.Maps.Examples
@@ -93,9 +99,6 @@ open import Prelude.SerializableBitstring
 
 -- ** Unsafe operations
 open import Prelude.Unsafe
-
--- ** Utilities for working with irrelevance
-open import Prelude.Irrelevance
 
 -- ** Tactics
 open import Prelude.Tactics
