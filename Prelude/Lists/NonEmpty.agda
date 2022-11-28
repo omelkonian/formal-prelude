@@ -11,7 +11,7 @@ open import Prelude.Lists.Empty
 private variable A : Type ℓ
 
 -- List⁺
-All⁺ : Pred₀ A → List⁺ A → Type _
+All⁺ : Pred A ℓ′ → List⁺ A → Type _
 All⁺ P = All P ∘ toList
 
 toList⁺ : ∀ (xs : List A) → xs ≢ [] → List⁺ A
