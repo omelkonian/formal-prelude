@@ -23,6 +23,21 @@ private
       setᴵ = Setᴵ A 0ℓ ∋ record {Imp}
       _ = FinSetᴵ A 0ℓ ∋ record {setᴵ = setᴵ; Imp}
 
+  module Implementation3 where
+    open import Prelude.Sets.AsSortedUniqueLists
+    open import Prelude.Nary
+    open import Prelude.ToList; open import Prelude.FromList
+    open import Prelude.Ord; open import Prelude.Irrelevance
+
+    _ = toList (Set⟨ ℕ ⟩ ∋ fromList
+        ⟦ 0 , 5 , 2 , 0 ⟧)
+      ≡ ⟦ 0 , 2 , 5 ⟧
+      ∋ refl
+
+    -- T0D0: cover abstract signature
+    -- open import Prelude.Sets.Abstract.Interface
+    -- import Prelude.Sets.AsSortedUniqueLists as Imp
+
   module AbstractExample where
     open import Prelude.Sets.Abstract
 

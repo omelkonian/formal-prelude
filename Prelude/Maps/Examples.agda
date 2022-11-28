@@ -21,6 +21,20 @@ private
     imp = record {Imp; ♯-comm = λ {x}{y} → Imp.♯-comm {x}{y}}
     open Mapᴵ imp public
 
+  module Implementation3 where
+    open import Prelude.Maps.AsSortedUniqueLists
+    open import Prelude.ToList; open import Prelude.FromList
+    open import Prelude.Ord; open import Prelude.Irrelevance
+
+    _ = toList (Map⟨ ℕ ↦ ℕ ⟩ ∋ fromList
+        ((0 , 00) ∷ (5 , 55) ∷ (2 , 22) ∷ (0 , 11) ∷ []))
+      ≡ ((0 , 11) ∷ (2 , 22) ∷ (5 , 55) ∷ [])
+      ∋ refl
+
+    -- T0D0: cover abstract signature
+    -- open import Prelude.Maps.Abstract.Interface
+    -- import Prelude.Maps.AsSortedUniqueLists as Imp
+
   module GeneralExample where
     open import Prelude.Maps
 

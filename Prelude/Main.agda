@@ -80,7 +80,6 @@ open import Prelude.Traces
 
 -- ** Data structures
 open import Prelude.Lists
-open import Prelude.Lists.Irrelevance
 open import Prelude.Lists.Collections
 
 open import Prelude.Sets

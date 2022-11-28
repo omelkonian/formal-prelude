@@ -50,3 +50,6 @@ module String-DecOrd where
     StrictTotalOrderString-< : StrictTotalOrder {A = String} _<_
   -- StrictTotalOrderString-< = λ where
   --   .<-cmp → {!!}
+
+    NonStrictToStrict-String : NonStrictToStrict {A = String} _≤_ _<_
+  -- NonStrictToStrict-String .<⇔≤∧≢ = ?

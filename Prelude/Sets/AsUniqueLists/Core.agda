@@ -21,7 +21,6 @@ open import Prelude.InferenceRules
 open import Prelude.Null
 open import Prelude.Setoid
 open import Prelude.Irrelevance
-open import Prelude.Lists.Irrelevance
 
 module Prelude.Sets.AsUniqueLists.Core {A : Type} ⦃ _ : DecEq A ⦄ where
 

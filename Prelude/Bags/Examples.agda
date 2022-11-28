@@ -23,3 +23,20 @@ private
     _ = ∈-∪⁺ʳ _ _ _
       $ ∈-∪⁺ˡ _ _ _
       $ singleton∈ˢ .proj₂ refl
+
+  module Implementation where
+    open import Prelude.Bags.AsSortedLists
+    open import Prelude.Nary
+    open import Prelude.ToList
+    open import Prelude.FromList
+    open import Prelude.Ord
+    open import Prelude.Irrelevance
+
+    _ = toList (Bag⟨ ℕ ⟩ ∋ fromList
+        ⟦ 0 , 5 , 2 , 0 ⟧)
+      ≡ ⟦ 0 , 0 , 2 , 5 ⟧
+      ∋ refl
+
+    -- T0D0: cover abstract signature
+    -- open import Prelude.Bags.Abstract.Interface
+    -- import Prelude.Bags.AsSortedLists as Imp
