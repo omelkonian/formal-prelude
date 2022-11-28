@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Ord.Char</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Ord/Char.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.Ord.Char.html" class="Module">Prelude.Ord.Char</a> <a id="25" class="Keyword">where</a>
+
+<a id="32" class="Keyword">open</a> <a id="37" class="Keyword">import</a> <a id="44" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="56" class="Symbol">;</a> <a id="58" class="Keyword">open</a> <a id="63" href="Prelude.Init.html#397" class="Module">SetAsType</a>
+<a id="73" class="Keyword">open</a> <a id="78" class="Keyword">import</a> <a id="85" href="Prelude.Decidable.html" class="Module">Prelude.Decidable</a>
+
+<a id="104" class="Keyword">open</a> <a id="109" class="Keyword">import</a> <a id="116" href="Prelude.Orders.html" class="Module">Prelude.Orders</a>
+<a id="131" class="Keyword">open</a> <a id="136" class="Keyword">import</a> <a id="143" href="Prelude.Ord.Core.html" class="Module">Prelude.Ord.Core</a>
+
+<a id="161" class="Keyword">instance</a>
+  <a id="Ord-Char"></a><a id="172" href="Prelude.Ord.Char.html#172" class="Function">Ord-Char</a> <a id="181" class="Symbol">:</a> <a id="183" href="Prelude.Ord.Core.html#250" class="Record">Ord</a> <a id="187" href="Agda.Builtin.Char.html#227" class="Postulate">Char</a>
+  <a id="194" href="Prelude.Ord.Char.html#172" class="Function">Ord-Char</a> <a id="203" class="Symbol">=</a> <a id="205" class="Symbol">λ</a> <a id="207" class="Keyword">where</a>
+    <a id="217" class="Symbol">.</a><a id="218" href="Prelude.Ord.Core.html#294" class="Field">relℓ</a> <a id="223" class="Symbol">→</a> <a id="225" class="Symbol">_</a>
+    <a id="231" class="Symbol">.</a><a id="232" href="Prelude.Ord.Core.html#312" class="Field Operator">_≤_</a> <a id="236" class="Symbol">→</a> <a id="238" href="Data.Char.Base.html#1467" class="Function Operator">Ch._≤_</a>
+    <a id="249" class="Symbol">.</a><a id="250" href="Prelude.Ord.Core.html#316" class="Field Operator">_&lt;_</a> <a id="254" class="Symbol">→</a> <a id="256" href="Data.Char.Base.html#1415" class="Function Operator">Ch._&lt;_</a>
+
+<a id="264" class="Comment">-- T0D0: cannot declare these as instances without breaking instance resolution.</a>
+<a id="345" class="Keyword">module</a> <a id="Char-DecOrd"></a><a id="352" href="Prelude.Ord.Char.html#352" class="Module">Char-DecOrd</a> <a id="364" class="Keyword">where</a>
+  <a id="372" class="Comment">-- instance</a>
+  <a id="Char-DecOrd.DecOrd-Char"></a><a id="386" href="Prelude.Ord.Char.html#386" class="Function">DecOrd-Char</a> <a id="398" class="Symbol">:</a> <a id="400" href="Prelude.Ord.Core.html#312" class="Field Operator">_≤_</a> <a id="404" href="Prelude.Decidable.Base.html#739" class="Function Operator">⁇²</a>
+  <a id="409" href="Prelude.Ord.Char.html#386" class="Function">DecOrd-Char</a> <a id="421" class="Symbol">.</a><a id="422" href="Prelude.Decidable.Base.html#143" class="Field">dec</a> <a id="426" class="Symbol">=</a> <a id="428" class="Symbol">_</a> <a id="430" href="Data.Char.Properties.html#3971" class="Function Operator">Ch.≤?</a> <a id="436" class="Symbol">_</a>
+
+  <a id="Char-DecOrd.DecStrictOrd-Char"></a><a id="441" href="Prelude.Ord.Char.html#441" class="Function">DecStrictOrd-Char</a> <a id="459" class="Symbol">:</a> <a id="461" href="Prelude.Ord.Core.html#316" class="Field Operator">_&lt;_</a> <a id="465" href="Prelude.Decidable.Base.html#739" class="Function Operator">⁇²</a>
+  <a id="470" href="Prelude.Ord.Char.html#441" class="Function">DecStrictOrd-Char</a> <a id="488" class="Symbol">{</a><a id="489" href="Prelude.Ord.Char.html#489" class="Bound">x</a><a id="490" class="Symbol">}{</a><a id="492" href="Prelude.Ord.Char.html#492" class="Bound">y</a><a id="493" class="Symbol">}</a> <a id="495" class="Symbol">.</a><a id="496" href="Prelude.Decidable.Base.html#143" class="Field">dec</a> <a id="500" class="Symbol">=</a> <a id="502" href="Prelude.Ord.Char.html#489" class="Bound">x</a> <a id="504" href="Data.Char.Properties.html#2568" class="Function Operator">Ch.&lt;?</a> <a id="510" href="Prelude.Ord.Char.html#492" class="Bound">y</a>
+
+  <a id="515" class="Keyword">postulate</a>
+    <a id="Char-DecOrd.StrictPartialOrderChar-&lt;"></a><a id="529" href="Prelude.Ord.Char.html#529" class="Postulate">StrictPartialOrderChar-&lt;</a> <a id="554" class="Symbol">:</a> <a id="556" href="Prelude.Orders.html#1902" class="Record">StrictPartialOrder</a> <a id="575" href="Prelude.Ord.Core.html#316" class="Field Operator">_&lt;_</a>
+  <a id="581" class="Comment">-- StrictPartialOrderChar-&lt; = λ where</a>
+  <a id="621" class="Comment">--   .&lt;-irrefl  → {!!}</a>
+  <a id="646" class="Comment">--   .&lt;-trans   → {!!}</a>
+  <a id="671" class="Comment">--   .&lt;-resp₂-≡ → {!!}</a>
+
+    <a id="Char-DecOrd.PreorderChar-≤"></a><a id="699" href="Prelude.Ord.Char.html#699" class="Postulate">PreorderChar-≤</a> <a id="714" class="Symbol">:</a> <a id="716" href="Prelude.Orders.html#231" class="Record">Preorder</a> <a id="725" href="Prelude.Ord.Core.html#312" class="Field Operator">_≤_</a>
+  <a id="731" class="Comment">-- PreorderChar-≤ = λ where</a>
+  <a id="761" class="Comment">--   .≤-refl  → StrictLex.≤-reflexive {!!} {!!} {!!}</a>
+  <a id="816" class="Comment">--   .≤-trans → StrictLex.≤-transitive PropEq.isEquivalence {!&lt;-resp₂-≡!} {!!}</a>
+
+    <a id="Char-DecOrd.PartialOrderChar-≤"></a><a id="900" href="Prelude.Ord.Char.html#900" class="Postulate">PartialOrderChar-≤</a> <a id="919" class="Symbol">:</a> <a id="921" href="Prelude.Orders.html#618" class="Record">PartialOrder</a> <a id="934" href="Prelude.Ord.Core.html#312" class="Field Operator">_≤_</a>
+  <a id="940" class="Comment">-- PartialOrderChar-≤ .≤-antisym = {!!}</a>
+
+    <a id="Char-DecOrd.TotalOrderChar-≤"></a><a id="985" href="Prelude.Ord.Char.html#985" class="Postulate">TotalOrderChar-≤</a> <a id="1002" class="Symbol">:</a> <a id="1004" href="Prelude.Orders.html#784" class="Record">TotalOrder</a> <a id="1015" href="Prelude.Ord.Core.html#312" class="Field Operator">_≤_</a>
+  <a id="1021" class="Comment">-- TotalOrderChar-≤ .≤-total = {!!}</a>
+
+    <a id="Char-DecOrd.StrictTotalOrderChar-&lt;"></a><a id="1062" href="Prelude.Ord.Char.html#1062" class="Postulate">StrictTotalOrderChar-&lt;</a> <a id="1085" class="Symbol">:</a> <a id="1087" href="Prelude.Orders.html#2122" class="Record">StrictTotalOrder</a> <a id="1104" href="Prelude.Ord.Core.html#316" class="Field Operator">_&lt;_</a>
+  <a id="1110" class="Comment">-- StrictTotalOrderChar-&lt; = λ where</a>
+  <a id="1148" class="Comment">--   .&lt;-cmp → {!!}</a>
+</pre></body></html>

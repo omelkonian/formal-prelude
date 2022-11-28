@@ -57,7 +57,7 @@
 
     _≉?_ : Decidable² _≉_
     x ≉? y = ¬? (x ≈? y)
-  open IDecSetoid ⦃ ... ⦄ public
+  open IDecSetoid ⦃...⦄ public
 
   instance
     Decide-Setoid : ∀ {A : Type ℓ} ⦃ _ : ISetoid A ⦄ → ⦃ _≈_ ⁇² ⦄ → IDecSetoid A
