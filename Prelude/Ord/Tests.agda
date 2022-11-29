@@ -40,38 +40,27 @@ private
 
   -- ** sorting
 
-  _ = sort (List ℤ ∋ []) ≡ []
-    ∋ refl
-
   _ = sort ⟦ 1 , 3 , 2 , 0 ⟧ ≡ ⟦ 0 , 1 , 2 , 3 ⟧
     ∋ refl
 
   _ = True (Sorted? ⟦ 1 , 6 , 15 ⟧)
     ∋ tt
 
-  module _ where
-    open Char-DecOrd
-    _ = sort ⦃ Ord-Char ⦄ ⦃ DecOrd-Char ⦄ ⦃ it ⦄ ⦃ TotalOrderChar-≤ ⦄
-        ⟦ 'a' , 'c' , '0' ⟧ ≡ ⟦ '0' , 'a' , 'c' ⟧
-      ∋ refl
+  _ = sort ⟦ 'a' , 'c' , '0' ⟧ ≡ ⟦ '0' , 'a' , 'c' ⟧
+    ∋ refl
 
-  module _ where
-    open String-DecOrd
-    _ = sort ⦃ itω ⦄ ⦃ λ {x}{y} → DecOrd-String {x}{y} ⦄ ⦃ it ⦄ ⦃ TotalOrderString-≤ ⦄
-        ⟦ "abc" , "cde" , "cdc" ⟧ ≡ ⟦ "abc" , "cdc" , "cde" ⟧
-      ∋ refl
+  _ = sort (List ℤ ∋ []) ≡ []
+    ∋ refl
 
-  module _ where
-    open import Prelude.Decidable
-    open Char-DecOrd
-    instance
-      _ = DecOrd-Char
-      _ = TotalOrderChar-≤
-      _ = StrictTotalOrderChar-<
-    open Product-Ord
-    instance
-      _ = Ord-×
-      _ = ≤×-to-<×
-    _ = sort ((1 , 'a') ∷ (0 , 'c') ∷ (2 , '0') ∷ (0 , 'a') ∷ [])
-           ≡ ((0 , 'a') ∷ (0 , 'c') ∷ (1 , 'a') ∷ (2 , '0') ∷ [])
-      ∋ refl
+  _ = sort ⟦ "abc" , "cde" , "cdc" ⟧ ≡ ⟦ "abc" , "cdc" , "cde" ⟧
+    ∋ refl
+
+  open import Prelude.Ord.Product
+  _ = sort ((1 , 'a') ∷ (0 , 'c') ∷ (2 , '0') ∷ (0 , 'a') ∷ [])
+         ≡ ((0 , 'a') ∷ (0 , 'c') ∷ (1 , 'a') ∷ (2 , '0') ∷ [])
+    ∋ refl
+
+  open import Prelude.Ord.Maybe
+  _ = sort (just 1 ∷ just 0 ∷ just 2 ∷ nothing ∷ [])
+         ≡ (nothing ∷ just 0 ∷ just 1 ∷ just 2 ∷ [])
+    ∋ refl

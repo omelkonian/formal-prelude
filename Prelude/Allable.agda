@@ -1,7 +1,7 @@
 module Prelude.Allable where
 
-open import Prelude.Init hiding (All)
-open SetAsType
+open import Prelude.Init hiding (All); open SetAsType
+open import Prelude.DecEq
 
 record Allable (F : Type ℓ → Type ℓ) : Type (lsuc ℓ) where
   field

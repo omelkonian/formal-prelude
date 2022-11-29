@@ -10,9 +10,7 @@ open import Prelude.Irrelevance
 module Prelude.Bags.AsSortedLists
   {A : Type ℓ}
   ⦃ _ : DecEq A ⦄
-  ⦃ _ : Ord A ⦄
-  ⦃ _ : _≤_ {A = A} ⁇² ⦄
-  ⦃ _ : TotalOrder {A = A} _≤_ ⦄
+  ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄
   ⦃ _ : ·² _≤_ {A = A} ⦄
   where
 

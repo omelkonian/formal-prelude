@@ -11,10 +11,8 @@ open import Prelude.Irrelevance
 module Prelude.Sets.AsSortedUniqueLists
   {A : Type ℓ}
   ⦃ _ : DecEq A ⦄
-  ⦃ _ : Ord A ⦄
-  ⦃ _ : let ≤ = _≤_ {A = A} in TotalOrder ≤ ⦄
-  ⦃ _ : let ≤ = _≤_ {A = A} in ≤ ⁇² ⦄
-  ⦃ _ : let ≤ = _≤_ {A = A} in ·² ≤ ⦄
+  ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄
+  ⦃ _ : ·² _≤_ {A = A} ⦄
   where
 
 Set' : Type _

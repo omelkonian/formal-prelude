@@ -7,6 +7,7 @@ import Relation.Binary.Construct.On as On
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
+open import Prelude.DecEq
 open import Prelude.Ord
 
 record Measurable {ℓ} (A : Type ℓ) : Type ℓ where

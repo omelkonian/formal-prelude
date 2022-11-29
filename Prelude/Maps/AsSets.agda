@@ -187,8 +187,7 @@ postulate
   ∪-assocʳ : ∀ s₁ s₂ s₃ → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
   ∪≡-assocʳ : ∀ s₁ s₂ s₃ s → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
 
-module _ ⦃ _ : Ord V ⦄ ⦃ _ : _≤_ {A = V} ⁇² ⦄ ⦃ _ : _<_ {A = V} ⁇² ⦄
-         ⦃ _ : Monoid V ⦄ where
+module _ ⦃ _ : Ord V ⦄ ⦃ _ : Monoid V ⦄ where
 
   normalize : Op₁ Map
   normalize = filterV (_>? ε)

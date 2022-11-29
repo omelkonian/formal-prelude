@@ -12,30 +12,19 @@ module Prelude.Maps.AsSortedUniqueLists
   {K : Type ℓ}
   ⦃ _ : DecEq K ⦄
   ⦃ _ : Ord K ⦄
-  ⦃ _ : _≤_ {A = K} ⁇² ⦄
-  ⦃ _ : TotalOrder {A = K} _≤_ ⦄
-  ⦃ _ : _<_ {A = K} ⁇² ⦄
-  ⦃ _ : StrictTotalOrder {A = K} _<_ ⦄
-  ⦃ _ : NonStrictToStrict {A = K} _≤_ _<_ ⦄
+  ⦃ _ : OrdLaws K ⦄
   ⦃ _ : ·² _≤_ {A = K} ⦄
   ⦃ _ : ·² _<_ {A = K} ⦄
 
   {V : Type ℓ}
   ⦃ _ : DecEq V ⦄
   ⦃ _ : Ord V ⦄
-  ⦃ _ : _≤_ {A = V} ⁇² ⦄
-  ⦃ _ : TotalOrder {A = V} _≤_ ⦄
-  ⦃ _ : _<_ {A = V} ⁇² ⦄
-  ⦃ _ : StrictTotalOrder {A = V} _<_ ⦄
-  ⦃ _ : NonStrictToStrict {A = V} _≤_ _<_ ⦄
+  ⦃ _ : OrdLaws V ⦄
   ⦃ _ : ·² _≤_ {A = V} ⦄
   ⦃ _ : ·² _<_ {A = V} ⦄
   where
 
-open Product-Ord
-instance
-      _ = Ord-×
-      _ = ≤×-to-<×
+open import Prelude.Ord.Product
 
 Map : Type _
 Map = Σ (List (K × V)) (Sorted Unary.∩ (·Unique ∘ map proj₁))
