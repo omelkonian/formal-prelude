@@ -5,7 +5,7 @@ open import Prelude.Init; open SetAsType
 
 private variable A : Type ℓ; B : Type ℓ′
 
-infixr -100 _⊗_
+infixr -100 _⊗_ _ω⊗ω_
 record _⊗_ (A : Type ℓ) (B : ⦃ A ⦄ → Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field ⦃ ↜ ⦄ : A
   field ⦃ ↝ ⦄ : B
@@ -13,6 +13,16 @@ instance
   mk⊗ : ⦃ A ⦄ → ⦃ _ : B ⦄ → A ⊗ B
   mk⊗ = record {}
 open _⊗_ ⦃...⦄ hiding (↜; ↝)
+
+private variable Aω Bω : Typeω
+
+record _ω⊗ω_ (A : Typeω) (B : ⦃ A ⦄ → Typeω) : Typeω where
+  field ⦃ ↜ ⦄ : A
+  field ⦃ ↝ ⦄ : B
+instance
+  mkω⊗ω : ⦃ Aω ⦄ → ⦃ _ : Bω ⦄ → Aω ω⊗ω Bω
+  mkω⊗ω = record {}
+open _ω⊗ω_ ⦃...⦄ hiding (↜; ↝)
 
 private
   record X (A : Type ℓ) : Type ℓ where
