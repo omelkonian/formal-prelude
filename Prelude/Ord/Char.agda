@@ -13,6 +13,9 @@ instance
     ._≤_ → Ch._≤_
     ._<_ → Ch._<_
 
+  postulate
+    NonStrictToStrict-Char : NonStrictToStrict {A = Char} _≤_ _<_
+
 -- T0D0: cannot declare these as instances without breaking instance resolution.
 module Char-DecOrd where
   -- instance

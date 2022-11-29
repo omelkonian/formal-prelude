@@ -10,7 +10,6 @@ open import Prelude.Orders
 open import Prelude.Ord.Core
 
 instance
-  -- string
   Ord-String : Ord String
   Ord-String = λ where
     .relℓ → _

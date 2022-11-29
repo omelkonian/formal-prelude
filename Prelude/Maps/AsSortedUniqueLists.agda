@@ -32,6 +32,11 @@ module Prelude.Maps.AsSortedUniqueLists
   ⦃ _ : ·² _<_ {A = V} ⦄
   where
 
+open Product-Ord
+instance
+      _ = Ord-×
+      _ = ≤×-to-<×
+
 Map : Type _
 Map = Σ (List (K × V)) (Sorted Unary.∩ (·Unique ∘ map proj₁))
 syntax Map {K = K} {V = V} = Map⟨ K ↦ V ⟩

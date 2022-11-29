@@ -49,12 +49,29 @@ private
   _ = True (Sorted? ⟦ 1 , 6 , 15 ⟧)
     ∋ tt
 
-  open Char-DecOrd
-  _ = sort ⦃ Ord-Char ⦄ ⦃ DecOrd-Char ⦄ ⦃ it ⦄ ⦃ TotalOrderChar-≤ ⦄
-      ⟦ 'a' , 'c' , '0' ⟧ ≡ ⟦ '0' , 'a' , 'c' ⟧
-    ∋ refl
+  module _ where
+    open Char-DecOrd
+    _ = sort ⦃ Ord-Char ⦄ ⦃ DecOrd-Char ⦄ ⦃ it ⦄ ⦃ TotalOrderChar-≤ ⦄
+        ⟦ 'a' , 'c' , '0' ⟧ ≡ ⟦ '0' , 'a' , 'c' ⟧
+      ∋ refl
 
-  open String-DecOrd
-  _ = sort ⦃ itω ⦄ ⦃ λ {x}{y} → DecOrd-String {x}{y} ⦄ ⦃ it ⦄ ⦃ TotalOrderString-≤ ⦄
-      ⟦ "abc" , "cde" , "cdc" ⟧ ≡ ⟦ "abc" , "cdc" , "cde" ⟧
-    ∋ refl
+  module _ where
+    open String-DecOrd
+    _ = sort ⦃ itω ⦄ ⦃ λ {x}{y} → DecOrd-String {x}{y} ⦄ ⦃ it ⦄ ⦃ TotalOrderString-≤ ⦄
+        ⟦ "abc" , "cde" , "cdc" ⟧ ≡ ⟦ "abc" , "cdc" , "cde" ⟧
+      ∋ refl
+
+  module _ where
+    open import Prelude.Decidable
+    open Char-DecOrd
+    instance
+      _ = DecOrd-Char
+      _ = TotalOrderChar-≤
+      _ = StrictTotalOrderChar-<
+    open Product-Ord
+    instance
+      _ = Ord-×
+      _ = ≤×-to-<×
+    _ = sort ((1 , 'a') ∷ (0 , 'c') ∷ (2 , '0') ∷ (0 , 'a') ∷ [])
+           ≡ ((0 , 'a') ∷ (0 , 'c') ∷ (1 , 'a') ∷ (2 , '0') ∷ [])
+      ∋ refl
