@@ -34,7 +34,9 @@ open import Prelude.Bifunctor
 open import Prelude.Pointed
 open import Prelude.PointedFunctor
 open import Prelude.Semigroup
+open import Prelude.PartialSemigroup
 open import Prelude.Monoid
+open import Prelude.PartialMonoid
 open import Prelude.Group
 open import Prelude.Foldable
 open import Prelude.Applicative
