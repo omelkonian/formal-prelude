@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html><head><meta charset="utf-8"><title>Prelude.DecEq.Core</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/DecEq/Core.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.DecEq.Core.html" class="Module">Prelude.DecEq.Core</a> <a id="27" class="Keyword">where</a>
 
-<a id="34" class="Keyword">open</a> <a id="39" class="Keyword">import</a> <a id="46" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="58" class="Symbol">;</a> <a id="60" class="Keyword">open</a> <a id="65" href="Prelude.Init.html#397" class="Module">SetAsType</a>
+<a id="34" class="Keyword">open</a> <a id="39" class="Keyword">import</a> <a id="46" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="58" class="Symbol">;</a> <a id="60" class="Keyword">open</a> <a id="65" href="Prelude.Init.html#481" class="Module">SetAsType</a>
 
 <a id="76" class="Keyword">private</a> <a id="84" class="Keyword">variable</a> <a id="93" href="Prelude.DecEq.Core.html#93" class="Generalizable">A</a> <a id="95" href="Prelude.DecEq.Core.html#95" class="Generalizable">B</a> <a id="97" class="Symbol">:</a> <a id="99" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="104" href="Prelude.Init.html#238" class="Generalizable">ℓ</a>
 
@@ -79,7 +79,7 @@
   <a id="1769" href="Prelude.DecEq.Core.html#1707" class="Function">DecEq-These</a> <a id="1781" class="Symbol">.</a><a id="1782" href="Prelude.DecEq.Core.html#156" class="Field Operator">_≟_</a> <a id="1786" class="Symbol">=</a> <a id="1788" href="Data.These.Properties.html#1294" class="Function">∣These∣.≡-dec</a> <a id="1802" href="Prelude.DecEq.Core.html#156" class="Field Operator">_≟_</a> <a id="1806" href="Prelude.DecEq.Core.html#156" class="Field Operator">_≟_</a>
 
   <a id="1813" class="Comment">-- ** reflection</a>
-  <a id="1832" class="Keyword">open</a> <a id="1837" href="Prelude.Init.html#10959" class="Module">Meta</a>
+  <a id="1832" class="Keyword">open</a> <a id="1837" href="Prelude.Init.html#11043" class="Module">Meta</a>
 
   <a id="DecEq-Name"></a><a id="1845" href="Prelude.DecEq.Core.html#1845" class="Function">DecEq-Name</a> <a id="1856" class="Symbol">:</a> <a id="1858" href="Prelude.DecEq.Core.html#114" class="Record">DecEq</a> <a id="1864" href="Agda.Builtin.Reflection.html#489" class="Postulate">Name</a>
   <a id="1871" href="Prelude.DecEq.Core.html#1845" class="Function">DecEq-Name</a> <a id="1882" class="Symbol">.</a><a id="1883" href="Prelude.DecEq.Core.html#156" class="Field Operator">_≟_</a> <a id="1887" class="Symbol">=</a> <a id="1889" href="Reflection.Name.html#1403" class="Function Operator">RName._≟_</a>

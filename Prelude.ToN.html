@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html><head><meta charset="utf-8"><title>Prelude.ToN</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/ToN.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Prelude.ToN.html" class="Module">Prelude.ToN</a> <a id="20" class="Keyword">where</a>
 
-<a id="27" class="Keyword">open</a> <a id="32" class="Keyword">import</a> <a id="39" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="51" class="Symbol">;</a> <a id="53" class="Keyword">open</a> <a id="58" href="Prelude.Init.html#397" class="Module">SetAsType</a>
+<a id="27" class="Keyword">open</a> <a id="32" class="Keyword">import</a> <a id="39" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="51" class="Symbol">;</a> <a id="53" class="Keyword">open</a> <a id="58" href="Prelude.Init.html#481" class="Module">SetAsType</a>
 
 <a id="69" class="Keyword">record</a> <a id="Toℕ"></a><a id="76" href="Prelude.ToN.html#76" class="Record">Toℕ</a> <a id="80" class="Symbol">(</a><a id="81" href="Prelude.ToN.html#81" class="Bound">A</a> <a id="83" class="Symbol">:</a> <a id="85" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="90" href="Prelude.Init.html#238" class="Generalizable">ℓ</a><a id="91" class="Symbol">)</a> <a id="93" class="Symbol">:</a> <a id="95" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="100" href="Prelude.ToN.html#90" class="Bound">ℓ</a> <a id="102" class="Keyword">where</a>
   <a id="110" class="Keyword">field</a> <a id="Toℕ.toℕ"></a><a id="116" href="Prelude.ToN.html#116" class="Field">toℕ</a> <a id="120" class="Symbol">:</a> <a id="122" href="Prelude.ToN.html#81" class="Bound">A</a> <a id="124" class="Symbol">→</a> <a id="126" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
@@ -20,7 +20,7 @@
   <a id="Toℕ-Word"></a><a id="301" href="Prelude.ToN.html#301" class="Function">Toℕ-Word</a> <a id="310" class="Symbol">:</a> <a id="312" href="Prelude.ToN.html#76" class="Record">Toℕ</a> <a id="316" href="Agda.Builtin.Word.html#197" class="Postulate">Word64</a>
   <a id="325" href="Prelude.ToN.html#301" class="Function">Toℕ-Word</a> <a id="334" class="Symbol">.</a><a id="335" href="Prelude.ToN.html#116" class="Field">toℕ</a> <a id="339" class="Symbol">=</a> <a id="341" href="Data.Word.Base.html#664" class="Primitive">Word.toℕ</a>
 
-  <a id="353" class="Keyword">open</a> <a id="358" href="Prelude.Init.html#10959" class="Module">Meta</a>
+  <a id="353" class="Keyword">open</a> <a id="358" href="Prelude.Init.html#11043" class="Module">Meta</a>
 
   <a id="Toℕ-Meta"></a><a id="366" href="Prelude.ToN.html#366" class="Function">Toℕ-Meta</a> <a id="375" class="Symbol">:</a> <a id="377" href="Prelude.ToN.html#76" class="Record">Toℕ</a> <a id="381" href="Agda.Builtin.Reflection.html#2458" class="Postulate">Meta</a>
   <a id="388" href="Prelude.ToN.html#366" class="Function">Toℕ-Meta</a> <a id="397" class="Symbol">.</a><a id="398" href="Prelude.ToN.html#116" class="Field">toℕ</a> <a id="402" class="Symbol">=</a> <a id="404" href="Reflection.Meta.html#608" class="Primitive">Meta.Meta.toℕ</a>
