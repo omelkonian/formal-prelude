@@ -1,11 +1,14 @@
 module Prelude.Foldable where
 
 open import Prelude.Init; open SetAsType
+open import Prelude.Semigroup
 open import Prelude.Monoid
 
 record Foldable (F : Type↑) : Typeω where
   field
-    foldMap : ∀ {A : Type ℓ} {M : Type ℓ′} ⦃ _ : Monoid M ⦄ → (A → M) → F A → M
+    foldMap : ∀ {A : Type ℓ} {M : Type ℓ′}
+      → ⦃ _ : Semigroup M ⦄ ⦃ _ : Monoid M ⦄
+      → (A → M) → F A → M
 
 open Foldable ⦃...⦄ public
 

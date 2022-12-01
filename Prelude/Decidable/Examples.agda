@@ -4,7 +4,7 @@ open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Nary
 
-open import Prelude.Decidable.Base
+open import Prelude.Decidable.Core
 open import Prelude.Decidable.Instances
 
 private

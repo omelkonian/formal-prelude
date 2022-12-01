@@ -60,7 +60,7 @@ record Setᴵ : Type (lsuc σ) where
       .relℓ → 0ℓ
       ._≈_ s s′ → (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
-    SetoidLaws-Set : Setoid-Laws Set'
+    SetoidLaws-Set : SetoidLaws Set'
     SetoidLaws-Set .isEquivalence = record
       { refl  = id , id
       ; sym   = Product.swap

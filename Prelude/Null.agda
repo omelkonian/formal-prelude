@@ -1,8 +1,9 @@
 module Prelude.Null where
 
 open import Prelude.Init; open SetAsType
+open import Prelude.Semigroup
 open import Prelude.Monoid
-open import Prelude.Decidable.Base
+open import Prelude.Decidable.Core
 
 record Nullable (A : Type ℓ) {ℓ′ : Level} : Type (ℓ ⊔ₗ lsuc ℓ′) where
   field Null : Pred A ℓ′
@@ -17,7 +18,7 @@ open Nullable ⦃...⦄ public
 
 private variable A : Type ℓ
 
-Monoid⇒Nullable : ⦃ Monoid A ⦄ → Nullable A
+Monoid⇒Nullable : ⦃ _ : Semigroup A ⦄ → ⦃ Monoid A ⦄ → Nullable A
 Monoid⇒Nullable = λ where .Null → _≡ ε
 
 instance

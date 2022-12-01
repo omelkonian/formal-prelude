@@ -26,7 +26,7 @@ record Lens : Type ℓ↑ where
 
   _∙modify = modify
 
-record Lens-Laws (l : Lens) : Type ℓ↑ where
+record LensLaws (l : Lens) : Type ℓ↑ where
   open Lens l
   field
     get∘set : ∀ a b → get (set a b) ≡ b
@@ -36,10 +36,10 @@ record Lens-Laws (l : Lens) : Type ℓ↑ where
 record Lawful-Lens : Type ℓ↑ where
   field
     lens : Lens
-    laws : Lens-Laws lens
+    laws : LensLaws lens
   open Lens lens
-  open Lens-Laws laws
+  open LensLaws laws
 
 open Lens public
-open Lens-Laws public
+open LensLaws public
 open Lawful-Lens public

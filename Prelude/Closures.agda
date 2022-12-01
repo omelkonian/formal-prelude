@@ -223,7 +223,7 @@ module UpToLabelledReflexiveTransitiveClosure
   _⁺↞—_ = unlabel _⁺↞[_]—_
 
   -- automatic-proof version
-  module _ ⦃ _ : IDecSetoid A ⦄ where
+  module _ ⦃ _ : DecSetoid A ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 
@@ -432,7 +432,7 @@ module UpToReflexiveTransitiveClosure
   _⁺↞—⟨_⟩_ = TransitiveOp _⁺↞—_ ∋ mkTransitiveOp ⁺↞—-trans
 
   -- automatic-proof version
-  module _ ⦃ ds : IDecSetoid A ⦄ where
+  module _ ⦃ ds : DecSetoid A ⦄ where
 
     infixr 2 _—→⟨_⟩_ _⟨_⟩←—_
 

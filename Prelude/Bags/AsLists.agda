@@ -155,7 +155,7 @@ instance
     .relℓ → 0ℓ
     ._≈_  → _≈ˢ_
 
-  SetoidLaws-Bag : Setoid-Laws Bag
+  SetoidLaws-Bag : SetoidLaws Bag
   SetoidLaws-Bag .isEquivalence = ≈ˢ-equiv
 
   Semigroup-Bag : Semigroup Bag
@@ -168,7 +168,7 @@ instance
 postulate ∪-comm : Commutative _∪_
 
 instance
-  SemigroupLaws-Bag : SemigroupLaws Bag _≈ˢ_
+  SemigroupLaws-Bag : SemigroupLaws Bag
   SemigroupLaws-Bag = record {◇-assocʳ = ∪-assocʳ; ◇-comm = ∪-comm}
 
   Apart-Bag : Bag // Bag

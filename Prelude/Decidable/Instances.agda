@@ -1,7 +1,7 @@
 module Prelude.Decidable.Instances where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.Decidable.Base
+open import Prelude.Decidable.Core
 open import Prelude.DecEq
 
 private variable

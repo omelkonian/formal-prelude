@@ -147,7 +147,7 @@ instance
     .relℓ → _
     ._≈_ m m′ → ∀ k → m ⁉ k ≡ m′ ⁉ k
 
-  SetoidLaws-Map : Setoid-Laws Map
+  SetoidLaws-Map : SetoidLaws Map
   SetoidLaws-Map = record {isEquivalence = record
     { refl = λ _ → refl
     ; sym = λ p k → sym (p k)
@@ -187,7 +187,7 @@ postulate
   ∪-assocʳ : ∀ s₁ s₂ s₃ → s₁ ∪ (s₂ ∪ s₃) ≈ (s₁ ∪ s₂) ∪ s₃
   ∪≡-assocʳ : ∀ s₁ s₂ s₃ s → s₂ ♯ s₃ → ⟨ s₁ ⊎ (s₂ ∪ s₃) ⟩≡ s → ⟨ (s₁ ∪ s₂) ⊎ s₃ ⟩≡ s
 
-module _ ⦃ _ : Ord V ⦄ ⦃ _ : Monoid V ⦄ where
+module _ ⦃ _ : Ord V ⦄ ⦃ _ : Semigroup V ⦄ ⦃ _ : Monoid V ⦄ where
 
   normalize : Op₁ Map
   normalize = filterV (_>? ε)

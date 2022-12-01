@@ -55,7 +55,7 @@ instance
     .relℓ → _
     ._≈_ m m′ → ∀ k → m ⁉ k ≡ m′ ⁉ k
 
-  SetoidLaws-Map : Setoid-Laws Map
+  SetoidLaws-Map : SetoidLaws Map
   SetoidLaws-Map .isEquivalence = record
     { refl = λ _ → refl
     ; sym = λ p k → sym (p k)

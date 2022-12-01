@@ -5,6 +5,7 @@ open import Data.String using (_<+>_; parensIfSpace)
 open import Prelude.Init
 open import Prelude.General
 open import Prelude.Lists
+open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.ToN
 

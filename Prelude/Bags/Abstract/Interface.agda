@@ -72,7 +72,7 @@ record Bagᴵ : Type (lsuc σ) where
       .relℓ → _
       ._≈_ s s′ → (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
-    SetoidLaws-Bag : Setoid-Laws Bag
+    SetoidLaws-Bag : SetoidLaws Bag
     SetoidLaws-Bag .isEquivalence = record
       { refl  = Nat.≤-refl , Nat.≤-refl
       ; sym   = Product.swap

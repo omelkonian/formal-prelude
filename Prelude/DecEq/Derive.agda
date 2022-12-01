@@ -14,6 +14,7 @@ open import Prelude.Generics using (DERIVE) public
 open Debug ("DecEq" , 100)
 open import Prelude.Lists
 open import Prelude.Show
+open import Prelude.Semigroup
 open import Prelude.Monoid
 open import Prelude.Functor
 open import Prelude.Bifunctor

@@ -203,7 +203,7 @@ instance
     .relℓ → _
     ._≈_ s s′ → (s ⊆ˢ s′) × (s′ ⊆ˢ s)
 
-  SetoidLaws-Set : Setoid-Laws Set'
+  SetoidLaws-Set : SetoidLaws Set'
   SetoidLaws-Set .isEquivalence = record
     { refl  = id , id
     ; sym   = Product.swap

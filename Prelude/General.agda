@@ -31,6 +31,9 @@ A ↔ B = (A → B) × (B → A)
 _⇔_ : Type ℓ → Type ℓ′ → Type _
 A ⇔ B = (A → B) × (B → A)
 
+_⇀_ : Type ℓ → Type ℓ′ → Type _
+A ⇀ B = A → Maybe B
+
 IdFun : ∀ {A : Type ℓ} → Pred (A → A) ℓ
 IdFun f = ∀ x → f x ≡ x
 
@@ -434,15 +437,6 @@ private module _ (n : ℕ) where
   f with ⟫ n
   ... | ⟫ 0     = inj₁ refl
   ... | ⟫ suc _ = inj₂ $ -, refl
-
-
--- ** ω-level
-
-itω : ∀ {A : Typeω} → ⦃ A ⦄ → A
-itω ⦃ x ⦄ = x
-
-_∋ω_ : (A : Typeω) → A → A
-_ ∋ω x = x
 
 -- ** Testing
 

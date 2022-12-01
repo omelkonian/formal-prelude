@@ -52,7 +52,7 @@ record Mapᴵ : Type (lsuc σ) where
       .relℓ → _
       ._≈_ m m′ → ∀ k → m ⁉ k ≡ m′ ⁉ k
 
-    SetoidLaws-Map : Setoid-Laws Map
+    SetoidLaws-Map : SetoidLaws Map
     SetoidLaws-Map = record {isEquivalence = record
       { refl = λ _ → refl
       ; sym = λ p k → sym (p k)
@@ -270,7 +270,8 @@ record FinMapᴵ : Type (lsuc σ) where
     Dec-∈ᵈ : ∀ {k : K} {m : Map} → (k ∈ᵈ m) ⁇
     Dec-∈ᵈ .dec = _∈ᵈ?_ _ _
 
-  module _ ⦃ mᵥ : Monoid V ⦄ ⦃ _ : SemigroupLaws≡ V ⦄ ⦃ _ : MonoidLaws≡ V ⦄ where
+  module _ ⦃ _ : Semigroup V ⦄ ⦃ mᵥ : Monoid V ⦄
+           ⦃ _ : SemigroupLaws≡ V ⦄ ⦃ _ : MonoidLaws≡ V ⦄ where
     infix 6 _⁉ε_
     _⁉ε_ : Map → K → V
     m ⁉ε k = fromMaybe ε (m ⁉ k)
@@ -293,7 +294,7 @@ record FinMapᴵ : Type (lsuc σ) where
             (buildMap λ k → (m ⁉ k) ◇ (m′ ⁉ k)) ⁉ k
           ≡⟨ buildMap-sound _ _ ⟩
             (m ⁉ k) ◇ (m′ ⁉ k)
-          ≡⟨ ◇-comm (m ⁉ k) (m′ ⁉ k) ⟩
+          ≡⟨ ◇-comm≡ (m ⁉ k) (m′ ⁉ k) ⟩
             (m′ ⁉ k) ◇ (m ⁉ k)
           ≡⟨ sym $ buildMap-sound _ _ ⟩
             (buildMap λ k → (m′ ⁉ k) ◇ (m ⁉ k)) ⁉ k
@@ -319,9 +320,9 @@ record FinMapᴵ : Type (lsuc σ) where
                   | ◇-⁉ {k} m₁ m₂
                   | ◇-⁉ {k} m₁ (m₂ ◇ m₃)
                   | ◇-⁉ {k} m₂ m₃
-            = ◇-assocʳ (m₁ ⁉ k) _ _
+            = ◇-assocʳ≡ (m₁ ⁉ k) _ _
     instance
-      SemigroupLaws-Map : SemigroupLaws Map _≈_
+      SemigroupLaws-Map : SemigroupLaws Map
       SemigroupLaws-Map = record {◇-comm = ◇ᵐ-comm; ◇-assocʳ = ◇ᵐ-assocʳ}
 
     ◇≡-comm : Symmetric (⟨_◇_⟩≡ m)
@@ -406,7 +407,7 @@ record FinMapᴵ : Type (lsuc σ) where
     ↦-◇⁺ˡ {k = k}{s₂}{s₁} k∉ =
       begin
         s₁ ⁉ k
-      ≡⟨ sym $ ε-identity .proj₂ (s₁ ⁉ k) ⟩
+      ≡⟨ sym $ ε-identity≡ .proj₂ (s₁ ⁉ k) ⟩
         (s₁ ⁉ k) ◇ nothing
       ≡⟨ cong ((s₁ ⁉ k) ◇_) (sym (Is-nothing≡ (∉ᵈ⇒⁉ _ k∉))) ⟩
         (s₁ ⁉ k) ◇ (s₂ ⁉ k)
@@ -418,7 +419,7 @@ record FinMapᴵ : Type (lsuc σ) where
     ↦-◇⁺ʳ {k = k}{s₁}{s₂} k∉ =
       begin
         s₂ ⁉ k
-      ≡⟨ sym $ ε-identity .proj₁ (s₂ ⁉ k) ⟩
+      ≡⟨ sym $ ε-identity≡ .proj₁ (s₂ ⁉ k) ⟩
         nothing ◇ (s₂ ⁉ k)
       ≡⟨ cong (_◇ (s₂ ⁉ k)) (sym (Is-nothing≡ (∉ᵈ⇒⁉ _ k∉))) ⟩
         (s₁ ⁉ k) ◇ (s₂ ⁉ k)

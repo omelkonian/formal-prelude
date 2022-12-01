@@ -47,7 +47,7 @@ instance
     .relℓ → _
     ._≈_ m m′ → ∀ k → m k ≡ m′ k
 
-  SetoidLaws-Bag : Setoid-Laws Bag
+  SetoidLaws-Bag : SetoidLaws Bag
   SetoidLaws-Bag .isEquivalence = record
     { refl = λ _ → refl
     ; sym = λ p k → sym (p k)

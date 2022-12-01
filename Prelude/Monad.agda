@@ -41,7 +41,7 @@ record Monad (M : Type↑) : Typeω where
   join m = m >>= id
 open Monad ⦃...⦄ public
 
-record Monad-Laws (M : Type↑) ⦃ _ : Monad M ⦄ : Typeω where
+record MonadLaws (M : Type↑) ⦃ _ : Monad M ⦄ : Typeω where
   field
     >>=-identityˡ : ∀ {A : Type ℓ} {B : Type ℓ′} {a : A} {h : A → M B} →
       (return a >>= h) ≡ h a
@@ -49,14 +49,14 @@ record Monad-Laws (M : Type↑) ⦃ _ : Monad M ⦄ : Typeω where
       (m >>= return) ≡ m
     >>=-assoc : ∀ {A : Type ℓ} {B : Type ℓ′} {C : Type ℓ″} (m : M A) {g : A → M B} {h : B → M C} →
       ((m >>= g) >>= h) ≡ (m >>= (λ x → g x >>= h))
-open Monad-Laws ⦃...⦄ public
+open MonadLaws ⦃...⦄ public
 
 record Lawful-Monad (M : Type↑) : Typeω where
   field ⦃ isMonad ⦄ : Monad M
-        ⦃ hasMonadLaws ⦄ : Monad-Laws M
+        ⦃ hasMonadLaws ⦄ : MonadLaws M
 open Lawful-Monad ⦃...⦄ using () public
 instance
-  mkLawful-Monad : ⦃ _ : Monad M ⦄ → ⦃ Monad-Laws M ⦄ → Lawful-Monad M
+  mkLawful-Monad : ⦃ _ : Monad M ⦄ → ⦃ MonadLaws M ⦄ → Lawful-Monad M
   mkLawful-Monad = record {}
 
 record Monad′ (M : Type[ ℓ ↝ ℓ′ ]) : Type (lsuc ℓ ⊔ₗ ℓ′) where
@@ -108,7 +108,7 @@ instance
     .return → pure
     ._>>=_ m f → maybe f nothing m
 
-  MonadLaws-Maybe : Monad-Laws Maybe
+  MonadLaws-Maybe : MonadLaws Maybe
   MonadLaws-Maybe = λ where
     .>>=-identityˡ → refl
     .>>=-identityʳ → λ where

@@ -18,6 +18,12 @@ Set[ ℓ ↝ ℓ′ ] = Set ℓ → Set ℓ′
 Set↑ : Setω
 Set↑ = ∀ {ℓ} → Set[ ℓ ↝ ℓ ]
 
+itω : ∀ {A : Setω} → ⦃ A ⦄ → A
+itω ⦃ x ⦄ = x
+
+_∋ω_ : (A : Setω) → A → A
+_ ∋ω x = x
+
 module SetAsType where
   open import Agda.Primitive using (SSet; SSetω)
     renaming (Set to Type; Setω to Typeω) public

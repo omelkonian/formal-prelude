@@ -1,4 +1,4 @@
-module Prelude.Decidable.Base where
+module Prelude.Decidable.Core where
 
 open import Prelude.Init; open SetAsType
 
