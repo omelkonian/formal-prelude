@@ -42,7 +42,7 @@ pattern `_ x = Pattern.var x
 pattern `∅   = Pattern.absurd 0
 
 -- clauses
-PatTelescope = List (String × Arg Type)
+PatTelescope = Telescope -- List (String × Arg Type)
 
 {-
 mutual
@@ -216,9 +216,9 @@ module _ (f : ℕ → ℕ) where
 
     mapFreeVarsᶜ : ℕ → (Clause → Clause)
     mapFreeVarsᶜ b = λ where
-      -- clause        : (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern)) (t : Term) → Clause
+      -- (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern)) (t : Term)
       (clause tel ps t) → clause (mapFreeVarsᵗ b tel) (mapFreeVarsᵖ∗ b ps) (mapFreeVars (length tel + b) t)
-      -- absurd-clause : (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern)) → Clause
+      -- (tel : List (Σ String λ _ → Arg Type)) (ps : List (Arg Pattern))
       (absurd-clause tel ps) → absurd-clause (mapFreeVarsᵗ b tel) (mapFreeVarsᵖ∗ b ps)
     mapFreeVarsᶜ∗ : ℕ → (List Clause → List Clause)
     mapFreeVarsᶜ∗ b = λ where
@@ -297,7 +297,7 @@ TTerm = Term × Type
 Hole  = Term
 THole = Hole × Type
 
-Context = List (Arg Type)
+Context = Telescope -- List (Arg Type)
 Tactic  = Hole → TC ⊤
 
 fresh-level : TC Level
@@ -426,8 +426,8 @@ module Debug (v : String × ℕ) where
     print "\t----CTX----"
     void $ traverseM go (enumerate ctx)
     where
-      go : Index ctx × Arg Type → TC ⊤
-      go (i , ty) = print $ "\t" ◇ show i ◇ " : " ◇ show ty
+      go : Index ctx × String × Arg Type → TC ⊤
+      go (i , s , ty) = print $ "\t[" ◇ show i ◇ "] " ◇ s ◇ " : " ◇ show ty
 
   printCurrentContext : TC ⊤
   printCurrentContext = printContext =<< getContext

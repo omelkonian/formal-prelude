@@ -130,7 +130,7 @@ instance
       print $ "  Type: " ◇ show T
       d ← getDefinition n
 
-      let is = drop (length ctx) (argTys T)
+      let is = argTys T
       let n′ = apply⋯ is n
       print $ "  Parameters: " ◇ show (parameters d)
       print $ "  Indices: " ◇ show is
@@ -156,10 +156,10 @@ instance
       -- fᵢ′ ⋯ = λ where
       --    (c₀ x y) (c₀ x′ y′) → case x ≟ x′ of ⋯
       --    ⋯
-      t ← inContext (ctx ++ L.reverse mctx) $ do
+      t ← inContext (L.reverse mtel) $ do
         ctx ← getContext
         print $ "  Context′: " ◇ show ctx
-        derive-DecEq (length ctx) f′ d
+        derive-DecEq (length mtel) f′ d
       -- print $ "  Term: " ◇ show t
 
       return (f′ , (pc , mtel) , t)

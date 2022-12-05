@@ -32,9 +32,9 @@ THints = List TTerm
 hintsFromContext : TC THints
 hintsFromContext = go 0 <$> getContext --′
   where
-    go : ℕ → List (Arg Type) → List TTerm
+    go : ℕ → List (String × Arg Type) → List TTerm
     go _ [] = []
-    go n (arg (arg-info v r) ty ∷ as) = (var n [] , ty) ∷ go (suc n) as
+    go n ((_ , arg (arg-info v r) ty) ∷ as) = (var n [] , ty) ∷ go (suc n) as
 
 hintSolver : Hints → Solver
 hintSolver hints = λ where

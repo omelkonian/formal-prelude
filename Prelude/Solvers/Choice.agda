@@ -22,7 +22,7 @@ module Prelude.Solvers.Choice
   (_:=_∣_∋_ : THole → Type → Type → TermCtx² → TC ⊤)
   where
 
-Choice = ℕ × Type × Type
+Choice = ℕ × String × Type × Type
 Choices = List Choice
 
 toSum : Type → Maybe (Type × Type)
@@ -33,7 +33,9 @@ toSum = λ where
   _ → nothing
 
 choicesFromContext : TC Choices
-choicesFromContext = mapMaybe (λ{ (i , arg _ ty) → (toℕ i ,_) <$> toSum ty }) ∘ enumerate <$> getContext
+choicesFromContext
+  = mapMaybe (λ{ (i , (s , arg _ ty)) → (λ x → toℕ i , s , x) <$> toSum ty })
+  ∘ enumerate <$> getContext
 
 pattern _`⇒_ A B = vΠ[ "_" ∶ A ] B
 
@@ -44,9 +46,9 @@ choiceSolver = λ where
   .solveView thole@(_ , ty) t → do
     choices ← choicesFromContext
     print $ "Choices: " ◇ show choices
-    ⋃∗ choices <&> λ (i , (A , B)) → do
+    ⋃∗ choices <&> λ (i , s , A , B) → do
       ctx ← getContext
-      hA ← inContext (vArg A ∷ ctx) $ print "LEFT: " >> newGoal ty
-      hB ← inContext (vArg B ∷ ctx) $ print "RIGHT: " >> newGoal ty
+      hA ← extendContext s (vArg A) $ print "LEFT: " >> newGoal ty
+      hB ← extendContext s (vArg B) $ print "RIGHT: " >> newGoal ty
       unifyStrict thole $ quote Sum.[_,_]′ ∙⟦ hA ∣ hB ∣ ♯ i ⟧
       -- thole := (A `⇒ C) ∣ (B `⇒ C) ∋ λ ◆ ◇ → quote Sum.[_,_]′ ∙⟦ ◆ ∣ ◇ ∣ ♯ i ⟧

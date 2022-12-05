@@ -1,3 +1,4 @@
 name: formal-prelude
 depend: standard-library
 include: .
+flags: -WnoUnsupportedIndexedMatch

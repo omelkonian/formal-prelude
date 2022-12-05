@@ -91,6 +91,9 @@ instance
   SList : {{_ : Subterms A}} → Subterms (List A)
   SList .subterms = concatMap subterms
 
+  SStringʳ : {{_ : Subterms A}} → Subterms (String × A)
+  SStringʳ .subterms = subterms ∘ proj₂
+
 fits? : Type → Term → TC Bool
 fits? ty e = inferType e >>= compatible? ty
 

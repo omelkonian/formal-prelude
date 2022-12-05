@@ -17,11 +17,11 @@ intro hole k = do
   case ty of λ where
     (pi argTy@(arg (arg-info v _) _) (abs x ty′)) → do
       ctx ← getContext
-      hole′ ← inContext (argTy ∷ ctx) $ do
+      hole′ ← extendContext x argTy $ do
         hole′ ← newMeta ty′
         return hole′
       unifyStrict (hole , ty) (lam v (abs "_" hole′))
-      extendContext argTy $ do
+      extendContext x argTy $ do
         k hole′
     _ → k hole
 
@@ -30,15 +30,15 @@ intros : Hole → Tactic → TC ⊤
 intros hole k = do
   ty ← inferType hole
   case ty of λ where
-    (pi argTy@(arg (arg-info v _) _) (abs _ ty′)) → do
+    (pi argTy@(arg (arg-info v _) _) (abs x ty′)) → do
       ctx ← getContext
       print $ "\t* " ◇ show argTy
       printContext ctx
-      hole′ ← inContext (argTy ∷ ctx) $ do
+      hole′ ← extendContext x argTy $ do
         hole′ ← newMeta ty′
         return hole′
       unifyStrict (hole , ty) (lam v (abs "_" hole′))
-      extendContext argTy $ do
+      extendContext x argTy $ do
         intros hole′ k
     _ → k hole
 

@@ -7,10 +7,10 @@ open import Prelude.Monad
 open import Prelude.Generics
 open Meta
 
-mkExistential : ℕ → Name → TC Term
-mkExistential lvl t = do
+mkExistential : Name → TC Term
+mkExistential t = do
   ty ← getType t
-  let n = length (argTys ty) ∸ lvl
+  let n = length (argTys ty)
   return $ go n n
   where
     go : ℕ → ℕ → Term
@@ -18,11 +18,8 @@ mkExistential lvl t = do
     go n₀ (suc n) = quote ∃ ∙⟦ (`λ "_" ⇒ go n₀ n) ⟧
 
 macro
-  mk∃[nest:_] : ℕ → Name → Tactic
-  mk∃[nest:_] lvl t hole = mkExistential lvl t >>= unify hole
-
   mk∃ : Name → Tactic
-  mk∃ t hole = mkExistential 0 t >>= unify hole
+  mk∃ t hole = mkExistential t >>= unify hole
 
 private
   data X : ℕ → String → ℕ → Set where
@@ -35,7 +32,7 @@ private
     data Y : String → ℕ → Set where
       mkY : Y "" 1
 
-    _ : mk∃[nest: 1 ] Y
+    _ : mk∃ Y
     _ = "" , 1 , mkY
 
     module _ (s : String) where
@@ -43,10 +40,10 @@ private
       data Z : ℕ → Set where
         mkZ : Z 1
 
-      _ : mk∃[nest: 2 ] Z
+      _ : mk∃ Z
       _ = 1 , mkZ
 
-    _ : mk∃[nest: 1 ] Z
+    _ : mk∃ Z
     _ = "sth" , 1 , mkZ
 
   _ : mk∃ Y
