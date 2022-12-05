@@ -12,6 +12,13 @@ module _ {ℓ : Level} where
   record ·⊥ : Type ℓ where
     field .absurd : ∅
 
+  ·⊥-elim : ·⊥ → A
+  ·⊥-elim ()
+
+  ·⊥⇒⊥ = (·⊥ → ⊥) ∋ ·⊥-elim
+  ⊥⇒·⊥ = (⊥ → ·⊥) ∋ ⊥-elim
+  ·⊥⇔⊥ = (·⊥ ↔ ⊥) ∋ ·⊥⇒⊥ , ⊥⇒·⊥
+
   infix 3 ·¬_
   ·¬_ : Type ℓ → Type ℓ
   ·¬_ A = A → ·⊥
@@ -20,14 +27,15 @@ module _ {ℓ : Level} where
     ·-·¬ : · (·¬ A)
     ·-·¬ .∀≡ _ _ = refl
 
-  ·⊥-elim : ·⊥ → A
-  ·⊥-elim ()
+  ·¬⇒¬ : ·¬ A → ¬ A
+  ·¬⇒¬ ¬p = ·⊥-elim ∘ ¬p
 
-  ·⊥⇒⊥ : ·¬ A → ¬ A
-  ·⊥⇒⊥ ¬p = ·⊥-elim ∘ ¬p
+  ¬⇒·¬ : ¬ A → ·¬ A
+  ¬⇒·¬ ¬p = ⊥-elim ∘ ¬p
 
-  ⊥⇒·⊥ : ¬ A → ·¬ A
-  ⊥⇒·⊥ ¬p = ⊥-elim ∘ ¬p
+  ·¬⇔¬ : ·¬ A ↔ ¬ A
+  ·¬⇔¬ = ·¬⇒¬ , ¬⇒·¬
 
-  ·⊥⇔⊥ : ·¬ A ↔ ¬ A
-  ·⊥⇔⊥ = ·⊥⇒⊥ , ⊥⇒·⊥
+infix 4 _·≢_
+_·≢_ : Rel A _
+x ·≢ y = ·¬ x ≡ y

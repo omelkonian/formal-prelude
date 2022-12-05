@@ -20,7 +20,7 @@ open import Prelude.Semigroup
 open import Prelude.InferenceRules
 open import Prelude.Null
 open import Prelude.Setoid
-open import Prelude.Irrelevance
+open import Prelude.Irrelevance hiding (_─_)
 
 module Prelude.Sets.AsUniqueLists.Core {A : Type} ⦃ _ : DecEq A ⦄ where
 
@@ -88,7 +88,7 @@ o ∉ˢ s = ¬ (o ∈ˢ s)
 ∈ˢ-irr {Xs = Xs} = ∈-irr (uniq Xs)
 
 _∷_∶-_ : (x : A) → (xs : Set') → ¬ x ∈ˢ xs → Set'
-x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.map ⊥⇒·⊥ (L.All.¬Any⇒All¬ _ x∉) ∷ p)
+x ∷ (xs ⊣ p) ∶- x∉ = (x ∷ xs) ⊣ (L.All.map ¬⇒·¬ (L.All.¬Any⇒All¬ _ x∉) ∷ p)
 
 _<$>_∶-_ : (f : A → A) → Set' → (∀ {x y} → f x ≡ f y → x ≡ y) → Set'
 f <$> (xs ⊣ p) ∶- inj = map f xs ⊣ ·Unique-map⁺ inj p
