@@ -5,6 +5,8 @@ open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.InferenceRules
+open import Prelude.Ord.Core
+open import Prelude.Ord.Sort
 
 open import Prelude.Irrelevance.Core
 open import Prelude.Irrelevance.Empty
@@ -61,3 +63,7 @@ module _ (P? : Decidable¹ P) where
 ·Unique-++⁺ : ·Unique xs → ·Unique ys → Disjoint xs ys → ·Unique (xs ++ ys)
 ·Unique-++⁺ p q dis =
   Unique⇒·Unique $ L.Uniq.++⁺ (·Unique⇒Unique p) (·Unique⇒Unique q) dis
+
+module _ ⦃ _ : DecEq A ⦄ ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄ {xs : List A} where
+  ·Unique-sort⁺ : ·Unique xs → ·Unique (sort xs)
+  ·Unique-sort⁺ = Unique⇒·Unique ∘ Unique-sort⁺ ∘ ·Unique⇒Unique

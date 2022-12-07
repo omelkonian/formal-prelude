@@ -5,6 +5,7 @@ module Prelude.Lists.Empty where
 
 open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; mapWith∈)
+open import Prelude.General
 open import Prelude.Null
 
 private variable
@@ -85,3 +86,15 @@ module _ (f : A → Maybe B) where
   -- Null-mapMaybe⁻ {xs = x ∷ _} eq jx with f x | jx
   -- ... | just _  | _ = case eq of λ ()
   -- ... | nothing | fx = {!!}
+
+Null-++ : Null (xs ++ ys) → Null xs × Null ys
+Null-++ {xs = []} {ys = []} refl = refl , refl
+
+Null-++ˡ : Null (xs ++ ys) → Null xs
+Null-++ˡ = proj₁ ∘ Null-++
+
+Null-++ʳ : Null (xs ++ ys) → Null ys
+Null-++ʳ = proj₂ ∘ Null-++
+
+length≡⇒Null : length xs ≡ length ys → Null xs → Null ys
+length≡⇒Null {xs = .[]} {ys = []} refl refl = refl

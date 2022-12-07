@@ -6,6 +6,9 @@ open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.InferenceRules
 
+open import Prelude.Lists.Permutations
+open import Prelude.Lists.MapMaybe
+
 open import Prelude.Irrelevance.Core
 open import Prelude.Irrelevance.Empty
 open import Prelude.Irrelevance.List.Membership
@@ -37,6 +40,18 @@ module _ {A : Type ℓ} where
     ··↭ : ·² _·↭_
     ··↭ .∀≡ []       []        = refl
     ··↭ .∀≡ (x∈ ∷ p) (x∈′ ∷ q) rewrite ∀≡ x∈ x∈′ | ∀≡ p q = refl
+
+    Dec-·↭ : ⦃ DecEq A ⦄ → _·↭_ ⁇²
+    Dec-·↭ {[]}{[]} .dec = yes []
+    Dec-·↭ {[]}{_ ∷ _} .dec = no λ ()
+    Dec-·↭ {x ∷ xs}{ys} .dec
+      with ¿ x ·∈ ys ¿
+    ... | no x∉ = no λ where (x∈ ∷ _) → ⊥-elim $ x∉ x∈
+    ... | yes x∈
+      with ¿ xs ·↭ ys ─ x∈ ¿
+    ... | no ¬IH = no λ where
+      (_ ∷ IH) → ⊥-elim $ ¬IH $ subst (λ ◆ → xs ·↭ ys ─ ◆) (∀≡ _ _) IH
+    ... | yes IH = yes (x∈ ∷ IH)
 
   ·↭-prep : ∀ x → xs ·↭ ys → x ∷ xs ·↭ x ∷ ys
   ·↭-prep _ = 𝟙 ∷_
@@ -107,7 +122,7 @@ module _ {A : Type ℓ} where
         x∈ys = ·∈-resp-·↭ (z∈ys ∷ p) (z·≢x ∷ x∈xs)
 
         z∈ : z ·∈ (ys ─ x∈ys)
-        z∈ = ·∈-─ x∈ys z≢x z∈ys
+        z∈ = ·∈-─⁺ x∈ys z≢x z∈ys
 
         IH : xs ─ x∈xs ·↭ ys ─ z∈ys ─ ·∈-resp-·↭ p x∈xs
         IH = ·↭-∈-resp x∈xs p
@@ -115,7 +130,7 @@ module _ {A : Type ℓ} where
         QED : xs ─ x∈xs ·↭ (ys ─ x∈ys) ─ z∈
         QED = subst (λ ◆ → _ ·↭ ◆) (sym $ ─∘─ x∈ys z∈ys z≢x)
             $ subst (λ ◆ → _ ·↭ _ ─ ◆)
-                    (∀≡ (·∈-resp-·↭ p x∈xs) (·∈-─ z∈ys (≢-sym z≢x) x∈ys))
+                    (∀≡ (·∈-resp-·↭ p x∈xs) (·∈-─⁺ z∈ys (≢-sym z≢x) x∈ys))
                     IH
 
     ·↭-trans : xs ·↭ ys → ys ·↭ zs → xs ·↭ zs
@@ -182,10 +197,25 @@ module _ {A : Type ℓ} where
     ·↭-sym-involutive : (p : xs ·↭ ys) → ·↭-sym (·↭-sym p) ≡ p
     ·↭-sym-involutive _ = ∀≡ _ _
 
-module _ {A B : Type ℓ} ⦃ _ : DecEq B ⦄ (f : A → B) where
+private variable A : Type ℓ; B : Type ℓ′
 
-  ·↭-map⁺ : ∀ {xs ys} → xs ·↭ ys → map f xs ·↭ map f ys
+module _ ⦃ _ : DecEq B ⦄ (f : A → B) {xs ys : List A} where
+
+  ·↭-map⁺ : xs ·↭ ys → map f xs ·↭ map f ys
   ·↭-map⁺ = ↭⇒·↭ ∘ L.Perm.map⁺ f ∘ ·↭⇒↭
 
-  ∈-map-resp-·↭ : ∀ {xs ys} → xs ·↭ ys → map f xs ⊆ map f ys
-  ∈-map-resp-·↭ {xs} p = ∈-resp-·↭ (·↭-map⁺ {xs} p)
+  ∈-map-resp-·↭ : xs ·↭ ys → map f xs ⊆ map f ys
+  ∈-map-resp-·↭ p = ∈-resp-·↭ (·↭-map⁺ p)
+
+module _ ⦃ _ : DecEq A ⦄ {xss yss : List (List A)} where
+
+  ·↭-concat⁺ : xss ·↭ yss → concat xss ·↭ concat yss
+  ·↭-concat⁺ = ↭⇒·↭ ∘ ↭-concat⁺ ∘ ·↭⇒↭
+
+module _ ⦃ _ : DecEq B ⦄ (f : A → List B) {xs ys : List A} where
+  ·↭-concatMap⁺ : xs ·↭ ys → concatMap f xs ·↭ concatMap f ys
+  ·↭-concatMap⁺ = ·↭-concat⁺ ∘ ·↭-map⁺ f
+
+module _ ⦃ _ : DecEq B ⦄ (f : A → Maybe B) {xs ys : List A} where
+  mapMaybe-·↭ : xs ·↭ ys → mapMaybe f xs ·↭ mapMaybe f ys
+  mapMaybe-·↭ = ↭⇒·↭ ∘ mapMaybe-↭ f ∘ ·↭⇒↭

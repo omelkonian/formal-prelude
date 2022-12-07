@@ -1,10 +1,9 @@
-module Prelude.Lists.Collections where
+module Prelude.Irrelevance.List.Collections where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.Lists
-open import Prelude.Irrelevance.List.Permutation
 open import Prelude.DecEq
+open import Prelude.Irrelevance.List.Permutation
 
 record _has_ (A : Type) (B : Type) : Type where
   field collect : A → List B
@@ -39,17 +38,9 @@ module _ {Z}{A}{B}⦃ ia ⦄ ⦃ ib ⦄ where
     _≡⦅_⦆_ = relateOn {Z = Z}{A}{B}{Z′}⦃ ia ⦄ ⦃ ib ⦄ _≡_
     _↭⦅_⦆_ = relateOn {Z = Z}{A}{B}{List Z′}⦃ ia ⦄ ⦃ ib ⦄ _↭_
     _⊆⦅_⦆_ = relateOn {Z = Z}{A}{B}{List Z′}⦃ ia ⦄ ⦃ ib ⦄ _⊆_
-    module _ ⦃ _ : DecEq Z′ ⦄ where
-      _·↭⦅_⦆_ = relateOn {Z = Z}{A}{B}{List Z′}⦃ ia ⦄ ⦃ ib ⦄ _·↭_
 
-collectFromList↭ : ∀ {xs ys : List X}
+collectFromList↭ : ∀ ⦃ _ : DecEq Y ⦄ {xs ys : List X}
   → (f : X → List Y)
-  → xs ↭ ys
-  → collectFromList f xs ↭ collectFromList f ys
-collectFromList↭ = ↭-concatMap⁺
-
-collectFromList·↭ : ⦃ _ : DecEq Y ⦄
-  → (f : X → List Y) {xs ys : List X}
   → xs ·↭ ys
   → collectFromList f xs ·↭ collectFromList f ys
-collectFromList·↭ = ·↭-concatMap⁺
+collectFromList↭ = ·↭-concatMap⁺

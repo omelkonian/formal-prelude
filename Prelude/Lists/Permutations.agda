@@ -7,6 +7,8 @@ open import Prelude.Init; open SetAsType
 open import Prelude.Bifunctor
 open L.Mem using (_∈_; mapWith∈)
 open L.Perm using (shifts; ++⁺ˡ; ++⁺ʳ; map⁺; ↭-sym-involutive; ++-comm)
+open import Prelude.Null
+open import Prelude.Lists.Empty
 
 private variable
   A : Type ℓ
@@ -14,6 +16,9 @@ private variable
   x y : A
   xs ys zs ws : List A
   xss yss : List (List A)
+
+Null-↭ : xs ↭ ys → Null xs → Null ys
+Null-↭ = length≡⇒Null ∘ L.Perm.↭-length
 
 ↭-concat⁺ : xss ↭ yss → concat xss ↭ concat yss
 ↭-concat⁺ ↭-refl = ↭-refl
