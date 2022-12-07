@@ -231,12 +231,19 @@ module L where
   module Any where
     open import Data.List.Relation.Unary.Any public
     open import Data.List.Relation.Unary.Any.Properties public
+  module AllPairs where
+    open import Data.List.Relation.Unary.AllPairs public
+    open import Data.List.Relation.Unary.AllPairs.Properties public
+  module SubS where
+    open import Data.List.Relation.Binary.Subset.Propositional public
+    open import Data.List.Relation.Binary.Subset.Propositional.Properties public
+  module SubL where
+    open import Data.List.Relation.Binary.Sublist.Propositional public
+    open import Data.List.Relation.Binary.Sublist.Propositional.Properties public
   module Cat where
     open import Data.List.Categorical public
   module Mem where
     open import Data.List.Membership.Propositional public
-    -- module Dec where
-    --   open import Data.List.Membership.DecPropositional public
     open import Data.List.Membership.Propositional.Properties public
   module Uniq where
     open import Data.List.Relation.Unary.Unique.Propositional public
@@ -244,37 +251,61 @@ module L where
   module Perm where
     open import Data.List.Relation.Binary.Permutation.Propositional public
     open import Data.List.Relation.Binary.Permutation.Propositional.Properties public
+  module Fst where
+    open import Data.List.Relation.Unary.First public
+    open import Data.List.Relation.Unary.First.Properties public
+  module Lnk where
+    open import Data.List.Relation.Unary.Linked public
+    open import Data.List.Relation.Unary.Linked.Properties public
+  module Disj where
+    open import Data.List.Relation.Binary.Disjoint.Propositional public
+  module PW where
+    open import Data.List.Relation.Binary.Pointwise public
+    open import Data.List.Relation.Binary.Pointwise.Properties public
+  module Prefix where
+    open import Data.List.Relation.Binary.Prefix.Heterogeneous public
+    open import Data.List.Relation.Binary.Prefix.Heterogeneous.Properties public
+    open import Data.List.Relation.Binary.Prefix.Homogeneous.Properties public
+  module Suffix where
+    open import Data.List.Relation.Binary.Suffix.Heterogeneous public
+    open import Data.List.Relation.Binary.Suffix.Heterogeneous.Properties public
+    open import Data.List.Relation.Binary.Suffix.Homogeneous.Properties public
+  module Interleaving where
+    open import Data.List.Relation.Ternary.Interleaving public
+    open import Data.List.Relation.Ternary.Interleaving.Properties public
 
-open import Data.List.NonEmpty public
+open L.NE public
   using (List⁺; _∷_; _∷⁺_; _⁺∷ʳ_ ; _⁺++_; _++⁺_; _⁺++⁺_)
   renaming ([_] to [_]⁺)
-open import Data.List.Membership.Propositional public
-  using ({-mapWith∈;-} find; lose)
-open import Data.List.Relation.Unary.Any public
+open L.Mem public
+  using (find; lose)
+open L.Any public
   using (Any; here; there; any?)
-open import Data.List.Relation.Unary.All public
+open L.All public
   using (All; _∷_; []; all?)
-open import Data.List.Relation.Unary.AllPairs public
+open L.AllPairs public
   using (AllPairs; _∷_; []; allPairs?)
-open import Data.List.Relation.Unary.Unique.Propositional public
+open L.Uniq public
   using (Unique)
-open import Data.List.Relation.Binary.Subset.Propositional public
-  using (_⊆_; _⊈_)
-open import Data.List.Relation.Binary.Subset.Propositional.Properties public
-  using (module ⊆-Reasoning)
-open import Data.List.Relation.Binary.Disjoint.Propositional public
+open L.SubS public
+  using (_⊆_; _⊈_; module ⊆-Reasoning)
+open L.Disj public
   using (Disjoint)
-open import Data.List.Relation.Binary.Permutation.Propositional public
+open L.Perm public
   using (_↭_; ↭-reflexive; ↭-sym; module PermutationReasoning)
   renaming (refl to ↭-refl; prep to ↭-prep; swap to ↭-swap; trans to ↭-trans)
-open import Data.List.Relation.Binary.Pointwise public
+open L.PW public
   using (Pointwise; []; _∷_)
-open import Data.List.Relation.Binary.Prefix.Heterogeneous public
+open L.Prefix public
   using (Prefix; []; _∷_)
-open import Data.List.Relation.Binary.Suffix.Heterogeneous public
+open L.Suffix public
   using (Suffix; here; there)
-open import Data.List.Relation.Ternary.Interleaving public
+open L.Interleaving public
   using (Interleaving; [])
+open L.Fst public
+  using (First; _∷_)
+open L.Lnk public
+  using (Linked; []; [-]; _∷_)
 
 
 -- ** Relations
