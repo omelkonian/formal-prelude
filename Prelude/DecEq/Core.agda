@@ -2,7 +2,7 @@ module Prelude.DecEq.Core where
 
 open import Prelude.Init; open SetAsType
 
-private variable A B : Type ℓ
+private variable A : Type ℓ; B : Type ℓ′
 
 record DecEq (A : Type ℓ) : Type ℓ where
   field _≟_ : Decidable² {A = A} _≡_
@@ -19,6 +19,9 @@ record DecEq (A : Type ℓ) : Type ℓ where
   ≟-refl x with refl , p ← dec-yes (x ≟ x) refl = p
 
 open DecEq ⦃...⦄ public
+
+Irrelevant⇒DecEq : Irrelevant A → DecEq A
+Irrelevant⇒DecEq ∀≡ ._≟_ = yes ∘₂ ∀≡
 
 instance
   DecEq-⊤ : DecEq ⊤
