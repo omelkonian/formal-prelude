@@ -350,10 +350,6 @@ _⊈[bag]_ = ¬_ ∘₂ _⊆[bag]_
 
 _⊆[bag]?_ = Decidable² _⊆[bag]_ ∋ dec²
 
-_∸[bag]_ _*[bag]_ : Op₂ (List A)
-xs ∸[bag] ys = concatMap (λ x → L.replicate (count (_≟ x) xs ∸ count (_≟ x) ys) x) (nub xs)
-ys *[bag] xs = concatMap (λ x → L.replicate (count (_≟ x) xs * count (_≟ x) ys) x) (nub xs)
-
 postulate
   ⊆[bag]⇒⊆ : xs ⊆[bag] ys → xs ⊆ ys
   ⊆[bag]-++ˡ : xs ⊆[bag] (xs ++ ys)
@@ -364,3 +360,25 @@ postulate
   L.All.tabulate (λ {x} x∈ →
     Nat.≤-trans (L.All.lookup p {x} x∈)
                 (lookup q {x} (∈-nub⁺ {xs = j} $ ⊆[bag]⇒⊆ p (∈-nub⁻ {xs = i} x∈))))
+
+bag-mergeWith : Op₂ ℕ → Op₂ (List A)
+bag-mergeWith _⊗_ xs ys
+  = flip concatMap (nub xs)
+  $ λ x → L.replicate (count (_≟ x) xs ⊗ count (_≟ x) ys) x
+
+_+[bag]_ _∸[bag]_ _*[bag]_ : Op₂ (List A)
+_+[bag]_ = bag-mergeWith _+_
+_∸[bag]_ = bag-mergeWith _∸_
+_*[bag]_ = bag-mergeWith _*_
+
+module _ (_⊗_ : Op₂ ℕ) (⊗-mono : ∀ n m → n ⊗ m ≥ n ⊔ m) {xs ys} where
+  private xys = bag-mergeWith _⊗_ xs ys
+
+  postulate ⊆[bag]-mergeWith : (xs ⊆[bag] xys) × (ys ⊆[bag] xys)
+  ⊆[bag]-mergeWithˡ = ⊆[bag]-mergeWith .proj₁
+  ⊆[bag]-mergeWithʳ = ⊆[bag]-mergeWith .proj₂
+
+module _ ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄ where postulate
+  Sorted-nub⁺ : Sorted xs → Sorted (nub xs)
+  Sorted-bag-mergeWith⁺ : ∀ (_⊗_ : Op₂ ℕ) →
+    Sorted xs → Sorted (bag-mergeWith _⊗_ xs ys)

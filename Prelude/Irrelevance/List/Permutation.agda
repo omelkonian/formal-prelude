@@ -1,3 +1,4 @@
+-- ** irrelevant version of Data.List.Relation.Binary.Permutation
 module Prelude.Irrelevance.List.Permutation where
 
 open import Prelude.Init; open SetAsType
@@ -13,10 +14,7 @@ open import Prelude.Irrelevance.Core
 open import Prelude.Irrelevance.Empty
 open import Prelude.Irrelevance.List.Membership
 
--- ** irrelevant version of Data.List.Relation.Binary.Permutation
-open import Data.List.Relation.Unary.First as Fst using (First; [_]; _∷_)
-private pattern 𝟙 = Fst.[ refl ]; pattern 𝟚 x = x ∷ Fst.[ refl ]
-import Data.List.Relation.Unary.First.Properties as Fst
+private pattern 𝟙 = L.Fst.[ refl ]; pattern 𝟚 x = x ∷ L.Fst.[ refl ]
 
 module _ {A : Type ℓ} where
 

@@ -1,3 +1,4 @@
+-- ** irrelevant version of Data.List.Membership
 module Prelude.Irrelevance.List.Membership where
 
 open import Prelude.Init; open SetAsType
@@ -9,10 +10,7 @@ open import Prelude.InferenceRules
 open import Prelude.Irrelevance.Core
 open import Prelude.Irrelevance.Empty
 
--- ** irrelevant version of Data.List.Relation.Binary.Permutation
-open import Data.List.Relation.Unary.First as Fst using (First; [_]; _∷_)
-private pattern 𝟙 = Fst.[ refl ]; pattern 𝟚 x = x ∷ Fst.[ refl ]
-import Data.List.Relation.Unary.First.Properties as Fst
+private pattern 𝟙 = L.Fst.[ refl ]; pattern 𝟚 x = x ∷ L.Fst.[ refl ]
 
 module _ {A : Type ℓ} where
 
@@ -28,7 +26,7 @@ module _ {A : Type ℓ} where
   x ·∈ xs = ·Any (x ≡_) xs
 
   ·∈⇒∈ : x ·∈ xs → x L.Mem.∈ xs
-  ·∈⇒∈ = Fst.toAny
+  ·∈⇒∈ = L.Fst.toAny
 
   module _ ⦃ _ : P ⁇¹ ⦄ where
     ·Any-resp-↭ : ·Any P Respects _↭_
@@ -54,23 +52,23 @@ module _ {A : Type ℓ} where
     import Relation.Nullary.Decidable as Dec
     module _ {P : Pred A p} where
       first? : Decidable¹ P → Decidable¹ (First P (·∁ P))
-      first? P? xs = Dec.map′ (Fst.map id ¬⇒·¬) (Fst.map id ·¬⇒¬)
-                              (Fst.first? P? xs)
+      first? P? xs = Dec.map′ (L.Fst.map id ¬⇒·¬) (L.Fst.map id ·¬⇒¬)
+                              (L.Fst.first? P? xs)
 
       cofirst? : Decidable¹ P → Decidable¹ (First (·∁ P) P)
-      cofirst? P? xs = Dec.map′ (Fst.map ¬⇒·¬ id)  (Fst.map ·¬⇒¬ id)
-                                (Fst.cofirst? P? xs)
+      cofirst? P? xs = Dec.map′ (L.Fst.map ¬⇒·¬ id)  (L.Fst.map ·¬⇒¬ id)
+                                (L.Fst.cofirst? P? xs)
 
   instance
     ··∈ : ·² _·∈_
-    ··∈ .∀≡ = Fst.irrelevant ·¬⇒¬ ∀≡ ∀≡
+    ··∈ .∀≡ = L.Fst.irrelevant ·¬⇒¬ ∀≡ ∀≡
 
     Dec-·∈ : ⦃ DecEq A ⦄ → _·∈_ ⁇²
     Dec-·∈ .dec = cofirst? (_ ≟_) _
 
   infixl 4 _─_
   _─_ : ∀ xs → x ·∈ xs → List A
-  xs ─ x∈ = xs L.Any.─ Fst.toAny x∈
+  xs ─ x∈ = xs L.Any.─ L.Fst.toAny x∈
 
   ·∈-─⁺ :
     ∀ (x∈ : x ·∈ xs) →

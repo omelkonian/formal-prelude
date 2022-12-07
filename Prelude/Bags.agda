@@ -9,6 +9,3 @@ open import
   -- Prelude.Bags.AsPartialFunctions
   Prelude.Bags.AsLists
   public
-
-Bag⟨_⟩ : (A : Type) ⦃ _ : DecEq A ⦄ → Type
-Bag⟨ A ⟩ = Bag {A = A}

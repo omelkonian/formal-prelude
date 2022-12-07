@@ -28,7 +28,7 @@ record Bag : Type where
   constructor mkBag
   field list : List A
 open Bag
-syntax Bag {A = A} = Set⟨ A ⟩
+syntax Bag {A = A} = Bag⟨ A ⟩
 
 private variable
   x x′ y y′ z z′ : A

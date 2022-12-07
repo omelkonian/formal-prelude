@@ -5,11 +5,15 @@ import Relation.Nullary.Decidable as Dec
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Decidable
+open import Prelude.DecEq
 
 open import Prelude.Irrelevance.Core
 open import Prelude.Irrelevance.Empty
 
 private variable b b′ : Bool; P : Type ℓ; Q : Type ℓ′
+
+·⇒DecEq : ⦃ · P ⦄ → DecEq P
+·⇒DecEq = Irrelevant⇒DecEq ∀≡
 
 data ·Reflects (P : Type ℓ) : Bool → Type ℓ where
   ofʸ : ( p :    P) → ·Reflects P true

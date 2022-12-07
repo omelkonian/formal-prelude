@@ -47,23 +47,12 @@ mkSet≡ {_ , p} {_ , p′} refl rewrite ∀≡ p p′ = refl
 unmkSet≡ : Xs ≡ Ys → Xs .proj₁ ≡ Ys .proj₁
 unmkSet≡ refl = refl
 
-·⇒DecEq : ∀ {X : Type ℓ′} → Irrelevant X → DecEq X
-·⇒DecEq ∀≡ ._≟_ = yes ∘₂ ∀≡
-
 instance
   DecEq-Sorted : DecEq (Sorted xs)
-  DecEq-Sorted = ·⇒DecEq ∀≡
+  DecEq-Sorted = Irrelevant⇒DecEq ∀≡
 
   DecEq-Unique : DecEq (·Unique xs)
-  DecEq-Unique = ·⇒DecEq ∀≡
-
-  -- DecEq-Pr : DecEq (Sorted xs × ·Unique xs)
-  -- DecEq-Pr ._≟_ = yes ∘₂ ∀≡
-  -- DecEq-Set : DecEq Set'
-  -- DecEq-Set ._≟_ (xs , p) (ys , q)
-  --   with xs ≟ ys
-  -- ... | no ¬p = no λ where refl → ¬p refl
-  -- ... | yes refl rewrite ∀≡ p q = yes refl
+  DecEq-Unique = Irrelevant⇒DecEq ∀≡
 
   Setoid-Set : ISetoid Set'
   Setoid-Set = mkISetoid≡
