@@ -47,7 +47,7 @@ syntax Set' {A = A} = Set⟨ A ⟩
 private variable
   x x′ y y′ z z′ : A
   xs ys zs : List A
-  Xs Ys Zs s s′ s″ : Set'
+  Xs Ys Zs s s′ : Set'
   P : Pred A ℓ
 
 -- ** Lifting from list predicates/relations to set predicates/relations.
@@ -348,7 +348,7 @@ instance
   Measurable-Set : Measurable Set'
   Measurable-Set = record {∣_∣ = length ∘ list}
 
-record Set'⁺ : Set where
+record Set'⁺ : Type where
   constructor _⊣_
   field set   : Set'
         .set⁺ : ∣ set ∣ > 0
