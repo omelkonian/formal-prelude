@@ -12,6 +12,7 @@ module Prelude.Maps.AsSortedUniqueLists
   {K : Type ℓ}
   ⦃ _ : DecEq K ⦄
   ⦃ _ : Ord K ⦄
+  ⦃ _ : DecOrd K ⦄
   ⦃ _ : OrdLaws K ⦄
   ⦃ _ : ·² _≤_ {A = K} ⦄
   ⦃ _ : ·² _<_ {A = K} ⦄
@@ -19,6 +20,7 @@ module Prelude.Maps.AsSortedUniqueLists
   {V : Type ℓ}
   ⦃ _ : DecEq V ⦄
   ⦃ _ : Ord V ⦄
+  ⦃ _ : DecOrd V ⦄
   ⦃ _ : OrdLaws V ⦄
   ⦃ _ : ·² _≤_ {A = V} ⦄
   ⦃ _ : ·² _<_ {A = V} ⦄

@@ -40,9 +40,8 @@ instance
 
 infix 4 _⊆?_
 _⊆?_ = ¿ _⊆_ {A = A} ¿²
-
 disjoint? = ¿ Disjoint {A = A} ¿²
-unique?   = ¿ Unique {A = A} ¿¹
+unique? = ¿ Unique {A = A} ¿¹
 
 -- ** nub
 
@@ -378,7 +377,7 @@ module _ (_⊗_ : Op₂ ℕ) (⊗-mono : ∀ n m → n ⊗ m ≥ n ⊔ m) {xs ys
   ⊆[bag]-mergeWithˡ = ⊆[bag]-mergeWith .proj₁
   ⊆[bag]-mergeWithʳ = ⊆[bag]-mergeWith .proj₂
 
-module _ ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄ where postulate
+module _ ⦃ _ : Ord A ⦄ ⦃ _ : DecOrd A ⦄ ⦃ _ : OrdLaws A ⦄ where postulate
   Sorted-nub⁺ : Sorted xs → Sorted (nub xs)
   Sorted-bag-mergeWith⁺ : ∀ (_⊗_ : Op₂ ℕ) →
     Sorted xs → Sorted (bag-mergeWith _⊗_ xs ys)

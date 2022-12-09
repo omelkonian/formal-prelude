@@ -30,6 +30,8 @@ record Bag : Type where
 open Bag
 syntax Bag {A = A} = Bag⟨ A ⟩
 
+pattern ∅ = mkBag []
+
 private variable
   x x′ y y′ z z′ : A
   xs ys zs : List A
@@ -75,9 +77,6 @@ filter′ P? (mkBag xs) = mkBag (filter P? xs)
 
 count′ : ∀ {P : Pred A 0ℓ} → Decidable¹ P → Bag → ℕ
 count′ P? = count P? ∘ list
-
-∅ : Bag
-∅ = mkBag []
 
 singleton : A → Bag
 singleton a = mkBag [ a ]

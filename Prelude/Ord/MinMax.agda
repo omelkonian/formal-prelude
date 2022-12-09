@@ -5,8 +5,9 @@ open import Prelude.Lists
 open import Prelude.InferenceRules
 
 open import Prelude.Ord.Core
+open import Prelude.Ord.Dec
 
-module Prelude.Ord.MinMax {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord A ⦄ where
+module Prelude.Ord.MinMax {A : Type ℓ} ⦃ _ : Ord A ⦄ ⦃ _ : DecOrd A ⦄ where
 
 min max : Op₂ A
 min x y = if ⌊ x ≤? y ⌋ then x else y

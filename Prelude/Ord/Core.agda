@@ -3,34 +3,23 @@ module Prelude.Ord.Core where
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Decidable
-open import Prelude.DecEq
 
-record Ord (A : Type ℓ) ⦃ _ : DecEq A ⦄ : Typeω where
-  field
-    {relℓ} : Level
-    _≤_ : Rel A relℓ
-    _<_ : Rel A relℓ
-    ⦃ Dec-≤ ⦄ : _≤_ ⁇²
-    ⦃ Dec-< ⦄ : _<_ ⁇²
+record Ord (A : Type ℓ) : Type (lsuc ℓ) where
+  field _≤_ _<_ : Rel A ℓ
 
+  infix 4 _≤_ _≰_ _≥_ _≱_ _<_ _>_ _≮_ _≯_
   _≰_ = ¬_ ∘₂ _≤_; _≥_ = flip _≤_; _≱_ = ¬_ ∘₂ _≥_
-  _≤?_ = Decidable² _≤_ ∋ dec²; _≤ᵇ_ = isYes ∘₂ _≤?_
-  _≰?_ = ¬? ∘₂ _≤?_; _≰ᵇ_ = isYes ∘₂ _≰?_
-  _≥?_ = flip _≤?_; _≥ᵇ_ = isYes ∘₂ _≥?_
-  _≱?_ = ¬? ∘₂ _≥?_; _≱ᵇ_ = isYes ∘₂ _≱?_
   _≮_ = ¬_ ∘₂ _<_; _>_ = flip _<_; _≯_ = ¬_ ∘₂ _>_
-  _<?_ = Decidable² _<_ ∋ dec²; _<ᵇ_ = isYes ∘₂ _<?_
-  _≮?_ = ¬? ∘₂ _<?_; _≮ᵇ_ = isYes ∘₂ _≮?_
-  _>?_ = flip _<?_; _>ᵇ_ = isYes ∘₂ _>?_
-  _≯?_ = ¬? ∘₂ _>?_; _≯ᵇ_ = isYes ∘₂ _≯?_
-  infix 4 _≤_ _≰_ _≥_ _≱_ _≤?_ _≤ᵇ_ _≰?_ _≰ᵇ_ _≥?_ _≥ᵇ_ _≱?_ _≱ᵇ_
-          _<_ _>_ _≮_ _≯_ _<?_ _<ᵇ_ _≮?_ _≮ᵇ_ _>?_ _>ᵇ_ _≯?_ _≯ᵇ_
 
 open Ord ⦃...⦄ public
 
-private variable A : Type ℓ; B : Type ℓ′
+≤-from-< : ∀ {A : Set ℓ} → Rel A ℓ → Rel A ℓ
+≤-from-< _<_ = λ x y → (x ≡ y) ⊎ (x < y)
 
-record OrdLaws (A : Type ℓ) ⦃ _ : DecEq A ⦄ ⦃ _ : Ord A ⦄ : Typeω where
+mkOrd< : ∀ {A : Set ℓ} → Rel A ℓ → Ord A
+mkOrd< _<_ = record {_<_ = _<_; _≤_ = ≤-from-< _<_}
+
+record OrdLaws (A : Type ℓ) ⦃ _ : Ord A ⦄ : Type ℓ where
   field
     -- ≤ is a preorder
     ≤-refl  : Reflexive _≤_
@@ -70,19 +59,9 @@ record OrdLaws (A : Type ℓ) ⦃ _ : DecEq A ⦄ ⦃ _ : Ord A ⦄ : Typeω whe
     ; trans = <-trans
     ; <-resp-≈ = <-resp₂-≡ }
 
-  isDecStrictPartialOrder = IsDecStrictPartialOrder _<_ ∋ record
-    { _≟_ = _≟_
-    ; _<?_ = _<?_
-    ; isStrictPartialOrder = isStrictPartialOrder }
-
   isTotalOrder = IsTotalOrder _≤_ ∋ record
     { total = ≤-total
     ; isPartialOrder = isPartialOrder }
-
-  isDecTotalOrder = IsDecTotalOrder _≤_ ∋ record
-    { _≟_ = _≟_
-    ; _≤?_ = _≤?_
-    ; isTotalOrder = isTotalOrder }
 
   isStrictTotalOrder = IsStrictTotalOrder _<_ ∋ record
     { isEquivalence = PropEq.isEquivalence

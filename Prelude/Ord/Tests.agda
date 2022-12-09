@@ -55,6 +55,10 @@ private
   _ = sort ⟦ "abc" , "cde" , "cdc" ⟧ ≡ ⟦ "abc" , "cdc" , "cde" ⟧
     ∋ refl
 
+  _ = sort ([] ∷ [ 2 ] ∷ [ 0 ] ∷ [ 1 ] ∷ [])
+         ≡ ([] ∷ [ 0 ] ∷ [ 1 ] ∷ [ 2 ] ∷ [])
+    ∋ refl
+
   open import Prelude.Ord.Product
   _ = sort ((1 , 'a') ∷ (0 , 'c') ∷ (2 , '0') ∷ (0 , 'a') ∷ [])
          ≡ ((0 , 'a') ∷ (0 , 'c') ∷ (1 , 'a') ∷ (2 , '0') ∷ [])

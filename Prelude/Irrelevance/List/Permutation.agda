@@ -6,6 +6,7 @@ open import Prelude.General
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.InferenceRules
+open import Prelude.Bifunctor
 
 open import Prelude.Lists.Permutations
 open import Prelude.Lists.MapMaybe
@@ -217,3 +218,32 @@ module _ ⦃ _ : DecEq B ⦄ (f : A → List B) {xs ys : List A} where
 module _ ⦃ _ : DecEq B ⦄ (f : A → Maybe B) {xs ys : List A} where
   mapMaybe-·↭ : xs ·↭ ys → mapMaybe f xs ·↭ mapMaybe f ys
   mapMaybe-·↭ = ↭⇒·↭ ∘ mapMaybe-↭ f ∘ ·↭⇒↭
+
+-- ** meta-properties
+
+open L.Mem
+
+module _ ⦃ _ : DecEq A ⦄ where postulate
+  Any-map∘∈-resp-·↭ : ∀ {x y : A} {xs ys : List A} →
+    (f : (x ≡_) ⊆¹ (y ≡_))
+    (p : xs ·↭ ys)
+    (x∈ : x ∈ xs)
+    --—————————————————————
+    → ( L.Any.map f -- y ∈ ys
+      ∘ ∈-resp-·↭ p -- x ∈ ys
+      ) x∈          -- x ∈ xs
+    ≡ ( ∈-resp-·↭ p -- y ∈ ys
+      ∘ L.Any.map f -- y ∈ xs
+      ) x∈          -- x ∈ xs
+
+module _ ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ where postulate
+  ∈-map⁻∘∈-resp-·↭∘map⁺ : ∀ (f : A → B) {xs ys : List A} {y : B} →
+    (p : xs ·↭ ys)
+    (y∈ : y ∈ map f xs)
+    --—————————————————————
+    → ( ∈-map⁻ f                -- ∃x. (x ∈ ys) × (y ≡ f x)
+      ∘ ∈-resp-·↭ (·↭-map⁺ f p) -- y ∈ map f ys
+      ) y∈                      -- y ∈ map f xs
+    ≡ ( map₂′ (map₁ $ ∈-resp-·↭ p) -- ∃x. (x ∈ ys) × (y ≡ f x)
+      ∘ ∈-map⁻ f                   -- ∃x. (x ∈ xs) × (y ≡ f x)
+      ) y∈                         -- y ∈ map f xs

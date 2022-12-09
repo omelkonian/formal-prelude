@@ -9,10 +9,11 @@ open import Prelude.Decidable
 open import Prelude.Irrelevance
 
 open import Prelude.Ord.Core
+open import Prelude.Ord.Dec
 
 private variable A : Type ℓ; B : Type ℓ′
 
-module _ ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : Ord A ⦄ ⦃ _ : Ord B ⦄ where
+module _ ⦃ _ : Ord A ⦄ ⦃ _ : Ord B ⦄ where
   private
     _≤×_ : Rel (A × B) _
     (a , b) ≤× (a′ , b′) = (a < a′) ⊎ (a ≡ a′ × b ≤ b′)
@@ -27,6 +28,9 @@ module _ ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ ⦃ _ : Ord A ⦄ ⦃ _ : Ord B
   instance
     Ord-× : Ord (A × B)
     Ord-× = record {_≤_ = _≤×_; _<_ = _<×_}
+
+    DecOrd-× : ⦃ DecEq A ⦄ → ⦃ DecOrd A ⦄ → ⦃ DecOrd B ⦄ → DecOrd (A × B)
+    DecOrd-× = record {}
 
     OrdLaws-× : ⦃ OrdLaws A ⦄ → ⦃ OrdLaws B ⦄ → OrdLaws (A × B)
     OrdLaws-× = λ where

@@ -24,7 +24,7 @@ open import Prelude.Measurable
 module Prelude.Sets.AsSortedUniqueLists
   {A : Type ℓ}
   ⦃ _ : DecEq A ⦄
-  ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄
+  ⦃ _ : Ord A ⦄ ⦃ _ : DecOrd A ⦄ ⦃ _ : OrdLaws A ⦄
   ⦃ _ : ·² _≤_ {A = A} ⦄
   where
 

@@ -66,23 +66,6 @@ derive-DecEq toDrop ≟-rec (data-type ps cs) = do
              ⟧
          ⟧
 
-    mkPattern : Name → TC
-      ( Pattern             -- ^ generated pattern for given constructor
-      × ℕ                   -- ^ # of introduced variables
-      × List (ℕ × Arg Type) -- ^ generated variables along with their type
-      -- × List (Arg Type)     -- ^ module telescope
-      )
-    mkPattern c = do
-      -- print $ "c: " ◇ show c
-      ty ← getType c
-      -- print $ "ty: " ◇ show ty
-      let tys  = drop toDrop (argTys ty)
-          n    = length tys
-          vars = map (map₁ toℕ) (enumerate tys)
-      return $ Pattern.con c (map (λ{ (i , arg x _) → arg x (` i) }) vars)
-             , n
-             , vars
-
     bumpFreeVars : (ℕ → ℕ) → List (ℕ × Arg Type) → List (ℕ × Arg Type)
     bumpFreeVars bump = go′ 0
       where
@@ -92,9 +75,9 @@ derive-DecEq toDrop ≟-rec (data-type ps cs) = do
 
     f : Name × Name → TC (Maybe Clause)
     f (c , c′) = do
-      (pc  , n , pvs) ← mkPattern c
+      _ , n , pvs , pc  ← mkPattern toDrop c
       -- print $ "pvs: " ◇ show pvs
-      (pc′ , n′ , pvs′)   ← mkPattern c′
+      _ , n′ , pvs′ , pc′ ← mkPattern toDrop c′
       -- print $ "pvs′: " ◇ show pvs′
       let
         tel = map (λ (i , argTy) → ("v" ◇ show i) , argTy) (pvs ++ bumpFreeVars (_+ n) pvs′)

@@ -12,6 +12,7 @@ open import Prelude.Show
 open import Prelude.ToN
 open import Prelude.Semigroup
 open import Prelude.Functor
+open import Prelude.Bifunctor
 open import Prelude.Applicative
 
 open import Prelude.Monad
@@ -98,6 +99,7 @@ pattern _∙ n = def n []
 pattern _∙⟦_⟧ n x = def n (vArg x ∷ [])
 pattern _∙⟦_∣_⟧ n x y = def n (vArg x ∷ vArg y ∷ [])
 pattern _∙⟦_∣_∣_⟧ n x y z = def n (vArg x ∷ vArg y ∷ vArg z ∷ [])
+pattern _∙⟦_∣_∣_∣_⟧ n x y z w = def n (vArg x ∷ vArg y ∷ vArg z ∷ vArg w ∷ [])
 
 pattern _◆ n = con n []
 pattern _◆⟦_⟧ n x = con n (vArg x ∷ [])
@@ -258,11 +260,6 @@ parameters : Definition → ℕ
 parameters (data-type pars _) = pars
 parameters _                  = 0
 
-vArgs : Args A → List A
-vArgs [] = []
-vArgs (vArg x ∷ xs) = x ∷ vArgs xs
-vArgs (_      ∷ xs) = vArgs xs
-
 argInfo : Arg A → Argument.ArgInfo
 argInfo (arg i _) = i
 
@@ -275,10 +272,13 @@ isInstance? a = visibility (argInfo a) ≟ instance′
 isHidden? : (a : Arg A) → Dec (visibility (argInfo a) ≡ hidden)
 isHidden? a = visibility (argInfo a) ≟ hidden
 
+vArgs hArgs iArgs : Args A → List A
+vArgs = unArgs ∘ filter isVisible?
+hArgs = unArgs ∘ filter isHidden?
+iArgs = unArgs ∘ filter isInstance?
+
 remove-iArgs : Args A → Args A
-remove-iArgs [] = []
-remove-iArgs (iArg x ∷ xs) = remove-iArgs xs
-remove-iArgs (x      ∷ xs) = x ∷ remove-iArgs xs
+remove-iArgs = filter (¬? ∘ isInstance?)
 
 hide : Arg A → Arg A
 hide (vArg x) = hArg x
@@ -322,6 +322,24 @@ updateField fs rexp fn fexp =
       clause [] [ vArg (proj f) ] (f ∙⟦ rexp ⟧)
     ) []
 
+-- ** patterns
+mkPattern : ℕ → Name → TC
+  ( Args Type           -- ^ type arguments of given constructor
+  × ℕ                   -- ^ # of introduced variables
+  × List (ℕ × Arg Type) -- ^ generated variables along with their type
+  × Pattern             -- ^ generated pattern for given constructor
+  )
+mkPattern toDrop c = do
+  ty ← getType c
+  let tys  = drop toDrop (argTys ty)
+      n    = length tys
+      vars = map (map₁ toℕ) (enumerate tys)
+  return
+    $ tys
+    , n
+    , vars
+    , Pattern.con c (map (λ{ (i , arg x _) → arg x (` i) }) vars)
+
 -------------------------------------------------
 -- *** Deriving
 
@@ -333,9 +351,27 @@ Derivation = List ( Name -- name of the type to derive an instance for
 record Derivable (F : Set↑) : Set where
   field DERIVE' : Derivation
 open Derivable ⦃...⦄ public
-
 DERIVE : ∀ (F : Set↑) → ⦃ Derivable F ⦄ → Derivation
 DERIVE F = DERIVE' {F = F}
+
+record Derivable¹ (F : Set↑ → Setω) : Setω where
+  field DERIVE¹' : Derivation
+open Derivable¹ ⦃...⦄ public
+DERIVE¹ : ∀ (F : Set↑ → Setω) → ⦃ Derivable¹ F ⦄ → Derivation
+DERIVE¹ F = DERIVE¹' {F = F}
+
+record Derivableω (F : Setω) : Setω where
+  field DERIVEω' : Derivation
+open Derivableω ⦃...⦄ public
+DERIVEω : ∀ (F : Setω) → ⦃ Derivableω F ⦄ → Derivation
+DERIVEω F = DERIVEω' {F = F}
+
+Set↑⁺¹ = ∀ {ℓ} → Set ℓ → Set (lsuc ℓ)
+record Derivable↑ (F : Set↑⁺¹) : Setω where
+  field DERIVE↑' : Derivation
+open Derivable↑ ⦃...⦄ public
+DERIVE↑ : ∀ (F : Set↑⁺¹) → ⦃ Derivable↑ F ⦄ → Derivation
+DERIVE↑ F = DERIVE↑' {F = F}
 
 -------------------------------------------------
 -- ** Errors, debugging
@@ -380,6 +416,11 @@ module Debug (v : String × ℕ) where
       , "}\n"
       ⟧
 
+  showTermClauses : Term → String
+  showTermClauses = λ where
+    (pat-lam cs []) → Str.unlines $ flip map cs $ λ c → ("  " ◇ show c)
+    e → show e
+
   printContext : Context → TC ⊤
   printContext ctx = do
     print "\t----CTX----"
@@ -392,13 +433,19 @@ module Debug (v : String × ℕ) where
   printCurrentContext = printContext =<< getContext
 
   -- ** definitions
-  genSimpleDef : Name → Type → Term → TC ⊤
-  genSimpleDef n ty e = do
-    print "Generaring..."
-    declareDef (vArg n) ty
+  genDef : Arg Name → Type → Term → TC ⊤
+  genDef an ty e = do
+    let n = unArg an
+    print $ "Generaring" ◇ (if ⌊ isInstance? an ⌋ then " instance" else "") ◇ "..."
+    declareDef an ty
     print $ "```\n" ◇ show n ◇ " : " ◇ " " ◇ show ty
     defineFun n [ clause [] [] e ]
-    print $ show n ◇ " = " ◇ " " ◇ show e ◇ "\n```"
+    print $ show n ◇ " = " ◇ showTermClauses e
+    print "```"
+
+  genSimpleDef genSimpleInstance : Name → Type → Term → TC ⊤
+  genSimpleDef      = genDef ∘ vArg
+  genSimpleInstance = genDef ∘ iArg
 
 module DebugI (v : String) where
   -- i.e. set {-# OPTIONS -v ⟨v⟩:0 #-} to enable messages in the **info** buffer.

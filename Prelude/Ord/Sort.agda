@@ -7,8 +7,12 @@ open import Prelude.Lists.Permutations
 open import Prelude.Lists.Empty
 
 open import Prelude.Ord.Core
+open import Prelude.Ord.Dec
 
-module Prelude.Ord.Sort {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄ where
+module Prelude.Ord.Sort {A : Type ℓ}
+  ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄
+  ⦃ _ : DecEq A ⦄ ⦃ _ : DecOrd A ⦄
+  where
 
 private
   TO = record {Carrier = A ; _≈_ = _ ; _≤_ =  _≤_ ; isTotalOrder = isTotalOrder}
