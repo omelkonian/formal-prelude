@@ -52,6 +52,11 @@ instance
   Show-List : ⦃ Show A ⦄ → Show (List A)
   Show-List .show = braces ∘ Str.intersperse ", " ∘ map show
 
+  Show-Maybe : ⦃ Show A ⦄ → Show (Maybe A)
+  Show-Maybe .show = λ where
+    nothing → "nothing"
+    (just x) → "just " ◇ show x
+
   Show-Name : Show Name
   Show-Name .show = removeQualifiers ∘ showName
 
