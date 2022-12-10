@@ -8,8 +8,11 @@ open import Prelude.General
 open import Prelude.Decidable
 open import Prelude.DecEq
 
+open import Prelude.Irrelevance.Nat
+
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec
+open import Prelude.Ord.Irrelevant
 
 instance
   Ord-ℕ = Ord ℕ ∋ record {Nat}
@@ -22,6 +25,9 @@ instance
 
   OrdLaws-ℕ : OrdLaws ℕ
   OrdLaws-ℕ = record {Nat; ≤∧≢⇒< = uncurry Nat.≤∧≢⇒<}
+
+  ·Ord-ℕ : ·Ord ℕ
+  ·Ord-ℕ = record {}
 
   Ord-ℤ = Ord ℤ ∋ record {Integer}
 

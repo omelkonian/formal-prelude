@@ -1,8 +1,6 @@
 -- ** Emulating Haskell's newtype feature.
 module Prelude.Newtype where
 
-import Relation.Nullary.Decidable as Dec
-
 open import Prelude.Init; open SetAsType
 open Fun.Inv using (_↔_; inverse)
 open import Prelude.Functor
@@ -37,10 +35,10 @@ newtype↔ : newtype A ↔ A
 newtype↔ = inverse unmk mk (λ _ → refl) (λ _ → refl)
 
 mk? : Dec A → Dec (newtype A)
-mk? = Dec.map′ mk unmk
+mk? = Nullary.map′ mk unmk
 
 unmk? : Dec (newtype A) → Dec A
-unmk? = Dec.map′ unmk mk
+unmk? = Nullary.map′ unmk mk
 
 mk?¹ : Decidable¹ P → Decidable¹ (newtype¹ P)
 mk?¹ P? x = mk? (P? x)

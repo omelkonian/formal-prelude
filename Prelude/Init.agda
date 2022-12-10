@@ -312,9 +312,9 @@ open L.Lnk public
 module Nullary where
   open import Relation.Nullary public
   open import Relation.Nullary.Negation public
+  open import Relation.Nullary.Decidable public
 open import Relation.Nullary public
-  using
-  (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
+  using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
 open import Relation.Nullary.Negation public
   using (¬?; contradiction)
 open import Relation.Nullary.Decidable public

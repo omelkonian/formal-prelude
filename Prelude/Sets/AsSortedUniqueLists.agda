@@ -8,7 +8,6 @@ open import Prelude.Decidable
 open import Prelude.ToList
 open import Prelude.FromList
 open import Prelude.DecLists
-open import Prelude.Orders
 open import Prelude.Ord
 open import Prelude.Irrelevance hiding (_─_)
 open import Prelude.Irrelevance.Dec
@@ -21,12 +20,7 @@ open import Prelude.Apartness
 open import Prelude.InferenceRules
 open import Prelude.Measurable
 
-module Prelude.Sets.AsSortedUniqueLists
-  {A : Type ℓ}
-  ⦃ _ : DecEq A ⦄
-  ⦃ _ : Ord A ⦄ ⦃ _ : DecOrd A ⦄ ⦃ _ : OrdLaws A ⦄
-  ⦃ _ : ·² _≤_ {A = A} ⦄
-  where
+module Prelude.Sets.AsSortedUniqueLists {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord⁺⁺ A ⦄ where
 
 Set' : Type _
 Set' = Σ (List A) (Sorted Unary.∩ ·Unique)
@@ -41,6 +35,7 @@ private variable
   R : Rel A ℓ′
   P : Pred A ℓ′
 
+
 mkSet≡ : Xs .proj₁ ≡ Ys .proj₁ → Xs ≡ Ys
 mkSet≡ {_ , p} {_ , p′} refl rewrite ∀≡ p p′ = refl
 
@@ -53,6 +48,9 @@ instance
 
   DecEq-Unique : DecEq (·Unique xs)
   DecEq-Unique = Irrelevant⇒DecEq ∀≡
+
+  -- DecEq-Set : DecEq Set'
+  -- DecEq-Set ._≟_ (xs , _) (ys , _) = Nullary.map′ mkSet≡ unmkSet≡ (xs ≟ ys)
 
   Setoid-Set : ISetoid Set'
   Setoid-Set = mkISetoid≡
@@ -74,6 +72,15 @@ instance
 
   Measurable-Set : Measurable Set'
   Measurable-Set = record {∣_∣ = length ∘ toList}
+
+  Ord-Set : Ord Set'
+  Ord-Set = mkOrd≈ toList
+
+  DecOrd-Set : DecOrd Set'
+  DecOrd-Set = mkDecOrd≈ toList
+
+  OrdLaws-Set : OrdLaws Set'
+  OrdLaws-Set = mkOrdLaws≈ toList mkSet≡ unmkSet≡
 
 -- ** Lifting from list predicates/relations to set predicates/relations.
 private

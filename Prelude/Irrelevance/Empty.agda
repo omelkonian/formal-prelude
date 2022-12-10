@@ -1,7 +1,5 @@
 module Prelude.Irrelevance.Empty where
 
-import Relation.Nullary.Decidable as Dec
-
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Decidable
@@ -49,7 +47,7 @@ x ·≢ y = ·¬ x ≡ y
 -- ** decidability
 
 ·¬? : Dec A → Dec (·¬ A)
-·¬? = Dec.map′ ¬⇒·¬ ·¬⇒¬ ∘ ¬?
+·¬? = Nullary.map′ ¬⇒·¬ ·¬⇒¬ ∘ ¬?
 
 instance
   Dec-·⊥ : ·⊥ ⁇

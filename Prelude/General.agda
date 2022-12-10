@@ -34,6 +34,9 @@ A ⇔ B = (A → B) × (B → A)
 _⇀_ : Type ℓ → Type ℓ′ → Type _
 A ⇀ B = A → Maybe B
 
+id↔ : ∀ {A : Set ℓ} → A ↔ A
+id↔ = id , id
+
 IdFun : ∀ {A : Type ℓ} → Pred (A → A) ℓ
 IdFun f = ∀ x → f x ≡ x
 
@@ -151,6 +154,17 @@ syntax ⋂² I (λ i → P) = ⋂²[ i ∶ I ] P
 _≬²_ : Rel A ℓ₁ → Rel A ℓ₂ → Type _
 P ≬² Q = ∃ λ x → ∃ λ y → P x y × Q x y
 
+module _
+  {a a′ b b′ c c′ : Level}
+  {A : Set a} {A′ : Set a′} {B : Set b} {B′ : Set b′} {C : Set c} {C′ : Set c′}
+  where
+  open Binary
+
+  Tri-map : (A ↔ A′) → (B ↔ B′) → (C ↔ C′) → Tri A B C → Tri A′ B′ C′
+  Tri-map (a→ , ←a) (b→ , ←b) (c→ , ←c) = λ where
+    (tri< a ¬b ¬c) → tri< (a→ a) (¬b ∘ ←b) (¬c ∘ ←c)
+    (tri≈ ¬a b ¬c) → tri≈ (¬a ∘ ←a) (b→ b) (¬c ∘ ←c)
+    (tri> ¬a ¬b c) → tri> (¬a ∘ ←a) (¬b ∘ ←b) (c→ c)
 
 -- ** N-ary tuples
 _^_ : Type ℓ → ℕ → Type ℓ

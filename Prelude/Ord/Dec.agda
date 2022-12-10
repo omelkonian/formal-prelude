@@ -6,6 +6,8 @@ open import Prelude.DecEq
 
 open import Prelude.Ord.Core
 
+private variable A : Type ℓ
+
 record DecOrd (A : Type ℓ) ⦃ _ : Ord  A ⦄ : Type ℓ where
   field ⦃ Dec-≤ ⦄ : _≤_ ⁇²
         ⦃ Dec-< ⦄ : _<_ ⁇²
@@ -35,9 +37,12 @@ record DecOrd (A : Type ℓ) ⦃ _ : Ord  A ⦄ : Type ℓ where
       ; _≤?_ = _≤?_
       ; isTotalOrder = isTotalOrder }
 
+-- instance
+mkDecOrd : ⦃ _ : Ord A ⦄ ⦃ _ : _≤_ ⁇² ⦄ ⦃ _ : _<_ ⁇² ⦄ → DecOrd A
+mkDecOrd = record {}
 open DecOrd ⦃...⦄ public
 
-module _ {A : Set ℓ} {_<_ : Rel A ℓ} ⦃ _ : DecEq A ⦄ (_<?_ : Decidable² _<_) where
+module _ {A : Type ℓ} {_<_ : Rel A ℓ} ⦃ _ : DecEq A ⦄ (_<?_ : Decidable² _<_) where
   ≤?-from-<? : Decidable² (≤-from-< _<_)
   ≤?-from-<? x y = (x ≟ y) ⊎-dec (x <? y)
 

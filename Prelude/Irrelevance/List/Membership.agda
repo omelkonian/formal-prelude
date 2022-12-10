@@ -52,12 +52,12 @@ module _ {A : Type ℓ} where
     import Relation.Nullary.Decidable as Dec
     module _ {P : Pred A p} where
       first? : Decidable¹ P → Decidable¹ (First P (·∁ P))
-      first? P? xs = Dec.map′ (L.Fst.map id ¬⇒·¬) (L.Fst.map id ·¬⇒¬)
-                              (L.Fst.first? P? xs)
+      first? P? xs = Nullary.map′ (L.Fst.map id ¬⇒·¬) (L.Fst.map id ·¬⇒¬)
+                                  (L.Fst.first? P? xs)
 
       cofirst? : Decidable¹ P → Decidable¹ (First (·∁ P) P)
-      cofirst? P? xs = Dec.map′ (L.Fst.map ¬⇒·¬ id)  (L.Fst.map ·¬⇒¬ id)
-                                (L.Fst.cofirst? P? xs)
+      cofirst? P? xs = Nullary.map′ (L.Fst.map ¬⇒·¬ id)  (L.Fst.map ·¬⇒¬ id)
+                                    (L.Fst.cofirst? P? xs)
 
   instance
     ··∈ : ·² _·∈_
