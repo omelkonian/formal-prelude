@@ -10,7 +10,6 @@ open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 
 
 open import Prelude.Generics
-open import Prelude.Generics using (DERIVE) public
 open Debug ("DecEq" , 100)
 open import Prelude.Lists
 open import Prelude.Show
@@ -42,81 +41,81 @@ compatible? ty ty′ = do
 
 `λ∅∅ = `λ⦅ [ "()" , vArg? ] ⦆∅
 
-derive-DecEq : ℕ → Name → Definition → TC Term
-
-derive-DecEq _ _          (data-type _  []) = return `λ∅∅
-derive-DecEq toDrop ≟-rec (data-type ps cs) = do
-  print $ "DATATYPE {pars = " ◇ show ps ◇ "; cs = " ◇ show cs ◇ "}"
-  cls ← concatMap L.fromMaybe <$> mapM f (allPairs cs)
-  return $ pat-lam cls []
-  where
-    go : ℕ → List (ℕ × Arg Type) → Term
-    go _ []              = `yes (quote refl ◆)
-    go n ((x , _) ∷ xs) =
-      let i = n ∸ suc x in
-      quote case_of_
-        ∙⟦ quote _≟_ ∙⟦ ♯ (i + n) ∣ ♯ i ⟧
-         ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
-               ⦅ [ "¬p" , vArg? ] ⦆⇒
-               `no (`λ⟦ (quote refl ◇)
-                        ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
-                      ⟧)
-             ∣ ``yes (quote refl ◇)
-               ⦅ [] ⦆⇒ go n xs
-             ⟧
-         ⟧
-
-    bumpFreeVars : (ℕ → ℕ) → List (ℕ × Arg Type) → List (ℕ × Arg Type)
-    bumpFreeVars bump = go′ 0
-      where
-        go′ : ℕ → List (ℕ × Arg Type) → List (ℕ × Arg Type)
-        go′ _ []            = []
-        go′ x ((i , p) ∷ ps) = (bump i , fmap (mapFreeVars bump x) p) ∷ go′ (suc x) ps
-
-    f : Name × Name → TC (Maybe Clause)
-    f (c , c′) = do
-      _ , n , pvs , pc  ← mkPattern toDrop c
-      -- print $ "pvs: " ◇ show pvs
-      _ , n′ , pvs′ , pc′ ← mkPattern toDrop c′
-      -- print $ "pvs′: " ◇ show pvs′
-      let
-        tel = map (λ (i , argTy) → ("v" ◇ show i) , argTy) (pvs ++ bumpFreeVars (_+ n) pvs′)
-        PC  = mapVariables (λ i → n + n′ ∸ suc i) pc
-        PC′ = mapVariables (λ i → n′ ∸ suc i) pc′
-      -- print $ "tel: " ◇ show tel
-      -- print $ "pc: " ◇ show PC
-      -- print $ "pc′: " ◇ show PC′
-      ty  ← getType c
-      ty′ ← getType c′
-      b   ← compatible? (resultTy ty) (resultTy ty′)
-      return $
-        if b then just (⟦ PC ∣ PC′ ⦅ tel ⦆⇒ if c == c′ then go n (filter (isVisible? ∘ proj₂) pvs)
-                                                       else `no `λ∅∅ ⟧)
-             else nothing
-derive-DecEq _ _ (record-type rn fs) = do
-  print $ "RECORD {name = " ◇ show rn ◇ "; fs = " ◇ show fs ◇ "}"
-  return $ `λ⟦ "r" ∣ "r′" ⇒ go fs ⟧
-  where
-    go : List (Arg Name) → Term
-    go [] = `yes (quote refl ◆)
-    go (arg (arg-info _ (modality relevant _)) n ∷ args) =
-      quote case_of_
-        ∙⟦ quote _≟_ ∙⟦ n ∙⟦ ♯ 1 ⟧ ∣ n ∙⟦ ♯ 0 ⟧ ⟧
-         ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
-             ⦅ [ "¬p" , vArg? ] ⦆⇒
-                 `no (`λ⟦ (quote refl ◇)
-                        ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
+module _ (toDrop : ℕ) {- module context -} where
+  derive-DecEq : Definition → TC Term
+  derive-DecEq (data-type _  []) = return `λ∅∅
+  derive-DecEq (data-type ps cs) = do
+    print $ "DATATYPE {pars = " ◇ show ps ◇ "; cs = " ◇ show cs ◇ "}"
+    cls ← concatMap L.fromMaybe <$> mapM f (allPairs cs)
+    return $ pat-lam cls []
+    where
+      go : ℕ → List (ℕ × Arg Type) → Term
+      go _ []              = `yes (quote refl ◆)
+      go n ((x , _) ∷ xs) =
+        let i = n ∸ suc x in
+        quote case_of_
+          ∙⟦ quote _≟_ ∙⟦ ♯ (i + n) ∣ ♯ i ⟧
+          ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
+                ⦅ [ "¬p" , vArg? ] ⦆⇒
+                `no (`λ⟦ (quote refl ◇)
+                          ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
                         ⟧)
-             ∣ ``yes (quote refl ◇)
-             ⦅ [] ⦆⇒ go args
-             ⟧
-         ⟧
-    go (arg (arg-info _ _) _ ∷ args) = go args
-derive-DecEq _ _ _ = error "impossible"
+              ∣ ``yes (quote refl ◇)
+                ⦅ [] ⦆⇒ go n xs
+              ⟧
+          ⟧
+
+      bumpFreeVars : (ℕ → ℕ) → List (ℕ × Arg Type) → List (ℕ × Arg Type)
+      bumpFreeVars bump = go′ 0
+        where
+          go′ : ℕ → List (ℕ × Arg Type) → List (ℕ × Arg Type)
+          go′ _ []            = []
+          go′ x ((i , p) ∷ ps) = (bump i , fmap (mapFreeVars bump x) p) ∷ go′ (suc x) ps
+
+      f : Name × Name → TC (Maybe Clause)
+      f (c , c′) = do
+        _ , n , pvs , pc  ← mkPattern toDrop c
+        -- print $ "pvs: " ◇ show pvs
+        _ , n′ , pvs′ , pc′ ← mkPattern toDrop c′
+        -- print $ "pvs′: " ◇ show pvs′
+        let
+          tel = map (λ (i , argTy) → ("v" ◇ show i) , argTy) (pvs ++ bumpFreeVars (_+ n) pvs′)
+          PC  = mapVariables (λ i → n + n′ ∸ suc i) pc
+          PC′ = mapVariables (λ i → n′ ∸ suc i) pc′
+        -- print $ "tel: " ◇ show tel
+        -- print $ "pc: " ◇ show PC
+        -- print $ "pc′: " ◇ show PC′
+        ty  ← getType c
+        ty′ ← getType c′
+        b   ← compatible? (resultTy ty) (resultTy ty′)
+        return $
+          if b then just (⟦ PC ∣ PC′ ⦅ tel ⦆⇒ if c == c′ then go n (filter (isVisible? ∘ proj₂) pvs)
+                                                        else `no `λ∅∅ ⟧)
+              else nothing
+  derive-DecEq (record-type rn fs) = do
+    print $ "RECORD {name = " ◇ show rn ◇ "; fs = " ◇ show fs ◇ "}"
+    return $ `λ⟦ "r" ∣ "r′" ⇒ go fs ⟧
+    where
+      go : List (Arg Name) → Term
+      go [] = `yes (quote refl ◆)
+      go (arg (arg-info _ (modality relevant _)) n ∷ args) =
+        quote case_of_
+          ∙⟦ quote _≟_ ∙⟦ n ∙⟦ ♯ 1 ⟧ ∣ n ∙⟦ ♯ 0 ⟧ ⟧
+          ∣ `λ⟦ ``no (Pattern.var 0 {-"¬p"-})
+              ⦅ [ "¬p" , vArg? ] ⦆⇒
+                  `no (`λ⟦ (quote refl ◇)
+                          ⦅ [] ⦆⇒ (♯ 0 ⟦ quote refl ◆ ⟧)
+                          ⟧)
+              ∣ ``yes (quote refl ◇)
+              ⦅ [] ⦆⇒ go args
+              ⟧
+          ⟧
+      go (arg (arg-info _ _) _ ∷ args) = go args
+  derive-DecEq _ = error "[not supported] not a data type or record"
 
 instance
-  Derivable-DecEq : Derivable DecEq
-  Derivable-DecEq .DERIVE' xs = do
+  Derivable-DecEq : DERIVABLE DecEq 1
+  Derivable-DecEq .derive xs = do
     print "*************************************************************************"
     (record-type c _) ← getDefinition (quote DecEq)
       where _ → error "impossible"
@@ -135,7 +134,7 @@ instance
       print $ "  Parameters: " ◇ show (parameters d)
       print $ "  Indices: " ◇ show is
       print $ "  n′: " ◇ show n′
-      let mctx = take (parameters d ∸ length ctx) (argTys T)
+      let mctx = take (parameters d ∸ length ctx) is
           mtel = map ("_" ,_) mctx
           pc = map (λ where (i , _) → hArg (` toℕ i) ) (enumerate mctx)
       print $ "  Mctx: " ◇ show mctx
@@ -150,7 +149,6 @@ instance
       print $ "  Ty: " ◇ show ty
       declareDef (iArg f) ty
       -- fᵢ ⋯ = λ where ._≟_ → fᵢ′
-      -- defineFun f [ ⟦⇒ c ◆⟦ f′ ∙ ⟧ ⟧ ]
       defineFun f [ clause mtel pc (c ◆⟦ f′ ∙ ⟧) ]
 
       -- fᵢ′ ⋯ = λ where
@@ -159,7 +157,7 @@ instance
       t ← inContext (L.reverse mtel) $ do
         ctx ← getContext
         print $ "  Context′: " ◇ show ctx
-        derive-DecEq (length mtel) f′ d
+        derive-DecEq (length mtel) d
       -- print $ "  Term: " ◇ show t
 
       return (f′ , (pc , mtel) , t)
