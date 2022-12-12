@@ -1,5 +1,3 @@
-module Prelude.Ord.Product where
-
 open import Prelude.Init; open SetAsType
 open Binary
 open import Prelude.General
@@ -10,114 +8,117 @@ open import Prelude.Irrelevance
 
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec
+open import Prelude.Ord.Irrelevant
 
-private variable A : Type ℓ; B : Type ℓ′
+module Prelude.Ord.Product where
 
-module _ ⦃ _ : Ord A ⦄ ⦃ _ : Ord B ⦄ where
-  private
-    _≤×_ : Rel (A × B) _
-    (a , b) ≤× (a′ , b′) = (a < a′) ⊎ (a ≡ a′ × b ≤ b′)
-    pattern ≤×ˡ_ x = inj₁ x
-    pattern ≤×ʳ_ x = inj₂ (refl , x)
+module _ {A : Type ℓ} {B : Type ℓ′} ⦃ _ : Ord A ⦄ ⦃ _ : Ord B ⦄ where
+  _≤×_ _<×_ : Rel (A × B) _
+  (a , b) ≤× (a′ , b′) = (a < a′) ⊎ (a ≡ a′ × b ≤ b′)
+  (a , b) <× (a′ , b′) = (a < a′) ⊎ (a ≡ a′ × b < b′)
 
-    _<×_ : Rel (A × B) _
-    (a , b) <× (a′ , b′) = (a < a′) ⊎ (a ≡ a′ × b < b′)
-    pattern <×ˡ_ x = inj₁ x
-    pattern <×ʳ_ x = inj₂ (refl , x)
+  private pattern ≪_ x = inj₁ x; pattern ≫_ x = inj₂ (refl , x)
 
   instance
     Ord-× : Ord (A × B)
     Ord-× = record {_≤_ = _≤×_; _<_ = _<×_}
 
-    DecOrd-× : ⦃ DecEq A ⦄ → ⦃ DecOrd A ⦄ → ⦃ DecOrd B ⦄ → DecOrd (A × B)
+  module _ ⦃ _ : DecEq A ⦄ ⦃ _ : DecOrd A ⦄ ⦃ _ : DecOrd B ⦄ where instance
+    DecOrd-× : DecOrd (A × B)
     DecOrd-× = record {}
 
-    OrdLaws-× : ⦃ OrdLaws A ⦄ → ⦃ OrdLaws B ⦄ → OrdLaws (A × B)
+  module _ ⦃ _ : OrdLaws A ⦄ ⦃ _ : OrdLaws B ⦄ where instance
+    OrdLaws-× : OrdLaws (A × B)
     OrdLaws-× = λ where
-      .≤-refl → ≤×ʳ ≤-refl
+      .≤-refl → ≫ ≤-refl
       .≤-trans → λ where
-        (≤×ˡ p) (≤×ˡ q) → ≤×ˡ <-trans p q
-        (≤×ˡ p) (≤×ʳ q) → ≤×ˡ p
-        (≤×ʳ p) (≤×ˡ q) → ≤×ˡ q
-        (≤×ʳ p) (≤×ʳ q) → ≤×ʳ ≤-trans p q
+        (≪ p) (≪ q) → ≪ <-trans p q
+        (≪ p) (≫ q) → ≪ p
+        (≫ p) (≪ q) → ≪ q
+        (≫ p) (≫ q) → ≫ ≤-trans p q
       .≤-antisym → λ where
-        (≤×ˡ p) (≤×ˡ q) → ⊥-elim $ <-irrefl refl $ <-trans p q
-        (≤×ˡ p) (≤×ʳ _) → ⊥-elim $ <-irrefl refl p
-        (≤×ʳ _) (≤×ˡ q) → ⊥-elim $ <-irrefl refl q
-        (≤×ʳ p) (≤×ʳ q) → cong (_ ,_) (≤-antisym p q )
+        (≪ p) (≪ q) → ⊥-elim $ <-irrefl refl $ <-trans p q
+        (≪ p) (≫ _) → ⊥-elim $ <-irrefl refl p
+        (≫ _) (≪ q) → ⊥-elim $ <-irrefl refl q
+        (≫ p) (≫ q) → cong (_ ,_) (≤-antisym p q )
       .≤-total → ≤×-total
       .<-irrefl refl → λ where
-        (<×ˡ p) → <-irrefl refl p
-        (<×ʳ p) → <-irrefl refl p
+        (≪ p) → <-irrefl refl p
+        (≫ p) → <-irrefl refl p
       .<-trans → λ where
-        (<×ˡ p) (<×ˡ q) → <×ˡ <-trans p q
-        (<×ˡ p) (<×ʳ q) → <×ˡ p
-        (<×ʳ p) (<×ˡ q) → <×ˡ q
-        (<×ʳ p) (<×ʳ q) → <×ʳ <-trans p q
+        (≪ p) (≪ q) → ≪ <-trans p q
+        (≪ p) (≫ q) → ≪ p
+        (≫ p) (≪ q) → ≪ q
+        (≫ p) (≫ q) → ≫ <-trans p q
       .<-resp₂-≡ → (λ where refl → id) , (λ where refl → id)
       .<-cmp → <×-cmp
       .<⇒≤ → proj₁ ∘ <×⇒≤×∧≢
       .<⇒≢ → proj₂ ∘ <×⇒≤×∧≢
       .≤∧≢⇒< → ≤×∧≢⇒<×
-     where
+       where
         ≤×-total : Total _≤×_
         ≤×-total (a , b) (a′ , b′)
           with <-cmp a a′
-        ... | tri< a< _ _ = inj₁ (≤×ˡ a<)
-        ... | tri> _ _ <a = inj₂ (≤×ˡ <a)
+        ... | tri< a< _ _ = inj₁ (≪ a<)
+        ... | tri> _ _ <a = inj₂ (≪ <a)
         ... | tri≈ _ refl _
           with <-cmp b b′
-        ... | tri< b< _    _  = inj₁ (≤×ʳ <⇒≤ b<)
-        ... | tri> _  _    <b = inj₂ (≤×ʳ <⇒≤ <b)
-        ... | tri≈ _  refl _  = <×ˡ  (≤×ʳ ≤-refl)
+        ... | tri< b< _    _  = inj₁ (≫ <⇒≤ b<)
+        ... | tri> _  _    <b = inj₂ (≫ <⇒≤ <b)
+        ... | tri≈ _  refl _  = ≪  (≫ ≤-refl)
 
         <×-cmp : Trichotomous _≡_ _<×_
         <×-cmp (a , b) (a′ , b′)
           with <-cmp a a′
         ... | tri< a< a≢ ≮a
-            = tri< (<×ˡ a<)
+            = tri< (≪ a<)
                           (λ where refl → a≢ refl)
-                          (λ where (<×ˡ <a) → ≮a <a; (<×ʳ _) → ≮a a<)
+                          (λ where (≪ <a) → ≮a <a; (≫ _) → ≮a a<)
         ... | tri> a≮ a≢ <a
-            = tri> (λ where (<×ˡ a<) → a≮ a<; (<×ʳ _) → a≮ <a)
+            = tri> (λ where (≪ a<) → a≮ a<; (≫ _) → a≮ <a)
                           (λ where refl → a≢ refl)
-                          (<×ˡ <a)
+                          (≪ <a)
         ... | tri≈ a≮ refl ≮a
           with <-cmp b b′
         ... | tri< b< b≢ ≮b
-            = tri< (<×ʳ b<) (λ where refl → b≢ refl)
-                          (λ where (<×ˡ a<) → a≮ a<; (<×ʳ <b) → ≮b <b)
+            = tri< (≫ b<) (λ where refl → b≢ refl)
+                          (λ where (≪ a<) → a≮ a<; (≫ <b) → ≮b <b)
         ... | tri> b≮ b≢ <b
-            = tri> (λ where (<×ˡ a<) → a≮ a<; (<×ʳ b<) → b≮ b<)
-                          (λ where refl → b≢ refl) (<×ʳ <b)
+            = tri> (λ where (≪ a<) → a≮ a<; (≫ b<) → b≮ b<)
+                          (λ where refl → b≢ refl) (≫ <b)
         ... | tri≈ b≮ refl ≮b
-            = tri≈ (λ where (<×ˡ a<) → a≮ a<; (<×ʳ b<) → b≮ b<)
+            = tri≈ (λ where (≪ a<) → a≮ a<; (≫ b<) → b≮ b<)
                           refl
-                          (λ where (<×ˡ a<) → a≮ a<; (<×ʳ b<) → b≮ b<)
+                          (λ where (≪ a<) → a≮ a<; (≫ b<) → b≮ b<)
 
         <×⇒≤×∧≢ : _<×_ ⇒² _≤×_ ∩² _≢_
         <×⇒≤×∧≢ = λ where
-          (<×ˡ p) → (≤×ˡ p) , λ where refl → <⇒≢ p refl
-          (<×ʳ p) → ≤×ʳ <⇒≤ p , λ where refl → <⇒≢ p refl
+          (≪ p) → (≪ p) , λ where refl → <⇒≢ p refl
+          (≫ p) → ≫ <⇒≤ p , λ where refl → <⇒≢ p refl
 
         ≤×∧≢⇒<× : _≤×_ ∩² _≢_ ⇒² _<×_
         ≤×∧≢⇒<× = λ where
-          (≤×ˡ p , ¬eq) → <×ˡ p
-          (≤×ʳ p , ¬eq) → ≤×ʳ ≤∧≢⇒< (p , λ where refl → ¬eq refl)
+          (≪ p , ¬eq) → ≪ p
+          (≫ p , ¬eq) → ≫ ≤∧≢⇒< (p , λ where refl → ¬eq refl)
 
-    ·-<× : ⦃ _ : OrdLaws A ⦄ ⦃ _ : OrdLaws B ⦄
-        → ⦃ _ : ·² _<_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = B} ⦄
+    ·-<× : ⦃ _ : ·² _<_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = B} ⦄
         → ·² _<×_
-    ·-<× .∀≡ (<×ˡ p) (<×ˡ q) rewrite ∀≡ p q = refl
-    ·-<× .∀≡ (<×ˡ p) (<×ʳ q) = ⊥-elim $ <-irrefl refl p
-    ·-<× .∀≡ (<×ʳ p) (<×ˡ q) = ⊥-elim $ <-irrefl refl q
-    ·-<× .∀≡ (<×ʳ p) (<×ʳ q) rewrite ∀≡ p q = refl
+    ·-<× .∀≡ (≪ p) (≪ q) rewrite ∀≡ p q = refl
+    ·-<× .∀≡ (≪ p) (≫ q) = ⊥-elim $ <-irrefl refl p
+    ·-<× .∀≡ (≫ p) (≪ q) = ⊥-elim $ <-irrefl refl q
+    ·-<× .∀≡ (≫ p) (≫ q) rewrite ∀≡ p q = refl
 
-    ·-≤× : ⦃ _ : OrdLaws A ⦄ ⦃ _ : OrdLaws B ⦄
-        → ⦃ _ : ·² _≤_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = A} ⦄
+    ·-≤× : ⦃ _ : ·² _≤_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = A} ⦄
         → ⦃ _ : ·² _≤_ {A = B} ⦄ ⦃ _ : ·² _<_ {A = B} ⦄
         → ·² _≤×_
-    ·-≤× .∀≡ (≤×ˡ p) (≤×ˡ q) rewrite ∀≡ p q = refl
-    ·-≤× .∀≡ (≤×ˡ p) (≤×ʳ q) = ⊥-elim $ <-irrefl refl p
-    ·-≤× .∀≡ (≤×ʳ p) (≤×ˡ q) = ⊥-elim $ <-irrefl refl q
-    ·-≤× .∀≡ (≤×ʳ p) (≤×ʳ q) rewrite ∀≡ p q = refl
+    ·-≤× .∀≡ (≪ p) (≪ q) rewrite ∀≡ p q = refl
+    ·-≤× .∀≡ (≪ p) (≫ q) = ⊥-elim $ <-irrefl refl p
+    ·-≤× .∀≡ (≫ p) (≪ q) = ⊥-elim $ <-irrefl refl q
+    ·-≤× .∀≡ (≫ p) (≫ q) rewrite ∀≡ p q = refl
+
+    ·Ord-× : ⦃ ·Ord A ⦄ → ⦃ ·Ord B ⦄ → ·Ord (A × B)
+    ·Ord-× = mk·Ord
+
+module _ {A : Type ℓ} {B : Type ℓ′} ⦃ _ : Ord⁺⁺ A ⦄ ⦃ _ : Ord⁺⁺ B ⦄ where instance
+  Ord⁺⁺-× : ⦃ DecEq A ⦄ → Ord⁺⁺ (A × B)
+  Ord⁺⁺-× = mkOrd⁺⁺

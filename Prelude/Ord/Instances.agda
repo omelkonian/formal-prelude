@@ -15,7 +15,8 @@ open import Prelude.Ord.Dec
 open import Prelude.Ord.Irrelevant
 
 instance
-  Ord-ℕ = Ord ℕ ∋ record {Nat}
+  Ord-ℕ : Ord ℕ
+  Ord-ℕ = record {Nat}
 
   Dec-≤ℕ : Nat._≤_ ⁇²
   Dec-≤ℕ .dec = _ Nat.≤? _
@@ -27,7 +28,10 @@ instance
   OrdLaws-ℕ = record {Nat; ≤∧≢⇒< = uncurry Nat.≤∧≢⇒<}
 
   ·Ord-ℕ : ·Ord ℕ
-  ·Ord-ℕ = record {}
+  ·Ord-ℕ = mk·Ord
+
+  Ord⁺⁺-ℕ : Ord⁺⁺ ℕ
+  Ord⁺⁺-ℕ = mkOrd⁺⁺
 
   Ord-ℤ = Ord ℤ ∋ record {Integer}
 
@@ -87,4 +91,9 @@ instance
     .Dec-≤ {x}{y} → Dec-≤String {x}{y}
     .Dec-< {x}{y} → Dec-<String {x}{y}
 
-  postulate OrdLaws-String : OrdLaws String
+  postulate
+    OrdLaws-String : OrdLaws String
+    ·Ord-String : ·Ord String
+
+  Ord⁺⁺-String : Ord⁺⁺ String
+  Ord⁺⁺-String = mkOrd⁺⁺

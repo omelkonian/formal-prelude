@@ -57,6 +57,11 @@ argTys = proj₁ ∘ viewTy′
 resultTy : Type → Type
 resultTy = proj₂ ∘ viewTy′
 
+tyTele : Type → Telescope
+tyTele = λ where
+  (Π[ s ∶ a ] ty) → (s , a) ∷ tyTele ty
+  _ → []
+
 tyName : Type → Maybe Name
 tyName (con n _) = just n
 tyName (def n _) = just n
@@ -160,12 +165,16 @@ varsToUnknown ty         = ty
 varsToUnknown′ []              = []
 varsToUnknown′ (arg i ty ∷ xs) = arg i (varsToUnknown ty) ∷ varsToUnknown′ xs
 
-∀indices⋯ : Args Type → Type → Type
-∀indices⋯ []       ty = ty
-∀indices⋯ (i ∷ is) ty = Π[ "_" ∶ hide i ] (∀indices⋯ is ty)
+∀indices⋯ : Telescope → (Type → Type)
+∀indices⋯ = λ where
+  [] → id
+  ((s , i) ∷ is) → Π[ s ∶ hide i ]_ ∘ ∀indices⋯ is
 
-apply⋯ : Args Type → Name → Type
-apply⋯ is n = def n $ remove-iArgs (map (λ{ (n , arg i _) → arg i (♯ (length is ∸ suc (toℕ n)))}) (enumerate is))
+apply⋯ : Telescope → Name → Type
+apply⋯ is n = def n
+            $ remove-iArgs
+            $ map (λ{ (n ,  _ , arg i _) → arg i (♯ (length is ∸ suc (toℕ n)))})
+                  (enumerate is)
 
 withHole : Type → Tactic → TC Hole
 withHole ty k = do

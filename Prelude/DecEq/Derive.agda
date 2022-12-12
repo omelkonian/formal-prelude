@@ -8,7 +8,7 @@ open import Reflection.Name renaming (_≟_ to _≟ₙ_)
 open import Reflection.Term renaming (_≟_ to _≟ₜ_)
 open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 
-
+open import Prelude.Generics using (DERIVE) public
 open import Prelude.Generics
 open Debug ("DecEq" , 100)
 open import Prelude.Lists
@@ -129,8 +129,9 @@ instance
       print $ "  Type: " ◇ show T
       d ← getDefinition n
 
-      let is = argTys T
-      let n′ = apply⋯ is n
+      let tel = tyTele T
+          n′ = apply⋯ tel n
+          is = argTys T
       print $ "  Parameters: " ◇ show (parameters d)
       print $ "  Indices: " ◇ show is
       print $ "  n′: " ◇ show n′
@@ -140,12 +141,14 @@ instance
       print $ "  Mctx: " ◇ show mctx
 
       -- fᵢ′ : ∀ ⋯ → Decidable² {A = Tᵢ ⋯} _≡_
-      let ty′ = ∀indices⋯ is $ def (quote Decidable²) (hArg? ∷ hArg n′ ∷ vArg (quote _≡_ ∙) ∷ [])
+      let ty′ = ∀indices⋯ tel
+              $ def (quote Decidable²) (hArg? ∷ hArg n′ ∷ vArg (quote _≡_ ∙) ∷ [])
       print $ "  Ty′: " ◇ show ty′
       declareDef (vArg f′) ty′
 
       -- instance fᵢ : ∀ ⋯ → DecEq (Tᵢ ⋯)
-      let ty = ∀indices⋯ is $ quote DecEq ∙⟦ n′ ⟧
+      let ty = ∀indices⋯ tel
+             $ quote DecEq ∙⟦ n′ ⟧
       print $ "  Ty: " ◇ show ty
       declareDef (iArg f) ty
       -- fᵢ ⋯ = λ where ._≟_ → fᵢ′

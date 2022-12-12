@@ -1,3 +1,5 @@
+module Prelude.Ord.List where
+
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Lift
@@ -7,65 +9,67 @@ open import Prelude.Irrelevance
 
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec
+open import Prelude.Ord.Irrelevant
 
-module Prelude.Ord.List {A : Type ℓ} where
+module _ {A : Type ℓ} ⦃ _ : Ord A ⦄ where
 
-module _ (_<_ : Rel A ℓ) where
-  <∗-from-< : Rel (List A) ℓ
-  <∗-from-< = _<∗_ where _<∗_ = λ where
+  private
+    pattern ≪_ x = inj₁ x; pattern ≫_ x = inj₂ x
+    pattern ≪≡ = ≪ refl;   pattern ≫≡_ x = ≫ (refl , x)
+
+  _<∗_ _≤∗_ : Rel (List A) ℓ
+  _<∗_ = λ where
     [] [] → ↑ℓ ⊥
     [] (_ ∷ _) → ↑ℓ ⊤
     (_ ∷ _) [] → ↑ℓ ⊥
     (x ∷ xs) (y ∷ ys) → (x < y) ⊎ ((x ≡ y) × (xs <∗ ys))
-
-  <∗?-from-<? : ⦃ _ : DecEq A ⦄ → Decidable² _<_ → Decidable² <∗-from-<
-  <∗?-from-<? _<?_ = _<∗?_ where _<∗?_ = λ where
-    [] [] → no λ ()
-    [] (_ ∷ _) → yes it
-    (_ ∷ _) [] → no λ ()
-    (x ∷ xs) (y ∷ ys) → (x <? y) ⊎-dec ((x ≟ y) ×-dec (xs <∗? ys))
-
-module _ ⦃ _ : Ord A ⦄ where
-  _<∗_ = Rel (List A) ℓ ∋ <∗-from-< _<_
-  pattern <∗ˡ_ x = inj₁ x
-  pattern <∗ʳ_ x = inj₂ (refl , x)
-
-  _≤∗_ = Rel (List A) ℓ ∋ ≤-from-< _<∗_
-  pattern ≤∗ˡ = inj₁ refl
-  pattern ≤∗ʳ_ x = inj₂ x
-
-  instance Ord-List = Ord (List A) ∋ mkOrd< _<∗_
-
-module _ ⦃ _ : Ord A ⦄ ⦃ _ : DecEq A ⦄ ⦃ _ : DecOrd A ⦄ where
-
-  _<∗?_ : Decidable² _<∗_
-  _<∗?_ = <∗?-from-<? _<_ _<?_
+  _≤∗_ = ≤-from-< _<∗_
 
   instance
-    Dec-<∗ : _<∗_ ⁇²
-    Dec-<∗ .dec = _ <∗? _
+    Ord-List : Ord (List A)
+    Ord-List = mkOrd< _<∗_
 
-    DecOrd-List : DecOrd (List A)
-    DecOrd-List = record {}
+  module _ ⦃ _ : DecEq A ⦄ ⦃ _ : DecOrd A ⦄ where
 
-module _ ⦃ _ : Ord A ⦄ ⦃ _ : OrdLaws A ⦄ where instance
+    _<∗?_ : Decidable² _<∗_
+    _<∗?_ = λ where
+      [] [] → no λ ()
+      [] (_ ∷ _) → yes it
+      (_ ∷ _) [] → no λ ()
+      (x ∷ xs) (y ∷ ys) → (x <? y) ⊎-dec ((x ≟ y) ×-dec (xs <∗? ys))
 
-  postulate OrdLaws-List : OrdLaws (List A)
+    instance
+      Dec-<∗ : _<∗_ ⁇²
+      Dec-<∗ .dec = _ <∗? _
 
-  ·-<∗ : ⦃ _ : ·² _<_ {A = A} ⦄ → ·² _<∗_
-  ·-<∗ {x = xs} {ys} .∀≡ = go xs ys
-    where
-      go : ∀ (xs ys : List A) → Irrelevant (xs <∗ ys)
-      go = λ where
-        []      (_ ∷ _) (lift tt) (lift tt) → refl
-        (_ ∷ _) (_ ∷ _) (<∗ˡ _)   (<∗ˡ _)   → cong <∗ˡ_ (∀≡ _ _)
-        (_ ∷ _) (_ ∷ _) (<∗ˡ p)   (<∗ʳ _)   → ⊥-elim $ <-irrefl refl p
-        (_ ∷ _) (_ ∷ _) (<∗ʳ _)   (<∗ˡ q)   → ⊥-elim $ <-irrefl refl q
-        (_ ∷ _) (_ ∷ _) (<∗ʳ _)   (<∗ʳ _)   → cong <∗ʳ_ (∀≡ _ _)
+      DecOrd-List : DecOrd (List A)
+      DecOrd-List = record {}
 
-  ·-≤∗ : ⦃ _ : ·² _≤_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = A} ⦄ → ·² _≤∗_
-  ·-≤∗ .∀≡ = λ where
-    ≤∗ˡ     ≤∗ˡ     → refl
-    ≤∗ˡ     (≤∗ʳ q) → ⊥-elim $ <-irrefl refl q
-    (≤∗ʳ p) ≤∗ˡ     → ⊥-elim $ <-irrefl refl p
-    (≤∗ʳ _) (≤∗ʳ _) → cong ≤∗ʳ_ (∀≡ _ _)
+  module _ ⦃ _ : OrdLaws A ⦄ where instance
+
+    postulate OrdLaws-List : OrdLaws (List A)
+
+    ·-<∗ : ⦃ _ : ·² _<_ {A = A} ⦄ → ·² _<∗_
+    ·-<∗ {x = xs} {ys} .∀≡ = go xs ys
+      where
+        go : ∀ (xs ys : List A) → Irrelevant (xs <∗ ys)
+        go = λ where
+          []      (_ ∷ _) (lift tt) (lift tt) → refl
+          (_ ∷ _) (_ ∷ _) (≪ _)  (≪ _)  → cong ≪_ (∀≡ _ _)
+          (_ ∷ _) (_ ∷ _) (≪ p)  (≫≡ _) → ⊥-elim $ <-irrefl refl p
+          (_ ∷ _) (_ ∷ _) (≫≡ _) (≪ q)  → ⊥-elim $ <-irrefl refl q
+          (_ ∷ _) (_ ∷ _) (≫≡ _) (≫≡ _) → cong ≫≡_ (∀≡ _ _)
+
+    ·-≤∗ : ⦃ _ : ·² _≤_ {A = A} ⦄ ⦃ _ : ·² _<_ {A = A} ⦄ → ·² _≤∗_
+    ·-≤∗ .∀≡ = λ where
+      ≪≡    ≪≡    → refl
+      ≪≡    (≫ q) → ⊥-elim $ <-irrefl refl q
+      (≫ p) ≪≡    → ⊥-elim $ <-irrefl refl p
+      (≫ _) (≫ _) → cong ≫_ (∀≡ _ _)
+
+    ·Ord-List : ⦃ ·Ord A ⦄ → ·Ord (List A)
+    ·Ord-List = mk·Ord
+
+module _ {A : Type ℓ} ⦃ _ : Ord⁺⁺ A ⦄ where instance
+  Ord⁺⁺-List : ⦃ DecEq A ⦄ → Ord⁺⁺ (List A)
+  Ord⁺⁺-List = mkOrd⁺⁺
