@@ -2,18 +2,22 @@
 -- (Infinite) enumerable types that are in bijection with ℕ.
 ------------------------------------------------------------
 
+-- {-# OPTIONS --safe #-}
 module Prelude.InfEnumerable where
 
 open import Prelude.Init; open SetAsType
 open L.Mem
+open import Prelude.Nats
 open import Prelude.Membership using (_∈?_)
 open import Prelude.Nary
 open import Prelude.Lists
+open import Prelude.Lists.Postulates
 open import Prelude.Decidable
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.ToN
 open import Prelude.FromN
-open import Prelude.Ord
+open import Prelude.Ord.Core
+open import Prelude.Ord.Instances
 
 -- Enumerable∞ A = A ↔ ℕ
 record Enumerable∞ (A : Type ℓ) : Type ℓ where

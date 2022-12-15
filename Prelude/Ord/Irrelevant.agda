@@ -1,7 +1,8 @@
+{-# OPTIONS --safe #-}
 module Prelude.Ord.Irrelevant where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.Irrelevance
+open import Prelude.Irrelevance.Core
 
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec

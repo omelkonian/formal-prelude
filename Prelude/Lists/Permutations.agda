@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
--- Properties of permuting lists with _↭_.
+-- Properties of permuting lists with _↭_
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Permutations where
 
 open import Prelude.Init; open SetAsType
@@ -11,8 +12,7 @@ open import Prelude.Null
 open import Prelude.Lists.Empty
 
 private variable
-  A : Type ℓ
-  B : Type ℓ′
+  A B : Type ℓ
   x y : A
   xs ys zs ws : List A
   xss yss : List (List A)
@@ -130,15 +130,6 @@ Unique-resp-↭ (↭-trans p₁ p₂)
   rewrite ↭-sym∘map⁺ {xs = xs} {ys} f p
         | ↭-sym∘map⁺ {xs = ys} {zs} f q
         = refl
-
-open Alg≡
-postulate
-  ↭⇒≡ : ∀ {x₀ : A} {xs ys : List A} {_⊕_ : Op₂ A}
-    → Identity x₀ _⊕_
-    → Commutative _⊕_
-    → xs ↭ ys
-    → foldr _⊕_ x₀ xs ≡ foldr _⊕_ x₀ ys
--- ↭⇒≡ = {!!}
 
 -- ** _∈_
 open L.Mem -- using (_∈_; mapWith∈; ∈-++⁻)

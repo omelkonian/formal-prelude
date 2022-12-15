@@ -1,7 +1,9 @@
+{-# OPTIONS --with-K #-}
 import Relation.Binary.Reasoning.Setoid as BinSetoid
 
 open import Prelude.Init hiding (_⊆_; _⊈_); open SetAsType
 open import Prelude.General
+open import Prelude.Maybes
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.Applicative

@@ -1,4 +1,5 @@
 {-# OPTIONS -v extra:100 #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Tactics.Extra where
 
 open import Prelude.Init

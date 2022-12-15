@@ -1,8 +1,9 @@
+{-# OPTIONS --safe #-}
 module Prelude.Ord.Dec where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 open import Prelude.Ord.Core
 

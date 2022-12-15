@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open Binary
 open import Prelude.General

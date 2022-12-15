@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Irrelevance.List where
 
 open import Prelude.Irrelevance.List.Unique public

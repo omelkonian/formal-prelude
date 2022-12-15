@@ -1,14 +1,15 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Count where
 
 open import Prelude.Init; open SetAsType
 open Nat.Ord
 open Nat using (_≤_)
-open import Prelude.General
+open import Prelude.Maybes
 open import Prelude.Null
 open import Prelude.Lists.Empty
 
 private variable
-  A : Type ℓ; B : Type ℓ′
+  A B : Type ℓ
   x : A; xs ys : List A
 
 count : ∀ {P : Pred A ℓ} → Decidable¹ P → List A → ℕ
@@ -26,25 +27,6 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
 
   length-count : count P? xs ≤ length xs
   length-count {xs = xs} = L.length-filter P? xs
-
-  postulate
-    ⊆⇒count≤ : xs ⊆ ys → count P? xs ≤ count P? ys
-    count≡0⇒null-filter : count P? xs ≡ 0 → Null $ filter P? xs
-    count≡0⇒All¬ : count P? xs ≡ 0 → All (¬_ ∘ P) xs
-    count-map⁺ : ∀ {f : B → A}
-      → count (P? ∘ f) xs
-      ≡ count P? (map f xs)
-    count-single : ∀ {x xs}
-      → count P? (x ∷ xs) ≡ 1
-      → P x
-      → All (x ≢_) xs
-    -- count-single {P = P} {P?} {x} {xs} count≡1 px
-    --   with P? x
-    -- ... | no ¬px = ⊥-elim $ ¬px px
-    -- ... | yes _  = L.All.¬Any⇒All¬ xs h
-    --   where
-    --     h : x ∉ xs
-    --     h x∈ = {!!}
 
 module _ (f : A → Maybe B) where
   countNothing countJust : List A → ℕ

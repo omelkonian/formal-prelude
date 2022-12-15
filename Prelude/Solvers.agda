@@ -1,4 +1,5 @@
 {-# OPTIONS -v Generics.Solvers:100 #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Solvers where
 
 open import Prelude.Init

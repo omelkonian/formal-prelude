@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Irrelevance.Empty where
 
 open import Prelude.Init; open SetAsType

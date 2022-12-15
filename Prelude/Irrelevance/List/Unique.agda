@@ -1,8 +1,9 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Irrelevance.List.Unique where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Decidable
 open import Prelude.InferenceRules
 open import Prelude.Ord.Core

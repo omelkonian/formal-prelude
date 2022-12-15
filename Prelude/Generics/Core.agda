@@ -1,7 +1,8 @@
+{-# OPTIONS --safe #-}
 module Prelude.Generics.Core where
 
 open import Prelude.Init; open Meta
-open import Prelude.DecEq.Core
+open import Reflection.Argument.Visibility using (_≟_)
 
 -- ** Smart constructors
 

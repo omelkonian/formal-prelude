@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Empty lists.
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Empty where
 
 open import Prelude.Init; open SetAsType
@@ -34,21 +35,19 @@ concat≡[]ˡ : Null $ concat (xs ∷ xss) → Null xs
 concat≡[]ˡ {xs = []} _ = refl
 
 concat≡[]ʳ : Null $ concat (xs ∷ xss) → Null $ concat xss
-concat≡[]ʳ {xs = []} {xss = xss} concat≡[]
-  rewrite L.++-identityˡ xss = concat≡[]
+concat≡[]ʳ {xs = []} {xss = xss} concat≡[] = concat≡[]
 
-concat≢[] :
-    ∃[ xs ] ( (xs ∈ xss)
-            × ¬Null xs )
-  → ¬Null (concat xss)
-concat≢[] {xss = _ ∷ xss} (_  , here refl , xs≢[]) concat≡[] = xs≢[] $ concat≡[]ˡ {xss = xss} concat≡[]
-concat≢[] {xss = _ ∷ xss} (xs , there xs∈ , xs≢[]) concat≡[] = concat≢[] (xs , xs∈ , xs≢[])
-                                                                       (concat≡[]ʳ {xss = xss} concat≡[])
+concat≢[] : ∃[ xs ] ((xs ∈ xss) × ¬Null xs)
+          → ¬Null (concat xss)
+concat≢[] {xss = _ ∷ xss} (_  , here refl , xs≢[]) concat≡[] =
+  xs≢[] $ concat≡[]ˡ {xss = xss} concat≡[]
+concat≢[] {xss = _ ∷ xss} (xs , there xs∈ , xs≢[]) concat≡[] =
+  concat≢[] (xs , xs∈ , xs≢[]) (concat≡[]ʳ {xss = xss} concat≡[])
 
 concat≡[] : Null $ concat xss → All Null xss
 concat≡[] {xss = []}       _  = []
-concat≡[] {xss = [] ∷ xss} eq
-  rewrite L.++-identityˡ xss = refl ∷ concat≡[] eq
+concat≡[] {xss = xs ∷ xss} eq = concat≡[]ˡ {xss = xss} eq
+                              ∷ concat≡[] (concat≡[]ʳ {xss = xss} eq)
 
 mapWith∈≡[] : ∀ {f : ∀ {x} → x ∈ xs → B}
   → Null $ mapWith∈ xs f
@@ -60,7 +59,8 @@ mapWith∈≡[] {xs = []} _ = refl
   → ¬ (Null xs)
   → ¬ (All Null $ mapWith∈ xs f)
 ∀mapWith∈≡[] {xs = []}     {f} _  xs≢[]  _    = xs≢[] refl
-∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] = ∀f {x} (here refl) (L.All.lookup ∀≡[] (here refl))
+∀mapWith∈≡[] {xs = x ∷ xs} {f} ∀f _      ∀≡[] =
+  ∀f {x} (here refl) (L.All.lookup ∀≡[] (here refl))
 
 filter≡[] : {P : A → Type} {P? : Decidable¹ P} {xs : List A}
   → filter P? xs ≡ []
@@ -75,7 +75,8 @@ filter≡[] {P = P} {P?} {x ∷ xs} eq
 ¬Null⇒∃x {xs = []}     ¬p = ⊥-elim $ ¬p refl
 ¬Null⇒∃x {xs = x ∷ xs} _  = x , here refl
 
-postulate Null-++⁻ : Null (xs ++ ys) → Null xs × Null ys
+Null-++⁻ : Null (xs ++ ys) → Null xs × Null ys
+Null-++⁻ {xs = []} {[]} _ = refl , refl
 
 module _ (f : A → Maybe B) where
   Null-mapMaybe⁺ : Null xs → Null (mapMaybe f xs)

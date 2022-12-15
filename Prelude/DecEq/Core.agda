@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.DecEq.Core where
 
 open import Prelude.Init; open SetAsType
@@ -15,9 +16,6 @@ record DecEq (A : Type ℓ) : Type ℓ where
 
   infix 4 _≟_ _==_ _≠_
 
-  ≟-refl : ∀ x → (x ≟ x) ≡ yes refl
-  ≟-refl x with refl , p ← dec-yes (x ≟ x) refl = p
-
 open DecEq ⦃...⦄ public
 
 Irrelevant⇒DecEq : Irrelevant A → DecEq A
@@ -26,17 +24,6 @@ Irrelevant⇒DecEq ∀≡ ._≟_ = yes ∘₂ ∀≡
 instance
   DecEq-⊤ : DecEq ⊤
   DecEq-⊤ ._≟_ = Unit._≟_
-
-  DecEq-Σ : ∀ {A : Type ℓ} {B : A → Type ℓ′}
-    → ⦃ _ : DecEq A ⦄ ⦃ _ : ∀ {x} → DecEq (B x) ⦄
-    → DecEq (Σ A B)
-  DecEq-Σ ._≟_ (x , y) (x′ , y′)
-    with x ≟ x′
-  ... | no ¬p    = no λ{ refl → ¬p refl }
-  ... | yes refl
-    with y ≟ y′
-  ... | no ¬p    = no λ{ refl → ¬p refl }
-  ... | yes refl = yes refl
 
   DecEq-⊎ : ⦃ _ : DecEq A ⦄ ⦃ _ : DecEq B ⦄ → DecEq (A ⊎ B)
   DecEq-⊎ ._≟_ = Sum.≡-dec _≟_ _≟_
@@ -61,15 +48,6 @@ instance
 
   DecEq-List : ⦃ _ : DecEq A ⦄ → DecEq (List A)
   DecEq-List ._≟_ = L.≡-dec _≟_
-
-  DecEq-List⁺ : ⦃ _ : DecEq A ⦄ → DecEq (List⁺ A)
-  DecEq-List⁺ ._≟_ (x ∷ xs) (y ∷ ys)
-    with x ≟ y
-  ... | no x≢y = no λ{ refl → x≢y refl }
-  ... | yes refl
-    with xs ≟ ys
-  ... | no xs≢ys = no λ{ refl → xs≢ys refl }
-  ... | yes refl = yes refl
 
   DecEq-Vec : ⦃ _ : DecEq A ⦄ → ∀ {n} → DecEq (Vec A n)
   DecEq-Vec ._≟_ = V.≡-dec _≟_

@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Ord.Maybe where
 
 open import Prelude.Init; open SetAsType

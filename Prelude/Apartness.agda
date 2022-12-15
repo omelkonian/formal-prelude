@@ -1,8 +1,8 @@
+{-# OPTIONS --safe #-}
 module Prelude.Apartness where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.ToList
-open import Prelude.DecLists
 open import Prelude.Decidable
 
 record _//_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ lsuc ℓ″) where
@@ -21,8 +21,7 @@ private variable
   n : ℕ
 
 -- Unit test to check support for relating types at different levels.
-private
-  postulate X₁ : Type₁
+private module _ (X₁ : Type₁) where
   _ : ℕ // X₁
   _ = λ where ._♯_ _ → const ⊤
 
@@ -75,24 +74,3 @@ instance
 
   Apart-Vec-List⁺ : Vec X n // List⁺ X
   Apart-Vec-List⁺ = toList²⇒//
-
-open import Prelude.DecEq
-private
-  _ : List X // List X
-  _ = it
-
-  _ : Vec X n // Vec X n
-  _ = it
-
-  _ : Vec X n // List X
-  _ = it
-
-  _ : List⁺ X // Vec X n
-  _ = it
-
-  _ : T (isYes ((List ℕ ∋ []) ♯? (List ℕ ∋ [])))
-  _ = auto
-
-  -- T0D0: improve `auto` to cover this
-  _ : (List ℕ ∋ []) ♯ (List ℕ ∋ [])
-  _ = toWitness {Q = ¿ (List ℕ ∋ []) ♯ (List ℕ ∋ []) ¿} auto

@@ -3,6 +3,8 @@
 --   * Membership using Is-just (_∉_ as negation)
 --   * Disjointness with ¬ (_×_)
 ------------------------------------------------------------------------
+
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.DecEq

@@ -1,9 +1,12 @@
 -- ** irrelevant version of Data.List.Relation.Binary.Permutation
+
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Irrelevance.List.Permutation where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Decidable
 open import Prelude.InferenceRules
 open import Prelude.Bifunctor

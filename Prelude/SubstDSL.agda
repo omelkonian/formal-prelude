@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.SubstDSL where
 
 open import Prelude.Init; open SetAsType
@@ -29,15 +30,14 @@ syntax substʳ″           eq p =           eq ~: p
 
 -- [T0D0] macro that automagically finds which context P to use
 
-private
-  postulate
-    n m : ℕ
-    n≡m : n ≡ m
-    P : Pred₀ ℕ
-    pₙ : P n
-    pₘ : P m
-    p : P m × P n
-    p₇ : P 7
+module _ (n m : ℕ)
+  (n≡m : n ≡ m)
+  (P : Pred₀ ℕ)
+  (pₙ : P n)
+  (pₘ : P m)
+  (p : P m × P n)
+  (p₇ : P 7)
+  where private
 
   -- backward
   _ : P n

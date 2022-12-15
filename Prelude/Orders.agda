@@ -1,9 +1,10 @@
+{-# OPTIONS --safe #-}
 module Prelude.Orders where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Decidable
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 module _ {A : Type ℓ} where
 

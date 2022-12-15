@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Traversable where
 
 open import Prelude.Init; open SetAsType
@@ -32,19 +33,18 @@ instance
   TraversableA-Maybe .sequenceA (just x) = ⦇ just x ⦈
 
   TraversableM-Maybe : TraversableM Maybe
-  TraversableM-Maybe .sequenceM nothing  = return nothing
-  TraversableM-Maybe .sequenceM (just x) = x >>= return ∘ just
+  TraversableM-Maybe .sequenceM = sequenceA
 
   TraversableA-List : TraversableA List
-  TraversableA-List .sequenceA []       = pure []
-  TraversableA-List .sequenceA (m ∷ ms) = ⦇ m ∷ sequenceA ms ⦈
+  TraversableA-List .sequenceA = go where go = λ where
+    []       → pure []
+    (m ∷ ms) → ⦇ m ∷ go ms ⦈
 
   TraversableM-List : TraversableM List
-  TraversableM-List .sequenceM []       = return []
-  TraversableM-List .sequenceM (m ∷ ms) = do x ← m; xs ← sequenceM ms; return (x ∷ xs)
+  TraversableM-List .sequenceM = sequenceA
 
   TraversableA-List⁺ : TraversableA List⁺
   TraversableA-List⁺ .sequenceA (m ∷ ms) = ⦇ m ∷ sequenceA ms ⦈
 
   TraversableM-List⁺ : TraversableM List⁺
-  TraversableM-List⁺ .sequenceM (m ∷ ms) = do x ← m; xs ← sequenceM ms; return (x ∷ xs)
+  TraversableM-List⁺ .sequenceM = sequenceA

@@ -1,7 +1,8 @@
+{-# OPTIONS --safe #-}
 module Prelude.Setoid.Maybe where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.Setoid
+open import Prelude.Setoid.Core
 
 private variable A : Type ℓ
 

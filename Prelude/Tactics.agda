@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Tactics where
 
 open import Prelude.Tactics.Intro public

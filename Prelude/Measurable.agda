@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Measurable where
 
 open import Induction
@@ -6,9 +7,9 @@ open import Data.Nat.Induction
 import Relation.Binary.Construct.On as On
 
 open import Prelude.Init; open SetAsType
+open Nat
 open import Prelude.General
-open import Prelude.DecEq
-open import Prelude.Ord
+open import Prelude.DecEq.Core
 
 record Measurable {ℓ} (A : Type ℓ) : Type ℓ where
   field
@@ -73,17 +74,3 @@ Measurable-List₁ {A = A} .∣_∣ = go
     go : List A → ℕ
     go [] = 1
     go (x ∷ xs) = ∣ x ∣ + go xs
-
-private
-  instance _ = Measurable-List₁
-
-  list>0 : ∀ ⦃ _ : Measurable A ⦄ (xs : List A)
-    → ∣ xs ∣ > 0
-  list>0 [] = s≤s z≤n
-  list>0 (x ∷ xs) with ∣ x ∣
-  ... | 0     = list>0 xs
-  ... | suc _ = s≤s z≤n
-
-  ≺ᵐ-∷ : ∀ {A : Type} ⦃ _ : Measurable A ⦄ (x : A) (xs : List A)
-    → (x ≺ᵐ (x ∷ xs))
-  ≺ᵐ-∷ x xs = x<x+y ∣ x ∣ (list>0 xs)

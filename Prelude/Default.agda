@@ -2,6 +2,7 @@
 -- Typeclass for types with default values.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --safe #-}
 module Prelude.Default where
 
 open import Prelude.Init; open SetAsType

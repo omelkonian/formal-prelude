@@ -1,5 +1,6 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 module Prelude.Sets.Abstract {A : Type} ⦃ _ : DecEq A ⦄ where
 

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Bifunctor where
 
 open import Prelude.Init; open SetAsType

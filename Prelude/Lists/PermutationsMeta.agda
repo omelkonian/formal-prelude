@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Meta-properties of permuting lists with _↭_.
 
+{-# OPTIONS --with-K #-}
 module Prelude.Lists.PermutationsMeta where
 
 open import Prelude.Init; open SetAsType

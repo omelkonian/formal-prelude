@@ -1,5 +1,6 @@
 {-# OPTIONS -v try:100 #-}
 -- {-# OPTIONS -v DecEq:100 #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Tactics.Try where
 
 open import Prelude.Init
@@ -8,7 +9,7 @@ open Meta
 open import Prelude.Generics
 open Debug ("try" , 100)
 open import Prelude.Lists
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Show
 open import Prelude.Monoid
 open import Prelude.Functor

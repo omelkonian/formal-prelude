@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.Functor
 
@@ -31,9 +32,9 @@ over : Lens I O → (I → I) → (O → O)
 over l f o = l Id f o
 -- runIdentity $ l (Identity . f) o
 
-view : Lens I O → O → I
--- view {I = I} l o = l (Const I) id o
-view {I = I} l o = {!!}
+-- view : Lens I O → O → I
+-- -- view {I = I} l o = l (Const I) id o
+-- view {I = I} l o = {!!}
 
 -- l₁ : Lens A (A × B)
 -- l₁ F f (x , y) = (_, y) ⟨$⟩ f x

@@ -1,3 +1,5 @@
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Ord where
 
 open import Prelude.Ord.Core public

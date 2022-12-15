@@ -1,4 +1,5 @@
 {-# OPTIONS -v rewrite:100 #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Tactics.Rewrite where
 
 open import Prelude.Init

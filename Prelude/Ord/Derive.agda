@@ -1,4 +1,5 @@
 {-# OPTIONS -v ord:100 #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Ord.Derive where
 
 open import Prelude.Init

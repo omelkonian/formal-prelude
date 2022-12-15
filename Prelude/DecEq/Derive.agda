@@ -1,4 +1,6 @@
 {-# OPTIONS -v DecEq:100 #-}
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 module Prelude.DecEq.Derive where
 
 open import Prelude.Init
@@ -21,6 +23,7 @@ open import Prelude.Monad
 open import Prelude.ToN
 
 open import Prelude.DecEq.Core
+open import Prelude.DecEq.WithK
 
 -------------------------------
 -- ** Generic deriving of DecEq

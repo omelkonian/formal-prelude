@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Concat where
 
 open import Prelude.Init; open SetAsType

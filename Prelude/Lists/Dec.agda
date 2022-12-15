@@ -1,16 +1,17 @@
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open L.Any using (index)
 open L.Mem using (∈-map⁺; ∈-map⁻)
 open L.All using (lookup; ¬All⇒Any¬; ¬Any⇒All¬)
 open L.Perm using (drop-∷; drop-mid; ∈-resp-↭)
-open import Prelude.Lists
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Membership
 open import Prelude.Decidable
 open import Prelude.Ord
-open import Prelude.Lists.Count
+open import Prelude.Lists
 
-module Prelude.DecLists {a} {A : Type a} ⦃ _ : DecEq A ⦄ where
+module Prelude.Lists.Dec {a} {A : Type a} ⦃ _ : DecEq A ⦄ where
 
 private variable
   x y z : A

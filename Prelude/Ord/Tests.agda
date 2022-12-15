@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Ord.Tests where
 
 open import Prelude.Init; open SetAsType
@@ -5,6 +6,7 @@ open import Prelude.General
 open import Prelude.Nary
 open import Prelude.DecEq
 open import Prelude.Ord
+open import Prelude.Ord.Postulates
 
 -- ** min/max
 _ = min 10 20 ≡ 10

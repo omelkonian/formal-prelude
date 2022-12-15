@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Mappings as total functions from membership proofs of a finite list.
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Mappings where
 
 open import Prelude.Init; open SetAsType

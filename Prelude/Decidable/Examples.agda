@@ -1,7 +1,9 @@
+{-# OPTIONS --safe --with-K #-}
 module Prelude.Decidable.Examples where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
+open import Prelude.DecEq.WithK
 open import Prelude.Nary
 
 open import Prelude.Decidable.Core

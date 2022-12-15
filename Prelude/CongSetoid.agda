@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.CongSetoid where
 
 open import Prelude.Init; open SetAsType

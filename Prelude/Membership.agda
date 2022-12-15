@@ -1,8 +1,9 @@
+{-# OPTIONS --safe #-}
 module Prelude.Membership where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.Functor
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 import Data.List.Membership.DecPropositional as DL
 import Data.Vec.Membership.DecPropositional as DV
 

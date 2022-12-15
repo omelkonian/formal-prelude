@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Bags.Examples where
 
 open import Prelude.Init

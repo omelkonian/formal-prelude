@@ -2,6 +2,7 @@
 -- General utilities
 ------------------------------------------------------------------------
 
+{-# OPTIONS --safe #-}
 module Prelude.General where
 
 open import Data.Nat.Properties
@@ -9,9 +10,6 @@ open import Data.Nat.Properties
 open import Prelude.Init hiding (_⊆_; _⊈_)
 open SetAsType
 open Nat.Ord
-open import Prelude.Applicative
-open import Prelude.Functor
-open import Prelude.Bifunctor
 
 private variable
   A : Type ℓ₁
@@ -222,177 +220,6 @@ _∧-×_ : ∀ {x y}
   → x ∧ y ≡ true
 refl ∧-× refl = refl
 
--- ** Nats
-
-∸-suc : ∀ m n → n ≤ m → suc (m ∸ n) ≡ suc m ∸ n
-∸-suc zero    zero    _         = refl
-∸-suc (suc m) zero    _         = refl
-∸-suc (suc m) (suc n) (s≤s n≤m) = ∸-suc m n n≤m
-
-∸-∸-comm : ∀ m n o → (m ∸ n) ∸ o ≡ (m ∸ o) ∸ n
-∸-∸-comm m n o rewrite Nat.∸-+-assoc m n o | Nat.+-comm n o | Nat.∸-+-assoc m o n = refl
-
-+-reassoc : ∀ m n o → m + (n + o) ≡ n + (o + m)
-+-reassoc m n o =
-  begin
-    m + (n + o)
-  ≡⟨ Nat.+-comm m (n + o) ⟩
-    (n + o) + m
-  ≡⟨ Nat.+-assoc n o m ⟩
-    n + (o + m)
-  ∎ where open ≡-Reasoning
-
-+-reassoc˘ : ∀ m n o → m + (n + o) ≡ n + (m + o)
-+-reassoc˘ m n o =
-  begin
-    m + (n + o)
-  ≡⟨ sym $ Nat.+-assoc m n o ⟩
-    (m + n) + o
-  ≡⟨ cong (_+ o) $ Nat.+-comm m n ⟩
-    (n + m) + o
-  ≡⟨ Nat.+-assoc n m o ⟩
-    n + (m + o)
-  ∎ where open ≡-Reasoning
-
-∸-∸-assoc : ∀ m n o → n < m → o ≤ n → m ∸ (n ∸ o) ≡ (m ∸ n) + o
-∸-∸-assoc m _       zero    _     _       = sym $ Nat.+-identityʳ _
-∸-∸-assoc m (suc n) (suc o) 1+n<m (s≤s p)
-  with n<m ← ≤-trans Nat.pred[n]≤n 1+n<m
-  rewrite ∸-∸-assoc m n o n<m p | Nat.+-suc (m ∸ suc n) o =
-  begin
-    m ∸ n + o
-  ≡⟨ cong (_+ o) $ sym $ Nat.suc[pred[n]]≡n $ Nat.m>n⇒m∸n≢0 n<m ⟩
-    suc (Nat.pred (m ∸ n)) + o
-  ≡⟨ cong (λ ◆ → suc (◆ + o)) $ Nat.pred[m∸n]≡m∸[1+n] m n ⟩
-    suc (m ∸ suc n + o)
-  ∎ where open ≡-Reasoning
-
-x+y+0≡y+x+0 : ∀ x y → x + (y + 0) ≡ (y + x) + 0
-x+y+0≡y+x+0 x y rewrite sym (+-assoc x y 0) | +-comm x y = refl
-
-1+[m∸[1+n]]≡m∸n : ∀ m n → n < m → suc (m ∸ suc n) ≡ m ∸ n
-1+[m∸[1+n]]≡m∸n m n = sym ∘ Nat.+-∸-assoc 1
-
-m+z∸n+z≡m∸n : ∀ m n z → (m + z) ∸ (n + z) ≡ m ∸ n
-m+z∸n+z≡m∸n m n zero rewrite Nat.+-identityʳ m | Nat.+-identityʳ n = refl
-m+z∸n+z≡m∸n m n (suc z) rewrite Nat.+-suc m z | Nat.+-suc n z = m+z∸n+z≡m∸n m n z
-m∸[z+o]∸n∸[w+o]≡[m∸z]∸[n∸w] : ∀ m n z o w → o ≤ n ∸ w →
-  (m ∸ (z + o)) ∸ (n ∸ (w + o)) ≡ (m ∸ z) ∸ (n ∸ w)
-m∸[z+o]∸n∸[w+o]≡[m∸z]∸[n∸w] m n z o w o≤
-  rewrite sym $ Nat.∸-+-assoc m z o | sym $ Nat.∸-+-assoc n w o
-  = begin
-    (m ∸ z ∸ o) ∸ (n ∸ w ∸ o)
-  ≡⟨⟩
-    ((m ∸ z) ∸ o) ∸ ((n ∸ w) ∸ o)
-  ≡⟨ ∸-∸-comm (m ∸ z) o ((n ∸ w) ∸ o) ⟩
-    ((m ∸ z) ∸ ((n ∸ w) ∸ o)) ∸ o
-  ≡⟨ Nat.∸-+-assoc (m ∸ z) ((n ∸ w) ∸ o) o ⟩
-    (m ∸ z) ∸ (((n ∸ w) ∸ o) + o)
-  ≡⟨ cong ((m ∸ z) ∸_) $ Nat.m∸n+n≡m {(n ∸ w)} {o} o≤ ⟩
-    (m ∸ z) ∸ (n ∸ w)
-  ∎ where open ≡-Reasoning
-
-m≡n⇒m∸n≡0 : ∀ {m n} → m ≡ n → m ∸ n ≡ 0
-m≡n⇒m∸n≡0 {m}{.m} refl = Nat.n∸n≡0 m
-
-1+n∸n≡1 : ∀ n → 1 + n ∸ n ≡ 1
-1+n∸n≡1 n = trans (Nat.+-∸-assoc 1 {n = n} Nat.≤-refl) (cong suc $ Nat.n∸n≡0 n)
-
-m≡n⇒1+m∸n≡1 : ∀ {m n} → m ≡ n → 1 + m ∸ n ≡ 1
-m≡n⇒1+m∸n≡1 {m}{.m} refl = 1+n∸n≡1 m
-
-postulate
-  ¬x>0⇒x≡0 : ∀ {x} → ¬ (x > 0) → x ≡ 0
-  x≡0⇒¬x>0 : ∀ {x} → x ≡ 0 → ¬ (x > 0)
-  x≤0⇒x≡0 : ∀ {x} → x ≤ 0 → x ≡ 0
-  x>0,x≤1⇒x≡1 : ∀ {x} → x > 0 → x ≤ 1 → x ≡ 1
-  ≤-+ˡ : ∀ {x y z} → x + y ≤ z → x ≤ z
-  ≤-+ʳ : ∀ {x y z} → x + y ≤ z → y ≤ z
-  x+y≤y⇒x≡0 : ∀ {x y} → x + y ≤ y → x ≡ 0
-  ¬>⇒≤ : ∀ {m n} → ¬ (m > n) → m ≤ n
-  x+y>x⇒y>0 : ∀ {x y} → x + y > x → y > 0
-  ≥-+-swapˡ : ∀ {x x′ y} → x ≥ x′ → x + y ≥ x′ + y
-  ≥-+-swapʳ : ∀ {x y y′} → y ≥ y′ → x + y ≥ x + y′
-  ≥-+-swapˡʳ : ∀ {x y x′ y′} → x ≥ x′ → y ≥ y′ → x + y ≥ x′ + y′
-  ¬i≥x+y : ∀ {i x y} → i ≤ 1 → x > 0 → y > 0 → ¬ (i ≥ x + y)
-  x<x+1 : ∀ x → x < x + 1
-  +-helper : ∀ {x y z} → x ≡ y + z → y > 0 → z > 0 → (y < x) × (z < x)
-  x<x+y : ∀ {y} x → y > 0 → x < x + y
-  juxtapose-+/< : x < x′ → y < y′ → x + y < x′ + y′
-
-x≤0⇒x≡0′ : ∀ {n m} → n ≡ 0 → m ≤ n → m ≡ 0
-x≤0⇒x≡0′ refl = x≤0⇒x≡0
-
-≥-trans : Transitive _≥_
-≥-trans x≥y y≥z = ≤-trans y≥z x≥y
-
--- ** Maybes
-
-toMaybe : List A → Maybe A
-toMaybe []      = nothing
-toMaybe (x ∷ _) = just x
-
-toMaybe-≡ : ∀ {x : A} {xs : List A}
-  → toMaybe xs ≡ just x
-  → ∃[ ys ] (xs ≡ x ∷ ys)
-toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
-
-ap-nothing : ∀ {A : Type ℓ} {B : Type ℓ′} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
-ap-nothing {m = nothing} ()
-ap-nothing {m = just _ } ()
-
-Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Type}
- → mx ≡ just x
- → M.Any.Any P mx
- → P x
-Any-just refl (M.Any.just p) = p
-
-Any⇒Is-just : ∀ {mx : Maybe A} {P : A → Type}
- → M.Any.Any P mx
- → Is-just mx
-Any⇒Is-just {mx = .(just _)} (M.Any.just _) = M.Any.just tt
-
-module _ {A : Type ℓ} where
-  is-nothing? : Decidable¹ (T ∘ M.is-nothing {A = A})
-  is-nothing? = T? ∘ M.is-nothing
-
-  is-just? : Decidable¹ (T ∘ M.is-just {A = A})
-  is-just? = T? ∘ M.is-just
-
-  is-just≡ : ∀ {mx : Maybe A} → T (M.is-just mx) → ∃ λ x → mx ≡ just x
-  is-just≡ {mx = just _} _ = -, refl
-
-  ¬is-just≡ : ∀ {mx : Maybe A} → ¬ T (M.is-just mx) → mx ≡ nothing
-  ¬is-just≡ {mx = just _}  p = ⊥-elim $ p tt
-  ¬is-just≡ {mx = nothing} _ = refl
-
-  Is-just? : (mx : Maybe A) → Dec (Is-just mx)
-  Is-just? = M.Any.dec λ _ → yes tt
-
-  Is-just⇒≢nothing : ∀ {mx : Maybe A} → Is-just mx → mx ≢ nothing
-  Is-just⇒≢nothing {mx = nothing} () _
-  Is-just⇒≢nothing {mx = just _} _ ()
-
-  Is-nothing≡ : ∀ {mx : Maybe A} → Is-nothing mx → mx ≡ nothing
-  Is-nothing≡ {mx = nothing} _ = refl
-  Is-nothing≡ {mx = just _} (M.All.just ())
-
-  ¬Is-just⇒Is-nothing : ∀ {mx : Maybe A} → ¬ Is-just mx → Is-nothing mx
-  ¬Is-just⇒Is-nothing {mx = nothing} _ = M.All.nothing
-  ¬Is-just⇒Is-nothing {mx = just _}  p = ⊥-elim $ p (M.Any.just tt)
-
-  destruct-Is-just : ∀ {mx : Maybe A}
-    → Is-just mx
-    → ∃ λ x → mx ≡ just x
-  destruct-Is-just {mx = nothing} ()
-  destruct-Is-just {mx = just _}  _ = _ , refl
-
-  MAll⇒¬MAny : ∀ {m : Maybe A} → M.All.All (const ⊥) m → ¬ M.Any.Any (const ⊤) m
-  MAll⇒¬MAny {m = nothing} M.All.nothing ()
-
-  mk-Is-just : ∀ {mx : Maybe A} {x : A} → mx ≡ just x → Is-just mx
-  mk-Is-just refl = M.Any.just tt
-
 -- ** Deriving relations from more primitive ones.
 module Derive-⊆-from-∈ {A : Type ℓ} {B : Type ℓ′} (_∈_ : A → B → Type ℓ″) where
   infix 4 _⊆_ _⊈_
@@ -412,9 +239,6 @@ module Derive-⊆-from-∈ {A : Type ℓ} {B : Type ℓ′} (_∈_ : A → B →
 
 []-injective : [ x ] ≡ [ y ] → x ≡ y
 []-injective refl = refl
-
-sequence : List (Maybe A) → Maybe (List A)
-sequence = foldr (λ c cs → ⦇ c ∷ cs ⦈) (just [])
 
 open L.Mem using (_∈_)
 
@@ -476,54 +300,3 @@ module MultiTest where
     ⋮ 1 , ≤-step (≤-step ≤-refl)
     ⋮ 0 , ≤-step (≤-step (≤-step ≤-refl))
     ⋮∅
-
--- ** Strings
-
-String∗ = List Char
-
-apply∗ : (String∗ → String∗) → (String → String)
-apply∗ f = Str.fromList ∘ f ∘ Str.toList
-
-{-# TERMINATING #-}
-words∗ : String∗ → List (String∗ × String∗)
-words∗ [] = []
-words∗ s  =
-  let
-    ws , s′ = L.span (T? ∘ Ch.isSpace) s
-    w , s″ = L.span (T? ∘ not ∘ Ch.isSpace) s′
-  in
-    (ws , w) ∷ words∗ s″
-words = map (map₁₂ Str.fromList) ∘ words∗ ∘ Str.toList
-
-unwords∗ : List (String∗ × String∗) → String∗
-unwords∗ = concatMap (uncurry _++_)
-
-_ : words "a horse  and a    sheep" ≡
-  ( ("" , "a")
-  ∷ (" " , "horse")
-  ∷ ("  " , "and")
-  ∷ (" " , "a")
-  ∷ ("    " , "sheep")
-  ∷ [])
-_ = refl
-
-mapWords∗ : (String∗ → String∗) → String∗ → String∗
-mapWords∗ f = unwords∗ ∘ map (map₂ f) ∘ words∗
-
-mapWords : (String∗ → String∗) → String → String
-mapWords = apply∗ ∘ mapWords∗
-
-removeQualifiers∗ : String∗ → String∗
-removeQualifiers∗ = L.reverse ∘ go ∘ L.reverse
-  where
-    go : String∗ → String∗
-    go s = case takeWhile (¬? ∘ ('.' Ch.≟_)) s of λ where
-      []         → s
-      s′@(_ ∷ _) → s′
-
-removeQualifiers : String → String
-removeQualifiers = mapWords removeQualifiers∗
-
-_ : removeQualifiers "open import Agda.Builtin.Char public -- hmm..."
-  ≡ "open import Char public -- hmm..."
-_ = refl

@@ -1,7 +1,7 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lift where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.General
 open Lvl public using (Lift; lift; lower)
 
 ↑ℓ : Type ℓ → {ℓ′ : Level} → Type (ℓ ⊔ₗ ℓ′)

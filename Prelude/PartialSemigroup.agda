@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.PartialSemigroup where
 
 open import Prelude.Init; open SetAsType

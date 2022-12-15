@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Sets where
 
 -- ** pick implementation to export

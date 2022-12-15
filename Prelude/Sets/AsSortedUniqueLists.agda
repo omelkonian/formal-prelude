@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Data.List.Relation.Unary.Linked using ([])
 
 open import Prelude.Init; open SetAsType
@@ -7,12 +8,13 @@ open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.ToList
 open import Prelude.FromList
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Ord
 open import Prelude.Irrelevance hiding (_─_)
 open import Prelude.Irrelevance.Dec
 open import Prelude.Membership
 open import Prelude.Lists
+open import Prelude.Lists.WithK
 open import Prelude.Bifunctor
 open import Prelude.Setoid
 open import Prelude.Null

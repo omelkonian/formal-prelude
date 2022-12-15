@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Irrelevance.Nat where
 
 open import Prelude.Init

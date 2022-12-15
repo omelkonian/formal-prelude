@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Foldable where
 
 open import Prelude.Init; open SetAsType
@@ -18,8 +19,9 @@ instance
   Foldable-Maybe .foldMap f (just x) = f x
 
   Foldable-List : Foldable List
-  Foldable-List .foldMap f [] = ε
-  Foldable-List .foldMap f (x ∷ xs) = f x ◇ foldMap f xs
+  Foldable-List .foldMap f = go where go = λ where
+    [] → ε
+    (x ∷ xs) → f x ◇ go xs
 
   Foldable-List⁺ : Foldable List⁺
   Foldable-List⁺ .foldMap f (x ∷ xs) = f x ◇ foldMap f xs

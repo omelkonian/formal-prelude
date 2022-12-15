@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.ToList where
 
 open import Prelude.Init; open SetAsType

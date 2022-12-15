@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Bitstring where
 
 open import Data.Digit as D public using (Bit)

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Setoid.Dec where
 
 open import Prelude.Init; open SetAsType

@@ -1,4 +1,5 @@
 -- T0D0 add indexed version like stdlib
+{-# OPTIONS --safe #-}
 module Prelude.Applicative where
 
 open import Prelude.Init; open SetAsType

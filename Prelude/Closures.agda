@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Closures where
 
 open import Prelude.Init; open SetAsType
@@ -563,7 +564,7 @@ private
         .relℓ → _
         ._≈_  → _≡_
 
-    open import Prelude.DecEq
+    open import Prelude.DecEq.Core
     open UpToLabelledReflexiveTransitiveClosure _—[_]→_
 
     _ : 10 —[ [] ]↠ 10

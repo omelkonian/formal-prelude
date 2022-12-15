@@ -1,9 +1,12 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lists.MapMaybe where
 
 open import Prelude.Init; open SetAsType
 open Nat.Ord
 open L.Mem
 open import Prelude.General
+open import Prelude.Maybes
+open import Prelude.Nats
 open import Prelude.InferenceRules
 open import Prelude.Bifunctor
 open import Prelude.Split
@@ -195,75 +198,6 @@ module _ (f : A → Maybe B) where
        indexℕ (Any[ xs ]⇒ p) ≡ indexℕ p
     indexℕ∘Any⇒ {xs = xs} p rewrite mapMaybe≗mapMaybe′ f xs = refl
 
-    indexℕ-Any-catMaybes⁺ : ∀ {xs : List (Maybe B)} (p : Any (M.Any.Any P) xs)
-      → indexℕ (Any-catMaybes⁺ p) ≡ indexℕ p ∸ count is-nothing? (p ∙left)
-    indexℕ-Any-catMaybes⁺ {xs = nothing ∷ xs} (there p) = indexℕ-Any-catMaybes⁺ {xs = xs} p
-    indexℕ-Any-catMaybes⁺ {xs = just x ∷ _}   (here (M.Any.just _)) = refl
-    indexℕ-Any-catMaybes⁺ {xs = just x ∷ xs}  (there p) =
-      begin
-        indexℕ (there {x = x} (Any-catMaybes⁺ p))
-      ≡⟨⟩
-        suc (indexℕ $ Any-catMaybes⁺ p)
-      ≡⟨ cong suc $ indexℕ-Any-catMaybes⁺ p ⟩
-        suc (indexℕ p ∸ ⊥⋯p)
-      ≡⟨ ∸-suc (indexℕ p) ⊥⋯p (⊥≤ p) ⟩
-        suc (indexℕ p) ∸ ⊥⋯p
-      ≡⟨ cong (suc (indexℕ p) ∸_) $ sym $ c≡ (p ∙left) ⟩
-        suc (indexℕ p) ∸ count is-nothing? ((there {x = just x} p) ∙left)
-      ≡⟨⟩
-        indexℕ (there {x = just x} p) ∸ (MapMaybeDSL.⊥⋯ id) (there {x = just x} p)
-      ∎ where
-        open ≡-Reasoning
-        ⊥⋯p = count is-nothing? (p ∙left)
-
-        c≡ : ∀ xs → count is-nothing? (just x ∷ xs) ≡ count is-nothing? xs
-        c≡ xs = cong length $ L.filter-reject is-nothing? {x = just x} {xs = xs} (λ ())
-
-        ⊥≤ : ∀ {xs} (p : Any (M.Any.Any P) xs) → count is-nothing? (p ∙left) ≤ indexℕ p
-        ⊥≤ (here (M.Any.just _)) = z≤n
-        ⊥≤ {xs = xs} (there {x = just x} p)
-          rewrite L.filter-reject is-nothing? {x = just x} {xs = xs} (λ ())
-          = Nat.≤-step (⊥≤ p)
-        ⊥≤ {xs = xs} (there {x = nothing} p)
-          rewrite L.filter-accept is-nothing? {x = nothing} {xs = xs} tt
-          = s≤s (⊥≤ p)
-
-    indexℕ-Any-mapMaybe′⁺ : ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
-      → indexℕ (Any-mapMaybe′⁺ x∈) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
-    indexℕ-Any-mapMaybe′⁺ {xs = xs} p =
-      begin
-        indexℕ (Any-mapMaybe′⁺ p)
-      ≡⟨⟩
-        indexℕ (Any-catMaybes⁺ $ L.Any.map⁺ p)
-      ≡⟨ indexℕ-Any-catMaybes⁺ (L.Any.map⁺ p) ⟩
-        indexℕ (L.Any.map⁺ p) ∸ count is-nothing? ((L.Any.map⁺ p) ∙left)
-      ≡⟨ cong (_∸ count is-nothing? ((L.Any.map⁺ p) ∙left)) $ indexℕ-Any-map⁺ p ⟩
-        indexℕ p ∸ count is-nothing? ((L.Any.map⁺ p) ∙left)
-      ≡⟨ cong (indexℕ p ∸_) $ c≡ p ⟩
-        indexℕ p ∸ ⊥⋯ p
-      ∎ where
-        open ≡-Reasoning
-        c≡ : ∀ {xs : List A} (p : Any (M.Any.Any P ∘ f) xs)
-          → count is-nothing? ((L.Any.map⁺ {P = M.Any.Any P} p) ∙left)
-          ≡ ⊥⋯ p
-        c≡ {xs = x ∷ xs} (here px) with just _ ← f x = refl
-        c≡ {xs = x ∷ xs} (there p)
-          with IH ← c≡ p
-          with f x
-        ... | nothing = cong suc IH
-        ... | just _  = IH
-
-    indexℕ-Any-mapMaybe⁺ : ∀ (x∈ : Any (M.Any.Any P ∘ f) xs)
-      → indexℕ (Any-mapMaybe⁺ x∈) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
-    indexℕ-Any-mapMaybe⁺ {xs = xs} p =
-      begin
-        indexℕ (Any-mapMaybe⁺ p)
-      ≡⟨ indexℕ∘Any⇒ {xs = xs} (Any-mapMaybe′⁺ p) ⟩
-        indexℕ (Any-mapMaybe′⁺ p)
-      ≡⟨ indexℕ-Any-mapMaybe′⁺ p ⟩
-        indexℕ p ∸ ⊥⋯ p
-      ∎ where open ≡-Reasoning
-
   ≡just⇒MAny :
       f x ≡ just y
     → (x ≡_) ⊆¹ M.Any.Any (_≡_ y) ∘ f
@@ -434,25 +368,3 @@ module _ (f : A → Maybe B) where
   indexℕ-mapMaybe≡0 : ∀ {y : B} (fx≡ : f x ≡ just y)
     → indexℕ (∈-mapMaybe⁺ (here {x = x} {xs = xs} refl) fx≡) ≡ 0
   indexℕ-mapMaybe≡0 {y = y} eq = indexℕ-Any-mapMaybe≡0 {y = y} (≡just⇒MAny eq refl)
-
-  indexℕ-mapMaybe⁺ : ∀ {y : B} (x∈ : x ∈ xs) (fx≡ : f x ≡ just y)
-    → indexℕ (∈-mapMaybe⁺ x∈ fx≡) ≡ indexℕ x∈ ∸ ⊥⋯ x∈
-  indexℕ-mapMaybe⁺ {xs = xs} {y = y} x∈ eq =
-    begin
-      indexℕ (∈-mapMaybe⁺ x∈ eq)
-    ≡⟨⟩
-      indexℕ (Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈)
-    ≡⟨ indexℕ-Any-mapMaybe⁺ $ L.Any.map (≡just⇒MAny eq) x∈ ⟩
-      indexℕ (L.Any.map (≡just⇒MAny eq) x∈) ∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)
-    ≡⟨ cong (_∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)) $ indexℕ-Any-map x∈ ⟩
-      indexℕ x∈ ∸ ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈)
-    ≡⟨ cong (indexℕ x∈ ∸_) $ ⊥-map eq x∈ ⟩
-      indexℕ x∈ ∸ ⊥⋯ x∈
-    ∎ where
-      open ≡-Reasoning
-      ⊥-map : ∀ {x} {xs} (eq : f x ≡ just y) (x∈ : x ∈ xs) →
-        ⊥⋯ (L.Any.map (≡just⇒MAny eq) x∈) ≡ ⊥⋯ x∈
-      ⊥-map {xs = _ ∷ _}  _  (here _)   = refl
-      ⊥-map {xs = x ∷ xs} eq (there x∈) with f x
-      ... | nothing = cong suc (⊥-map eq x∈)
-      ... | just _  = ⊥-map eq x∈

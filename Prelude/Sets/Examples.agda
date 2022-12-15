@@ -1,8 +1,9 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Sets.Examples where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Decidable
 open import Prelude.FromList
 open import Prelude.Semigroup

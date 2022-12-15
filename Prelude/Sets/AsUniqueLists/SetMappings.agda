@@ -1,6 +1,6 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open L.Mem using (∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
-open import Prelude.DecLists
 open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.ToList
@@ -17,6 +17,7 @@ open import Prelude.Lists.Core
 open import Prelude.Lists.MapMaybe
 open import Prelude.Lists.SetEquality
 open import Prelude.Lists.Concat
+open import Prelude.Lists.Dec
 
 open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
 import Relation.Binary.Reasoning.Setoid as BinSetoid

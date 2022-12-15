@@ -1,4 +1,6 @@
 -- ** Conjuctive classes: gather up different instances together
+
+{-# OPTIONS --safe #-}
 module Prelude.ConjClass where
 
 open import Prelude.Init; open SetAsType

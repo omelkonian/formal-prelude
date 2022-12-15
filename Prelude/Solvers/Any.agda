@@ -1,3 +1,5 @@
+{-# OPTIONS --with-K #-}
+
 open import Prelude.Init
 open import Prelude.DecEq
 open import Prelude.Functor

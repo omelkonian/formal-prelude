@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Sets.Collections where
 
 open import Prelude.Init; open SetAsType

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Sublists where
 
 open import Prelude.Init; open SetAsType

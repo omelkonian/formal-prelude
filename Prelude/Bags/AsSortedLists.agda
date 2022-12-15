@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Decidable
@@ -7,7 +8,7 @@ open import Prelude.Orders
 open import Prelude.Ord
 open import Prelude.Irrelevance hiding (_─_)
 open import Prelude.Lists.Count
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Setoid
 open import Prelude.Semigroup
 open import Prelude.Apartness

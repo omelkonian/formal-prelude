@@ -1,8 +1,8 @@
-open import Prelude.Init
-open SetAsType
+{-# OPTIONS --with-K #-}
+open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Decidable
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Membership
 open import Prelude.ToList
 open import Prelude.FromList

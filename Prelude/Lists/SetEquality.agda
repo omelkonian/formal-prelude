@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Lists.SetEquality where
 
 open import Data.List.Relation.Binary.BagAndSetEquality
@@ -7,7 +8,7 @@ open L.Mem
 open import Data.List.Relation.Binary.Subset.Propositional.Properties using (Any-resp-⊆)
 open import Prelude.General
 open import Prelude.InferenceRules
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.DecEq
 open import Prelude.Lists.Core
 open import Prelude.Lists.Membership

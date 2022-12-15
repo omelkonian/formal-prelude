@@ -1,12 +1,13 @@
 -------------------------------------------------
--- *** Deriving à la Haskell
+-- Deriving à la Haskell
+-------------------------------------------------
 
+{-# OPTIONS --safe #-}
 module Prelude.Generics.Deriving where
 
 open import Prelude.Init; open Meta
 open import Prelude.Functor
 open import Prelude.Monad
-open import Prelude.Show
 open import Prelude.Lift
 open import Prelude.General
 
@@ -40,7 +41,7 @@ private
       else quote ↑ω_ ∙⟦ ty ⟧
 
   `toString : Name → Term
-  `toString = lit ∘′ string ∘ show
+  `toString = lit ∘′ string ∘ Meta.Show.showName
 
 macro
   DERIVE : Name → Tactic
@@ -83,23 +84,25 @@ private
   instance
     _ : DERIVABLE X 1
     _ = λ where .derive → λ where
-      ((n , f) ∷ []) → declarePostulate (vArg f) (n ∙)
+      ((n , f) ∷ []) → do
+        declareDef (vArg f) (n ∙)
+        defineFun f [ clause [] [] (lit $′ nat 0) ]
       _ → return tt
-
-  postulate instance
-    _ : DERIVABLE Y 1
-    _ : DERIVABLE X₀ 1
-    _ : DERIVABLE Y₀ 1
-    _ : DERIVABLE ∅ 0
-
-  _ : List (Derivation 0)
-  _ = DERIVE X
-    ∷ DERIVE Y
-    ∷ DERIVE X₀
-    ∷ DERIVE Y₀
-    ∷ DERIVE ∅
-    ∷ []
 
   unquoteDecl X-ℕ = DERIVE X [ quote ℕ , X-ℕ ]
   _ : ℕ
   _ = X-ℕ
+
+  module _
+    ⦃ _ : DERIVABLE Y 1 ⦄
+    ⦃ _ : DERIVABLE X₀ 1 ⦄
+    ⦃ _ : DERIVABLE Y₀ 1 ⦄
+    ⦃ _ : DERIVABLE ∅ 0 ⦄
+    where
+    _ : List (Derivation 0)
+    _ = DERIVE X
+      ∷ DERIVE Y
+      ∷ DERIVE X₀
+      ∷ DERIVE Y₀
+      ∷ DERIVE ∅
+      ∷ []

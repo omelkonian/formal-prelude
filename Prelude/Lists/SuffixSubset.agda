@@ -1,9 +1,12 @@
+{-# OPTIONS --safe --with-K #-}
 module Prelude.Lists.SuffixSubset where
 
 open import Prelude.Init; open SetAsType
 open L.Mem
 open Nat; open Nat.Ord
 open import Prelude.General
+open import Prelude.Nats
+open import Prelude.Maybes
 open import Prelude.InferenceRules
 open import Prelude.Split
 open import Prelude.Null
@@ -16,6 +19,8 @@ open import Prelude.Lists.Count
 open import Prelude.Lists.Mappings
 open import Prelude.Lists.Membership
 open import Prelude.Lists.MapMaybe
+
+open import Prelude.Lists.WithK
 
 -- ** Suffix⊆
 module _ {A : Type ℓ} where

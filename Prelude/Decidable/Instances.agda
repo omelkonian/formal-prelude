@@ -1,8 +1,9 @@
+{-# OPTIONS --safe #-}
 module Prelude.Decidable.Instances where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.Decidable.Core
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 private variable
   A : Type ℓ; B : Type ℓ′

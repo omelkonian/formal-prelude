@@ -1,11 +1,9 @@
+{-# OPTIONS --safe #-}
 module Prelude.Irrelevance.Core where
 
 open import Prelude.Init; open SetAsType
 
-private variable
-  A : Type ℓ
-  B : Type ℓ′
-  P : A → Type ℓ″
+private variable A B : Type ℓ; P : A → Type ℓ
 
 -- A type is squashed when all of its values are equal.
 record ·_ (A : Type ℓ) : Type ℓ where
@@ -41,9 +39,6 @@ instance
 
   ·-⊤ : · ⊤
   ·-⊤ .∀≡ tt tt = refl
-
-  ·-≡ : ∀ {x y : A} → · (x ≡ y)
-  ·-≡ .∀≡ refl refl = refl
 
   ·-× : ⦃ · A ⦄ → ⦃ · B ⦄ → · (A × B)
   ·-× .∀≡ (x , y) (x′ , y′) rewrite ∀≡ x x′ | ∀≡ y y′ = refl

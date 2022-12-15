@@ -1,6 +1,7 @@
 -------------------------------------------------
 -- ** Errors, debugging
 
+-- {-# OPTIONS --safe #-}
 module Prelude.Generics.Debug where
 
 open import Prelude.Init; open Meta
@@ -13,7 +14,7 @@ open import Prelude.Applicative
 open import Prelude.Foldable
 open import Prelude.Traversable
 open import Prelude.Show
-open import Prelude.Lists
+open import Prelude.Lists.Indexed
 
 open import Prelude.Generics.Core
 

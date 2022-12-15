@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Maps.Examples where
 
 open import Prelude.Init; open SetAsType

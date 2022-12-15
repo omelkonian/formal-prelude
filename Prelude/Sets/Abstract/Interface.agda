@@ -1,16 +1,16 @@
+{-# OPTIONS --safe #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.InferenceRules
 open import Prelude.Membership
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Decidable
 open import Prelude.Semigroup
 open import Prelude.Applicative
 open import Prelude.Measurable
 open import Prelude.Apartness
 open import Prelude.Setoid
-open import Prelude.ToList
-open import Prelude.FromList
+open import Prelude.ToList; open import Prelude.FromList
 open import Prelude.Null
 
 module Prelude.Sets.Abstract.Interface (A : Type) (σ : Level) where

@@ -1,13 +1,15 @@
 -- ** irrelevant version of Data.List.Membership
+{-# OPTIONS --safe --with-K #-}
 module Prelude.Irrelevance.List.Membership where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Decidable
 open import Prelude.InferenceRules
 
 open import Prelude.Irrelevance.Core
+open import Prelude.Irrelevance.WithK
 open import Prelude.Irrelevance.Empty
 
 private pattern 𝟙 = L.Fst.[ refl ]; pattern 𝟚 x = x ∷ L.Fst.[ refl ]

@@ -1,9 +1,10 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.ToList
 open import Prelude.FromList
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Orders
 open import Prelude.Ord
 open import Prelude.Irrelevance

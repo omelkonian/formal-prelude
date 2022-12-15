@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Match where
 
 open import Prelude.Init

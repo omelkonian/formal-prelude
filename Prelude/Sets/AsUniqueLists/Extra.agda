@@ -1,8 +1,9 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Sets.AsUniqueLists.Extra where
 
 open import Prelude.Init; open SetAsType
 open L.Mem using (∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
-open import Prelude.DecLists
+open import Prelude.Lists.Dec
 open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.ToList

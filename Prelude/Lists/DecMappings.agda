@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Mappings as ???
 
+{-# OPTIONS --safe --with-K #-}
 module Prelude.Lists.DecMappings where
 
 open import Prelude.Init; open SetAsType

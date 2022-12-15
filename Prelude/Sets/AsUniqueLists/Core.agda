@@ -1,12 +1,14 @@
 ------------------------------------------------------------------------
 -- Sets as unique lists.
 ------------------------------------------------------------------------
-
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open import Prelude.General
 open import Prelude.Lists
-open import Prelude.DecLists
+open import Prelude.Lists.WithK
+open import Prelude.Lists.Postulates
+open import Prelude.Lists.Dec
 open import Prelude.Membership
 open import Prelude.DecEq
 open import Prelude.Measurable

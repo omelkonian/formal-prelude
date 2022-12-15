@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 
 module Prelude.Maps {K V : Type} where

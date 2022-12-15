@@ -1,4 +1,8 @@
--- ** Emulating Haskell's newtype feature.
+----------------------------------------
+-- Emulating Haskell's newtype feature.
+----------------------------------------
+
+{-# OPTIONS --safe #-}
 module Prelude.Newtype where
 
 open import Prelude.Init; open SetAsType

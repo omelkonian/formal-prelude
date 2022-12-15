@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Indexed operations on lists.
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Indexed where
 
 open import Prelude.Init; open SetAsType
@@ -187,14 +188,6 @@ private variable
 indexℕ : Any P xs → ℕ
 indexℕ = toℕ ∘ L.Any.index
 
-indexℕ-injective : ∀ (p q : x ∈ xs) →
-  indexℕ p ≡ indexℕ q
-  ───────────────────
-  p ≡ q
-indexℕ-injective {xs = .(_ ∷ _)} (here refl) (here refl) i≡ = refl
-indexℕ-injective {xs = .(_ ∷ _)} (there p) (there q) i≡
-  = cong there $ indexℕ-injective p q $ Nat.suc-injective {indexℕ p} {indexℕ q} i≡
-
 indexℕ-Any-map : ∀ {f : P ⊆¹ Q}
   → (x∈ : Any P xs)
   → indexℕ (L.Any.map f x∈)
@@ -325,18 +318,6 @@ map-‼ {xs = _ ∷ xs} {f = f} (there x∈) rewrite map-‼ {xs = xs} {f = f} x
 ‼→⁉ {xs = []}     {()}
 ‼→⁉ {xs = x ∷ xs} {fzero}   = refl
 ‼→⁉ {xs = x ∷ xs} {fsuc ix} = ‼→⁉ {xs = xs} {ix}
-
-⁉→‼ : ∀ {xs ys : List A} {ix : Index xs}
-    → (len≡ : length xs ≡ length ys)
-    → (xs ⁉ toℕ ix) ≡ (ys ⁉ toℕ ix)
-    → (xs ‼ ix) ≡ (ys ‼ F.cast len≡ ix)
-⁉→‼ {xs = []}     {[]}      {ix}      len≡ eq   = refl
-⁉→‼ {xs = []}     {x ∷ ys}  {ix}      () eq
-⁉→‼ {xs = x ∷ xs} {[]}      {ix}      () eq
-⁉→‼ {xs = x ∷ xs} {.x ∷ ys} {fzero}   len≡ refl = refl
-⁉→‼ {xs = x ∷ xs} {y ∷ ys}  {fsuc ix} len≡ eq
-  rewrite ‼-suc {x = x} {xs} {ix}
-        = ⁉→‼ {xs = xs} {ys} {ix} (Nat.suc-injective len≡) eq
 
 ‼-index : (x∈xs : x ∈ xs)
         → (xs ‼ L.Any.index x∈xs) ≡ x

@@ -1,11 +1,13 @@
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Ord.List where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Lift
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 open import Prelude.Decidable
-open import Prelude.Irrelevance
+open import Prelude.Irrelevance.Core
 
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec

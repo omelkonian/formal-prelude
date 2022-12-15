@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Membership where
 
 open import Prelude.Init; open SetAsType
@@ -132,34 +133,6 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
   ... | yes p = cong there IH
   ... | no ¬p = cong there IH
 
-  ∈-filter⁻-injective : ∀ {xs} (x∈ x∈′ : x ∈ filter P? xs)
-    → ∈-filter⁻ P? {xs = xs} x∈ ≡ ∈-filter⁻ P? {xs = xs} x∈′
-    → x∈ ≡ x∈′
-  ∈-filter⁻-injective {xs = x ∷ xs} x∈ x∈′ eq
-    with P? x | x∈ | x∈′ | eq
-  ... | no  _ | x∈ | x∈′ | eq
-    = ∈-filter⁻-injective x∈ x∈′
-    $ map×-injective L.Any.there-injective id eq
-  ... | yes _ | here px | here .px | refl = refl
-  ... | yes _ | there x∈ | there x∈′ | eq
-      = cong there
-      $ ∈-filter⁻-injective x∈ x∈′
-      $ map×-injective L.Any.there-injective id eq
-
-  ∈-filter⁻∙proj₁-injective : ∀ {xs} (x∈ x∈′ : x ∈ filter P? xs)
-    → ∈-filter⁻ P? {xs = xs} x∈ .proj₁ ≡ ∈-filter⁻ P? {xs = xs} x∈′ .proj₁
-    → x∈ ≡ x∈′
-  ∈-filter⁻∙proj₁-injective {xs = x ∷ xs} x∈ x∈′ eq
-    with P? x | x∈ | x∈′ | eq
-  ... | no  _ | x∈ | x∈′ | eq
-    = ∈-filter⁻∙proj₁-injective x∈ x∈′
-    $ L.Any.there-injective eq
-  ... | yes _ | here px | here .px | refl = refl
-  ... | yes _ | there x∈ | there x∈′ | eq
-    = cong there
-    $ ∈-filter⁻∙proj₁-injective x∈ x∈′
-    $ L.Any.there-injective eq
-
 -- ** map
 ∈-map⁻inverseˡ : ∀ (f : A → B) (f⁻¹ : B → A) →
   ∙ Inverse≡ˡ {A = B} f⁻¹ f
@@ -184,46 +157,26 @@ mapWith∈-∀ : ∀ {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B 
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (L.Any.here refl)
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ L.Any.there) y∈
 
-postulate
-  mapWith∈-id :  mapWith∈ xs (λ {x} _ → x) ≡ xs
-  map∘mapWith∈ : ∀ {xs : List A} {f : B → C} {g : ∀ {x} → x ∈ xs → B} → map f (mapWith∈ xs g) ≡ mapWith∈ xs (f ∘ g)
-
-  filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A} {x : A} {xs : List A} {ys : List B}
-    → (x∈ : x ∈ map f ys)
-    → Unique ys
-    → filter ((_∈? (x ∷ xs)) ∘ f) ys
-    ↭ (proj₁ ∘ ∈-map⁻ f) x∈ ∷ filter ((_∈? xs) ∘ f) ys
--- filter-exists {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {x = x} {xs = xs} {ys = ys} x∈ uniq
---   with ∈-map⁻ f x∈
--- ... | y , y∈ , refl -- y∈  : y ∈ ys
---   with ∈-filter⁺ (_∈? (x ∷ xs) ∘ f) y∈ (here refl)
--- ... | y∈′           -- y∈′ : y ∈ filter _ ys
---     = begin
---         filter ((_∈? (x ∷ xs)) ∘ f) ys
---       ↭⟨ {!!} ⟩
---         y ∷ filter ((_∈? xs) ∘ f) ys
---       ∎ where open PermutationReasoning
-
-mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
-                    {xs : List A} {ys : List B}
-  → (p⊆ : xs ⊆ map f ys)
-  → Unique ys
-  → mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆)
-  ↭ filter ((_∈? xs) ∘ f) ys
-mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = []}     {ys = ys} p⊆ uniq =
-  ↭-sym (↭-reflexive $ L.filter-none ((_∈? []) ∘ f) (L.All.universal (λ _ ()) ys))
-mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {ys = ys} p⊆ uniq =
-  begin
-    mapWith∈ (x ∷ xs) get
-  ≡⟨⟩
-    get {x} _ ∷ mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆ ∘ there)
-  ↭⟨ ↭-prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
-    get {x} _ ∷ filter ((_∈? xs) ∘ f) ys
-  ↭⟨ ↭-sym (filter-exists {_∈?_ = _∈?_} (p⊆ (here refl)) uniq) ⟩
-    filter ((_∈? (x ∷ xs)) ∘ f) ys
-  ∎ where open PermutationReasoning
-          get : ∀ {x′} → x′ ∈ x ∷ xs → B
-          get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
+-- mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
+--                     {xs : List A} {ys : List B}
+--   → (p⊆ : xs ⊆ map f ys)
+--   → Unique ys
+--   → mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆)
+--   ↭ filter ((_∈? xs) ∘ f) ys
+-- mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = []}     {ys = ys} p⊆ uniq =
+--   ↭-sym (↭-reflexive $ L.filter-none ((_∈? []) ∘ f) (L.All.universal (λ _ ()) ys))
+-- mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {ys = ys} p⊆ uniq =
+--   begin
+--     mapWith∈ (x ∷ xs) get
+--   ≡⟨⟩
+--     get {x} _ ∷ mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆ ∘ there)
+--   ↭⟨ ↭-prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
+--     get {x} _ ∷ filter ((_∈? xs) ∘ f) ys
+--   ↭⟨ ↭-sym (filter-exists {_∈?_ = _∈?_} (p⊆ (here refl)) uniq) ⟩
+--     filter ((_∈? (x ∷ xs)) ∘ f) ys
+--   ∎ where open PermutationReasoning
+--           get : ∀ {x′} → x′ ∈ x ∷ xs → B
+--           get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
 
 -- ** Unique
 
@@ -239,12 +192,6 @@ Unique-mapWith∈ {xs = []}     {f = f} f≡ = []
 Unique-mapWith∈ {xs = x ∷ xs} {f = f} f≡
   = L.All.tabulate (mapWith∈-∀ {P = f (L.Any.here refl) ≢_} λ _ eq → case f≡ eq of λ () )
   ∷ Unique-mapWith∈ {xs = xs} (F.suc-injective ∘ f≡)
-
-∈-irr : Unique xs → Irrelevant (x ∈ xs)
-∈-irr (x∉ ∷ _)  (here refl) (here refl) = refl
-∈-irr (x∉ ∷ _)  (here refl) (there x∈)  = ⊥-elim $ L.All.lookup x∉ x∈ refl
-∈-irr (x∉ ∷ _)  (there x∈)  (here refl) = ⊥-elim $ L.All.lookup x∉ x∈ refl
-∈-irr (_  ∷ un) (there p)   (there q)   = cong there $ ∈-irr un p q
 
 -- ** Any/All
 
@@ -269,21 +216,6 @@ lookup∈ = λ where
 ⊆-resp-Any xs⊆ = λ where
   (here px) → L.Any.map (λ{ refl → px }) (xs⊆ $ here refl)
   (there p) → ⊆-resp-Any (xs⊆ ∘ there) p
-
-postulate
-  lookup≡find∘map⁻ : ∀ {xs : List A} {f : A → B} {P : Pred₀ B}
-    → (p : Any P (map f xs))
-    → L.Any.lookup p ≡ f (proj₁ $ find $ L.Any.map⁻ p)
-
-  Any-lookup∘map : ∀ {P Q : Pred₀ A}
-    → (P⊆Q : ∀ {x} → P x → Q x)
-    → (p : Any P xs)
-    → L.Any.lookup (L.Any.map P⊆Q p) ≡ L.Any.lookup p
-
-  lookup∘∈-map⁺ : ∀ {f : A → B}
-    → (x∈ : x ∈ xs)
-    → L.Any.lookup (∈-map⁺ f x∈) ≡ f x
-
 
 -- ** drop
 
@@ -315,19 +247,6 @@ indexℕ-++⁺ˡ : (x∈ : x ∈ xs) → indexℕ (∈-++⁺ˡ {ys = ys} x∈) �
 indexℕ-++⁺ˡ = λ where
   (here _) → refl
   (there x∈) → cong suc (indexℕ-++⁺ˡ x∈)
-
-indexℕ-++⁻ : ∀ (y∈ : y ∈ ys) (y∈′ : y ∈ xs ++ ys) →
-  indexℕ y∈′ ≡ length xs + indexℕ y∈
-  ──────────────────────────────────
-  ∈-++⁻ xs {ys} y∈′ ≡ inj₂ y∈
-indexℕ-++⁻ {xs = []}     y∈ y∈′         i≡ = cong inj₂ $ indexℕ-injective y∈′ y∈ i≡
-indexℕ-++⁻ {xs = x ∷ xs} y∈ (there y∈′) i≡ = qed
-  where
-    IH : ∈-++⁻ xs y∈′ ≡ inj₂ y∈
-    IH = indexℕ-++⁻ {xs = xs} y∈ y∈′ (Nat.suc-injective i≡)
-
-    qed : ∈-++⁻ (x ∷ xs) (there y∈′) ≡ inj₂ y∈
-    qed rewrite IH = refl
 
 -- ** Last∈
 

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Prelude.Ord.Instances where
 
 import Relation.Binary.Construct.On as On
@@ -6,7 +7,7 @@ import Data.List.Relation.Binary.Lex.Strict as StrictLex
 open import Prelude.Init; open SetAsType
 open import Prelude.General
 open import Prelude.Decidable
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 open import Prelude.Irrelevance.Nat
 
@@ -59,25 +60,6 @@ instance
   DecOrd-Char : DecOrd Char
   DecOrd-Char = record {}
 
-  OrdLaws-Char : OrdLaws Char
-  OrdLaws-Char = record
-    { Ch
-    ; ≤-refl = Ch.≤-reflexive refl
-    ; <-trans = λ {i}{j}{k} → Ch.<-trans {i}{j}{k}
-    ; ≤-total = ≤-total-Char
-    ; <-resp₂-≡ = <-resp₂-≡-Char
-    ; <⇒≤ = <⇒≤-Char
-    ; <⇒≢ = <⇒≢-Char
-    ; ≤∧≢⇒< = ≤∧≢⇒<-Char
-    } where
-      postulate
-        ≤-total-Char : Total Ch._≤_
-        <-resp₂-≡-Char : Ch._<_ Respects₂ _≡_
-        <⇔≤∧≢-Char : _<_ ⇔² (Ch._≤_ ∩² _≢_)
-        <⇒≤-Char : Ch._<_ ⇒² Ch._≤_
-        <⇒≢-Char : Ch._<_ ⇒² _≢_
-        ≤∧≢⇒<-Char : Ch._≤_ ∩² _≢_ ⇒² Ch._<_
-
   Ord-String = Ord String ∋ record {Str}
 
   Dec-<String : Str._<_ ⁇²
@@ -90,10 +72,3 @@ instance
   DecOrd-String = λ where
     .Dec-≤ {x}{y} → Dec-≤String {x}{y}
     .Dec-< {x}{y} → Dec-<String {x}{y}
-
-  postulate
-    OrdLaws-String : OrdLaws String
-    ·Ord-String : ·Ord String
-
-  Ord⁺⁺-String : Ord⁺⁺ String
-  Ord⁺⁺-String = mkOrd⁺⁺

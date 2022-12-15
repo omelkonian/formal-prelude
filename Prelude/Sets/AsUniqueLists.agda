@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Sets.AsUniqueLists where
 
 open import Prelude.Sets.AsUniqueLists.Core  public

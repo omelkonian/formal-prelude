@@ -2,6 +2,7 @@
 -- Unsafe utilities (for Haskell primitives)
 ------------------------------------------------------------------------
 
+{-# OPTIONS --with-K #-}
 module Prelude.Unsafe where
 
 open import Function.Definitions using (Injective)

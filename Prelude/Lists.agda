@@ -2,6 +2,7 @@
 -- List utilities.
 ------------------------------------------------------------------------
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists where
 
 import Data.List.Relation.Binary.Pointwise as PW
@@ -15,10 +16,7 @@ open import Prelude.InferenceRules
 open import Prelude.Bifunctor
 
 private variable
-  a b c : Level
-  A : Type a
-  B : Type b
-  C : Type c
+  A B C : Type ℓ
 
   x y : A
   xs ys : List A
@@ -40,7 +38,6 @@ open import Prelude.Lists.Membership public
 open import Prelude.Lists.Singletons public
 open import Prelude.Lists.MapMaybe public
 open import Prelude.Lists.Mappings public
-open import Prelude.Lists.SuffixSubset public
 open import Prelude.Lists.Sublists public
 
 -- ** Prefix relation, instantiated for propositional equality.
@@ -60,13 +57,6 @@ suffix-refl xs = here (PW.≡⇒Pointwise-≡ refl)
 ∈⇒Suffix {ys = x ∷ xs}  (here refl) = xs , here (refl ∷ PW.refl refl)
 ∈⇒Suffix {ys = _ ∷ ys′} (there x∈) = map₂′ there (∈⇒Suffix x∈)
 
-postulate
-  Suffix⇒⊆ : {xs ys : List A} → Suffix≡ xs ys → xs ⊆ ys
-
-  proj₁∘∈⇒Suffix≡ : {xs : List⁺ A} {ys zs : List A} (∀x∈ : All⁺ (_∈ ys) xs) (ys≼ : Suffix≡ ys zs)
-    → (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last ∘ L.All.map (Suffix⇒⊆ ys≼)) ∀x∈
-    ≡ (proj₁ ∘ ∈⇒Suffix ∘ All⁺-last) ∀x∈
-
 -- ** Interleaving.
 open import Data.List.Relation.Ternary.Interleaving using (_∷ˡ_; _∷ʳ_)
 
@@ -77,7 +67,7 @@ pattern keepˡ_ p = refl ∷ˡ p
 pattern keepʳ_ p = refl ∷ʳ p
 
 -- ** Finite sets.
-Finite : Type a → Type a
+Finite : Type ℓ → Type ℓ
 Finite A = ∃[ n ] (A Fun.↔ Fin n)
 
 finList : Finite A → List A

@@ -1,3 +1,5 @@
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --with-K #-}
 module Prelude.Lists.Collections where
 
 open import Prelude.Init; open SetAsType

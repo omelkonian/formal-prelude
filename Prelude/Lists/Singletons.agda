@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------
 -- Singleton predicate for various kinds of lists.
 
+{-# OPTIONS --safe #-}
 module Prelude.Lists.Singletons where
 
 open import Prelude.Init; open SetAsType
@@ -105,32 +106,6 @@ ams-filter⁺ {xs = x ∷ []}    {P? = P?} tt with P? x
 ... | no  _ = tt
 ams-filter⁺ {xs = _ ∷ _ ∷ _}           ()
 
-postulate
-  ams-filter-map : ∀ {xs : List A} {f : A → B} {P : Pred₀ B} {P? : Decidable¹ P}
-    → AtMostSingleton $ filter P? (map f xs)
-    → AtMostSingleton $ filter (P? ∘ f) xs
-
-  ams-filter-reject : ∀ {x : A} {xs : List A} {P : Pred₀ A}
-    → (P? : Decidable¹ P)
-    → ¬ P x
-    → AtMostSingleton $ filter P? xs
-    → AtMostSingleton $ filter P? (x ∷ xs)
-
-  ams-filter-accept : ∀ {x : A} {xs : List A} {P : Pred₀ A}
-    → (P? : Decidable¹ P)
-    → P x
-    → Null $ filter P? xs
-    → AtMostSingleton $ filter P? (x ∷ xs)
-
-  length≤1⇒ams : ∀ {xs : List A}
-    → length xs ≤ 1
-    → AtMostSingleton xs
-
-  ams-count : ∀ {P : Pred₀ A} {P? : Decidable¹ P} {xs : List A} {f : A → Maybe B}
-    → (∀ x → P x → Is-just (f x))
-    → count P? xs ≤ 1
-    → AtMostSingleton (mapMaybe f xs)
-
 am-¬null⇒singleton : ∀ {xs : List A}
   → AtMostSingleton xs
   → ¬Null xs
@@ -172,9 +147,6 @@ singleton⇒singleton⁺ : ∀ {A : Type ℓ} {xs : List A} {xs≢[] : ¬ Null x
   → Singleton xs
   → Singleton⁺ (toList⁺ xs xs≢[])
 singleton⇒singleton⁺ p rewrite destruct-Singleton p .proj₂ = tt
-
-postulate
-  singleton⁺-map⁺ : ∀ {xs : List⁺ A} {f : A → B} → Singleton⁺ xs → Singleton⁺ (L.NE.map f xs)
 
 ---
 
