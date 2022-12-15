@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Prelude.Init; open SetAsType
 open import Prelude.DecEq
 open import Prelude.Semigroup
