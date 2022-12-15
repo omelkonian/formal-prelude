@@ -33,10 +33,10 @@ module _ {A : Type ℓ} {B : Type ℓ′} ⦃ _ : Ord A ⦄ ⦃ _ : Ord B ⦄ wh
   module _ ⦃ _ : DecOrd A ⦄ ⦃ _ : DecOrd B ⦄ where
     _<⊎?_ : Decidable² _<⊎_
     _<⊎?_ = λ where
-      (≪ x) (≪ y) → Nullary.map′ lift lower (x <? y)
+      (≪ x) (≪ y) → ↑ℓ-dec (x <? y)
       (≪ _) (≫ _) → yes it
       (≫ _) (≪ _) → no λ ()
-      (≫ x) (≫ y) → Nullary.map′ lift lower (x <? y)
+      (≫ x) (≫ y) → ↑ℓ-dec (x <? y)
 
     instance
       Dec<-⊎ : _<⊎_ ⁇²

@@ -10,6 +10,7 @@ open import Prelude.Decidable
 open import Prelude.DecEq.Core
 
 open import Prelude.Irrelevance.Nat
+open import Prelude.Irrelevance.Int
 
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec
@@ -51,6 +52,12 @@ instance
     ; ≤∧≢⇒< = uncurry Integer.≤∧≢⇒<
     ; <-resp₂-≡ = subst (_ Integer.<_) , subst (Integer._< _)
     }
+
+  ·Ord-ℤ : ·Ord ℤ
+  ·Ord-ℤ = mk·Ord
+
+  Ord⁺⁺-ℤ : Ord⁺⁺ ℤ
+  Ord⁺⁺-ℤ = mkOrd⁺⁺
 
   Ord-Char = Ord Char ∋ record {Ch}
 

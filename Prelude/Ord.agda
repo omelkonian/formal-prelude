@@ -13,6 +13,7 @@ open import Prelude.Ord.Iso public
 open import Prelude.Ord.Instances public
 open import Prelude.Ord.List public
 open import Prelude.Ord.Sum public
+open import Prelude.Ord.These public
 -- T0D0: cannot export these without breaking instance resolution
 open import Prelude.Ord.Product -- public
 open import Prelude.Ord.Maybe -- public
