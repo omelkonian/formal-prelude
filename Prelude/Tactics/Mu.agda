@@ -12,8 +12,6 @@ open import Prelude.Semigroup
 open import Prelude.Functor
 open import Prelude.DecEq
 
-open import Prelude.Tactics
-
 ex : ℕ → ℕ
 ex = go where go = λ where
   0 → 0

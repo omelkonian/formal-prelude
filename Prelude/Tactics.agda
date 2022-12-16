@@ -7,3 +7,5 @@ open import Prelude.Tactics.Eta public
 open import Prelude.Tactics.Rewrite public
 open import Prelude.Tactics.Extra public
 open import Prelude.Tactics.Existentials public
+open import Prelude.Tactics.Mu public
+open import Prelude.Tactics.Collect public
