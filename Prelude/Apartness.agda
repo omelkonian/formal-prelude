@@ -5,7 +5,7 @@ open import Prelude.Init; open SetAsType
 open import Prelude.ToList
 open import Prelude.Decidable
 
-record _//_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ lsuc ℓ″) where
+record _//_ (A : Type ℓ) (B : Type ℓ′) {ℓ″} : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ lsuc ℓ″) where
   infix 4 _♯_
   field _♯_ : A → B → Type ℓ″
 
@@ -14,7 +14,7 @@ record _//_ (A : Type ℓ) (B : Type ℓ′) : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ ls
 open _//_ ⦃...⦄ public
 
 _//^⦅_⦆_ : ∀ (A : Type ℓ) ℓ (B : Type ℓ′) → Type _
-A //^⦅ ℓ″ ⦆ B = _//_ {ℓ″ = ℓ″} A B
+A //^⦅ ℓ″ ⦆ B = _//_ A B {ℓ″}
 
 private variable
   X : Type ℓ; Y : Type ℓ′; Z : Type ℓ″

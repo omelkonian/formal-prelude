@@ -2,13 +2,15 @@
 module Prelude.Sets.Examples where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.DecEq
-open import Prelude.Lists.Dec
-open import Prelude.Decidable
-open import Prelude.FromList
 open import Prelude.Semigroup
 open import Prelude.Ord
+open import Prelude.Irrelevance
 open import Prelude.Apartness
+open import Prelude.Nary
+open import Prelude.ToList; open import Prelude.FromList
+open import Prelude.DecEq
+open import Prelude.Decidable
+open import Prelude.Lists.Dec
 
 private
   module Implementation1 where
@@ -26,10 +28,8 @@ private
 
   module Implementation3 where
     open import Prelude.Sets.AsSortedUniqueLists
-    open import Prelude.Nary
-    open import Prelude.ToList; open import Prelude.FromList
-    open import Prelude.Ord; open import Prelude.Irrelevance
 
+    _ = Set⟨ ℕ ⟩ ∋ ∅
     _ = toList (Set⟨ ℕ ⟩ ∋ fromList
         ⟦ 0 , 5 , 2 , 0 ⟧)
       ≡ ⟦ 0 , 2 , 5 ⟧
@@ -42,6 +42,20 @@ private
   module AbstractExample where
     open import Prelude.Sets.Abstract
 
+    _ = Set⟨ ℕ ⟩ ∋ ∅
+    _ = Set⟨ ℕ ⟩ ∋ singleton 5 ∪ singleton 10
+    _ = Decidable² {A = ℕ} _∈ˢ_ ∋ _∈ˢ?_
+    _ = DecEq Set⟨ ℕ ⟩ ∋ it
+
+    _ : 1 ∈ˢ (singleton 0 ∪ singleton 1 ∪ singleton 2)
+    -- _ = there (here refl) -- ✖ DOES NOT COMPUTE, AS EXPECTED!
+    _ = ∈-∪⁺ʳ _ _ _ (∈-∪⁺ˡ _ _ _ (singleton∈ˢ .proj₂ refl))
+
+  module AbstractOrderedExample where
+    open import Prelude.Sets.AsSortedUniqueLists.Abstract
+    -- open import Prelude.Ord.Product
+
+    _ = Set⟨ ℕ ⟩ ∋ ∅ˢ
     _ = Set⟨ ℕ ⟩ ∋ singleton 5 ∪ singleton 10
     _ = Decidable² {A = ℕ} _∈ˢ_ ∋ _∈ˢ?_
     _ = DecEq Set⟨ ℕ ⟩ ∋ it
@@ -58,6 +72,8 @@ private
 
     _ : 1 ∈ˢ (singleton 0 ∪ singleton 1 ∪ singleton 2)
     _ = there (here refl) -- ✓ COMPUTES, AS EXPECTED!
+
+    _ = Set⟨ ℕ ⟩ ∋ ∅
 
     -- ** singleton
     x = Set⟨ ℕ ⟩ ∋ singleton 10
