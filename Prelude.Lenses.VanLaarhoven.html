@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Lenses.VanLaarhoven</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Lenses/VanLaarhoven.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">open</a> <a id="29" class="Keyword">import</a> <a id="36" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="48" class="Symbol">;</a> <a id="50" class="Keyword">open</a> <a id="55" href="Prelude.Init.html#504" class="Module">SetAsType</a>
+<a id="65" class="Keyword">open</a> <a id="70" class="Keyword">import</a> <a id="77" href="Prelude.Functor.html" class="Module">Prelude.Functor</a>
+
+<a id="94" class="Keyword">module</a> <a id="101" href="Prelude.Lenses.VanLaarhoven.html" class="Module">Prelude.Lenses.VanLaarhoven</a> <a id="129" class="Keyword">where</a>
+
+<a id="136" class="Keyword">record</a> <a id="Functor′"></a><a id="143" href="Prelude.Lenses.VanLaarhoven.html#143" class="Record">Functor′</a> <a id="152" class="Symbol">(</a><a id="153" href="Prelude.Lenses.VanLaarhoven.html#153" class="Bound">F</a> <a id="155" class="Symbol">:</a> <a id="157" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="162" class="Symbol">→</a> <a id="164" href="Agda.Primitive.html#320" class="Primitive">Type</a><a id="168" class="Symbol">)</a> <a id="170" class="Symbol">:</a> <a id="172" href="Agda.Primitive.html#320" class="Primitive">Type₁</a> <a id="178" class="Keyword">where</a>
+  <a id="186" class="Keyword">field</a> <a id="Functor′.fmap′"></a><a id="192" href="Prelude.Lenses.VanLaarhoven.html#192" class="Field">fmap′</a> <a id="198" class="Symbol">:</a> <a id="200" class="Symbol">∀</a> <a id="202" class="Symbol">{</a><a id="203" href="Prelude.Lenses.VanLaarhoven.html#203" class="Bound">A</a> <a id="205" href="Prelude.Lenses.VanLaarhoven.html#205" class="Bound">B</a> <a id="207" class="Symbol">:</a> <a id="209" href="Agda.Primitive.html#320" class="Primitive">Type</a><a id="213" class="Symbol">}</a> <a id="215" class="Symbol">→</a> <a id="217" class="Symbol">(</a><a id="218" href="Prelude.Lenses.VanLaarhoven.html#203" class="Bound">A</a> <a id="220" class="Symbol">→</a> <a id="222" href="Prelude.Lenses.VanLaarhoven.html#205" class="Bound">B</a><a id="223" class="Symbol">)</a> <a id="225" class="Symbol">→</a> <a id="227" class="Symbol">(</a><a id="228" href="Prelude.Lenses.VanLaarhoven.html#153" class="Bound">F</a> <a id="230" href="Prelude.Lenses.VanLaarhoven.html#203" class="Bound">A</a> <a id="232" class="Symbol">→</a> <a id="234" href="Prelude.Lenses.VanLaarhoven.html#153" class="Bound">F</a> <a id="236" href="Prelude.Lenses.VanLaarhoven.html#205" class="Bound">B</a><a id="237" class="Symbol">)</a>
+  <a id="Functor′._⟨$⟩_"></a><a id="241" href="Prelude.Lenses.VanLaarhoven.html#241" class="Function Operator">_⟨$⟩_</a> <a id="247" class="Symbol">=</a> <a id="249" href="Prelude.Lenses.VanLaarhoven.html#192" class="Field">fmap′</a>
+<a id="255" class="Keyword">open</a> <a id="260" href="Prelude.Lenses.VanLaarhoven.html#143" class="Module">Functor′</a> <a id="269" class="Symbol">⦃...⦄</a> <a id="275" class="Keyword">public</a>
+
+<a id="Const"></a><a id="283" href="Prelude.Lenses.VanLaarhoven.html#283" class="Function">Const</a> <a id="289" class="Symbol">:</a> <a id="291" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="296" class="Symbol">→</a> <a id="298" class="Symbol">(</a><a id="299" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="304" class="Symbol">→</a> <a id="306" href="Agda.Primitive.html#320" class="Primitive">Type</a><a id="310" class="Symbol">)</a>
+<a id="312" href="Prelude.Lenses.VanLaarhoven.html#283" class="Function">Const</a> <a id="318" href="Prelude.Lenses.VanLaarhoven.html#318" class="Bound">A</a> <a id="320" class="Symbol">_</a> <a id="322" class="Symbol">=</a> <a id="324" href="Prelude.Lenses.VanLaarhoven.html#318" class="Bound">A</a>
+
+<a id="Id"></a><a id="327" href="Prelude.Lenses.VanLaarhoven.html#327" class="Function">Id</a> <a id="330" class="Symbol">:</a> <a id="332" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="337" class="Symbol">→</a> <a id="339" href="Agda.Primitive.html#320" class="Primitive">Type</a>
+<a id="344" href="Prelude.Lenses.VanLaarhoven.html#327" class="Function">Id</a> <a id="347" class="Symbol">=</a> <a id="349" href="Function.Base.html#624" class="Function">id</a>
+
+<a id="353" class="Keyword">private</a> <a id="361" class="Keyword">variable</a> <a id="370" href="Prelude.Lenses.VanLaarhoven.html#370" class="Generalizable">A</a> <a id="372" href="Prelude.Lenses.VanLaarhoven.html#372" class="Generalizable">B</a> <a id="374" href="Prelude.Lenses.VanLaarhoven.html#374" class="Generalizable">I</a> <a id="376" href="Prelude.Lenses.VanLaarhoven.html#376" class="Generalizable">O</a> <a id="378" class="Symbol">:</a> <a id="380" href="Agda.Primitive.html#320" class="Primitive">Type</a>
+
+<a id="386" class="Keyword">instance</a>
+  <a id="Functor′-Id"></a><a id="397" href="Prelude.Lenses.VanLaarhoven.html#397" class="Function">Functor′-Id</a> <a id="409" class="Symbol">:</a> <a id="411" href="Prelude.Lenses.VanLaarhoven.html#143" class="Record">Functor′</a> <a id="420" href="Prelude.Lenses.VanLaarhoven.html#327" class="Function">Id</a>
+  <a id="425" href="Prelude.Lenses.VanLaarhoven.html#397" class="Function">Functor′-Id</a> <a id="437" class="Symbol">.</a><a id="438" href="Prelude.Lenses.VanLaarhoven.html#192" class="Field">fmap′</a> <a id="444" class="Symbol">=</a> <a id="446" href="Function.Base.html#624" class="Function">id</a>
+
+  <a id="Functor′-Const"></a><a id="452" href="Prelude.Lenses.VanLaarhoven.html#452" class="Function">Functor′-Const</a> <a id="467" class="Symbol">:</a> <a id="469" href="Prelude.Lenses.VanLaarhoven.html#143" class="Record">Functor′</a> <a id="478" class="Symbol">(</a><a id="479" href="Prelude.Lenses.VanLaarhoven.html#283" class="Function">Const</a> <a id="485" href="Prelude.Lenses.VanLaarhoven.html#370" class="Generalizable">A</a><a id="486" class="Symbol">)</a>
+  <a id="490" href="Prelude.Lenses.VanLaarhoven.html#452" class="Function">Functor′-Const</a> <a id="505" class="Symbol">.</a><a id="506" href="Prelude.Lenses.VanLaarhoven.html#192" class="Field">fmap′</a> <a id="512" class="Symbol">=</a> <a id="514" href="Function.Base.html#645" class="Function">const</a> <a id="520" href="Function.Base.html#624" class="Function">id</a>
+
+<a id="Lens"></a><a id="524" href="Prelude.Lenses.VanLaarhoven.html#524" class="Function">Lens</a> <a id="529" class="Symbol">:</a> <a id="531" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="536" class="Symbol">→</a> <a id="538" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="543" class="Symbol">→</a> <a id="545" href="Agda.Primitive.html#320" class="Primitive">Type₁</a>
+<a id="551" class="Comment">-- Lens I O = ∀ (F : Type↑) → ⦃ Functor F ⦄ → (I → F I) → (O → F O)</a>
+<a id="619" href="Prelude.Lenses.VanLaarhoven.html#524" class="Function">Lens</a> <a id="624" href="Prelude.Lenses.VanLaarhoven.html#624" class="Bound">I</a> <a id="626" href="Prelude.Lenses.VanLaarhoven.html#626" class="Bound">O</a> <a id="628" class="Symbol">=</a> <a id="630" class="Symbol">∀</a> <a id="632" href="Prelude.Lenses.VanLaarhoven.html#632" class="Bound">F</a> <a id="634" class="Symbol">→</a> <a id="636" class="Symbol">⦃</a> <a id="638" href="Prelude.Lenses.VanLaarhoven.html#143" class="Record">Functor′</a> <a id="647" href="Prelude.Lenses.VanLaarhoven.html#632" class="Bound">F</a> <a id="649" class="Symbol">⦄</a> <a id="651" class="Symbol">→</a> <a id="653" class="Symbol">(</a><a id="654" href="Prelude.Lenses.VanLaarhoven.html#624" class="Bound">I</a> <a id="656" class="Symbol">→</a> <a id="658" href="Prelude.Lenses.VanLaarhoven.html#632" class="Bound">F</a> <a id="660" href="Prelude.Lenses.VanLaarhoven.html#624" class="Bound">I</a><a id="661" class="Symbol">)</a> <a id="663" class="Symbol">→</a> <a id="665" class="Symbol">(</a><a id="666" href="Prelude.Lenses.VanLaarhoven.html#626" class="Bound">O</a> <a id="668" class="Symbol">→</a> <a id="670" href="Prelude.Lenses.VanLaarhoven.html#632" class="Bound">F</a> <a id="672" href="Prelude.Lenses.VanLaarhoven.html#626" class="Bound">O</a><a id="673" class="Symbol">)</a>
+
+<a id="over"></a><a id="676" href="Prelude.Lenses.VanLaarhoven.html#676" class="Function">over</a> <a id="681" class="Symbol">:</a> <a id="683" href="Prelude.Lenses.VanLaarhoven.html#524" class="Function">Lens</a> <a id="688" href="Prelude.Lenses.VanLaarhoven.html#374" class="Generalizable">I</a> <a id="690" href="Prelude.Lenses.VanLaarhoven.html#376" class="Generalizable">O</a> <a id="692" class="Symbol">→</a> <a id="694" class="Symbol">(</a><a id="695" href="Prelude.Lenses.VanLaarhoven.html#374" class="Generalizable">I</a> <a id="697" class="Symbol">→</a> <a id="699" href="Prelude.Lenses.VanLaarhoven.html#374" class="Generalizable">I</a><a id="700" class="Symbol">)</a> <a id="702" class="Symbol">→</a> <a id="704" class="Symbol">(</a><a id="705" href="Prelude.Lenses.VanLaarhoven.html#376" class="Generalizable">O</a> <a id="707" class="Symbol">→</a> <a id="709" href="Prelude.Lenses.VanLaarhoven.html#376" class="Generalizable">O</a><a id="710" class="Symbol">)</a>
+<a id="712" href="Prelude.Lenses.VanLaarhoven.html#676" class="Function">over</a> <a id="717" href="Prelude.Lenses.VanLaarhoven.html#717" class="Bound">l</a> <a id="719" href="Prelude.Lenses.VanLaarhoven.html#719" class="Bound">f</a> <a id="721" href="Prelude.Lenses.VanLaarhoven.html#721" class="Bound">o</a> <a id="723" class="Symbol">=</a> <a id="725" href="Prelude.Lenses.VanLaarhoven.html#717" class="Bound">l</a> <a id="727" href="Prelude.Lenses.VanLaarhoven.html#327" class="Function">Id</a> <a id="730" href="Prelude.Lenses.VanLaarhoven.html#719" class="Bound">f</a> <a id="732" href="Prelude.Lenses.VanLaarhoven.html#721" class="Bound">o</a>
+<a id="734" class="Comment">-- runIdentity $ l (Identity . f) o</a>
+
+<a id="771" class="Comment">-- view : Lens I O → O → I</a>
+<a id="798" class="Comment">-- -- view {I = I} l o = l (Const I) id o</a>
+<a id="840" class="Comment">-- view {I = I} l o = {!!}</a>
+
+<a id="868" class="Comment">-- l₁ : Lens A (A × B)</a>
+<a id="891" class="Comment">-- l₁ F f (x , y) = (_, y) ⟨$⟩ f x</a>
+
+<a id="927" class="Comment">-- l₂ : Lens B (A × B)</a>
+<a id="950" class="Comment">-- l₂ F f (x , y) = (x ,_) ⟨$⟩ f y</a>
+
+<a id="986" class="Comment">-- view : A × B → A</a>
+<a id="1006" class="Comment">-- view {A}{B} (x , y) = l₁ {A} {B} (Const (B → A)) const (x , y) y</a>
+
+<a id="1075" class="Comment">-- _ = view (1 , &quot;one&quot;) ≡ 1 ∋ refl</a>
+
+<a id="1111" class="Comment">-- _ = over l₁ suc (1 , &quot;one&quot;) ≡ (2 , &quot;one&quot;) ∋ refl</a>
+
+<a id="1164" class="Comment">-- set : A × B → A → A × B</a>
+<a id="1191" class="Comment">-- set xy x′ = over l₁ (const x′) xy</a>
+
+<a id="1229" class="Comment">-- -- _∙_ : O → Lens I O → I</a>
+<a id="1258" class="Comment">-- -- o ∙ l = l _ (const _) o</a>
+</pre></body></html>
