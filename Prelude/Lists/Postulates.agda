@@ -121,7 +121,6 @@ postulate
     → L.Any.lookup (∈-map⁺ f x∈) ≡ f x
 
   mapWith∈-id :  mapWith∈ xs (λ {x} _ → x) ≡ xs
-  map∘mapWith∈ : ∀ {xs : List A} {f : B → C} {g : ∀ {x} → x ∈ xs → B} → map f (mapWith∈ xs g) ≡ mapWith∈ xs (f ∘ g)
 
   filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A} {x : A} {xs : List A} {ys : List B}
     → (x∈ : x ∈ map f ys)

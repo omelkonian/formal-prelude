@@ -157,6 +157,18 @@ mapWith∈-∀ : ∀ {xs : List A}  {f : ∀ {x : A} → x ∈ xs → B} {P : B 
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (here px)  rewrite px = ∀P (L.Any.here refl)
 mapWith∈-∀ {xs = x ∷ xs} ∀P {y} (there y∈) = mapWith∈-∀ (∀P ∘ L.Any.there) y∈
 
+map∘mapWith∈ : ∀ {A B C : Type}
+    (g : B → C)  (xs : List A) (f : ∀ {x} → x ∈ xs → B)
+  → map g (mapWith∈ xs f) ≡ mapWith∈ xs (g ∘ f)
+map∘mapWith∈ _ [] _ = refl
+map∘mapWith∈ _ (_ ∷ _) f = cong (_ ∷_) $ map∘mapWith∈ _ _ (f ∘ there)
+
+mapWith∈∘map : ∀ {A B C : Type}
+  (f : A → B) (xs : List A) (g : ∀ {x} → x ∈ map f xs → C)
+  → mapWith∈ (map f xs) g ≡ mapWith∈ xs (g ∘ ∈-map⁺ f)
+mapWith∈∘map _ [] _ = refl
+mapWith∈∘map _ (_ ∷ _) g = cong (_ ∷_) $ mapWith∈∘map _ _ (g ∘ there)
+
 -- mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
 --                     {xs : List A} {ys : List B}
 --   → (p⊆ : xs ⊆ map f ys)
