@@ -10,6 +10,7 @@ open Maybe
 open import Prelude.Applicative
 open import Prelude.Functor
 open import Prelude.Bifunctor
+open import Prelude.InferenceRules
 
 private variable A : Type ℓ; B : Type ℓ′
 
@@ -22,9 +23,22 @@ toMaybe-≡ : ∀ {x : A} {xs : List A}
   → ∃[ ys ] (xs ≡ x ∷ ys)
 toMaybe-≡ {xs = _ ∷ _} refl = _ , refl
 
-ap-nothing : ∀ {A : Type ℓ} {B : Type ℓ′} {r : B} {m : Maybe (A → B)} → (m <*> nothing) ≢ just r
+ap-nothing : ∀ {A : Type ℓ} {B : Type ℓ′} {r : B} {m : Maybe (A → B)} →
+  (m <*> nothing) ≢ just r
 ap-nothing {m = nothing} ()
 ap-nothing {m = just _ } ()
+
+MAny-map⁻ : ∀ {A : Type ℓ} {B : Type ℓ′} {P : Pred B ℓ″} {f : A → B} {mx : Maybe A} →
+  M.Any.Any P (f <$> mx)
+  ──────────────────────
+  M.Any.Any (P ∘ f) mx
+MAny-map⁻ {mx = just _} (M.Any.just p) = M.Any.just p
+
+MAny-map⁺ : ∀ {A : Type ℓ} {B : Type ℓ′} {P : Pred B ℓ″} {f : A → B} {mx : Maybe A} →
+  M.Any.Any (P ∘ f) mx
+  ──────────────────────
+  M.Any.Any P (f <$> mx)
+MAny-map⁺ {mx = just _} (M.Any.just p) = M.Any.just p
 
 Any-just : ∀ {x : A} {mx : Maybe A} {P : A → Type}
  → mx ≡ just x
