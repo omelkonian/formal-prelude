@@ -10,6 +10,7 @@ open import Prelude.Functor
 open import Prelude.Monad
 open import Prelude.Lift
 open import Prelude.General
+open import Prelude.FromList; open import Prelude.ToList
 
 open import Prelude.Generics.Core
 
@@ -40,8 +41,13 @@ private
       if isOmegaKind ki then ty
       else quote ↑ω_ ∙⟦ ty ⟧
 
+  removeQualifiers : String → String
+  removeQualifiers = fromList
+                   ∘ L.reverse ∘ takeWhile (¬? ∘ ('.' Ch.≟_)) ∘ L.reverse
+                   ∘ toList
+
   `toString : Name → Term
-  `toString = lit ∘′ string ∘ Meta.Show.showName
+  `toString = lit ∘′ string ∘ removeQualifiers ∘ Meta.Show.showName
 
 macro
   DERIVE : Name → Tactic
