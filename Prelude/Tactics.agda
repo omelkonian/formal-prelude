@@ -10,3 +10,4 @@ open import Prelude.Tactics.Existentials public
 open import Prelude.Tactics.Mu public
 open import Prelude.Tactics.Collect public
 open import Prelude.Tactics.BNF public
+open import Prelude.Tactics.PostulateIt public
