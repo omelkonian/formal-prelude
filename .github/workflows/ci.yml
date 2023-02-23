@@ -9,8 +9,8 @@ jobs:
       - uses: actions/checkout@v2.3.1
       - uses: omelkonian/setup-agda@master
         with:
-          agda-version: 2.6.2.2.20221128
-          stdlib-version: 1.7.2-rc1
+          agda-version: 2.6.3
+          stdlib-version: 1.7.2
           main: Prelude/Main
           token: ${{ secrets.GITHUB_TOKEN }}
           measure-typechecking: true

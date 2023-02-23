@@ -19,6 +19,20 @@ macro
   ∶t : Name → Hole → TC ⊤
   ∶t n hole = unify hole =<< getType n
 
+  ∶tt : Term → Hole → TC ⊤
+  ∶tt t hole = unify hole =<< inferType t
+
+  getField : Term → Term → TC ⊤
+  getField t hole = bindTC (inferType t) (unify hole ∘ go)
+    where
+      go : Term → Term
+      go = λ where
+        (pi a (abs s t)) →
+          case a of λ where
+            (arg (arg-info visible _) _) → mapVars Nat.pred t
+            _ → pi a (abs s $ go t)
+        _ → t
+
 private
   _ = (∶t _+_) ≡ Op₂ ℕ
     ∋ refl
@@ -28,8 +42,25 @@ private
   id′ : ∶t id
   id′ = λ x → x
 
+  _ = (∶tt (_+ 5)) ≡ Op₁ ℕ
+    ∋ refl
+  _ = (∶tt (Integer._+_ Integer.0ℤ)) ≡ Op₁ ℤ
+    ∋ refl
+
+  private variable a b : Set
+  record Foldable (t : Set → Set) : Set₁ where
+    field foldr′ : (a → b → b) → b → t a → b
+  postulate t : Set → Set
+
+  -- _ = getField (Foldable.foldr′ {t = t})
+  --   ≡ (∀ {a b} → (a → b → b) → b → t a → b)
+  --   ∋ refl
+
 ∶type : Name → TC Type
 ∶type = getType
+
+∶ttype : Term → TC Type
+∶ttype = inferType
 
 ∶set : Term → Tactic
 (∶set t) hole = unify hole t
