@@ -8,6 +8,9 @@ module Prelude.DecEq.WithK {A : Type ℓ} ⦃ _ : DecEq A ⦄ where
 ≟-refl : ∀ (x : A) → (x ≟ x) ≡ yes refl
 ≟-refl x with refl , p ← dec-yes (x ≟ x) refl = p
 
+==-refl : ∀ (x : A) → T (x == x)
+==-refl _ = subst (T ∘ isYes) (sym $ ≟-refl _) tt
+
 instance
   DecEq-List⁺ : DecEq (List⁺ A)
   DecEq-List⁺ ._≟_ (x ∷ xs) (y ∷ ys)
