@@ -321,6 +321,21 @@ Last∈-map⁺ f (there p) lp   = Last∈-map⁺ f p lp
     x ∉ xs ++ ys
 ∉-++⁺ x∉ˡ x∉ʳ = ∈-++⁻ _ >≡> Sum.[ x∉ˡ , x∉ʳ ]
 
+∉-∷⁺ : y ≢ x → y ∉ xs → y ∉ x ∷ xs
+∉-∷⁺ y≢ y∉ = λ where
+  (here refl) → y≢ refl
+  (there y∈)  → y∉ y∈
+
+∉-∷⁻ : y ∉ x ∷ xs → y ≢ x × y ∉ xs
+∉-∷⁻ y∉ = (λ where refl → y∉ $ here refl) , y∉ ∘ there
+
+module _ (P? : Decidable¹ P) where
+  ∉-filter⁻ : x ∉ filter P? xs → P x → x ∉ xs
+  ∉-filter⁻ x∉ px = x∉ ∘ flip (∈-filter⁺ P?) px
+
+  ∉-filter⁺ : x ∉ xs → x ∉ filter P? xs
+  ∉-filter⁺ = _∘ (proj₁ ∘ ∈-filter⁻ P?)
+
 -- ** aligning & zipping
 
 {-

@@ -141,6 +141,12 @@ unique-nub-∈ uniq rewrite nub-from∘to uniq = refl
 ... | yes x∈ˢ = ∈-nub⁺ x∈
 ... | no  _   = there $ ∈-nub⁺ x∈
 
+∉-nub⁻ : x ∉ nub xs → x ∉ xs
+∉-nub⁻ = _∘ ∈-nub⁺
+
+∉-nub⁺ : x ∉ xs → x ∉ nub xs
+∉-nub⁺ = _∘ ∈-nub⁻
+
 ∈-map∘nub⁻ : ∀ {B : Type ℓ} (f : A → B) x xs →
   f x L.Mem.∈ map f (nub xs) → f x L.Mem.∈ map f xs
 ∈-map∘nub⁻ f _ []       fx∈ = fx∈
