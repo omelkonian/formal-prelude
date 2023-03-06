@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Tactics.Rewrite.Test</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Tactics/Rewrite/Test.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--with-K</a> <a id="22" class="Symbol">#-}</a>
+<a id="26" class="Keyword">open</a> <a id="31" class="Keyword">import</a> <a id="38" href="Prelude.Init.html" class="Module">Prelude.Init</a>
+<a id="51" class="Keyword">open</a> <a id="56" class="Keyword">import</a> <a id="63" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+<a id="77" class="Keyword">open</a> <a id="82" class="Keyword">import</a> <a id="89" href="Prelude.Tactics.Rewrite.html" class="Module">Prelude.Tactics.Rewrite</a>
+
+<a id="114" class="Keyword">module</a> <a id="121" href="Prelude.Tactics.Rewrite.Test.html" class="Module">Prelude.Tactics.Rewrite.Test</a> <a id="150" class="Keyword">where</a>
+
+<a id="157" class="Keyword">module</a> <a id="M₁"></a><a id="164" href="Prelude.Tactics.Rewrite.Test.html#164" class="Module">M₁</a> <a id="167" class="Symbol">(</a><a id="168" href="Prelude.Tactics.Rewrite.Test.html#168" class="Bound">n</a> <a id="170" href="Prelude.Tactics.Rewrite.Test.html#170" class="Bound">m</a> <a id="172" class="Symbol">:</a> <a id="174" href="Agda.Builtin.Nat.html#186" class="Datatype">ℕ</a><a id="175" class="Symbol">)</a> <a id="177" class="Symbol">⦃</a> <a id="179" href="Prelude.Tactics.Rewrite.Test.html#179" class="Bound">_</a> <a id="181" class="Symbol">:</a> <a id="183" href="Prelude.DecEq.Core.html#148" class="Record">DecEq</a> <a id="189" href="Agda.Builtin.Nat.html#186" class="Datatype">ℕ</a> <a id="191" class="Symbol">⦄</a> <a id="193" class="Keyword">where</a>
+  <a id="201" class="Keyword">postulate</a>
+    <a id="M₁.n≡"></a><a id="215" href="Prelude.Tactics.Rewrite.Test.html#215" class="Postulate">n≡</a> <a id="218" class="Symbol">:</a> <a id="220" href="Prelude.Tactics.Rewrite.Test.html#168" class="Bound">n</a> <a id="222" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">≡</a> <a id="224" href="Prelude.Tactics.Rewrite.Test.html#170" class="Bound">m</a> <a id="226" href="Agda.Builtin.Nat.html#319" class="Primitive Operator">+</a> <a id="228" class="Number">1</a>
+    <a id="M₁.P"></a><a id="234" href="Prelude.Tactics.Rewrite.Test.html#234" class="Postulate">P</a> <a id="236" class="Symbol">:</a> <a id="238" href="Prelude.Init.html#13317" class="Function">Pred₀</a> <a id="244" href="Agda.Builtin.Nat.html#186" class="Datatype">ℕ</a>
+    <a id="M₁.p"></a><a id="250" href="Prelude.Tactics.Rewrite.Test.html#250" class="Postulate">p</a> <a id="252" class="Symbol">:</a> <a id="254" href="Prelude.Tactics.Rewrite.Test.html#234" class="Postulate">P</a> <a id="256" class="Symbol">(</a><a id="257" href="Prelude.Tactics.Rewrite.Test.html#170" class="Bound">m</a> <a id="259" href="Agda.Builtin.Nat.html#319" class="Primitive Operator">+</a> <a id="261" class="Number">1</a><a id="262" class="Symbol">)</a>
+
+  <a id="267" href="Prelude.Tactics.Rewrite.Test.html#267" class="Function">_</a> <a id="269" class="Symbol">:</a> <a id="271" href="Prelude.Tactics.Rewrite.Test.html#234" class="Postulate">P</a> <a id="273" href="Prelude.Tactics.Rewrite.Test.html#168" class="Bound">n</a>
+  <a id="277" class="Symbol">_</a> <a id="279" class="Symbol">=</a> <a id="281" href="Prelude.Tactics.Rewrite.Test.html#215" class="Postulate">n≡</a> <a id="284" href="Prelude.Tactics.Rewrite.html#4448" class="Macro Operator">≈:</a> <a id="287" href="Prelude.Tactics.Rewrite.Test.html#250" class="Postulate">p</a>
+
+<a id="290" class="Keyword">module</a> <a id="M₂"></a><a id="297" href="Prelude.Tactics.Rewrite.Test.html#297" class="Module">M₂</a> <a id="300" class="Symbol">(</a><a id="301" href="Prelude.Tactics.Rewrite.Test.html#301" class="Bound">n</a> <a id="303" href="Prelude.Tactics.Rewrite.Test.html#303" class="Bound">m</a> <a id="305" class="Symbol">:</a> <a id="307" href="Agda.Builtin.Nat.html#186" class="Datatype">ℕ</a><a id="308" class="Symbol">)</a> <a id="310" class="Keyword">where</a>
+  <a id="318" class="Keyword">open</a> <a id="323" href="Prelude.Tactics.Rewrite.Test.html#164" class="Module">M₁</a> <a id="326" href="Prelude.Tactics.Rewrite.Test.html#303" class="Bound">m</a> <a id="328" href="Prelude.Tactics.Rewrite.Test.html#301" class="Bound">n</a>
+
+  <a id="333" href="Prelude.Tactics.Rewrite.Test.html#333" class="Function">_</a> <a id="335" class="Symbol">:</a> <a id="337" href="Prelude.Tactics.Rewrite.Test.html#234" class="Function">P</a> <a id="339" href="Prelude.Tactics.Rewrite.Test.html#303" class="Bound">m</a>
+  <a id="343" class="Symbol">_</a> <a id="345" class="Symbol">=</a> <a id="347" href="Prelude.Tactics.Rewrite.Test.html#215" class="Function">n≡</a> <a id="350" class="Symbol">⦃</a> <a id="352" href="Function.Base.html#4821" class="Function">it</a> <a id="355" class="Symbol">⦄</a> <a id="357" href="Prelude.Tactics.Rewrite.html#4448" class="Macro Operator">≈:</a> <a id="360" href="Prelude.Tactics.Rewrite.Test.html#250" class="Function">p</a>
+
+<a id="363" class="Keyword">module</a> <a id="M₃"></a><a id="370" href="Prelude.Tactics.Rewrite.Test.html#370" class="Module">M₃</a> <a id="373" class="Keyword">where</a>
+  <a id="381" class="Keyword">open</a> <a id="386" href="Prelude.Tactics.Rewrite.Test.html#164" class="Module">M₁</a> <a id="389" class="Number">0</a> <a id="391" class="Number">1</a>
+
+  <a id="396" href="Prelude.Tactics.Rewrite.Test.html#396" class="Function">_</a> <a id="398" class="Symbol">:</a> <a id="400" href="Prelude.Tactics.Rewrite.Test.html#234" class="Function">P</a> <a id="402" class="Number">0</a>
+  <a id="406" class="Symbol">_</a> <a id="408" class="Symbol">=</a> <a id="410" href="Prelude.Tactics.Rewrite.Test.html#215" class="Function">n≡</a> <a id="413" class="Symbol">⦃</a> <a id="415" href="Function.Base.html#4821" class="Function">it</a> <a id="418" class="Symbol">⦄</a> <a id="420" href="Prelude.Tactics.Rewrite.html#4448" class="Macro Operator">≈:</a> <a id="423" href="Prelude.Tactics.Rewrite.Test.html#250" class="Function">p</a>
+
+<a id="426" class="Keyword">module</a> <a id="M₄"></a><a id="433" href="Prelude.Tactics.Rewrite.Test.html#433" class="Module">M₄</a> <a id="436" class="Keyword">where</a>
+  <a id="444" class="Keyword">open</a> <a id="449" href="Prelude.Tactics.Rewrite.Test.html#164" class="Module">M₁</a> <a id="452" class="Number">0</a>
+
+  <a id="457" href="Prelude.Tactics.Rewrite.Test.html#457" class="Function">_</a> <a id="459" class="Symbol">:</a> <a id="461" href="Prelude.Tactics.Rewrite.Test.html#234" class="Function">P</a> <a id="463" class="Number">1</a> <a id="465" class="Number">0</a>
+  <a id="469" class="Symbol">_</a> <a id="471" class="Symbol">=</a> <a id="473" href="Prelude.Tactics.Rewrite.Test.html#215" class="Function">n≡</a> <a id="476" class="Number">1</a> <a id="478" class="Symbol">⦃</a> <a id="480" href="Function.Base.html#4821" class="Function">it</a> <a id="483" class="Symbol">⦄</a> <a id="485" href="Prelude.Tactics.Rewrite.html#4448" class="Macro Operator">≈:</a> <a id="488" href="Prelude.Tactics.Rewrite.Test.html#250" class="Function">p</a> <a id="490" class="Number">1</a>
+
+<a id="493" class="Comment">-- module M₅ where</a>
+<a id="512" class="Comment">--   open M₁</a>
+
+<a id="526" class="Comment">--   _ : P 0 1 0</a>
+<a id="543" class="Comment">--   _ = n≡ 0 1 ≈: p 0 1</a>
+</pre></body></html>
