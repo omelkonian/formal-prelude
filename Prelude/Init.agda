@@ -40,7 +40,7 @@ open SetAsType
 -- ** Equality
 open import Relation.Binary.PropositionalEquality public
   using
-  ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; subst
+  ( _≡_; _≢_; refl; sym; ≢-sym; trans; cong; cong₂; subst; subst₂
   ; inspect; _≗_; setoid
   ; module ≡-Reasoning
   )
