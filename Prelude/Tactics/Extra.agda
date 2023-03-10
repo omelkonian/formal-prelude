@@ -191,7 +191,7 @@ private
 getPatTele : Name → TC PatTelescope
 getPatTele cn = do
   print $ "Getting pattern telescope for constructor: " ◇ show cn
-  ty ← getType cn
+  ty ← normalise =<< getType cn
   print $ "  ty: " ◇ show ty
   data-cons n ← getDefinition cn
     where _ → _IMPOSSIBLE_
@@ -204,6 +204,26 @@ getPatTele cn = do
   let tel = map ("_" ,_) (fmap (const unknown) <$> tys)
   print $ "  tel: " ◇ show tel
   return tel
+
+private
+  macro
+    $getPatTele : Name → Hole → TC ⊤
+    $getPatTele f hole = do
+      tel ← getPatTele f
+      t ← quoteTC tel
+      unify hole t
+
+  data ℙ : Set where
+    ε : Op₁ ℙ
+    _⊕_ : Op₂ ℙ
+    _⊕_⊕_ : Op₃ ℙ
+
+  _ = $getPatTele ε ≡ ("_" , vArg?) ∷ []
+    ∋ refl
+  _ = $getPatTele _⊕_ ≡ ("_" , vArg?) ∷ ("_" , vArg?) ∷ []
+    ∋ refl
+  _ = $getPatTele _⊕_⊕_ ≡ ("_" , vArg?) ∷ ("_" , vArg?) ∷ ("_" , vArg?) ∷ []
+    ∋ refl
 
 mkCase : Name → Type → (PatTelescope → TC Term) → TC Term
 mkCase n n→ty mkT = do
