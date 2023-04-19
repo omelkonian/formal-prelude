@@ -138,6 +138,28 @@ postulate
 --         y ∷ filter ((_∈? xs) ∘ f) ys
 --       ∎ where open PermutationReasoning
 
+mapWith∈↭filter : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A}
+                    {xs : List A} {ys : List B}
+  → (p⊆ : xs ⊆ map f ys)
+  → Unique ys
+  → mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆)
+  ↭ filter ((_∈? xs) ∘ f) ys
+mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = []}     {ys = ys} p⊆ uniq =
+  ↭-sym (↭-reflexive $ L.filter-none ((_∈? []) ∘ f) (L.All.universal (λ _ ()) ys))
+mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {ys = ys} p⊆ uniq =
+  begin
+    mapWith∈ (x ∷ xs) get
+  ≡⟨⟩
+    get {x} _ ∷ mapWith∈ xs (proj₁ ∘ ∈-map⁻ f ∘ p⊆ ∘ there)
+  ↭⟨ ↭-prep (get {x} _) (mapWith∈↭filter {_∈?_ = _∈?_} (p⊆ ∘ there) uniq) ⟩
+    get {x} _ ∷ filter ((_∈? xs) ∘ f) ys
+  ↭⟨ ↭-sym (filter-exists {_∈?_ = _∈?_} (p⊆ (here refl)) uniq) ⟩
+    filter ((_∈? (x ∷ xs)) ∘ f) ys
+  ∎ where open PermutationReasoning
+          get : ∀ {x′} → x′ ∈ x ∷ xs → B
+          get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
+
+
 open import Prelude.Lists
 postulate
   Suffix⇒⊆ : Suffix≡ xs ys → xs ⊆ ys
