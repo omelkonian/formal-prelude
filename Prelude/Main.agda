@@ -113,6 +113,7 @@ open import Prelude.Bags.Examples
 open import Prelude.Serializable
 open import Prelude.Bitstring
 open import Prelude.SerializableBitstring
+open import Prelude.Hashable
 
 -- ** Unsafe operations
 open import Prelude.Unsafe
@@ -126,3 +127,7 @@ open import Prelude.Solvers
 -- ** Lenses
 open import Prelude.Lenses
 open import Prelude.Lenses.VanLaarhoven
+
+-- ** Separation algebras
+open import Prelude.Separated
+open import Prelude.FinPartialFun

@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.Irrelevance.List.Collections where
 
 open import Prelude.Init; open SetAsType
@@ -43,4 +44,4 @@ collectFromList↭ : ∀ ⦃ _ : DecEq Y ⦄ {xs ys : List X}
   → (f : X → List Y)
   → xs ·↭ ys
   → collectFromList f xs ·↭ collectFromList f ys
-collectFromList↭ = ·↭-concatMap⁺
+collectFromList↭ f p = ·↭-concatMap⁺ f p

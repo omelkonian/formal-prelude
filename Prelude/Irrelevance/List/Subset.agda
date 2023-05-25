@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 open import Data.List.Relation.Unary.First as Fst using (_∷_)
 
 open import Prelude.Init; open SetAsType

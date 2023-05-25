@@ -41,3 +41,9 @@ private
     -- T0D0: cover abstract signature
     -- open import Prelude.Bags.Abstract.Interface
     -- import Prelude.Bags.AsSortedLists as Imp
+
+  module Implementation2 where
+    open import Prelude.Bags.AsPartialFunctions
+
+    _ = Bag⟨ ℕ ⟩
+    _ = ∅

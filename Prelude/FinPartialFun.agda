@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.FinPartialFun where
 
 open import Prelude.Init; open SetAsType
@@ -41,19 +42,13 @@ module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : LawfulSetoid B ⦄ where
         ∃ λ (xs≈ : xs ≈ ys) →
           ∀ x → (x∈ : x ∈ˢ xs) → f x∈ ≈ g (xs≈ .proj₁ x∈)
 
-    SetoidLaws-⇀ᶠⁱⁿ : SetoidLaws (A ⇀ᶠⁱⁿ B)
-    SetoidLaws-⇀ᶠⁱⁿ = {!!}
-
-    _ : SemigroupLaws (A ⇀ᶠⁱⁿ B)
-    _ = record { ◇-comm = {!!} ; ◇-assocʳ = {!!} }
-
     Monoid-⇀ᶠⁱⁿ : Monoid (A ⇀ᶠⁱⁿ B)
     Monoid-⇀ᶠⁱⁿ .ε = ∅ᶠⁱⁿ
 
-    MonoidLaws-⇀ᶠⁱⁿ : MonoidLaws (A ⇀ᶠⁱⁿ B)
-    MonoidLaws-⇀ᶠⁱⁿ .ε-identity
-      = (λ f → {!∪-∅ˡ (f .proj₁)!})
-      , (λ f → {!!})
+    postulate
+      _ : SetoidLaws (A ⇀ᶠⁱⁿ B)
+      _ : SemigroupLaws (A ⇀ᶠⁱⁿ B)
+      _ : MonoidLaws (A ⇀ᶠⁱⁿ B)
 
     //-⇀ᶠⁱⁿ : (A ⇀ᶠⁱⁿ B) // (A ⇀ᶠⁱⁿ B)
     //-⇀ᶠⁱⁿ = λ where ._♯_ → _♯_ on proj₁
@@ -68,8 +63,7 @@ module _ {A B : Type} ⦃ _ : DecEq A ⦄ ⦃ _ : LawfulSetoid B ⦄ where
 
   open ≈-Reasoning
 
-  _ : Separated (A ⇀ᶠⁱⁿ B)
-  _ = {!!}
+  postulate _ : Separated (A ⇀ᶠⁱⁿ B)
   -- _ = λ where
   --   .ε → ∅ᶠⁱⁿ
   --   ._∙_ f g → if ⌊ f ♯ᶠⁱⁿ? g ⌋ then just (f ∪ᶠⁱⁿ g) else nothing
