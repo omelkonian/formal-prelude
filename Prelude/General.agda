@@ -171,19 +171,34 @@ A ^ suc n = A × (A ^ n)
 
 -- ** Bools
 
-true⇒T : ∀ {b} → b ≡ true → T b
+private variable b : Bool
+
+true⇒T : b ≡ true → T b
 true⇒T refl = tt
 
-T⇒true : ∀ {b} → T b → b ≡ true
+T⇒true : T b → b ≡ true
 T⇒true {true} tt = refl
 
-false⇒T∘not : ∀ {b} → b ≡ false → T (not b)
+false⇒¬T : b ≡ false → ¬ T b
+false⇒¬T refl ()
+
+¬T⇒false : ¬ T b → b ≡ false
+¬T⇒false {false} p = refl
+¬T⇒false {true}  p = ⊥-elim $ p tt
+
+false⇒T∘not : b ≡ false → T (not b)
 false⇒T∘not refl = tt
 
-T∘not⇒false : ∀ {b} → T (not b) → b ≡ false
+T∘not⇒false : T (not b) → b ≡ false
 T∘not⇒false {false} tt = refl
 
-⊥-bool : ∀ {b} → ¬ ((b ≡ true) × (b ≡ false))
+T∘not⇒¬T : T (not b) → ¬ T b
+T∘not⇒¬T = false⇒¬T ∘ T∘not⇒false
+
+¬T⇒T∘not : ¬ T b → T (not b)
+¬T⇒T∘not = false⇒T∘not ∘ ¬T⇒false
+
+⊥-bool : ¬ ((b ≡ true) × (b ≡ false))
 ⊥-bool (refl , ())
 
 T-∧ : ∀ {l r} → T (l ∧ r) → T l × T r
@@ -203,22 +218,32 @@ T-∧ {true} {true} _ = tt , tt
 ∧-falseʳ² {x = false} {y = true}  ()
 ∧-falseʳ² {x = false} {y = false} ()
 
-if-true : ∀ {b} {t f : A}
-  → b ≡ true
-  → (if b then t else f) ≡ t
-if-true refl = refl
-
-if-false : ∀ {b} {t f : A}
-  → b ≡ false
-  → (if b then t else f) ≡ f
-if-false refl = refl
-
 infixr 6 _∧-×_
 _∧-×_ : ∀ {x y}
   → x ≡ true
   → y ≡ true
   → x ∧ y ≡ true
 refl ∧-× refl = refl
+
+if-true : ∀ {t f : A}
+  → b ≡ true
+  → (if b then t else f) ≡ t
+if-true refl = refl
+
+if-false : ∀ {t f : A}
+  → b ≡ false
+  → (if b then t else f) ≡ f
+if-false refl = refl
+
+if-eta : ∀ (b : Bool) → (if b then true else false) ≡ b
+if-eta = λ where
+  true  → refl
+  false → refl
+
+if-same : ∀ (b : Bool) → (if b then x else x) ≡ x
+if-same = λ where
+  true  → refl
+  false → refl
 
 -- ** Deriving relations from more primitive ones.
 module Derive-⊆-from-∈ {A : Type ℓ} {B : Type ℓ′} (_∈_ : A → B → Type ℓ″) where
