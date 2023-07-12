@@ -29,6 +29,7 @@ open import Prelude.Lists.PermutationsMeta
 -- ** Decidability
 open import Prelude.DecEq
 open import Prelude.Decidable
+open import Prelude.TestDecidable
 open import Prelude.Decidable.Examples
 
 -- ** Metaprogramming utilities

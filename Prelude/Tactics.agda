@@ -11,5 +11,8 @@ open import Prelude.Tactics.Mu public
 open import Prelude.Tactics.Collect public
 open import Prelude.Tactics.BNF public
 open import Prelude.Tactics.PostulateIt public
--- ** does not typecheck without an installation of the `kind2` model checker
--- open import Prelude.Tactics.ModelCheck public
+
+-- ** [WIP]
+open import Prelude.Tactics.TermReasoning
+open import Prelude.Tactics.AltIso
+open import Prelude.Tactics.Auto

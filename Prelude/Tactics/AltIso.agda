@@ -1,5 +1,5 @@
-{-# OPTIONS -v AltIso:100 #-}
-module Prelude.Lists.AltIso where
+{-# OPTIONS -v AltIso:100 --with-K #-}
+module Prelude.Tactics.AltIso where
 
 open import Prelude.Init
 open Meta
@@ -128,5 +128,5 @@ private
   postulate ns : List ℕ
   -- ns = 1 ∷ 2 ∷ 0 ∷ []
 
-  _ : mapMaybe′ toM ns ≡ transportM (mapMaybe≗mapMaybe′ toM ns) (mapMaybe toM ns)
-  _ = refl
+  -- _ : mapMaybe′ toM ns ≡ transportM (mapMaybe≗mapMaybe′ toM ns) (mapMaybe toM ns)
+  -- _ = refl

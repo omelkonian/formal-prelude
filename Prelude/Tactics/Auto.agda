@@ -1,4 +1,4 @@
-{-# OPTIONS -v auto:100 #-}
+{-# OPTIONS -v auto:100 --with-K #-}
 module Prelude.Tactics.Auto where
 
 open import Prelude.Init

@@ -1,6 +1,8 @@
 -- 1) ≡reasoning-like syntax, but to manipulate terms of different types, rather than equality.
 -- 2) generic ≡reasoning that uses typeclasses to automatically pick the suitable relation
 
+module Prelude.Tactics.TermReasoning where
+
 open import Prelude.Init
 
 record Relatable {a ℓ : Level} (A : Set a) (_∼_ : Rel A ℓ) : Set (a ⊔ₗ ℓ) where

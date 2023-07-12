@@ -29,12 +29,12 @@ private
   pattern 𝕃 = inj₁ tt; pattern ℝ = inj₂ tt
 
   instance
-    ↝Bool : ⊤ ⊎ ⊤ ↝ Bool
+    ↝Bool : 𝟚 ↝ Bool
     ↝Bool .to = λ where
       𝕃 → true
       ℝ → false
 
-    Bool↝ : Bool ↝ ⊤ ⊎ ⊤
+    Bool↝ : Bool ↝ 𝟚
     Bool↝ .to = λ where
       true  → 𝕃
       false → ℝ

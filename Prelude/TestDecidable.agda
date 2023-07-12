@@ -1,3 +1,4 @@
+{-# OPTIONS --with-K #-}
 module Prelude.TestDecidable where
 
 open import Prelude.Init
