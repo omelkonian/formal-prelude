@@ -39,6 +39,7 @@ open import Prelude.Lists.Singletons public
 open import Prelude.Lists.MapMaybe public
 open import Prelude.Lists.Mappings public
 open import Prelude.Lists.Sublists public
+open import Prelude.Lists.Subsets public
 
 -- ** Prefix relation, instantiated for propositional equality.
 Prefix≡ : List A → List A → Type _

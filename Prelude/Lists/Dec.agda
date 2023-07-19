@@ -33,16 +33,23 @@ instance
       (yes xs⊆ys) → yes λ{ (here refl) → x∈ys
                           ; (there x∈)  → xs⊆ys x∈ }
 
+  Dec-⊆′ : _⊆′_ {A = A} ⁇²
+  Dec-⊆′ {x = xs}{ys} .dec
+    with ¿ xs ⊆ ys ¿
+  ... | yes p = yes $ mk⊆ p
+  ... | no ¬p = no  $ ⊥-elim ∘ ¬p ∘ unmk⊆
+
   Dec-Disjoint : Disjoint {A = A} ⁇²
   Dec-Disjoint {x = xs} {y = ys} .dec with all? (_∉? ys) xs
   ... | yes p = yes (λ {v} (v∈ , v∈′) → lookup p v∈ v∈′ )
   ... | no ¬p = let (x , x∈ , Px) = find $ ¬All⇒Any¬ (_∉? ys) _ ¬p
                 in no λ p → p {x} (x∈ , ¬∉⇒∈ Px)
 
-infix 4 _⊆?_
-_⊆?_ = ¿ _⊆_ {A = A} ¿²
+infix 4 _⊆?_ _⊆′?_
+_⊆?_      = ¿ _⊆_  {A = A} ¿²
+_⊆′?_     = ¿ _⊆′_ {A = A} ¿²
 disjoint? = ¿ Disjoint {A = A} ¿²
-unique? = ¿ Unique {A = A} ¿¹
+unique?   = ¿ Unique {A = A} ¿¹
 
 -- ** nub
 

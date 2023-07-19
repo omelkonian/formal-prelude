@@ -28,6 +28,9 @@ open import Prelude.Lists.Postulates
 open import Prelude.Lists.WithK
 open import Prelude.Lists.Collections
 open import Prelude.Lists.PermutationsMeta
+open import Prelude.Lists.SetEquality
+open import Prelude.Lists.Dec
+open import Prelude.Lists.DecMappings
 
 -- ** Decidability
 open import Prelude.DecEq
