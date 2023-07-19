@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Lists.DecMappings</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Lists/DecMappings.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Mappings as ???</a>
+<a id="93" class="Symbol">{-#</a> <a id="97" class="Keyword">OPTIONS</a> <a id="105" class="Pragma">--with-K</a> <a id="114" class="Symbol">#-}</a>
+<a id="118" class="Keyword">module</a> <a id="125" href="Prelude.Lists.DecMappings.html" class="Module">Prelude.Lists.DecMappings</a> <a id="151" class="Keyword">where</a>
+
+<a id="158" class="Keyword">open</a> <a id="163" class="Keyword">import</a> <a id="170" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="182" class="Symbol">;</a> <a id="184" class="Keyword">open</a> <a id="189" href="Prelude.Init.html#504" class="Module">SetAsType</a>
+<a id="199" class="Keyword">open</a> <a id="204" href="Prelude.Init.html#7170" class="Module">L.Mem</a> <a id="210" class="Keyword">using</a> <a id="216" class="Symbol">(</a><a id="217" href="Data.List.Membership.Setoid.html#896" class="Function Operator">_∈_</a><a id="220" class="Symbol">;</a> <a id="222" href="Data.List.Membership.Setoid.html#1137" class="Function">mapWith∈</a><a id="230" class="Symbol">;</a> <a id="232" href="Data.List.Membership.Propositional.Properties.html#4143" class="Function">∈-++⁻</a><a id="237" class="Symbol">;</a> <a id="239" href="Data.List.Membership.Propositional.Properties.html#3965" class="Function">∈-++⁺ˡ</a><a id="245" class="Symbol">;</a> <a id="247" href="Data.List.Membership.Propositional.Properties.html#4054" class="Function">∈-++⁺ʳ</a><a id="253" class="Symbol">)</a>
+<a id="255" class="Keyword">open</a> <a id="260" href="Prelude.Init.html#7485" class="Module">L.Perm</a> <a id="267" class="Keyword">using</a> <a id="273" class="Symbol">(</a><a id="274" href="Data.List.Relation.Binary.Permutation.Propositional.Properties.html#3452" class="Function">∈-resp-↭</a><a id="282" class="Symbol">;</a> <a id="284" href="Data.List.Relation.Binary.Permutation.Propositional.Properties.html#2949" class="Function">Any-resp-↭</a><a id="294" class="Symbol">)</a>
+<a id="296" class="Keyword">open</a> <a id="301" class="Keyword">import</a> <a id="308" href="Prelude.General.html" class="Module">Prelude.General</a> <a id="324" class="Keyword">using</a> <a id="330" class="Symbol">(</a><a id="331" href="Prelude.General.html#6860" class="InductiveConstructor Operator">⟫_</a><a id="333" class="Symbol">)</a>
+<a id="335" class="Keyword">open</a> <a id="340" class="Keyword">import</a> <a id="347" href="Prelude.Lists.Membership.html" class="Module">Prelude.Lists.Membership</a>
+<a id="372" class="Keyword">open</a> <a id="377" class="Keyword">import</a> <a id="384" href="Prelude.Lists.Permutations.html" class="Module">Prelude.Lists.Permutations</a>
+
+<a id="412" class="Keyword">open</a> <a id="417" class="Keyword">import</a> <a id="424" href="Prelude.DecEq.html" class="Module">Prelude.DecEq</a>
+
+<a id="439" class="Keyword">private</a> <a id="447" class="Keyword">variable</a>
+  <a id="458" href="Prelude.Lists.DecMappings.html#458" class="Generalizable">a</a> <a id="460" href="Prelude.Lists.DecMappings.html#460" class="Generalizable">b</a> <a id="462" href="Prelude.Lists.DecMappings.html#462" class="Generalizable">p</a> <a id="464" class="Symbol">:</a> <a id="466" href="Agda.Primitive.html#591" class="Postulate">Level</a>
+  <a id="474" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a> <a id="476" class="Symbol">:</a> <a id="478" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="483" href="Prelude.Lists.DecMappings.html#458" class="Generalizable">a</a>
+  <a id="487" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a> <a id="489" class="Symbol">:</a> <a id="491" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="496" href="Prelude.Lists.DecMappings.html#460" class="Generalizable">b</a>
+  <a id="500" href="Prelude.Lists.DecMappings.html#500" class="Generalizable">P</a> <a id="502" class="Symbol">:</a> <a id="504" href="Relation.Unary.html#1110" class="Function">Pred</a> <a id="509" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a> <a id="511" href="Prelude.Lists.DecMappings.html#462" class="Generalizable">p</a>
+
+  <a id="516" href="Prelude.Lists.DecMappings.html#516" class="Generalizable">x</a> <a id="518" class="Symbol">:</a> <a id="520" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a>
+  <a id="524" href="Prelude.Lists.DecMappings.html#524" class="Generalizable">xs</a> <a id="527" href="Prelude.Lists.DecMappings.html#527" class="Generalizable">xs′</a> <a id="531" href="Prelude.Lists.DecMappings.html#531" class="Generalizable">ys</a> <a id="534" href="Prelude.Lists.DecMappings.html#534" class="Generalizable">zs</a> <a id="537" class="Symbol">:</a> <a id="539" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="544" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a>
+
+<a id="547" class="Comment">-- ** Mappings from membership proofs.</a>
+<a id="586" class="Keyword">infixr</a> <a id="593" class="Number">0</a> <a id="595" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">_↦′_</a> <a id="600" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">_↦_</a>
+
+<a id="_↦′_"></a><a id="605" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">_↦′_</a> <a id="610" class="Symbol">:</a> <a id="612" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="617" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a> <a id="619" class="Symbol">→</a> <a id="621" class="Symbol">(</a><a id="622" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a> <a id="624" class="Symbol">→</a> <a id="626" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="631" href="Prelude.Init.html#261" class="Generalizable">ℓ</a><a id="632" class="Symbol">)</a> <a id="634" class="Symbol">→</a> <a id="636" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="641" class="Symbol">_</a>
+<a id="643" href="Prelude.Lists.DecMappings.html#643" class="Bound">xs</a> <a id="646" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">↦′</a> <a id="649" href="Prelude.Lists.DecMappings.html#649" class="Bound">P</a> <a id="651" class="Symbol">=</a> <a id="653" href="Data.List.Relation.Unary.All.html#1453" class="Datatype">All</a> <a id="657" href="Prelude.Lists.DecMappings.html#649" class="Bound">P</a> <a id="659" href="Prelude.Lists.DecMappings.html#643" class="Bound">xs</a>
+
+<a id="map↦"></a><a id="663" href="Prelude.Lists.DecMappings.html#663" class="Function">map↦</a> <a id="668" class="Symbol">=</a> <a id="670" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">_↦′_</a>
+<a id="675" class="Keyword">syntax</a> <a id="682" href="Prelude.Lists.DecMappings.html#663" class="Function">map↦</a> <a id="687" class="Bound">xs</a> <a id="690" class="Symbol">(λ</a> <a id="693" class="Bound">x</a> <a id="695" class="Symbol">→</a> <a id="697" class="Bound">f</a><a id="698" class="Symbol">)</a> <a id="700" class="Symbol">=</a> <a id="702" class="Function">∀[</a> <a id="705" class="Bound">x</a> <a id="707" class="Function">∈</a> <a id="709" class="Bound">xs</a> <a id="712" class="Function">]</a> <a id="714" class="Bound">f</a>
+
+<a id="_↦_"></a><a id="717" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">_↦_</a> <a id="721" class="Symbol">:</a> <a id="723" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="728" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a> <a id="730" class="Symbol">→</a> <a id="732" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="737" href="Prelude.Lists.DecMappings.html#460" class="Generalizable">b</a> <a id="739" class="Symbol">→</a> <a id="741" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="746" class="Symbol">_</a>
+<a id="748" href="Prelude.Lists.DecMappings.html#748" class="Bound">xs</a> <a id="751" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">↦</a> <a id="753" href="Prelude.Lists.DecMappings.html#753" class="Bound">B</a> <a id="755" class="Symbol">=</a> <a id="757" href="Prelude.Lists.DecMappings.html#748" class="Bound">xs</a> <a id="760" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">↦′</a> <a id="763" href="Function.Base.html#645" class="Function">const</a> <a id="769" href="Prelude.Lists.DecMappings.html#753" class="Bound">B</a>
+
+<a id="772" class="Keyword">instance</a>
+  <a id="DecEq-↦"></a><a id="783" href="Prelude.Lists.DecMappings.html#783" class="Function">DecEq-↦</a> <a id="791" class="Symbol">:</a> <a id="793" class="Symbol">⦃</a> <a id="795" href="Prelude.DecEq.Core.html#148" class="Record">DecEq</a> <a id="801" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a> <a id="803" class="Symbol">⦄</a> <a id="805" class="Symbol">→</a> <a id="807" href="Prelude.DecEq.Core.html#148" class="Record">DecEq</a> <a id="813" class="Symbol">(</a><a id="814" href="Prelude.Lists.DecMappings.html#524" class="Generalizable">xs</a> <a id="817" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">↦</a> <a id="819" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a><a id="820" class="Symbol">)</a>
+  <a id="824" href="Prelude.Lists.DecMappings.html#783" class="Function">DecEq-↦</a> <a id="832" class="Symbol">.</a><a id="833" href="Prelude.DecEq.Core.html#190" class="Field Operator">_≟_</a> <a id="837" href="Data.List.Relation.Unary.All.html#1516" class="InductiveConstructor">[]</a> <a id="840" href="Data.List.Relation.Unary.All.html#1516" class="InductiveConstructor">[]</a> <a id="843" class="Symbol">=</a> <a id="845" href="Relation.Nullary.html#1657" class="InductiveConstructor">yes</a> <a id="849" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+  <a id="856" href="Prelude.Lists.DecMappings.html#783" class="Function">DecEq-↦</a> <a id="864" class="Symbol">.</a><a id="865" href="Prelude.DecEq.Core.html#190" class="Field Operator">_≟_</a> <a id="869" class="Symbol">(</a><a id="870" href="Prelude.Lists.DecMappings.html#870" class="Bound">px</a> <a id="873" href="Data.List.Relation.Unary.All.html#1533" class="InductiveConstructor Operator">∷</a> <a id="875" href="Prelude.Lists.DecMappings.html#875" class="Bound">f</a><a id="876" class="Symbol">)</a> <a id="878" class="Symbol">(</a><a id="879" href="Prelude.Lists.DecMappings.html#879" class="Bound">py</a> <a id="882" href="Data.List.Relation.Unary.All.html#1533" class="InductiveConstructor Operator">∷</a> <a id="884" href="Prelude.Lists.DecMappings.html#884" class="Bound">g</a><a id="885" class="Symbol">)</a>
+    <a id="891" class="Keyword">with</a> <a id="896" href="Prelude.Lists.DecMappings.html#870" class="Bound">px</a> <a id="899" href="Prelude.DecEq.Core.html#190" class="Field Operator">≟</a> <a id="901" href="Prelude.Lists.DecMappings.html#879" class="Bound">py</a>
+  <a id="906" class="Symbol">...</a> <a id="910" class="Symbol">|</a> <a id="912" href="Relation.Nullary.html#1694" class="InductiveConstructor">no</a> <a id="915" href="Prelude.Lists.DecMappings.html#915" class="Bound">¬p</a> <a id="918" class="Symbol">=</a> <a id="920" href="Relation.Nullary.html#1694" class="InductiveConstructor">no</a> <a id="923" class="Symbol">λ</a> <a id="925" class="Keyword">where</a> <a id="931" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a> <a id="936" class="Symbol">→</a> <a id="938" href="Prelude.Lists.DecMappings.html#915" class="Bound">¬p</a> <a id="941" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+  <a id="948" class="Symbol">...</a> <a id="952" class="Symbol">|</a> <a id="954" href="Relation.Nullary.html#1657" class="InductiveConstructor">yes</a> <a id="958" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+    <a id="967" class="Keyword">with</a> <a id="972" class="Bound">f</a> <a id="974" href="Prelude.DecEq.Core.html#190" class="Field Operator">≟</a> <a id="976" class="Bound">g</a>
+  <a id="980" class="Symbol">...</a> <a id="984" class="Symbol">|</a> <a id="986" href="Relation.Nullary.html#1694" class="InductiveConstructor">no</a> <a id="989" href="Prelude.Lists.DecMappings.html#989" class="Bound">f≢g</a> <a id="993" class="Symbol">=</a> <a id="995" href="Relation.Nullary.html#1694" class="InductiveConstructor">no</a> <a id="998" class="Symbol">λ</a> <a id="1000" class="Keyword">where</a> <a id="1006" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a> <a id="1011" class="Symbol">→</a> <a id="1013" href="Prelude.Lists.DecMappings.html#989" class="Bound">f≢g</a> <a id="1017" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+  <a id="1024" class="Symbol">...</a> <a id="1028" class="Symbol">|</a> <a id="1030" href="Relation.Nullary.html#1657" class="InductiveConstructor">yes</a> <a id="1034" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a> <a id="1039" class="Symbol">=</a> <a id="1041" href="Relation.Nullary.html#1657" class="InductiveConstructor">yes</a> <a id="1045" href="Agda.Builtin.Equality.html#190" class="InductiveConstructor">refl</a>
+
+<a id="dom"></a><a id="1051" href="Prelude.Lists.DecMappings.html#1051" class="Function">dom</a> <a id="1055" class="Symbol">:</a> <a id="1057" class="Symbol">∀</a> <a id="1059" class="Symbol">{</a><a id="1060" href="Prelude.Lists.DecMappings.html#1060" class="Bound">xs</a> <a id="1063" class="Symbol">:</a> <a id="1065" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="1070" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a><a id="1071" class="Symbol">}</a> <a id="1073" class="Symbol">→</a> <a id="1075" href="Prelude.Lists.DecMappings.html#1060" class="Bound">xs</a> <a id="1078" href="Prelude.Lists.DecMappings.html#605" class="Function Operator">↦′</a> <a id="1081" href="Prelude.Lists.DecMappings.html#500" class="Generalizable">P</a> <a id="1083" class="Symbol">→</a> <a id="1085" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="1090" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a>
+<a id="1092" href="Prelude.Lists.DecMappings.html#1051" class="Function">dom</a> <a id="1096" class="Symbol">{</a><a id="1097" class="Argument">xs</a> <a id="1100" class="Symbol">=</a> <a id="1102" href="Prelude.Lists.DecMappings.html#1102" class="Bound">xs</a><a id="1104" class="Symbol">}</a> <a id="1106" class="Symbol">_</a> <a id="1108" class="Symbol">=</a> <a id="1110" href="Prelude.Lists.DecMappings.html#1102" class="Bound">xs</a>
+
+<a id="codom"></a><a id="1114" href="Prelude.Lists.DecMappings.html#1114" class="Function">codom</a> <a id="1120" class="Symbol">:</a> <a id="1122" href="Prelude.Lists.DecMappings.html#524" class="Generalizable">xs</a> <a id="1125" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">↦</a> <a id="1127" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a> <a id="1129" class="Symbol">→</a> <a id="1131" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="1136" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a>
+<a id="1138" href="Prelude.Lists.DecMappings.html#1114" class="Function">codom</a> <a id="1144" class="Symbol">=</a> <a id="1146" href="Data.List.Base.html#1553" class="Function">map</a> <a id="1150" href="Agda.Builtin.Sigma.html#246" class="Field">proj₂</a> <a id="1156" href="Function.Base.html#1040" class="Function Operator">∘</a> <a id="1158" href="Data.List.Relation.Unary.All.html#2868" class="Function">L.All.toList</a>
+
+<a id="codom-↦"></a><a id="1172" href="Prelude.Lists.DecMappings.html#1172" class="Function">codom-↦</a> <a id="1180" class="Symbol">:</a> <a id="1182" class="Symbol">∀</a> <a id="1184" class="Symbol">{</a><a id="1185" href="Prelude.Lists.DecMappings.html#1185" class="Bound">xs</a> <a id="1188" class="Symbol">:</a> <a id="1190" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="1195" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a><a id="1196" class="Symbol">}</a> <a id="1198" class="Symbol">→</a> <a id="1200" class="Symbol">(</a><a id="1201" href="Prelude.Lists.DecMappings.html#1201" class="Bound">f</a> <a id="1203" class="Symbol">:</a> <a id="1205" href="Prelude.Lists.DecMappings.html#1185" class="Bound">xs</a> <a id="1208" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">↦</a> <a id="1210" href="Prelude.Lists.DecMappings.html#487" class="Generalizable">B</a><a id="1211" class="Symbol">)</a> <a id="1213" class="Symbol">→</a> <a id="1215" href="Prelude.Lists.DecMappings.html#1114" class="Function">codom</a> <a id="1221" href="Prelude.Lists.DecMappings.html#1201" class="Bound">f</a> <a id="1223" href="Prelude.Lists.DecMappings.html#717" class="Function Operator">↦</a> <a id="1225" href="Prelude.Lists.DecMappings.html#474" class="Generalizable">A</a>
+<a id="1227" href="Prelude.Lists.DecMappings.html#1172" class="Function">codom-↦</a> <a id="1235" href="Data.List.Relation.Unary.All.html#1516" class="InductiveConstructor">[]</a> <a id="1238" class="Symbol">=</a> <a id="1240" href="Data.List.Relation.Unary.All.html#1516" class="InductiveConstructor">[]</a>
+<a id="1243" href="Prelude.Lists.DecMappings.html#1172" class="Function">codom-↦</a> <a id="1251" class="Symbol">{</a><a id="1252" class="Argument">xs</a> <a id="1255" class="Symbol">=</a> <a id="1257" href="Prelude.Lists.DecMappings.html#1257" class="Bound">x</a> <a id="1259" href="Agda.Builtin.List.html#182" class="InductiveConstructor Operator">∷</a> <a id="1261" class="Symbol">_}</a> <a id="1264" class="Symbol">(_</a> <a id="1267" href="Data.List.Relation.Unary.All.html#1533" class="InductiveConstructor Operator">∷</a> <a id="1269" href="Prelude.Lists.DecMappings.html#1269" class="Bound">f</a><a id="1270" class="Symbol">)</a> <a id="1272" class="Symbol">=</a> <a id="1274" href="Prelude.Lists.DecMappings.html#1257" class="Bound">x</a> <a id="1276" href="Data.List.Relation.Unary.All.html#1533" class="InductiveConstructor Operator">∷</a> <a id="1278" href="Prelude.Lists.DecMappings.html#1172" class="Function">codom-↦</a> <a id="1286" href="Prelude.Lists.DecMappings.html#1269" class="Bound">f</a>
+
+<a id="1289" class="Comment">-- weaken-↦ : xs ↦′ P → ys ⊆ xs → ys ↦′ P</a>
+<a id="1331" class="Comment">-- weaken-↦ f ys⊆xs = f ∘ ys⊆xs</a>
+
+<a id="1364" class="Comment">-- cons-↦ : (x : A) → P x → xs ↦′ P → (x ∷ xs) ↦′ P</a>
+<a id="1416" class="Comment">-- cons-↦ _ y _ (here refl) = y</a>
+<a id="1448" class="Comment">-- cons-↦ _ _ f (there x∈)  = f x∈</a>
+
+<a id="1484" class="Comment">-- uncons-↦ : (x ∷ xs) ↦′ P → xs ↦′ P</a>
+<a id="1522" class="Comment">-- uncons-↦ = _∘ there</a>
+
+<a id="1546" class="Comment">-- permute-↦ : xs ↭ ys → xs ↦′ P → ys ↦′ P</a>
+<a id="1589" class="Comment">-- permute-↦ xs↭ys xs↦ = xs↦ ∘ L.Perm.∈-resp-↭ (↭-sym xs↭ys)</a>
+
+<a id="1651" class="Comment">-- _++/↦_ : xs ↦′ P → ys ↦′ P → xs ++ ys ↦′ P</a>
+<a id="1697" class="Comment">-- xs↦ ++/↦ ys↦ = ∈-++⁻ _ &gt;≡&gt; λ where</a>
+<a id="1735" class="Comment">--   (inj₁ x∈) → xs↦ x∈</a>
+<a id="1759" class="Comment">--   (inj₂ y∈) → ys↦ y∈</a>
+
+<a id="1784" class="Comment">-- destruct-++/↦ : xs ++ ys ↦′ P → (xs ↦′ P) × (ys ↦′ P)</a>
+<a id="1841" class="Comment">-- destruct-++/↦ xys↦ = xys↦ ∘ ∈-++⁺ˡ , xys↦ ∘ ∈-++⁺ʳ _</a>
+
+<a id="1898" class="Comment">-- destruct≡-++/↦ : zs ≡ xs ++ ys → zs ↦′ P → (xs ↦′ P) × (ys ↦′ P)</a>
+<a id="1966" class="Comment">-- destruct≡-++/↦ refl = destruct-++/↦</a>
+
+<a id="2006" class="Comment">-- extend-↦ : zs ↭ xs ++ ys → xs ↦′ P → ys ↦′ P → zs ↦′ P</a>
+<a id="2064" class="Comment">-- extend-↦ zs↭ xs↦ ys↦ = permute-↦ (↭-sym zs↭) (xs↦ ++/↦ ys↦)</a>
+
+<a id="2128" class="Comment">-- cong-↦ : xs ↦′ P → xs′ ≡ xs → xs′ ↦′ P</a>
+<a id="2170" class="Comment">-- cong-↦ f refl = f</a>
+
+<a id="2192" class="Comment">-- open ≡-Reasoning</a>
+
+<a id="2213" class="Comment">-- -- ** Pointwise equality of same-domain mappings.</a>
+<a id="2266" class="Comment">-- module _ {A : Type ℓ} {xs : List A} {P : Pred A ℓ′} where</a>
+<a id="2327" class="Comment">--   _≗↦_ : Rel (xs ↦′ P) _</a>
+<a id="2355" class="Comment">--   f ≗↦ f′ = ∀ {x : A} (x∈ : x ∈ xs) → f x∈ ≡ f′ x∈</a>
+
+<a id="2410" class="Comment">--   _≗⟨_⟩↦_ : ∀ {ys : List A} →</a>
+<a id="2443" class="Comment">--     (ys ↦′ P) → (p↭ : xs ↭ ys) → (xs ↦′ P) → Type _</a>
+<a id="2498" class="Comment">--   f′ ≗⟨ p↭ ⟩↦ f = ∀ {x : A} (x∈ : x ∈ xs) → f′ (∈-resp-↭ p↭ x∈) ≡ f x∈</a>
+
+<a id="2573" class="Comment">--   permute-≗↦ : ∀ {ys : List A}</a>
+<a id="2607" class="Comment">--     → (p↭ : xs ↭ ys)</a>
+<a id="2631" class="Comment">--     → (f : xs ↦′ P)</a>
+<a id="2654" class="Comment">--       --——————————————————————————————————————</a>
+<a id="2704" class="Comment">--     → permute-↦ p↭ f ≗⟨ p↭ ⟩↦ f</a>
+<a id="2739" class="Comment">--   permute-≗↦ p↭ f {x} x∈ =</a>
+<a id="2769" class="Comment">--     begin</a>
+<a id="2782" class="Comment">--       permute-↦ p↭ f (∈-resp-↭ p↭ x∈)</a>
+<a id="2823" class="Comment">--     ≡⟨⟩</a>
+<a id="2834" class="Comment">--       (f ∘ ∈-resp-↭ (↭-sym p↭)) (∈-resp-↭ p↭ x∈)</a>
+<a id="2886" class="Comment">--     ≡⟨⟩</a>
+<a id="2897" class="Comment">--       f (∈-resp-↭ (↭-sym p↭) $ ∈-resp-↭ p↭ x∈)</a>
+<a id="2947" class="Comment">--     ≡⟨ cong f (∈-resp-↭∘∈-resp-↭˘ p↭ x∈) ⟩</a>
+<a id="2993" class="Comment">--       f x∈</a>
+<a id="3007" class="Comment">--     ∎</a>
+
+
+<a id="3018" class="Comment">--   permute-↦∘permute-↦˘ : ∀ {ys : List A}</a>
+<a id="3062" class="Comment">--     → (p↭ : xs ↭ ys)</a>
+<a id="3086" class="Comment">--     → (f : xs ↦′ P)</a>
+<a id="3109" class="Comment">--       --——————————————————————————————————————</a>
+<a id="3159" class="Comment">--     → permute-↦ (↭-sym p↭) (permute-↦ p↭ f) ≗↦ f</a>
+<a id="3211" class="Comment">--   permute-↦∘permute-↦˘ p↭ f {x} x∈</a>
+<a id="3249" class="Comment">--     rewrite permute-≗↦ p↭ f x∈</a>
+<a id="3283" class="Comment">--           | L.Perm.↭-sym-involutive p↭</a>
+<a id="3325" class="Comment">--     = cong f $ Any-resp-↭∘Any-resp-↭˘ p↭ x∈</a>
+
+<a id="3373" class="Comment">-- module _ (f : xs ↦′ P) (g : ys ↦′ P) where</a>
+<a id="3419" class="Comment">--   destruct-++/↦∘++/↦ :</a>
+<a id="3445" class="Comment">--     let f′ , g′ = destruct-++/↦ (f ++/↦ g)</a>
+<a id="3491" class="Comment">--     in (f ≗↦ f′) × (g ≗↦ g′)</a>
+<a id="3523" class="Comment">--   destruct-++/↦∘++/↦ = f≗ , g≗</a>
+<a id="3557" class="Comment">--     where</a>
+<a id="3570" class="Comment">--       fg : (xs ↦′ P) × (ys ↦′ P)</a>
+<a id="3606" class="Comment">--       fg = destruct-++/↦ (f ++/↦ g)</a>
+<a id="3645" class="Comment">--       f′ = fg .proj₁; g′ = fg .proj₂</a>
+
+<a id="3686" class="Comment">--       f≗ : f ≗↦ f′</a>
+<a id="3708" class="Comment">--       f≗ x∈ rewrite Any-++⁻∘Any-++⁺ˡ {ys = ys} x∈ = refl</a>
+
+<a id="3769" class="Comment">--       g≗ : g ≗↦ g′</a>
+<a id="3791" class="Comment">--       g≗ x∈ rewrite Any-++⁻∘Any-++⁺ʳ {xs = xs} x∈ = refl</a>
+
+<a id="3852" class="Comment">--   destruct≡-++/↦∘cong-↦ :</a>
+<a id="3881" class="Comment">--     (eq : zs ≡ xs ++ ys) →</a>
+<a id="3911" class="Comment">--     let f′ , g′ = destruct≡-++/↦ eq (cong-↦ (f ++/↦ g) eq)</a>
+<a id="3973" class="Comment">--     in (f ≗↦ f′) × (g ≗↦ g′)</a>
+<a id="4005" class="Comment">--   destruct≡-++/↦∘cong-↦ refl = destruct-++/↦∘++/↦</a>
+
+<a id="4059" class="Comment">-- -- T0D0 use for permute-↦∘permute-↦˘ to simplify</a>
+<a id="4111" class="Comment">-- module _ {A : Type ℓ} {P : A → Type ℓ′} {x : A} {xs ys zs : List A} where</a>
+<a id="4188" class="Comment">--   permute-↦∘permute-↦ :</a>
+<a id="4215" class="Comment">--     (p : xs ↭ ys) (q : ys ↭ zs) (f : xs ↦′ P) →</a>
+<a id="4266" class="Comment">--     --——————————————————————————————————————————————————————</a>
+<a id="4330" class="Comment">--     permute-↦ q (permute-↦ p f) ≗↦ permute-↦ (↭-trans p q) f</a>
+<a id="4394" class="Comment">--   permute-↦∘permute-↦ p q f x∈ =</a>
+<a id="4430" class="Comment">--     begin</a>
+<a id="4443" class="Comment">--       permute-↦ q (permute-↦ p f) x∈</a>
+<a id="4483" class="Comment">--     ≡⟨⟩</a>
+<a id="4494" class="Comment">--       f (∈-resp-↭ (↭-sym p) $ ∈-resp-↭ (↭-sym q) x∈)</a>
+<a id="4550" class="Comment">--     ≡⟨⟩</a>
+<a id="4561" class="Comment">--       f (∈-resp-↭ (↭-sym $ ↭-trans p q) x∈)</a>
+<a id="4608" class="Comment">--     ≡⟨⟩</a>
+<a id="4619" class="Comment">--       permute-↦ (↭-trans p q) f x∈</a>
+<a id="4657" class="Comment">--     ∎</a>
+
+<a id="4667" class="Comment">-- -- ** Pointwise equality of ⊆-related mappings.</a>
+<a id="4718" class="Comment">-- module _ {A : Type ℓ} {xs ys : List A} {P : Pred A ℓ′} where</a>
+<a id="4782" class="Comment">--   _≗⟨_⊆⟩↦_ : ys ↦′ P → (p : ys ⊆ xs) → xs ↦′ P → Type _</a>
+<a id="4841" class="Comment">--   f′ ≗⟨ p ⊆⟩↦ f = f′ ≗↦ (f ∘ p)</a>
+
+<a id="4877" class="Comment">--   weaken-≗↦ : (p : ys ⊆ xs) (f : xs ↦′ P)</a>
+<a id="4922" class="Comment">--     → weaken-↦ f p ≗⟨ p ⊆⟩↦ f</a>
+<a id="4955" class="Comment">--   weaken-≗↦ _ _ _ = refl</a>
+
+<a id="4984" class="Comment">--   _≗↦ˡ_ : xs ++ ys ↦′ P → xs ↦′ P → Type _</a>
+<a id="5030" class="Comment">--   fg ≗↦ˡ f = (fg ∘ L.Mem.∈-++⁺ˡ) ≗↦ f</a>
+
+<a id="5072" class="Comment">--   ++-≗↦ˡ : (f : xs ↦′ P) (g : ys ↦′ P)</a>
+<a id="5114" class="Comment">--     → (f ++/↦ g) ≗↦ˡ f</a>
+<a id="5140" class="Comment">--   ++-≗↦ˡ _ _ (here _) = refl</a>
+<a id="5172" class="Comment">--   ++-≗↦ˡ _ _ (there x∈) rewrite ∈-++⁻∘∈-++⁺ˡ {ys = ys} x∈ = refl</a>
+
+<a id="5241" class="Comment">--   _≗↦ʳ_ : xs ++ ys ↦′ P → ys ↦′ P → Type _</a>
+<a id="5287" class="Comment">--   fg ≗↦ʳ g = (fg ∘ L.Mem.∈-++⁺ʳ _) ≗↦ g</a>
+
+<a id="5331" class="Comment">--   ++-≗↦ʳ : (f : xs ↦′ P) (g : ys ↦′ P)</a>
+<a id="5373" class="Comment">--     → (f ++/↦ g) ≗↦ʳ g</a>
+<a id="5399" class="Comment">--   ++-≗↦ʳ f g y∈ with ⟫ xs</a>
+<a id="5428" class="Comment">--   ... | ⟫ [] = refl</a>
+<a id="5451" class="Comment">--   ... | ⟫ _ ∷ xs′ rewrite ∈-++⁻∘∈-++⁺ʳ {xs = xs} y∈ = refl</a>
+
+<a id="5514" class="Comment">--   _≗↦ˡʳ_,_ : xs ++ ys ↦′ P → xs ↦′ P → ys ↦′ P → Type _</a>
+<a id="5573" class="Comment">--   fg ≗↦ˡʳ f , g = (fg ≗↦ˡ f) × (fg ≗↦ʳ g)</a>
+
+<a id="5619" class="Comment">--   ++-≗↦ˡʳ : (f : xs ↦′ P) (g : ys ↦′ P)</a>
+<a id="5662" class="Comment">--     → (f ++/↦ g) ≗↦ˡʳ f , g</a>
+<a id="5693" class="Comment">--   ++-≗↦ˡʳ f g = ++-≗↦ˡ f g , ++-≗↦ʳ f g</a>
+
+<a id="5737" class="Comment">-- -- ** Properties.</a>
+<a id="5758" class="Comment">-- ++/↦-inj₂ : ∀ (f : xs ↦′ P) (g : ys ↦′ P) (x∈ : x ∈ xs ++ ys) (y∈ : x ∈ ys)</a>
+<a id="5837" class="Comment">--   → ∈-++⁻ xs x∈ ≡ inj₂ y∈</a>
+<a id="5866" class="Comment">--     --———————————————————</a>
+<a id="5895" class="Comment">--   → (f ++/↦ g) x∈ ≡ g y∈</a>
+<a id="5923" class="Comment">-- ++/↦-inj₂ {xs = xs} _ _ x∈ _ eq</a>
+<a id="5958" class="Comment">--   with inj₂ _ ← ∈-++⁻ xs x∈</a>
+<a id="5989" class="Comment">--   with refl ← eq</a>
+<a id="6009" class="Comment">--   = refl</a>
+
+<a id="6022" class="Comment">-- ++/↦≡-inj₂ : (eq : zs ≡ xs ++ ys)</a>
+<a id="6059" class="Comment">--   → ∀ (f : xs ↦′ P) (g : ys ↦′ P) (x∈ : x ∈ zs) (y∈ : x ∈ ys)</a>
+<a id="6124" class="Comment">--     → ∈-++⁻ xs (subst (x ∈_) eq x∈) ≡ inj₂ y∈</a>
+<a id="6173" class="Comment">--       --—————————————————————————————————————</a>
+<a id="6222" class="Comment">--     → subst (_↦′ P) (sym eq) (f ++/↦ g) x∈ ≡ g y∈</a>
+<a id="6275" class="Comment">-- ++/↦≡-inj₂ refl = ++/↦-inj₂</a>
+
+<a id="6307" class="Comment">-- ++/↦-there : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)</a>
+<a id="6355" class="Comment">--   → ((f ∘ there) ++/↦ g) ≗↦ ((f ++/↦ g) ∘ there)</a>
+<a id="6407" class="Comment">-- ++/↦-there {xs = []}         _ _ {_} _        = refl</a>
+<a id="6463" class="Comment">-- ++/↦-there {xs = _ ∷ _}      _ _ {_} (here _) = refl</a>
+<a id="6519" class="Comment">-- ++/↦-there {xs = xs@(_ ∷ _)} _ _ {_} (there x∈)</a>
+<a id="6570" class="Comment">--   with ∈-++⁻ xs (there x∈)</a>
+<a id="6600" class="Comment">-- ... | inj₁ _ = refl</a>
+<a id="6623" class="Comment">-- ... | inj₂ _ = refl</a>
+
+<a id="6647" class="Comment">-- uncons-≗↦ : (f : x ∷ xs ↦′ P) (g : ys ↦′ P)</a>
+<a id="6694" class="Comment">--   → uncons-↦ (f ++/↦ g) ≗↦ (uncons-↦ f ++/↦ g)</a>
+<a id="6744" class="Comment">-- uncons-≗↦ f g {y} y∈ =</a>
+<a id="6770" class="Comment">--   begin uncons-↦ (f ++/↦ g) y∈  ≡⟨⟩</a>
+<a id="6809" class="Comment">--         (f ++/↦ g) (there y∈)   ≡⟨ sym $ ++/↦-there f g y∈ ⟩</a>
+<a id="6873" class="Comment">--         ((f ∘ there) ++/↦ g) y∈ ≡⟨⟩</a>
+<a id="6912" class="Comment">--         (uncons-↦ f ++/↦ g) y∈  ∎</a>
+</pre></body></html>
