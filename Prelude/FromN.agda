@@ -11,6 +11,9 @@ instance
   Fromℕ-ℕ : Fromℕ ℕ
   Fromℕ-ℕ .fromℕ = id
 
+  Fromℕ-Int : Fromℕ ℤ
+  Fromℕ-Int .fromℕ = +_
+
   Fromℕ-Char : Fromℕ Char
   Fromℕ-Char .fromℕ = Ch.fromℕ
 

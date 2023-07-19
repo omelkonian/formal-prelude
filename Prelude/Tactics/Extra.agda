@@ -44,7 +44,7 @@ private
 
   _ = (∶tt (_+ 5)) ≡ Op₁ ℕ
     ∋ refl
-  _ = (∶tt (Integer._+_ Integer.0ℤ)) ≡ Op₁ ℤ
+  _ = (∶tt (Integer._+_ 0ℤ)) ≡ Op₁ ℤ
     ∋ refl
 
   private variable a b : Set

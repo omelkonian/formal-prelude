@@ -1,6 +1,9 @@
 {-# OPTIONS --with-K #-}
 module Prelude.Main where
 
+-- ** Integer patterns
+open import Data.Integer.Patterns
+
 -- ** Ternary relations
 open import Relation.Ternary
 

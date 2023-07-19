@@ -199,7 +199,7 @@ private
   pattern ≫_ x = inj₂ (refl , x)
   pattern ≪⊥ = ≪ ()
   pattern ≫⊥ = ≫ ()
-  open Integer using (0ℤ; 1ℤ; +<+)
+  open Integer using (+<+)
   pattern 0<1 = s≤s z≤n
 
   data X : Set where

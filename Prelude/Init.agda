@@ -139,9 +139,11 @@ module Nat where
     open import Data.Nat.Induction public
 
 open import Data.Integer public
-  using (ℤ; +_)
+  using (ℤ; +_; +0; +[1+_]; -[1+_])
+open import Data.Integer.Patterns public
 module Integer where
   open import Data.Integer public
+    hiding (0ℤ; 1ℤ; -1ℤ)
   open import Data.Integer.Properties public
 
 open import Data.Float public
@@ -154,7 +156,6 @@ open import Data.Fin public
   using (Fin; #_)
   renaming (suc to fsuc; zero to fzero)
 open import Data.Fin.Patterns public
-  using (0F; 1F; 2F; 3F; 4F; 5F; 6F; 7F; 8F; 9F)
 module F where
   open import Data.Fin public
   open import Data.Fin.Properties public
