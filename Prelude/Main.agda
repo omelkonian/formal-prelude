@@ -31,6 +31,9 @@ open import Prelude.Lists.PermutationsMeta
 open import Prelude.Lists.SetEquality
 open import Prelude.Lists.Dec
 open import Prelude.Lists.DecMappings
+open import Prelude.Lists.NoNil
+
+open import Prelude.Variants
 
 -- ** Decidability
 open import Prelude.DecEq
