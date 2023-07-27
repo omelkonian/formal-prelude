@@ -246,7 +246,7 @@ instance
   ToList-Bag : ToList Bag A
   ToList-Bag .toList = list
 
-  FromList-Bag : FromList A Bag
+  FromList-Bag : FromList A (const Bag)
   FromList-Bag .fromList = mkBag
 
 ∈ˢ-fromList : x ∈ xs ↔ x ∈ˢ fromList xs

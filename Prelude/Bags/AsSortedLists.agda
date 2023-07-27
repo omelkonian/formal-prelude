@@ -41,7 +41,7 @@ instance
   ToList-Bag : ToList Bag A
   ToList-Bag .toList = proj₁
 
-  FromList-Bag : FromList A Bag
+  FromList-Bag : FromList A (const Bag)
   FromList-Bag .fromList xs = sort xs , sort-↗ xs
 
   Measurable-Set : Measurable Bag

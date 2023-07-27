@@ -315,7 +315,7 @@ instance
   ToList-Set : ToList Set' A
   ToList-Set .toList = list
 
-  FromList-Set : FromList A Set'
+  FromList-Set : FromList A (const Set')
   FromList-Set .fromList xs = nub xs
                             ⊣ Unique⇒·Unique (Unique-nub {xs = xs})
 

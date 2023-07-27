@@ -56,8 +56,7 @@ instance
   ToList-Map : ToList Map (K × V)
   ToList-Map .toList = proj₁
 
-
-  FromList-Map : FromList (K × V) Map
+  FromList-Map : FromList (K × V) (const Map)
   FromList-Map .fromList xs
     = sort (nubBy proj₁ xs) , sort-↗ (nubBy proj₁ xs)
     , Unique⇒·Unique (Unique-map∘sort∘nubBy xs)

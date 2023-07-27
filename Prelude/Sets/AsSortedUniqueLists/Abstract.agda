@@ -48,7 +48,7 @@ module _ {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord⁺⁺ A ⦄ where abstra
     ToList-Set : ToList Set' A
     ToList-Set .toList = proj₁
 
-    FromList-Set : FromList A Set'
+    FromList-Set : FromList A (const Set')
     FromList-Set .fromList xs
       = sort (nub xs)
       , sort-↗ (nub xs)
@@ -153,7 +153,7 @@ module _ {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord⁺⁺ A ⦄ where abstra
   -- from↔to : ∀ xs → Unique xs → to (from xs) ≡ xs
   -- from↔to _ Uxs rewrite nub-from∘to Uxs = refl
 
-  ∈-to∘from⁻ : x ∈ to (from {B = Set'} xs) → x ∈ xs
+  ∈-to∘from⁻ : x ∈ to (from {B = const Set'} xs) → x ∈ xs
   ∈-to∘from⁻ = ∈-nub⁻ ∘ ∈-sort⁻
 
   ∈-to⁻ : x ∈ to Xs → x ∈ˢ Xs

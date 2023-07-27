@@ -185,10 +185,10 @@ record FinSetᴵ ⦃ _ : DecEq A ⦄ : Type (lsuc σ) where
   -- conversion from/to lists
   field instance
     ToList-Set   : ToList Set' A
-    FromList-Set : FromList A Set'
+    FromList-Set : FromList A (const  Set')
   instance _ = ToList-Set; instance _ = FromList-Set -- make instances available for subsequent fields
   field
-    from↔to : ∀ xs → Unique xs → toList (fromList {B = Set'} xs) ≡ xs
+    from↔to : ∀ xs → Unique xs → toList (fromList {B = const Set'} xs) ≡ xs
     ∈ˢ-fromList : ∀ {x : A} {xs : List A} → x ∈ xs ↔ x ∈ˢ fromList xs
 
   -- decidable equality of sets

@@ -66,7 +66,7 @@ instance
   ToList-Set : ToList Set' A
   ToList-Set .toList = proj₁
 
-  FromList-Set : FromList A Set'
+  FromList-Set : FromList A (const Set')
   FromList-Set .fromList xs
     = sort (nub xs)
     , sort-↗ (nub xs)

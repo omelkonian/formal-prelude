@@ -231,7 +231,7 @@ instance
   ToList-Map : ToList Map (K × V)
   ToList-Map .toList = toList ∘ kvs
 
-  FromList-Map : FromList (K × V) Map
+  FromList-Map : FromList (K × V) (const Map)
   FromList-Map .fromList xs = fromList (nubBy proj₁ xs)
                             ⊣ Unique-map∘nub∘nubBy proj₁ xs
 
