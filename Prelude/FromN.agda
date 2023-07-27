@@ -22,3 +22,6 @@ instance
 
   Fromℕ-Word : Fromℕ Word64
   Fromℕ-Word .fromℕ = Word.fromℕ
+
+  Fromℕ-ℕᵇ : Fromℕ ℕᵇ
+  Fromℕ-ℕᵇ .fromℕ = Nat.Bin.fromℕ
