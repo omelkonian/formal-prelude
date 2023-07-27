@@ -137,6 +137,9 @@ module Nat where
       using (_≤_; _<_; _≥_; _>_; _≤?_; _<?_; _≥?_; _>?_)
   module Ind where
     open import Data.Nat.Induction public
+  module Bin where
+    open import Data.Nat.Binary public
+open Nat.Bin using (ℕᵇ) public
 
 open import Data.Integer public
   using (ℤ; +_; +0; +[1+_]; -[1+_])
@@ -214,7 +217,7 @@ module V where
 
 open import Data.List public
   using
-  ( List; _∷_; []; [_]; _∷ʳ_; map; filter; concat; concatMap; length
+  ( List; _∷_; []; _∷ʳ_; map; filter; concat; concatMap; length
   ; _++_; foldl; foldr; upTo; applyUpTo; mapMaybe; all; any; and; or
   ; partitionSums; zip; unzip; sum; null; allFin; take; drop
   ; takeWhile; dropWhile
@@ -278,7 +281,6 @@ module L where
 
 open L.NE public
   using (List⁺; _∷_; _∷⁺_; _⁺∷ʳ_ ; _⁺++_; _++⁺_; _⁺++⁺_)
-  renaming ([_] to [_]⁺)
 open L.Mem public
   using (find; lose)
 open L.Any public
@@ -309,6 +311,13 @@ open L.Fst public
 open L.Lnk public
   using (Linked; []; [-]; _∷_)
 
+-- ** list literals, works for List(⁺)/Vec/All/AllPairs/Linked/First/Prefix/Pointwise
+pattern [_] x = x ∷ []
+pattern [_⨾_] x y = x ∷ [ y ]
+pattern [_⨾_⨾_] x y z = x ∷ [ y ⨾ z ]
+pattern [_⨾_⨾_⨾_] x y z w = x ∷ [ y ⨾ z ⨾ w ]
+pattern [_⨾_⨾_⨾_⨾_] x y z w q = x ∷ [ y ⨾ z ⨾ w ⨾ q ]
+pattern [_⨾_⨾_⨾_⨾_⨾_] x y z w q r = x ∷ [ y ⨾ z ⨾ w ⨾ q ⨾ r ]
 
 -- ** Relations
 module Nullary where

@@ -248,7 +248,7 @@ xs \\ (x ∷ ys) with x ∈? xs
 ... | yes ()
 
 \\-head : [] ≡ [ x ] \\ (x ∷ xs)
-\\-head {x = x} {xs = xs} with x ∈? [ x ]
+\\-head {x = x} {xs = xs} with x ∈? L.[ x ]
 ... | no ¬p = ⊥-elim (¬p (here refl))
 ... | yes p with index p
 ... | 0F = \\-left {xs = xs}
@@ -257,11 +257,11 @@ xs \\ (x ∷ ys) with x ∈? xs
 \\-‼ : ∀ {i : Index xs}
       → [] ≡ [ xs ‼ i ] \\ xs
 \\-‼ {xs = []} {()}
-\\-‼ {xs = x ∷ xs} {0F} with x ∈? [ x ]
+\\-‼ {xs = x ∷ xs} {0F} with x ∈? L.[ x ]
 ... | no ¬p = ⊥-elim (¬p (here refl))
 ... | yes (here relf) = \\-left {xs = xs}
 ... | yes (there ())
-\\-‼ {xs = x ∷ xs} {fsuc i} with x ∈? [ xs ‼ i ]
+\\-‼ {xs = x ∷ xs} {fsuc i} with x ∈? L.[ xs ‼ i ]
 ... | no ¬p = \\-‼ {xs = xs} {i}
 ... | yes (here refl) = \\-left {xs = xs}
 ... | yes (there ())

@@ -4,8 +4,8 @@ module Prelude.Bitstring where
 open import Data.Digit as D public using (Bit)
 
 open import Prelude.Init; open SetAsType
-open Nat renaming (suc to 1+_)
-open F using () renaming (suc to 1+_)
+open Nat using () renaming (suc to 1+_)
+open F   using () renaming (suc to 1+_)
 open import Prelude.DecEq
 open import Prelude.Applicative
 open import Prelude.Semigroup

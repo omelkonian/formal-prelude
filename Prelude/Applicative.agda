@@ -86,7 +86,7 @@ instance
 
   Applicative-List⁺ : Applicative List⁺
   Applicative-List⁺ = λ where
-    .pure → [_]⁺
+    .pure → [_]
     ._<*>_ → flip $ L.NE.concatMap ∘ _<&>_
 
   Applicative-Vec : ∀ {n} → Applicative (flip Vec n)

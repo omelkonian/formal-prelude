@@ -122,7 +122,7 @@ Singleton⁺ (_ ∷ _)  = ⊥
 
 destruct-Singleton⁺ : ∀ {xs : List⁺ A}
   → Singleton⁺ xs
-  → ∃ λ x → xs ≡ [ x ]⁺
+  → ∃ λ x → xs ≡ [ x ]
 destruct-Singleton⁺ {xs = _ ∷ []}      tt = _ , refl
 destruct-Singleton⁺ {xs = _ ∷ (_ ∷ _)} ()
 

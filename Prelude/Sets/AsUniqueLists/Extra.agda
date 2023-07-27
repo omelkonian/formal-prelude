@@ -171,7 +171,7 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
           (yes x≡) → here x≡
           (no  x≢) → there $′ L.Mem.∈-filter⁺ p? x∈ λ where 𝟘 → x≢ refl
     )
-    where p? = _∉? [ x ]
+    where p? = _∉? L.[ x ]
           pattern 𝟘 = here refl
 
   to-++ˢ : (to $ xs ∪ ys) ∼[set] (to xs ++ to ys)

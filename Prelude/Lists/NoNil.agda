@@ -24,15 +24,6 @@ record List? (X A : Type) : Type₁ where
   syntax toL {A = A} = toL[ A ]
 open List? ⦃...⦄ public
 
-infixr 4 _⊕_
-_⊕_ : ⦃ List? X A ⦄ → ⦃ List? X B ⦄ → A → B → List X
-_⊕_ {X}{A}{B} x y
-  with A isListOf? X | B isListOf? X
-... | 𝕃 | 𝕃 = x ∷ y ∷ []
-... | 𝕃 | ℝ = x ∷ y
-... | ℝ | 𝕃 = x ∷ʳ y
-... | ℝ | ℝ = x ++ y
-
 instance
   Pick𝕃 : List? X X
   Pick𝕃 = record {isList = 𝕃}
@@ -45,6 +36,10 @@ test-variant {X}{A}
   with A isListOf? X
 ... | 𝕃 = [_]
 ... | ℝ = id
+
+infixr 4 _⊕_
+_⊕_ : ⦃ List? X A ⦄ → ⦃ List? X B ⦄ → A → B → List X
+x ⊕ y = toL x ++ toL y
 
 open import Prelude.General; open MultiTest
 _ = List ℕ

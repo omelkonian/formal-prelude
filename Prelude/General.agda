@@ -262,7 +262,7 @@ module Derive-⊆-from-∈ {A : Type ℓ} {B : Type ℓ′} (_∈_ : A → B →
 
 -- ** Lists
 
-[]-injective : [ x ] ≡ [ y ] → x ≡ y
+[]-injective : L.[ x ] ≡ [ y ] → x ≡ y
 []-injective refl = refl
 
 open L.Mem using (_∈_)
@@ -283,10 +283,10 @@ filter-singleton : ∀ {P : A → Type} {P? : Decidable¹ P} {px : P x}
   → filter P? [ x ] ≡ [ x ]
 filter-singleton {P? = P?} p rewrite p = refl
 
-case-singleton : ∀ {x xs} {f : A → B} {g : B}
+case-singleton : ∀ {x} {xs : List A} {f : A → B} {g : B}
   → xs ≡ [ x ]
-  → (case xs of λ{ (x′ ∷ []) → f x′
-                 ; _         → g }) ≡ f x
+  → (case xs of λ{ [ x′ ] → f x′
+                 ; _      → g }) ≡ f x
 case-singleton refl = refl
 
 -- ** Singleton types

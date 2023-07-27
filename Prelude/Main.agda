@@ -32,6 +32,7 @@ open import Prelude.Lists.SetEquality
 open import Prelude.Lists.Dec
 open import Prelude.Lists.DecMappings
 open import Prelude.Lists.NoNil
+open import Prelude.Lists.NoNilPlus
 
 open import Prelude.Variants
 
@@ -71,6 +72,7 @@ open import Prelude.Measurable.Examples
 
 open import Prelude.ToN; open import Prelude.FromN
 open import Prelude.ToList; open import Prelude.FromList
+open import Prelude.ToZ
 open import Prelude.Enumerable; open import Prelude.InfEnumerable
 open import Prelude.Indexable
 
