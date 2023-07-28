@@ -88,8 +88,8 @@ module _ (toDrop : ℕ) {- module context -} where
         -- print $ "tel: " ◇ show tel
         -- print $ "pc: " ◇ show PC
         -- print $ "pc′: " ◇ show PC′
-        ty  ← getType c
-        ty′ ← getType c′
+        ty  ← reduce =<< getType c
+        ty′ ← reduce =<< getType c′
         b   ← compatible? (resultTy ty) (resultTy ty′)
         return $
           if b then just (⟦ PC ∣ PC′ ⦅ tel ⦆⇒ if c == c′ then go n (filter (isVisible? ∘ proj₂) pvs)
@@ -210,6 +210,11 @@ private
     c₂ : List X² → XX
     c₁ : X¹ → X² → XX
   unquoteDecl xx = DERIVE DecEq [ quote XX , xx ]
+
+  data XXX : Set where
+    c₂′  : List X² → XXX
+    _⊗⊗_ : Op₂ XXX
+  unquoteDecl xxx = DERIVE DecEq [ quote XXX , xxx ]
 
 -- ** recursive datatypes
 

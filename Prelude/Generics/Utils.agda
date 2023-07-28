@@ -204,7 +204,7 @@ module _ (toDrop : ℕ) {- module context -} where
     × Pattern             -- ^ generated pattern for given constructor
     )
   mkPattern c = do
-    ty ← getType c
+    ty ← reduce =<< getType c
     let tys  = drop toDrop (argTys ty)
         n    = length tys
         vars = map (map₁ toℕ) (enumerate tys)
