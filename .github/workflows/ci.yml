@@ -15,4 +15,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           measure-typechecking: true
           ribbon: true
-          rts: -K256M -H1G -M8G -A128M
