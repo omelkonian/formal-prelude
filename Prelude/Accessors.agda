@@ -16,12 +16,10 @@ HasField : Op₂ Type
 HasField A B = HasField′ A (const B)
 
 -- e.g.
--- ```
 -- instance
 --   List-num : HasField (List A) ℕ
 --   List-num ._∙ = length
 -- private _ = [ "single" ] ∙ ≡ 1 ∋ refl
--- ```
 
 -- ** deriving
 
