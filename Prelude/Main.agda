@@ -88,7 +88,7 @@ open import Prelude.Ord.Tests
 open import Prelude.Setoid
 open import Prelude.CongSetoid
 
-open import Prelude.Membership
+open import Prelude.Membership; open import Prelude.Membership.Patterns
 open import Prelude.Apartness
 
 open import Prelude.Nary
