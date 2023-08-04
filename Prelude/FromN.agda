@@ -2,6 +2,7 @@
 module Prelude.FromN where
 
 open import Prelude.Init; open SetAsType
+open import Prelude.Newtype
 
 record Fromℕ (A : Type ℓ) : Type ℓ where
   field fromℕ : ℕ → A
@@ -25,3 +26,6 @@ instance
 
   Fromℕ-ℕᵇ : Fromℕ ℕᵇ
   Fromℕ-ℕᵇ .fromℕ = Nat.Bin.fromℕ
+
+  Fromℕ-newtype : ∀ {A : Type ℓ} → ⦃ Fromℕ A ⦄ → Fromℕ (newtype A)
+  Fromℕ-newtype .fromℕ = mk ∘ fromℕ
