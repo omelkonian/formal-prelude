@@ -71,7 +71,9 @@ open import Prelude.Measurable
 open import Prelude.Measurable.Examples
 
 open import Prelude.ToN; open import Prelude.FromN
+open import Prelude.Num
 open import Prelude.ToList; open import Prelude.FromList
+open import Prelude.Str
 open import Prelude.ToZ
 open import Prelude.Enumerable; open import Prelude.InfEnumerable
 open import Prelude.Indexable
