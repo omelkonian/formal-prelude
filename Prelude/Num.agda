@@ -35,12 +35,12 @@ Fromℕ⇒Num = λ where
   .fromNum    n → fromℕ n
 
 instance
-  Num-ℕ = Fromℕ⇒Num {A = ℕ}
-  Num-ℤ = Fromℕ⇒Num {A = ℤ}
-  Num-Char = Fromℕ⇒Num {A = Char}
-  Num-∃Fin = Fromℕ⇒Num {A = ∃ Fin}
-  Num-Word = Fromℕ⇒Num {A = Word64}
-  Num-ℕᵇ = Fromℕ⇒Num {A = ℕᵇ}
+  Num-ℕ    = Fromℕ⇒Num {A = ℕ}      ⦃ Fromℕ-ℕ ⦄
+  Num-ℤ    = Fromℕ⇒Num {A = ℤ}      ⦃ Fromℕ-Int ⦄
+  Num-Char = Fromℕ⇒Num {A = Char}   ⦃ Fromℕ-Char ⦄
+  Num-∃Fin = Fromℕ⇒Num {A = ∃ Fin}  ⦃ Fromℕ-Fin ⦄
+  Num-Word = Fromℕ⇒Num {A = Word64} ⦃ Fromℕ-Word ⦄
+  Num-ℕᵇ   = Fromℕ⇒Num {A = ℕᵇ}     ⦃ Fromℕ-ℕᵇ ⦄
 
   Num-newtype : ⦃ Num A ⦄ → Num (newtype A)
   Num-newtype ⦃ fa ⦄ = λ where
