@@ -2,7 +2,7 @@
 open import Prelude.Init; open SetAsType
 open import Prelude.Decidable
 open import Prelude.DecEq.Core
-open import Prelude.Lists
+open import Prelude.Lists.NonEmpty
 open import Prelude.InferenceRules
 
 open import Prelude.Ord.Core

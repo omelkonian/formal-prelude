@@ -6,7 +6,7 @@ module Prelude.Lists.Indexed where
 
 open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; ∈-map⁺; mapWith∈)
-open Nat   using (_<_; ≤-pred)
+open Nat   using (_<_; _≤_; ≤-pred)
 open F     using (toℕ; fromℕ<)
 open import Prelude.General
 open import Prelude.Bifunctor
@@ -16,6 +16,9 @@ open import Prelude.Split
 private variable
   A : Type ℓ; B : Type ℓ′
   P Q : Pred A ℓ″
+  xs : List A; ys : List B
+  x : A
+  m n : ℕ
 
 Index : List A → Type
 Index = Fin ∘ length
@@ -64,29 +67,25 @@ findElem P? xs with L.Any.any? P? xs
 ... | yes px = let i = L.Any.index px in just ((xs ‼ i) , remove xs i)
 ... | no  _  = nothing
 
+length≡⇒Ix : ∀ (xs : List A) (ys : List B) →
+  length xs ≡ length ys
+  ─────────────────────
+  Index xs ↔ Index ys
+length≡⇒Ix []       []       eq = (λ ()) , (λ ())
+length≡⇒Ix (x ∷ xs) (y ∷ ys) eq =
+  let IH : Index xs ↔ Index ys
+      IH = length≡⇒Ix xs ys $ Nat.suc-injective eq
+  in (λ where 0F → 0F; (fsuc i) → fsuc (IH .proj₁ i))
+   , (λ where 0F → 0F; (fsuc i) → fsuc (IH .proj₂ i))
 
-
-private Ix = Index
-
-module _ {A B : Type} where
-  private variable xs : List A; ys : List B
-
-  length≡⇒Ix : length xs ≡ length ys → Ix xs ↔ Ix ys
-  length≡⇒Ix {[]}{[]} eq = (λ ()) , (λ ())
-  length≡⇒Ix {x ∷ xs}{y ∷ ys} eq =
-    let IH : Ix xs ↔ Ix ys
-        IH = length≡⇒Ix {xs}{ys} $ Nat.suc-injective eq
-    in (λ where 0F → 0F; (fsuc i) → fsuc (IH .proj₁ i))
-     , (λ where 0F → 0F; (fsuc i) → fsuc (IH .proj₂ i))
-
-  module ∣length≡⇒Ix∣ (len≡ : length xs ≡ length ys) where
-    ↝ = (Ix xs → Ix ys) ∋ length≡⇒Ix {xs}{ys} len≡ .proj₁
-    ↜ = (Ix ys → Ix xs) ∋ length≡⇒Ix {xs}{ys} len≡ .proj₂
+module ∣length≡⇒Ix∣ (xs : List A) (ys : List B) (len≡ : length xs ≡ length ys) where
+  ↝ = (Index xs → Index ys) ∋ length≡⇒Ix xs ys len≡ .proj₁
+  ↜ = (Index ys → Index xs) ∋ length≡⇒Ix xs ys len≡ .proj₂
 
 length-allFin : ∀ n → length (allFin n) ≡ n
 length-allFin n = L.length-tabulate id
 
-module _ {A B : Type} (xs : List A) (ys : List B) where
+module _ (xs : List A) (ys : List B) where
   length-zip : length (zip xs ys) ≡ length xs ⊓ length ys
   length-zip = L.length-zipWith _,_ xs ys
 
@@ -103,85 +102,73 @@ module _ {A B : Type} (xs : List A) (ys : List B) where
   length-zip≡ʳ : length xs ≡ length ys → length (zip xs ys) ≡ length ys
   length-zip≡ʳ len≡ = trans (length-zip≡ˡ len≡) len≡
 
-module _ {A : Type} where
-  private variable xs : List A
+length-enumerate : length (enumerate xs) ≡ length xs
+length-enumerate {xs = xs} =
+  begin
+    length (enumerate xs)
+  ≡⟨ length-zip (fin-indices xs) xs ⟩
+    length (fin-indices xs) ⊓ length xs
+  ≡⟨ Nat.m≥n⇒m⊓n≡n $ Nat.≤-reflexive $ sym $ length-allFin (length xs) ⟩
+    length xs
+  ∎ where open ≡-Reasoning
 
-  length-enumerate : length (enumerate xs) ≡ length xs
-  length-enumerate {xs = xs} =
-    begin
-      length (enumerate xs)
-    ≡⟨ length-zip (fin-indices xs) xs ⟩
-      length (fin-indices xs) ⊓ length xs
-    ≡⟨ Nat.m≥n⇒m⊓n≡n $ Nat.≤-reflexive $ sym $ length-allFin (length xs) ⟩
-      length xs
-    ∎ where open ≡-Reasoning
+‼-zip⁺ˡ : Index xs → {_ : length xs ≤ length ys} → Index (zip xs ys)
+‼-zip⁺ˡ {xs = []} ()
+‼-zip⁺ˡ {xs = _ ∷ xs} {ys = _ ∷ _} = λ where
+  0F → 0F
+  (fsuc i) {s≤s p} → fsuc (‼-zip⁺ˡ {xs = xs} i {p})
+‼-zip⁺ˡ {xs = _ ∷ _} {ys = []} _ {()}
 
-module _ {A B : Type} where
-  private variable xs : List A; ys : List B
+‼-zip⁺ʳ : Index ys → {_ : length ys ≤ length xs} → Index (zip xs ys)
+‼-zip⁺ʳ {ys = []}     {xs = _} ()
+‼-zip⁺ʳ {ys = _ ∷ ys} {xs = _ ∷ xs} = λ where
+  0F → 0F
+  (fsuc i) {s≤s p} → fsuc (‼-zip⁺ʳ {ys = ys} {xs = xs} i {p})
+‼-zip⁺ʳ {ys = _ ∷ _} {xs = []} _ {()}
 
-  open Nat using (_≤_)
+‼-zip⁻ˡ : Index (zip xs ys) → Index xs
+‼-zip⁻ˡ {xs = []} ()
+‼-zip⁻ˡ {xs = _ ∷ _}  {ys = []} ()
+‼-zip⁻ˡ {xs = _ ∷ xs} {ys = _ ∷ _} = λ where
+  0F → 0F
+  (fsuc i) → fsuc (‼-zip⁻ˡ {xs = xs} i)
 
-  ‼-zip⁺ˡ : Ix xs → {_ : length xs ≤ length ys} → Ix (zip xs ys)
-  ‼-zip⁺ˡ {[]}     {_} ()
-  ‼-zip⁺ˡ {_ ∷ xs} {_ ∷ _} = λ where
-    0F → 0F
-    (fsuc i) {s≤s p} → fsuc (‼-zip⁺ˡ {xs} i {p})
-  ‼-zip⁺ˡ {_ ∷ _} {[]} _ {()}
+‼-zip⁻ʳ : Index (zip xs ys) → Index ys
+‼-zip⁻ʳ {xs = []} ()
+‼-zip⁻ʳ {xs = _ ∷ _}  {ys = []} ()
+‼-zip⁻ʳ {xs = _ ∷ xs} {ys = _ ∷ _} = λ where
+  0F → 0F
+  (fsuc i) → fsuc (‼-zip⁻ʳ {xs = xs} i)
 
-  ‼-zip⁺ʳ : Ix ys → {_ : length ys ≤ length xs} → Ix (zip xs ys)
-  ‼-zip⁺ʳ {[]}     {_} ()
-  ‼-zip⁺ʳ {_ ∷ ys} {_ ∷ xs} = λ where
-    0F → 0F
-    (fsuc i) {s≤s p} → fsuc (‼-zip⁺ʳ {ys}{xs} i {p})
-  ‼-zip⁺ʳ {_ ∷ _} {[]} _ {()}
+mapWithIx : (xs : List A) → (A → Index xs → B) → List B
+mapWithIx xs f = map (uncurry (flip f)) $ enumerate xs
 
-  ‼-zip⁻ˡ : Ix (zip xs ys) → Ix xs
-  ‼-zip⁻ˡ {[]} {_} ()
-  ‼-zip⁻ˡ {_ ∷ _} {[]} ()
-  ‼-zip⁻ˡ {_ ∷ xs} {_ ∷ _} = λ where
-    0F → 0F
-    (fsuc i) → fsuc (‼-zip⁻ˡ {xs} i)
+length-mapWithIx : (f : A → Index xs → B) →
+  length (mapWithIx xs f) ≡ length xs
+length-mapWithIx {xs = xs} f
+  = trans (L.length-map (uncurry (flip f)) (enumerate xs))
+          (length-enumerate {xs = xs})
 
-  ‼-zip⁻ʳ : Ix (zip xs ys) → Ix ys
-  ‼-zip⁻ʳ {[]} {_} ()
-  ‼-zip⁻ʳ {_ ∷ _} {[]} ()
-  ‼-zip⁻ʳ {_ ∷ xs} {_ ∷ _} = λ where
-    0F → 0F
-    (fsuc i) → fsuc (‼-zip⁻ʳ {xs} i)
+length-mapWith∈ : (f : ∀ {x} → x L.Mem.∈ xs → B) →
+  length (L.Mem.mapWith∈ xs f) ≡ length xs
+length-mapWith∈ {xs = []} _ = refl
+length-mapWith∈ {xs = _ ∷ xs} f = cong suc $ length-mapWith∈ {xs = xs} (f ∘ there)
 
-  mapWithIx : (xs : List A) → (A → Ix xs → B) → List B
-  mapWithIx xs f = map (uncurry (flip f)) $ enumerate xs
+module _ (f : A → B) {xs : List A} where
+  open ∣length≡⇒Ix∣ (map f xs) xs (L.length-map f xs)
+    renaming (↝ to ‼-map⁻; ↜ to ‼-map⁺) public
 
-  length-mapWithIx : (f : A → Ix xs → B) →
-    length (mapWithIx xs f) ≡ length xs
-  length-mapWithIx {xs = xs} f
-    = trans (L.length-map (uncurry (flip f)) (enumerate xs))
-            (length-enumerate {xs = xs})
+module _  {xs : List A} (f : ∀ {x : A} → x ∈ xs → B) where
+  open ∣length≡⇒Ix∣ (mapWith∈ xs f) xs (length-mapWith∈ {xs = xs} f)
+    renaming (↝ to ‼-mapWith∈⁻; ↜ to ‼-mapWith∈⁺) public
 
-  length-mapWith∈ : (f : ∀ {x} → x L.Mem.∈ xs → B) →
-    length (L.Mem.mapWith∈ xs f) ≡ length xs
-  length-mapWith∈ {xs = []} _ = refl
-  length-mapWith∈ {xs = _ ∷ xs} f = cong suc $ length-mapWith∈ {xs = xs} (f ∘ there)
-
-  module _ (f : A → B) {xs : List A} where
-    open ∣length≡⇒Ix∣ {xs = map f xs}{xs} (L.length-map f xs)
-      renaming (↝ to ‼-map⁻; ↜ to ‼-map⁺) public
-
-  module _  {xs : List A} (f : ∀ {x : A} → x ∈ xs → B) where
-    open ∣length≡⇒Ix∣ {xs = mapWith∈ xs f}{xs} (length-mapWith∈ {xs = xs} f)
-      renaming (↝ to ‼-mapWith∈⁻; ↜ to ‼-mapWith∈⁺) public
-
-  module _  {xs : List A} (f : A → Ix xs → B) where
-    open ∣length≡⇒Ix∣ {xs = mapWithIx xs f}{xs} (length-mapWithIx {xs = xs} f)
-      renaming (↝ to ‼-mapWithIx⁻; ↜ to ‼-mapWithIx⁺) public
+module _  {xs : List A} (f : A → Index xs → B) where
+  open ∣length≡⇒Ix∣ (mapWithIx xs f) xs (length-mapWithIx {xs = xs} f)
+    renaming (↝ to ‼-mapWithIx⁻; ↜ to ‼-mapWithIx⁺) public
 
 module _ {A : Type} {xs : List A} where
-  open ∣length≡⇒Ix∣ {xs = enumerate xs}{xs} (length-enumerate {xs = xs})
+  open ∣length≡⇒Ix∣ (enumerate xs) xs (length-enumerate {xs = xs})
     renaming (↝ to ‼-enumerate⁻; ↜ to ‼-enumerate⁺) public
-
-private variable
-  m n : ℕ
-  x : A; xs ys : List A
 
 -- ** indexℕ
 

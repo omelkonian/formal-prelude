@@ -9,7 +9,7 @@ open import Prelude.Monad
 open import Prelude.Semigroup
 open import Prelude.Show
 open import Prelude.ToN
-open import Prelude.Lists
+open import Prelude.Lists.Indexed
 open import Prelude.Functor
 open import Prelude.Bifunctor
 open import Prelude.Applicative

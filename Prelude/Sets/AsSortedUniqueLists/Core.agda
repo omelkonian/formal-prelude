@@ -12,14 +12,17 @@ open import Prelude.Ord
 open import Prelude.Irrelevance hiding (_─_)
 open import Prelude.Irrelevance.Dec
 open import Prelude.Membership
-open import Prelude.Lists
-open import Prelude.Lists.WithK
 open import Prelude.Bifunctor
 open import Prelude.Setoid
 open import Prelude.Null
 open import Prelude.Apartness
 open import Prelude.InferenceRules
 open import Prelude.Measurable
+
+open import Prelude.Lists.Count
+open import Prelude.Lists.Membership
+open import Prelude.Lists.WithK
+open import Prelude.Lists.Empty
 
 module Prelude.Sets.AsSortedUniqueLists.Core {A : Type ℓ}
   ⦃ _ : DecEq A ⦄ ⦃ _ : Ord⁺⁺ A ⦄ where

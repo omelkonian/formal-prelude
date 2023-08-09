@@ -6,6 +6,7 @@ open import Prelude.DecEq
 open import Prelude.Decidable
 open import Prelude.ToList; open import Prelude.FromList
 open import Prelude.Ord
+open import Prelude.Ord.Product
 open import Prelude.Irrelevance hiding (_─_)
 open import Prelude.Irrelevance.Dec
 open import Prelude.Membership
@@ -17,9 +18,6 @@ open import Prelude.InferenceRules
 open import Prelude.Measurable
 open import Prelude.Indexable
 
-open import Prelude.Ord.Product
-
--- open import Prelude.Lists
 open import Prelude.Lists.Core
 open import Prelude.Lists.WithK
 open import Prelude.Lists.Dec

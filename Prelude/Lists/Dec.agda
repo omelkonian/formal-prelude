@@ -9,7 +9,11 @@ open import Prelude.DecEq.Core
 open import Prelude.Membership
 open import Prelude.Decidable
 open import Prelude.Ord
-open import Prelude.Lists
+open import Prelude.Lists.Indexed
+open import Prelude.Lists.Membership
+open import Prelude.Lists.Subsets
+open import Prelude.Lists.Interleaving
+open import Prelude.Lists.Count
 
 module Prelude.Lists.Dec {a} {A : Type a} ⦃ _ : DecEq A ⦄ where
 

@@ -1,7 +1,7 @@
 module Prelude.Indexable where
 
 open import Prelude.Init; open SetAsType
-import Prelude.Lists as L
+import Prelude.Lists.Indexed as L
 
 record Indexable (A : Type ℓ) (B : Type ℓ′) {ℓ″} : Type (lsuc (ℓ ⊔ₗ ℓ′ ⊔ₗ ℓ″)) where
   field Ix  : Pred A ℓ″

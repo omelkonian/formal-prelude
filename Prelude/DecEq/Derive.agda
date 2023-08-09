@@ -13,7 +13,8 @@ open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 open import Prelude.Generics using (DERIVE) public
 open import Prelude.Generics
 open Debug ("DecEq" , 100)
-open import Prelude.Lists
+open import Prelude.Lists.Indexed
+open import Prelude.Lists.Combinatorics
 open import Prelude.Show
 open import Prelude.Semigroup
 open import Prelude.Monoid

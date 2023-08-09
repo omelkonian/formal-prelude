@@ -5,7 +5,8 @@
 open import Prelude.Init; open SetAsType
 open L.Mem using (∈-filter⁻; ∈-filter⁺; ∈-++⁻; ∈-++⁺ˡ; ∈-++⁺ʳ)
 open import Prelude.General
-open import Prelude.Lists
+open import Prelude.Lists.Membership
+open import Prelude.Lists.Count
 open import Prelude.Lists.WithK
 open import Prelude.Lists.Postulates
 open import Prelude.Lists.Dec

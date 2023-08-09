@@ -10,6 +10,7 @@ open L.Perm using (∈-resp-↭; Any-resp-↭)
 open import Prelude.General using (⟫_)
 open import Prelude.Lists.Membership
 open import Prelude.Lists.Permutations
+open import Prelude.ToList
 
 private variable
   a b p : Level
@@ -216,3 +217,7 @@ uncons-≗↦ f g {y} y∈ =
         (f ++/↦ g) (there y∈)   ≡⟨ sym $ ++/↦-there f g y∈ ⟩
         ((f ∘ there) ++/↦ g) y∈ ≡⟨⟩
         (uncons-↦ f ++/↦ g) y∈  ∎
+
+instance
+  ToList-↦ : ∀ {xs : List A} → ToList (xs ↦ B) (A × B)
+  ToList-↦ {xs = xs} .toList f = zip xs (codom f)
