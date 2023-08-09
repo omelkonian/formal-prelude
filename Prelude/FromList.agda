@@ -2,7 +2,7 @@
 module Prelude.FromList where
 
 open import Prelude.Init; open SetAsType
-open import Prelude.Lists
+open import Prelude.Lists.Indexed
 
 record FromList (A : Type ℓ) (B : List A → Type ℓ′) : Type (ℓ ⊔ₗ ℓ′) where
   field fromList : (xs : List A) → B xs
@@ -32,3 +32,15 @@ instance
 
   -- FromList-↦ : ∀ {xs : List A} → FromList (A × B) (xs ↦ B)
   -- FromList-↦ {xs = xs} .fromList f = {!!} --  zip xs (codom f)
+
+module _ {A B : Type} (xs : List A) where
+
+  fromList∘map : (f : A → B) → Vec B (length xs)
+  fromList∘map f = subst (Vec B) (L.length-map f xs)
+                 $ fromList (map f xs)
+
+  open L.Mem
+
+  fromList∘mapWith∈ : (f : ∀ {x} → x ∈ xs → B) → Vec B (length xs)
+  fromList∘mapWith∈ f = subst (Vec B) (length-mapWith∈ f)
+                      $ fromList (mapWith∈ xs f)
