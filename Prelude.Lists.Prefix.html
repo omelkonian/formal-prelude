@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Prelude.Lists.Prefix</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css'/><style>.github-fork-ribbon:before { background-color: #333; }</style><link rel="stylesheet" href="css/Agda.css"></head><body><a class='github-fork-ribbon'href='https://github.com/omelkonian/formal-prelude/tree/master/Prelude/Lists/Prefix.agda'data-ribbon='Source code on Github' title='Source code on Github'>Source code on Github</a><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Prelude.Lists.Prefix.html" class="Module">Prelude.Lists.Prefix</a> <a id="52" class="Keyword">where</a>
+
+<a id="59" class="Keyword">open</a> <a id="64" class="Keyword">import</a> <a id="71" href="Prelude.Init.html" class="Module">Prelude.Init</a><a id="83" class="Symbol">;</a> <a id="85" class="Keyword">open</a> <a id="90" href="Prelude.Init.html#504" class="Module">SetAsType</a>
+
+<a id="101" class="Keyword">private</a> <a id="109" class="Keyword">variable</a> <a id="118" href="Prelude.Lists.Prefix.html#118" class="Generalizable">A</a> <a id="120" class="Symbol">:</a> <a id="122" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="127" href="Prelude.Init.html#261" class="Generalizable">ℓ</a>
+
+<a id="130" class="Comment">-- ** Prefix relation, instantiated for propositional equality.</a>
+<a id="Prefix≡"></a><a id="194" href="Prelude.Lists.Prefix.html#194" class="Function">Prefix≡</a> <a id="202" class="Symbol">:</a> <a id="204" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="209" href="Prelude.Lists.Prefix.html#118" class="Generalizable">A</a> <a id="211" class="Symbol">→</a> <a id="213" href="Agda.Builtin.List.html#130" class="Datatype">List</a> <a id="218" href="Prelude.Lists.Prefix.html#118" class="Generalizable">A</a> <a id="220" class="Symbol">→</a> <a id="222" href="Agda.Primitive.html#320" class="Primitive">Type</a> <a id="227" class="Symbol">_</a>
+<a id="229" href="Prelude.Lists.Prefix.html#194" class="Function">Prefix≡</a> <a id="237" class="Symbol">=</a> <a id="239" href="Data.List.Relation.Binary.Prefix.Heterogeneous.html#694" class="Datatype">Prefix</a> <a id="246" href="Agda.Builtin.Equality.html#133" class="Datatype Operator">_≡_</a>
+</pre></body></html>
