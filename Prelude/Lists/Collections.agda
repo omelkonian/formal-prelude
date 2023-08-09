@@ -4,9 +4,9 @@ module Prelude.Lists.Collections where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.General
-open import Prelude.Lists
+open import Prelude.Lists.Permutations
 open import Prelude.Irrelevance.List.Permutation
-open import Prelude.DecEq
+open import Prelude.DecEq.Core
 
 record _has_ (A : Type) (B : Type) : Type where
   field collect : A → List B

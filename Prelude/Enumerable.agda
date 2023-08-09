@@ -7,7 +7,7 @@ module Prelude.Enumerable where
 
 open import Prelude.Init; open SetAsType
 open import Prelude.Nary
-open import Prelude.Lists
+open import Prelude.Lists.Combinatorics
 open import Prelude.Lists.Postulates
 open import Prelude.Decidable
 open import Prelude.DecEq

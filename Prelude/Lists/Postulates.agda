@@ -160,7 +160,8 @@ mapWith∈↭filter {A = A} {B = B} {_∈?_ = _∈?_} {f = f} {xs = x ∷ xs} {y
           get = proj₁ ∘ ∈-map⁻ f ∘ p⊆
 
 
-open import Prelude.Lists
+open import Prelude.Lists.Suffix
+open import Prelude.Lists.NonEmpty
 postulate
   Suffix⇒⊆ : Suffix≡ xs ys → xs ⊆ ys
 

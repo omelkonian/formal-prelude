@@ -10,7 +10,8 @@ open L.Mem
 open import Prelude.Nats
 open import Prelude.Membership using (_∈?_)
 open import Prelude.Nary
-open import Prelude.Lists
+open import Prelude.Lists.Combinatorics
+open import Prelude.Lists.Sums
 open import Prelude.Lists.Postulates
 open import Prelude.Decidable
 open import Prelude.DecEq.Core
