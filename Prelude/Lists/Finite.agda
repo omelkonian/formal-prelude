@@ -4,7 +4,9 @@
 {-# OPTIONS --safe #-}
 open import Prelude.Init; open SetAsType
 
-module Prelude.Lists.Finite {A : Type ℓ} where
+module Prelude.Lists.Finite where
+
+private variable A : Type ℓ
 
 Finite : Type ℓ → Type ℓ
 Finite A = ∃[ n ] (A Fun.↔ Fin n)
