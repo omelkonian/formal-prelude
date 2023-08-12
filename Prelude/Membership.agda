@@ -64,12 +64,23 @@ instance
   F∈-List⁺ : Functor∈ {ℓ} List⁺
   F∈-List⁺ {ℓ} .mapWith∈ {A}{B} (x ∷ xs) f = f {x} (here refl) ∷ mapWith∈ xs (f ∘ there)
 
+  F∈-Vec : Functor∈ {ℓ} (flip Vec n)
+  F∈-Vec .mapWith∈ = V.Mem.mapWith∈
+
+  F∈-Maybe : Functor∈ {ℓ} Maybe
+  F∈-Maybe .mapWith∈ = λ where
+    (just _) f → just $ f (M.Any.just refl)
+    nothing  f → nothing
+
 private
-  open import Prelude.Nary
   open import Prelude.ToN
 
-  _ : mapWith∈ (List ℕ ∋ ⟦ 10 , 20 , 30 ⟧) (toℕ ∘ L.Any.index) ≡ ⟦ 0 , 1 , 2 ⟧
-  _ = refl
+  _ = mapWith∈ (List ℕ ∋ [ 10 ⨾ 20 ⨾ 30 ]) (toℕ ∘ L.Any.index)
+    ≡ [ 0 ⨾ 1 ⨾ 2 ]
+    ∋ refl
+  _ = mapWith∈ (Vec ℕ 3 ∋ [ 10 ⨾ 20 ⨾ 30 ]) (toℕ ∘ V.Any.index)
+    ≡ [ 0 ⨾ 1 ⨾ 2 ]
+    ∋ refl
 
 module _ {A B : Type} (f : A → B) where
   ∈⁺-map⁺ : ∀ {x xs} → x ∈ xs → f x ∈ L.NE.map f xs
