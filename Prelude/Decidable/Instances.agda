@@ -8,6 +8,7 @@ open import Prelude.DecEq.Core
 private variable
   A : Type ℓ; B : Type ℓ′
   P¹ : Pred A ℓ″; P² : Rel A ℓ″
+  n : ℕ
 
 instance
   DecEq⇒Dec : ⦃ DecEq A ⦄ → _≡_ {A = A} ⁇²
@@ -17,7 +18,7 @@ instance
   Dec-T : ∀ {t : Bool} → T t ⁇
   Dec-T .dec = T? _
 
-  -- Maybe
+  -- Lists
   Dec-All : ⦃ P¹ ⁇¹ ⦄ → All P¹ ⁇¹
   Dec-All .dec = all? dec¹ _
 
@@ -27,6 +28,14 @@ instance
   Dec-AllPairs : ⦃ P² ⁇² ⦄ → AllPairs P² ⁇¹
   Dec-AllPairs .dec = allPairs? dec² _
 
+  -- Vectors
+  Dec-VAll : ⦃ P¹ ⁇¹ ⦄ → V.All.All P¹ {n} ⁇¹
+  Dec-VAll .dec = V.All.all? dec¹ _
+
+  Dec-VAny : ⦃ P¹ ⁇¹ ⦄ → V.Any.Any P¹ {n} ⁇¹
+  Dec-VAny .dec = V.Any.any? dec¹ _
+
+  -- Maybe
   Dec-MAll : ⦃ _ : P¹ ⁇¹ ⦄ → M.All.All P¹ ⁇¹
   Dec-MAll .dec = M.All.dec dec¹ _
 
