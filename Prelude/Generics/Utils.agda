@@ -3,7 +3,7 @@
 
 module Prelude.Generics.Utils where
 
-open import Prelude.Init; open Meta
+open import Prelude.Init; open Meta hiding (pure)
 open import Prelude.Monad
 open import Prelude.Functor
 open import Prelude.Bifunctor
@@ -421,7 +421,7 @@ private
       return tt
       -- unify hole (`λ "◆" ⇒ t′)
 
-  import Reflection.Literal as Lit
+  import Reflection.AST.Literal as Lit
 
   ∣◆∣ : Term
   -- ∣◆∣ = ♯ 666

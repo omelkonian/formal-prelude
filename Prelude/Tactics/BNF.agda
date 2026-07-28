@@ -1,7 +1,7 @@
 {-# OPTIONS -v bnfc:100 #-}
 module Prelude.Tactics.BNF where
 
-open import Agda.Builtin.Reflection using (declareData; defineData)
+open import Agda.Builtin.Reflection using (declareData; defineData; Quantity; quantity-ω)
 
 open import Prelude.Init hiding (+_; _+_; _*_)
 open Meta
@@ -35,12 +35,12 @@ private
 
   pattern `Set = agda-sort (lit 0)
 
-  rules→constructors : Name → Rule ^ n → List (Name × Type)
+  rules→constructors : Name → Rule ^ n → List (Name × Quantity × Type)
   rules→constructors n = map go ∘ toList
     where
-      go : Rule → Name × Type
+      go : Rule → Name × Quantity × Type
       go (c ∶ tys)
-       = (c , tyView (map (λ n → abs "_" $ vArg (n ∙)) (toList tys) , n ∙))
+       = (c , quantity-ω , tyView (map (λ n → abs "_" $ vArg (n ∙)) (toList tys) , n ∙))
 
 infix -100 BNF∶_
 BNF∶_ : Derivation ^ n → TC ⊤

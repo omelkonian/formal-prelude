@@ -120,8 +120,6 @@ postulate
     → (x∈ : x ∈ xs)
     → L.Any.lookup (∈-map⁺ f x∈) ≡ f x
 
-  mapWith∈-id :  mapWith∈ xs (λ {x} _ → x) ≡ xs
-
   filter-exists : ∀ {_∈?_ : ∀ (x : A) (xs : List A) → Dec (x ∈ xs)} {f : B → A} {x : A} {xs : List A} {ys : List B}
     → (x∈ : x ∈ map f ys)
     → Unique ys

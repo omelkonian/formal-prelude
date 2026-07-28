@@ -217,10 +217,10 @@ module _ (f : A → Maybe B) where
   ∈-mapMaybe⁺-here {x = x} {y = y} {xs = xs} eq = Any-mapMaybe⁺-here (≡just⇒MAny eq refl)
 
   ∈-mapMaybe-skip : f x ≡ nothing → y ∈ mapMaybe f (x ∷ xs) → y ∈ mapMaybe f xs
-  ∈-mapMaybe-skip fx≡ = subst (_ ∈_) (mapMaybe-skip fx≡)
+  ∈-mapMaybe-skip {xs = xs} fx≡ = subst (_ ∈_) (mapMaybe-skip {xs = xs} fx≡)
 
   ∈-mapMaybe-here : ∀ {y′} → f x ≡ just y′ → y ∈ mapMaybe f (x ∷ xs) → y ∈ y′ ∷ mapMaybe f xs
-  ∈-mapMaybe-here fx≡ = subst (_ ∈_) (mapMaybe-here fx≡)
+  ∈-mapMaybe-here {xs = xs} fx≡ = subst (_ ∈_) (mapMaybe-here {xs = xs} fx≡)
 
   ∈-mapMaybe-++⁻ : ∀ xs {ys} {x : B}
     → x ∈ mapMaybe f (xs ++ ys)
@@ -254,14 +254,14 @@ module _ (f : A → Maybe B) where
 
   ∈-mapMaybe⁻-nothing : (y∈ : y ∈ mapMaybe f (x ∷ xs))
     → f x ≡ nothing
-    → Is-there $ ∈-mapMaybe⁻ y∈ .proj₂ .proj₁
+    → Is-there $ ∈-mapMaybe⁻ {xs = x ∷ xs} y∈ .proj₂ .proj₁
   ∈-mapMaybe⁻-nothing {x = x} {xs = xs} y∈ fx≡
-    with f x | inspect f x | fx≡
-  ... | nothing | _ | _ = tt
-  ... | just _  | _ | ()
+    with f x | inspect f x
+  ... | nothing | _ = tt
+  ... | just _  | _ = case fx≡ of λ ()
 
   ∈-mapMaybe⁻-here : (y∈ : y ∈ mapMaybe f (x ∷ xs))
-    → Is-here $ ∈-mapMaybe⁻ y∈ .proj₂ .proj₁
+    → Is-here $ ∈-mapMaybe⁻ {xs = x ∷ xs} y∈ .proj₂ .proj₁
     → Is-here y∈
   ∈-mapMaybe⁻-here {x = x} {xs = xs} y∈ y∈≡
     with f x    | inspect f x

@@ -1,6 +1,7 @@
 name: formal-prelude
-depend: standard-library
+depend: standard-library-2.3
 include: .
 flags:
   -WnoUnsupportedIndexedMatch
+  -WnoUserWarning
   --without-K

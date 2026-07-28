@@ -65,8 +65,7 @@ record OrdLaws (A : Type ℓ) ⦃ _ : Ord A ⦄ : Type ℓ where
     ; isPartialOrder = isPartialOrder }
 
   isStrictTotalOrder = IsStrictTotalOrder _<_ ∋ record
-    { isEquivalence = PropEq.isEquivalence
-    ; trans = <-trans
+    { isStrictPartialOrder = isStrictPartialOrder
     ; compare = <-cmp }
 
   private STO = record { isStrictTotalOrder = isStrictTotalOrder }

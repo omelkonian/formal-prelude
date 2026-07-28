@@ -108,8 +108,7 @@ module _ {A : Type ℓ} {xs : List A} {P : Pred A ℓ′} where
       --——————————————————————————————————————
     → permute-↦ (↭-sym p↭) (permute-↦ p↭ f) ≗↦ f
   permute-↦∘permute-↦˘ p↭ f {x} x∈
-    rewrite permute-≗↦ p↭ f x∈
-          | L.Perm.↭-sym-involutive p↭
+    rewrite L.Perm.↭-sym-involutive p↭
     = cong f $ Any-resp-↭∘Any-resp-↭˘ p↭ x∈
 
 module _ (f : xs ↦′ P) (g : ys ↦′ P) where

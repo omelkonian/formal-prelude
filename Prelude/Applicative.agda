@@ -91,12 +91,15 @@ instance
 
   Applicative-Vec : ∀ {n} → Applicative (flip Vec n)
   Applicative-Vec = λ where
-    .pure → V.replicate
+    .pure → V.replicate _
     ._<*>_ → V._⊛_
 
   Applicative-TC : Applicative Meta.TC
   Applicative-TC = record {R}
-    where import Reflection.TypeChecking.Monad.Syntax as R
+    where
+      module R where
+        open import Reflection.TCM public using (pure)
+        open import Reflection.TCM.Syntax public using (_<*>_)
 
   -- Applicative-∃Vec : Applicative (∃ ∘ Vec)
   -- Applicative-∃Vec = λ where
@@ -144,4 +147,4 @@ instance
 
   Alternative-TC : Alternative Meta.TC
   Alternative-TC ._<|>_ = M._<|>_
-    where import Reflection.TypeChecking.Monad.Syntax as M
+    where import Reflection.TCM.Syntax as M

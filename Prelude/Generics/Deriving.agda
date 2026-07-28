@@ -43,7 +43,7 @@ private
 
   removeQualifiers : String → String
   removeQualifiers = fromList
-                   ∘ L.reverse ∘ takeWhile (¬? ∘ ('.' Ch.≟_)) ∘ L.reverse
+                   ∘ L.reverse ∘ takeWhile (Nullary.¬? ∘ ('.' Ch.≟_)) ∘ L.reverse
                    ∘ toList
 
   `toString : Name → Term

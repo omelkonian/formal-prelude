@@ -6,7 +6,7 @@ module Prelude.Lists.PermutationsMeta where
 
 open import Prelude.Init; open SetAsType
 open L.Mem using (_∈_; mapWith∈; ∈-map⁻)
-open L.Perm hiding (trans)
+open L.Perm hiding (trans; catMaybes-↭; mapMaybe-↭)
 open import Prelude.InferenceRules
 open import Prelude.Decidable
 open import Prelude.General

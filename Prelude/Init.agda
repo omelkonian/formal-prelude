@@ -66,22 +66,25 @@ open import Function.Definitions public
   ; Inverseˡ; Inverseʳ; Inverseᵇ
   )
 module _ {a b} {A : Type a} {B : Type b} where
-  open import Function.Definitions {A = A} {B = B} _≡_ _≡_ public
-    using ()
-    renaming
-    ( Congruent to Congruent≡; Injective to Injective≡
-    ; Surjective to Surjective≡; Bijective to Bijective≡
-    ; Inverseˡ to Inverse≡ˡ; Inverseʳ to Inverse≡ʳ; Inverseᵇ to Inverse≡ᵇ
-    )
+  Congruent≡ Injective≡ Surjective≡ Bijective≡ : (A → B) → Type _
+  Congruent≡  = Congruent  {A = A} {B = B} _≡_ _≡_
+  Injective≡  = Injective  {A = A} {B = B} _≡_ _≡_
+  Surjective≡ = Surjective {A = A} {B = B} _≡_ _≡_
+  Bijective≡  = Bijective  {A = A} {B = B} _≡_ _≡_
+  Inverse≡ˡ Inverse≡ʳ : (A → B) → (B → A) → Type _
+  Inverse≡ˡ = Inverseˡ {A = A} {B = B} _≡_ _≡_
+  Inverse≡ʳ = Inverseʳ {A = A} {B = B} _≡_ _≡_
+  Inverse≡ᵇ : (A → B) → (B → A) → Type _
+  Inverse≡ᵇ = Inverseᵇ {A = A} {B = B} _≡_ _≡_
 open import Function.Bundles public
   using (module Injection; _↣_)
 
 -- ** Categories
-open import Category.Functor public
+open import Effect.Functor public
   using (RawFunctor)
-open import Category.Applicative public
+open import Effect.Applicative public
   using (RawApplicative)
-open import Category.Monad public
+open import Effect.Monad public
   using (RawMonad)
 
 -- ** Data
@@ -195,7 +198,7 @@ module M where
     open import Data.Maybe.Relation.Unary.Any public
     -- open import Data.Maybe.Relation.Unary.Any.Properties public
   module Cat where
-    open import Data.Maybe.Categorical public
+    open import Data.Maybe.Effectful public
 
 open import Data.Vec public
   using (Vec; _∷_; [])
@@ -209,7 +212,7 @@ module V where
     open import Data.Vec.Relation.Unary.Any public
     open import Data.Vec.Relation.Unary.Any.Properties public
   module Cat where
-    open import Data.Vec.Categorical public
+    open import Data.Vec.Effectful public
   module Mem where
     open import Data.Vec.Membership.Propositional public
     open import Data.Vec.Membership.Propositional.Properties public
@@ -229,7 +232,7 @@ module L where
     open import Data.List.NonEmpty public
     open import Data.List.NonEmpty.Properties public
     module Cat where
-      open import Data.List.NonEmpty.Categorical public
+      open import Data.List.NonEmpty.Effectful public
   module All where
     open import Data.List.Relation.Unary.All public
     open import Data.List.Relation.Unary.All.Properties public
@@ -246,7 +249,7 @@ module L where
     open import Data.List.Relation.Binary.Sublist.Propositional public
     open import Data.List.Relation.Binary.Sublist.Propositional.Properties public
   module Cat where
-    open import Data.List.Categorical public
+    open import Data.List.Effectful public
   module Mem where
     open import Data.List.Membership.Propositional public
     open import Data.List.Membership.Propositional.Properties public
@@ -327,10 +330,10 @@ module Nullary where
 open import Relation.Nullary public
   using (¬_; Dec; yes; no; does; _because_; ofʸ; ofⁿ; Irrelevant; recompute)
 open import Relation.Nullary.Negation public
-  using (¬?; contradiction)
+  using (contradiction)
 open import Relation.Nullary.Decidable public
   using
-  ( ⌊_⌋; isNo; isYes; True; False; isYes≗does
+  ( ⌊_⌋; isNo; isYes; True; False; isYes≗does; ¬?
   ; toWitness; fromWitness; toWitnessFalse; fromWitnessFalse
   ; dec-yes; dec-no; dec-true; dec-false; dec-yes-irr
   )
@@ -381,7 +384,9 @@ open import Relation.Ternary public
   )
 -- ** Algebra
 open import Algebra public
-  using (Op₁; Op₂; Opₗ; Opᵣ)
+  using (Op₁; Op₂)
+open import Algebra.Module.Core public
+  using (Opₗ; Opᵣ)
 module Alg {a ℓ} {A : Type a} (_~_ : Rel A ℓ) where
   open import Algebra.Definitions {A = A} _~_ public
 module Alg≡ {a} {A : Type a} where
@@ -398,34 +403,34 @@ module Meta where
   open import Agda.Builtin.Reflection public
     using (onlyReduceDefs; dontReduceDefs)
   open import Reflection public
-    hiding (_≟_; _>>_; _>>=_; return; visibility)
-  open import Reflection.Term public
+    hiding (_≟_; _>>_; _>>=_; visibility)
+  open import Reflection.AST.Term public
     hiding
     ( _≟-AbsTerm_; _≟-AbsType_; _≟-ArgTerm_; _≟-ArgType_; _≟-Args_
     ; _≟-Clause_; _≟-Clauses_; _≟_; _≟-Sort_; _≟-Pattern_ )
-  open import Reflection.Argument public
+  open import Reflection.AST.Argument public
     using (unArg)
-  open import Reflection.Argument.Visibility public
+  open import Reflection.AST.Argument.Visibility public
     using (Visibility)
-  open import Reflection.Argument.Information public
+  open import Reflection.AST.Argument.Information public
     using (visibility)
   module Argument where
-    open import Reflection.Argument public
-    open import Reflection.Argument.Visibility public
-    open import Reflection.Argument.Information public hiding (_≟_)
+    open import Reflection.AST.Argument public
+    open import Reflection.AST.Argument.Visibility public
+    open import Reflection.AST.Argument.Information public hiding (_≟_)
 
-  open import Reflection.Abstraction public
+  open import Reflection.AST.Abstraction public
     using (unAbs)
   module Abstraction where
-    open import Reflection.Abstraction public
+    open import Reflection.AST.Abstraction public
 
-  open import Reflection.Meta public
+  open import Reflection.AST.Meta public
     using (Meta)
   module Meta where
-    open import Reflection.Meta public
+    open import Reflection.AST.Meta public
 
   module Show where
-    open import Reflection.Show public
+    open import Reflection.AST.Show public
 
 
 -- ** Shorthands

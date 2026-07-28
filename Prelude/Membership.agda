@@ -26,7 +26,7 @@ record HasMembership (F : Type ℓ → Type ℓ) : Type (lsuc $ lsuc ℓ) where
     infix 4 _∉?_ _∈ᵇ_ _∉ᵇ_
 
     _∉?_ : Decidable² {A = A} _∉_
-    _∉?_ = ¬? ∘₂ _∈?_
+    _∉?_ = Nullary.¬? ∘₂ _∈?_
 
     _∈ᵇ_ _∉ᵇ_ : A → F A → Bool
     _∈ᵇ_ = isYes ∘₂ _∈?_

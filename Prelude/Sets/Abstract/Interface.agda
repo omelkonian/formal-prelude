@@ -198,7 +198,7 @@ record FinSetᴵ ⦃ _ : DecEq A ⦄ : Type (lsuc σ) where
   infix 4 _∈ˢ?_ _∉ˢ?_ _♯ˢ?_
 
   _∉ˢ?_ : Decidable² _∉ˢ_
-  x ∉ˢ? s = ¬? (x ∈ˢ? s)
+  x ∉ˢ? s = Nullary.¬? (x ∈ˢ? s)
 
   ∈ˢ-fromList⁺ : ∀ {x : A} {xs : List A} → x ∈ xs → x ∈ˢ fromList xs
   ∈ˢ-fromList⁺ = proj₁ ∈ˢ-fromList

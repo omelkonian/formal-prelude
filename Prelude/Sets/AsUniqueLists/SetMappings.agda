@@ -33,8 +33,9 @@ private variable
   B : Type; P : Pred₀ A
 
 infix 0 mk↦_
-data _↦′_ : Set⟨ A ⟩ → Pred₀ A → Type where
-  mk↦_ : (∀ {x} → x ∈ˢ xs → P x) → xs ↦′ P
+record _↦′_ (xs : Set⟨ A ⟩) (P : Pred₀ A) : Type where
+  constructor mk↦_
+  field un↦ : ∀ {x} → x ∈ˢ xs → P x
 
 unmk↦_ : xs ↦′ P → (∀ {x} → x ∈ˢ xs → P x)
 unmk↦ (mk↦ p) = p

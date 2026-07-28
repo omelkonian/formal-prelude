@@ -30,15 +30,15 @@ private variable A : Type ℓ
 instance
   Enumerable∞-ℕ : Enumerable∞ ℕ
   Enumerable∞-ℕ .enum = record
-    { f = id ; f⁻¹ = id
-    ; cong₁ = λ{ refl → refl } ; cong₂ = λ{ refl → refl }
-    ; inverse = (λ _ → refl) , (λ _ → refl) }
+    { to = id ; from = id
+    ; to-cong = λ{ refl → refl } ; from-cong = λ{ refl → refl }
+    ; inverse = (λ{ refl → refl }) , (λ{ refl → refl }) }
 
   Enumerable∞⇒ToN : ⦃ Enumerable∞ A ⦄ → Toℕ A
-  Enumerable∞⇒ToN .toℕ = enum .Fun.Inverse.f
+  Enumerable∞⇒ToN .toℕ = enum .Fun.Inverse.to
 
   Enumerable∞⇒FromN : ⦃ Enumerable∞ A ⦄ → Fromℕ A
-  Enumerable∞⇒FromN .fromℕ = enum .Fun.Inverse.f⁻¹
+  Enumerable∞⇒FromN .fromℕ = enum .Fun.Inverse.from
 
 freshℕ : (xs : List ℕ) → ∃ (_∉ xs)
 freshℕ xs = suc (∑ℕ xs) , λ x∈ → ¬suc≰ _ (x∈∑ℕ x∈)
@@ -56,8 +56,8 @@ minFreshℕ xs = go 0 (suc (∑ℕ xs))
     ... | yes _ = go (suc x) fuel
 
 fromℕ∈⇒∈toℕ : ∀ ⦃ _ : Enumerable∞ A ⦄ n (xs : List A) → fromℕ n ∈ xs → n ∈ map toℕ xs
-fromℕ∈⇒∈toℕ n xs x∈ =
-  subst (_∈ map toℕ xs) (enum .Fun.Inverse.inverse .proj₁ n) $
+fromℕ∈⇒∈toℕ ⦃ ie ⦄ n xs x∈ =
+  subst (_∈ map toℕ xs) (Fun.Inverse.strictlyInverseˡ (enum ⦃ ie ⦄) n) $
   L.Mem.∈-map⁺ toℕ {x = fromℕ n} {xs = xs} x∈
 
 fresh : ⦃ Enumerable∞ A ⦄ → (xs : List A) → ∃ (_∉ xs)

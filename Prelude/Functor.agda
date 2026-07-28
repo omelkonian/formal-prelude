@@ -78,15 +78,15 @@ instance
 
   Functor-TC : Functor Meta.TC
   Functor-TC = record {R}
-    where import Reflection.TypeChecking.Monad.Syntax as R
+    where import Reflection.TCM.Syntax as R
 
   Functor-Abs : Functor  Meta.Abs
   Functor-Abs = record {R}
-    where import Reflection.Abstraction as R renaming (map to _<$>_)
+    where import Reflection.AST.Abstraction as R renaming (map to _<$>_)
 
   Functor-Arg : Functor Meta.Arg
   Functor-Arg = record {R}
-    where import Reflection.Argument as R renaming (map to _<$>_)
+    where import Reflection.AST.Argument as R renaming (map to _<$>_)
 
   Functor-∃Vec : Functor (∃ ∘ Vec)
   Functor-∃Vec ._<$>_ f (_ , xs) = -, (f <$> xs)

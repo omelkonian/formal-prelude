@@ -193,7 +193,7 @@ getPatTele cn = do
   print $ "Getting pattern telescope for constructor: " ◇ show cn
   ty ← normalise =<< getType cn
   print $ "  ty: " ◇ show ty
-  data-cons n ← getDefinition cn
+  data-cons n _ ← getDefinition cn
     where _ → _IMPOSSIBLE_
   print $ "  n: " ◇ show n
   data-type ps _ ← getDefinition n

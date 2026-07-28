@@ -21,6 +21,8 @@ open import Prelude.Generics
 open import Prelude.Generics using (DERIVE) public
 open Debug ("ord" , 100)
 
+open import Agda.Builtin.Reflection using (workOnTypes)
+
 open import Prelude.Ord.Core
 open import Prelude.Ord.Dec
 open import Prelude.Ord.Instances
@@ -90,17 +92,17 @@ private
         mkClause : ℕ × Name → TC (List Clause)
         mkClause (i , cn) = do
           print $ "  Making pattern clauses for constructor: " ◇ show cn
-          tys , N , _ , pc ← mkPattern toDrop cn
+          tys , N , _ , pc ← workOnTypes (mkPattern toDrop cn)
           let mkTel = flip L.replicate ("_" , vArg unknown)
           cls< ← forM (take i cs) λ cn′ → do
-            tys′ , N′ , _ , pc′ ← mkPattern toDrop cn′
+            tys′ , N′ , _ , pc′ ← workOnTypes (mkPattern toDrop cn′)
             return $ clause (mkTel $ N + N′)
                             (vArg <$> (pc ∷ mapVariables (_+ N) pc′ ∷ [])) `↑⊥
           let cl≡ = clause (mkTel $ N + N)
                            (vArg <$> (pc ∷ mapVariables (_+ N) pc ∷ []))
                            (constructLex< N N)
           cls> ← forM (drop (suc i) cs) λ cn′ → do
-            tys′ , N′ , _ , pc′ ← mkPattern toDrop cn′
+            tys′ , N′ , _ , pc′ ← workOnTypes (mkPattern toDrop cn′)
             return $ clause (mkTel $ N + N′)
                             (vArg <$> (pc ∷ mapVariables (_+ N) pc′ ∷ [])) `↑⊤
           return $ cls< ++ cl≡ ∷ cls>
@@ -123,7 +125,7 @@ private
     ... | function cs = do
       print $ "FUNCTION {cs = " ◇ show cs ◇ "}"
       error  "[not supported] functions"
-    ... | data-cons _ = error "[not supported] data constructors"
+    ... | data-cons _ _ = error "[not supported] data constructors"
     ... | axiom       = error "[not supported] axioms or mutual definitions"
     ... | prim-fun    = error "[not supported] primitive functions"
 

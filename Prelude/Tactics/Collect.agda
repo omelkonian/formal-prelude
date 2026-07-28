@@ -89,11 +89,12 @@ REGISTER ns = void $ forM ns λ (n , n′) → do
 collectBase : Type → TC Term
 collectBase goal = do
   print $ "Retrieving collections for: " ◇ show goal
-  (meta m _) ← newMeta (quote Collectible ∙⟦ goal ⟧)
+  m∗@(meta m _) ← newMeta (quote Collectible ∙⟦ goal ⟧)
     where _ → _IMPOSSIBLE_
   just f ← L.head <$> getInstances m
     where _ → error "no implementation found"
   print $ "Found collectible implementation : " ◇ show f
+  unify m∗ f
   n ← unquoteTC {A = Name} (def (quote collectName) [ iArg f ])
   return (n ∙)
 

@@ -87,8 +87,7 @@ module _ {A : Type ℓ} where
 
       ⇒IsStrictTotalOrder : ⦃ StrictTotalOrder _<_ ⦄ → Binary.IsStrictTotalOrder _<_
       ⇒IsStrictTotalOrder = record
-        { isEquivalence = PropEq.isEquivalence
-        ; trans = <-trans; compare = <-cmp }
+        { isStrictPartialOrder = it; compare = <-cmp }
 
   module _ (_≤_ : Rel A ℓ′) (_<_ : Rel A ℓ″) where
 

@@ -126,7 +126,7 @@ instance
 
   Monad-TC : Monad Meta.TC
   Monad-TC = record {R}
-    where import Reflection as R using (return) renaming (bindTC to _>>=_)
+    where import Reflection as R using () renaming (pure to return; bindTC to _>>=_)
 
 {- ** Id monad: provides us with forward composition as _>=>_,
                 but breaks instance-resolution/typeclass-inference

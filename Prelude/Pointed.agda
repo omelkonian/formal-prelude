@@ -22,4 +22,4 @@ instance
 
   P-TC : Pointed Meta.TC
   P-TC .point = M.pure
-    where import Reflection.TypeChecking.Monad.Syntax as M
+    where import Reflection.TCM as M

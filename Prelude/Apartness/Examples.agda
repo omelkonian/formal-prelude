@@ -27,4 +27,4 @@ private
 
   -- T0D0: improve `auto` to cover this
   _ : (List ℕ ∋ []) ♯ (List ℕ ∋ [])
-  _ = toWitness {Q = ¿ (List ℕ ∋ []) ♯ (List ℕ ∋ []) ¿} auto
+  _ = toWitness {a? = ¿ (List ℕ ∋ []) ♯ (List ℕ ∋ []) ¿} auto

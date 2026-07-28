@@ -53,30 +53,30 @@ private
     _ : ∃ λ x → ∃ (x ≡_)
     _ = x , y′ , x≡y′
     _ : ∃ λ x → ∃ (x ≡_)
-    _ = x , z , x≡z
+    _ = x ⦃ Z.super it ⦄ , z , x≡z
   module _ ⦃ _ : Y A ⊗ Y′ A ⊗ Z A ⦄ where
     _ : ∃ λ x → ∃ (x ≡_)
     _ = x , y , x≡y
     _ : ∃ λ x → ∃ (x ≡_)
     _ = x , y′ , x≡y′
     _ : ∃ λ x → ∃ (x ≡_)
-    _ = x , z , x≡z
-  module _ ⦃ _ : Y A ⦄ ⦃ _ : Y′ A ⦄ ⦃ _ : Z A ⦄ where
+    _ = x ⦃ Z.super it ⦄ , z , x≡z
+  module _ ⦃ Ya : Y A ⦄ ⦃ _ : Y′ A ⦄ ⦃ _ : Z A ⦄ where
     _ : X A
     _ = it
     _ : X A ⊗ Y A
     _ = it
     _ : X A ⊗ Z A
     _ = it
-    _ : X A ⊗ Y′ A
+    _ : X A ⊗ Y′ A ⦃ Y.super Ya ⦄
     _ = it
     _ : Y A ⊗ Y′ A ⊗ Z A
     _ = it
     _ : X A ⊗ Y A ⊗ Z A
     _ = it
-    _ : X A ⊗ Y′ A ⊗ Z A
+    _ : X A ⊗ Y′ A ⦃ Y.super Ya ⦄ ⊗ Z A
     _ = it
-    _ : X A ⊗ Y A ⊗ Y′ A ⊗ Z A
+    _ : X A ⊗ Y A ⊗ Y′ A ⦃ Y.super Ya ⦄ ⊗ Z A
     _ = it
 
   -- ** problematic scenario: cannot define `Lawful` short-hands
@@ -95,11 +95,11 @@ private
   module _ {A : Type} ⦃ s : Semigroup A ⦄ ⦃ l : Semigroup-Laws A ⦄ where
 
     -- ** all of these work
-    ✓ : Semigroup A ⊗ Semigroup-Laws A
+    ✓ : Semigroup A ⊗ Semigroup-Laws A ⦃ s ⦄
     ✓ = it -- mk⊗ -- mk⊗ ⦃ s ⦄ ⦃ l ⦄
 
     -- ** the two types involved are definitionally equal :S
-    _ : Lawful-Semigroup A ≡ (Semigroup A ⊗ Semigroup-Laws A)
+    _ : Lawful-Semigroup A ≡ (Semigroup A ⊗ (λ ⦃ sg ⦄ → Semigroup-Laws A ⦃ sg ⦄))
     _ = refl
 
     -- ** none of these work

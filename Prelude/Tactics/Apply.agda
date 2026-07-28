@@ -13,7 +13,10 @@ f {x = y} x y
 postulate viewApplication : Term → TC $ Maybe (Term × Args Term)
 
 searchValidApps : Term → Args Term → TC (List Term)
-searchValidApps f as = {!!}
+searchValidApps f as = do
+  ty ← inferType f
+  (_ , t) ← apply ty f as
+  return [ t ]
 
 infix -100 ⊚_
 macro

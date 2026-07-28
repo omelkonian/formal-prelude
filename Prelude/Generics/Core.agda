@@ -2,7 +2,7 @@
 module Prelude.Generics.Core where
 
 open import Prelude.Init; open Meta
-open import Reflection.Argument.Visibility using (_≟_)
+open import Reflection.AST.Argument.Visibility using (_≟_)
 
 -- ** Smart constructors
 
@@ -105,7 +105,7 @@ hArgs = unArgs ∘ filter isHidden?
 iArgs = unArgs ∘ filter isInstance?
 
 remove-iArgs : Args A → Args A
-remove-iArgs = filter (¬? ∘ isInstance?)
+remove-iArgs = filter (Nullary.¬? ∘ isInstance?)
 
 hide : Arg A → Arg A
 hide (vArg x) = hArg x

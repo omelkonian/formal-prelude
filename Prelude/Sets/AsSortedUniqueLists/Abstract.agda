@@ -675,7 +675,7 @@ module _ {A : Type ℓ} ⦃ _ : DecEq A ⦄ ⦃ _ : Ord⁺⁺ A ⦄ where abstra
 
   -- ** set mappings
   infix 0 mk↦_
-  data _↦′_ : Set⟨ A ⟩ → Pred A ℓ → Type ℓ where
+  data _↦′_ (xs : Set⟨ A ⟩) (P : Pred A ℓ) : Type ℓ where
     mk↦_ : (∀ {x} → x ∈ˢ xs → P x) → xs ↦′ P
 
   unmk↦_ : xs ↦′ P → (∀ {x} → x ∈ˢ xs → P x)

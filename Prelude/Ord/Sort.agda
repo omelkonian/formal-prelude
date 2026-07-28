@@ -30,7 +30,9 @@ open import Data.List.Relation.Unary.Sorted.TotalOrder TO public
     )
 
 open import Data.List.Sort.MergeSort DTO public
-  using (sort; sort-↗; sort-↭)
+  using (sort)
+open import Data.List.Sort.MergeSort.Properties DTO public
+  using (sort-↗; sort-↭)
 
 instance
   Dec-Sorted : Sorted ⁇¹

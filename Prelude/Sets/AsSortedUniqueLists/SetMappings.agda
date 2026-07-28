@@ -35,7 +35,7 @@ private variable
   B : Type; P : Pred₀ A
 
 infix 0 mk↦_
-data _↦′_ : Set⟨ A ⟩ → Pred₀ A → Type where
+data _↦′_ (xs : Set⟨ A ⟩) (P : Pred₀ A) : Type where
   mk↦_ : (∀ {x} → x ∈ˢ xs → P x) → xs ↦′ P
 
 unmk↦_ : xs ↦′ P → (∀ {x} → x ∈ˢ xs → P x)

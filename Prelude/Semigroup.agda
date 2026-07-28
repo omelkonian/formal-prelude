@@ -42,8 +42,8 @@ record LawfulSemigroup (A : Type ℓ) ⦃ _ : LawfulSetoid A ⦄ : Typeω where
         ⦃ obeys ⦄ : SemigroupLaws A
 instance
   mkLawful-Semigroup :
-    ⦃ _ : LawfulSetoid A ⦄ ⦃ _ : Semigroup A ⦄
-    → ⦃ SemigroupLaws A ⦄ → LawfulSemigroup A
+    ⦃ ls : LawfulSetoid A ⦄ ⦃ _ : Semigroup A ⦄
+    → ⦃ SemigroupLaws A ⦄ → LawfulSemigroup A ⦃ ls ⦄
   mkLawful-Semigroup = record {}
 open LawfulSemigroup ⦃...⦄ using () public
 

@@ -18,11 +18,12 @@ private variable
 _→ᶠⁱⁿ_ : (A : Type) ⦃ _ : DecEq A ⦄ → Type → Type
 A →ᶠⁱⁿ B = Σ Set⟨ A ⟩ (_↦ B)
 
-SemigroupLaws≈ : (A : Type ℓ) ⦃ _ : Semigroup A ⦄ ⦃ _ : ISetoid A ⦄ → Type _
-SemigroupLaws≈ A = SemigroupLaws A _≈_
+SemigroupLaws≈ : (A : Type ℓ) ⦃ _ : Semigroup A ⦄ ⦃ _ : ISetoid A ⦄ ⦃ _ : SetoidLaws A ⦄
+  → Type _
+SemigroupLaws≈ A = SemigroupLaws A
 
-MonoidLaws≈ : (A : Type ℓ) ⦃ _ : Monoid A ⦄ ⦃ _ : ISetoid A ⦄ → Type _
-MonoidLaws≈ A = MonoidLaws A _≈_
+MonoidLaws≈ : (A : Type ℓ) ⦃ _ : Semigroup A ⦄ ⦃ _ : Monoid A ⦄ ⦃ _ : ISetoid A ⦄ → Type _
+MonoidLaws≈ A = MonoidLaws A
 
 instance
   Semigroup-↦ : Semigroup (A →ᶠⁱⁿ B)

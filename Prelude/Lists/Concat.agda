@@ -2,7 +2,7 @@
 module Prelude.Lists.Concat where
 
 open import Prelude.Init; open SetAsType
-open L.Mem
+open L.Mem hiding (∈-concatMap⁺; ∈-concatMap⁻)
 open Nat.Ord
 open import Prelude.InferenceRules
 

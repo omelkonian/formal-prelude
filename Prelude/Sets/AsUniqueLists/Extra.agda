@@ -136,11 +136,11 @@ module _ {A : Type} ⦃ _ : DecEq A ⦄ where
     from xs ≈ from ys
   from-≈ {xs}{ys} eq =
     ( ∈ˢ-fromList⁺ {xs = ys}
-    ∘ eq .Fun.Equiv.Equivalence.to .Fun.Eq._⟨$⟩_
+    ∘ eq .Fun.Equivalence.to
     ∘ ∈ˢ-fromList⁻
     ) ,
     ( ∈ˢ-fromList⁺ {xs = xs}
-    ∘ eq .Fun.Equiv.Equivalence.from .Fun.Eq._⟨$⟩_
+    ∘ eq .Fun.Equivalence.from
     ∘ ∈ˢ-fromList⁻
     )
 

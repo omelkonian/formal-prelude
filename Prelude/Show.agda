@@ -99,7 +99,7 @@ instance
       removeQualifiers∗ = L.reverse ∘ go ∘ L.reverse
         where
           go : String∗ → String∗
-          go s = case takeWhile (¬? ∘ ('.' Ch.≟_)) s of λ where
+          go s = case takeWhile (Nullary.¬? ∘ ('.' Ch.≟_)) s of λ where
             []         → s
             s′@(_ ∷ _) → s′
 
@@ -174,12 +174,12 @@ instance
       (Pattern.proj f)   → show f
       (Pattern.absurd _) → "()"
 
-  open import Reflection.Definition
+  open import Reflection.AST.Definition
   Show-Definition : Show Definition
   Show-Definition .show = λ where
     (function cs)       → "function" <+> braces (show cs)
     (data-type pars cs) → "datatype" <+> show pars <+> braces (intersperse ", " (map show cs))
     (record′ c fs)      → "record" <+> show c <+> braces (intersperse ", " (map (show ∘′ unArg) fs))
-    (constructor′ d)    → "constructor" <+> show d
+    (constructor′ d _)  → "constructor" <+> show d
     axiom               → "axiom"
     primitive′          → "primitive"

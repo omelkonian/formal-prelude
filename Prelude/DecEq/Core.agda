@@ -63,17 +63,17 @@ instance
 
   DecEq-Name : DecEq Name
   DecEq-Name ._≟_ = RName._≟_
-    where import Reflection.Name as RName
+    where import Reflection.AST.Name as RName
 
   DecEq-Term : DecEq Term
   DecEq-Term ._≟_ = RTerm._≟_
-    where import Reflection.Term as RTerm
+    where import Reflection.AST.Term as RTerm
 
   DecEq-Arg : ⦃ _ : DecEq A ⦄ → DecEq (Arg A)
   DecEq-Arg ._≟_ = RArg.≡-dec _≟_
-    where import Reflection.Argument as RArg
+    where import Reflection.AST.Argument as RArg
 
   -- open Visibility
   DecEq-Vis : DecEq Visibility
   DecEq-Vis ._≟_ = RVis._≟_
-    where import Reflection.Argument.Visibility as RVis
+    where import Reflection.AST.Argument.Visibility as RVis

@@ -326,15 +326,14 @@ fromℕ<∘toℕ< (fsuc i) rewrite fromℕ<∘toℕ< i = refl
 fromℕ<-≡ : (p₁ : m < length xs)
          → (p₂ : m < length xs)
          → fromℕ< p₁ ≡ fromℕ< p₂
-fromℕ<-≡ {m = zero}  {xs = x ∷ xs} p₁ p₂ = refl
-fromℕ<-≡ {m = suc m} {xs = x ∷ xs} p₁ p₂ rewrite fromℕ<-≡ {m = m} {xs = xs} (≤-pred p₁) (≤-pred p₂) = refl
+fromℕ<-≡ p₁ p₂ = refl
 
 ‼-fromℕ<-≡ : (p₁ : m < length xs)
            → (p₂ : m < length ys)
            → xs ≡ ys
            → (xs ‼ fromℕ< p₁)
            ≡ (ys ‼ fromℕ< p₂)
-‼-fromℕ<-≡ {m = m} {xs = xs} p₁ p₂ refl rewrite fromℕ<-≡ {m = m} {xs = xs} p₁ p₂ = refl
+‼-fromℕ<-≡ p₁ p₂ refl = refl
 
 proj₁∘find : (x∈xs : x ∈ xs)
            → proj₁ (find x∈xs) ≡ x

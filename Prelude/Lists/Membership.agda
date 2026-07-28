@@ -141,7 +141,7 @@ module _ {P : Pred A ℓ} (P? : Decidable¹ P) where
     f⁻¹ y ∈ xs
 ∈-map⁻inverseˡ {xs = xs} f f⁻¹ inv y∈ =
   let x , x∈ , eq = ∈-map⁻ f y∈
-  in subst (_∈ xs) (sym $ trans (cong f⁻¹ eq) (inv _)) x∈
+  in subst (_∈ xs) (sym $ trans (cong f⁻¹ eq) (inv refl)) x∈
 
 -- ** mapWith∈
 

@@ -48,7 +48,7 @@ x ·≢ y = ·¬ x ≡ y
 -- ** decidability
 
 ·¬? : Dec A → Dec (·¬ A)
-·¬? = Nullary.map′ ¬⇒·¬ ·¬⇒¬ ∘ ¬?
+·¬? = Nullary.map′ ¬⇒·¬ ·¬⇒¬ ∘ Nullary.¬?
 
 instance
   Dec-·⊥ : ·⊥ ⁇

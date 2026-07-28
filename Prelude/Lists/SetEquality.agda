@@ -30,21 +30,23 @@ xs ⊆⊇ ys = (xs ⊆ ys) × (ys ⊆ xs)
 ⊆⊇-sym = Product.swap
 
 module _ where
-  open Fun.Equiv.Equivalence
+  open Fun.Equivalence
 
   ⊆⊇⇒∼set :
     xs ⊆⊇ ys
     ────────────
     xs ∼[set] ys
   ⊆⊇⇒∼set {xs = xs}{ys} (↝ , ↜) = λ where
-    .to   → record {_⟨$⟩_ = ↝; cong = λ where refl → refl}
-    .from → record {_⟨$⟩_ = ↜; cong = λ where refl → refl}
+    .to        → ↝
+    .from      → ↜
+    .to-cong   → λ where refl → refl
+    .from-cong → λ where refl → refl
 
   ∼set⇒⊆⊇ :
     xs ∼[set] ys
     ────────────
     xs ⊆⊇ ys
-  ∼set⇒⊆⊇ {xs = xs}{ys} eq = eq .to .Fun.Eq._⟨$⟩_ , eq .from .Fun.Eq._⟨$⟩_
+  ∼set⇒⊆⊇ {xs = xs}{ys} eq = eq .to , eq .from
 
 ∼set⇒⊆ :
   xs ∼[set] ys

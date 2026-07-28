@@ -16,13 +16,13 @@ record DecOrd (A : Type ℓ) ⦃ _ : Ord  A ⦄ : Type ℓ where
   infix 4 _≤?_ _≤ᵇ_ _≰?_ _≰ᵇ_ _≥?_ _≥ᵇ_ _≱?_ _≱ᵇ_
           _<?_ _<ᵇ_ _≮?_ _≮ᵇ_ _>?_ _>ᵇ_ _≯?_ _≯ᵇ_
   _≤?_ = Decidable² _≤_ ∋ dec²; _≤ᵇ_ = isYes ∘₂ _≤?_
-  _≰?_ = ¬? ∘₂ _≤?_; _≰ᵇ_ = isYes ∘₂ _≰?_
+  _≰?_ = Nullary.¬? ∘₂ _≤?_; _≰ᵇ_ = isYes ∘₂ _≰?_
   _≥?_ = flip _≤?_; _≥ᵇ_ = isYes ∘₂ _≥?_
-  _≱?_ = ¬? ∘₂ _≥?_; _≱ᵇ_ = isYes ∘₂ _≱?_
+  _≱?_ = Nullary.¬? ∘₂ _≥?_; _≱ᵇ_ = isYes ∘₂ _≱?_
   _<?_ = Decidable² _<_ ∋ dec²; _<ᵇ_ = isYes ∘₂ _<?_
-  _≮?_ = ¬? ∘₂ _<?_; _≮ᵇ_ = isYes ∘₂ _≮?_
+  _≮?_ = Nullary.¬? ∘₂ _<?_; _≮ᵇ_ = isYes ∘₂ _≮?_
   _>?_ = flip _<?_; _>ᵇ_ = isYes ∘₂ _>?_
-  _≯?_ = ¬? ∘₂ _>?_; _≯ᵇ_ = isYes ∘₂ _≯?_
+  _≯?_ = Nullary.¬? ∘₂ _>?_; _≯ᵇ_ = isYes ∘₂ _≯?_
 
   module _ ⦃ _ : DecEq A ⦄ ⦃ _ : OrdLaws A ⦄ where
 

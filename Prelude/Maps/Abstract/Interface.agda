@@ -318,9 +318,7 @@ record FinMapᴵ : Type (lsuc σ) where
           go : ((m₁ ◇ m₂) ⁉ k) ◇ (m₃ ⁉ k)
               ≡ (m₁ ⁉ k) ◇ ((m₂ ◇ m₃) ⁉ k)
           go
-            rewrite ◇-⁉ {k} (m₁ ◇ m₂) m₃
-                  | ◇-⁉ {k} m₁ m₂
-                  | ◇-⁉ {k} m₁ (m₂ ◇ m₃)
+            rewrite ◇-⁉ {k} m₁ m₂
                   | ◇-⁉ {k} m₂ m₃
             = ◇-assocʳ≡ (m₁ ⁉ k) _ _
     instance
@@ -627,7 +625,7 @@ record FinMapᴵ : Type (lsuc σ) where
           q rewrite sym $ ↦-◇⁺ˡ {s₁ = singleton (k , f v)} k∉ = singleton-law′
 
           qed : modify k f (singleton (k , v) ◇ s) ⁉ k ≡ (singleton (k , f v) ◇ s) ⁉ k
-          qed rewrite p | q | p = singleton-accept {k}{f v}
+          qed rewrite p | q = singleton-accept {k}{f v}
       ... | no  k≢
         = begin
           modify k f (singleton (k , v) ◇ s) ⁉ k′

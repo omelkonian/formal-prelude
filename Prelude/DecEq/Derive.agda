@@ -5,10 +5,10 @@ module Prelude.DecEq.Derive where
 
 open import Prelude.Init
 open Meta
-import Reflection.Argument as RArg
-open import Reflection.Name renaming (_≟_ to _≟ₙ_)
-open import Reflection.Term renaming (_≟_ to _≟ₜ_)
-open import Reflection.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
+import Reflection.AST.Argument as RArg
+open import Reflection.AST.Name renaming (_≟_ to _≟ₙ_)
+open import Reflection.AST.Term renaming (_≟_ to _≟ₜ_)
+open import Reflection.AST.Argument.Visibility renaming (_≟_ to _≟ᵥ_)
 
 open import Prelude.Generics using (DERIVE) public
 open import Prelude.Generics
@@ -25,6 +25,8 @@ open import Prelude.ToN
 
 open import Prelude.DecEq.Core
 open import Prelude.DecEq.WithK
+
+open import Agda.Builtin.Reflection using (workOnTypes)
 
 -------------------------------
 -- ** Generic deriving of DecEq
@@ -78,9 +80,9 @@ module _ (toDrop : ℕ) {- module context -} where
 
       f : Name × Name → TC (Maybe Clause)
       f (c , c′) = do
-        _ , n , pvs , pc  ← mkPattern toDrop c
+        _ , n , pvs , pc  ← workOnTypes (mkPattern toDrop c)
         -- print $ "pvs: " ◇ show pvs
-        _ , n′ , pvs′ , pc′ ← mkPattern toDrop c′
+        _ , n′ , pvs′ , pc′ ← workOnTypes (mkPattern toDrop c′)
         -- print $ "pvs′: " ◇ show pvs′
         let
           tel = map (λ (i , argTy) → ("v" ◇ show i) , argTy) (pvs ++ bumpFreeVars (_+ n) pvs′)
@@ -89,8 +91,8 @@ module _ (toDrop : ℕ) {- module context -} where
         -- print $ "tel: " ◇ show tel
         -- print $ "pc: " ◇ show PC
         -- print $ "pc′: " ◇ show PC′
-        ty  ← reduce =<< getType c
-        ty′ ← reduce =<< getType c′
+        ty  ← workOnTypes (reduce =<< getType c)
+        ty′ ← workOnTypes (reduce =<< getType c′)
         b   ← compatible? (resultTy ty) (resultTy ty′)
         return $
           if b then just (⟦ PC ∣ PC′ ⦅ tel ⦆⇒ if c == c′ then go n (filter (isVisible? ∘ proj₂) pvs)

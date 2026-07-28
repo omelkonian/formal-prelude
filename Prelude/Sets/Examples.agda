@@ -128,7 +128,7 @@ private
     _ = auto
 
     _ : y ⊆ˢ (x ∪ y)
-    _ = toWitness {Q = y ⊆?ˢ (x ∪ y)} tt
+    _ = toWitness {a? = y ⊆?ˢ (x ∪ y)} tt
 
     -- ** _♯_
 

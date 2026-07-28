@@ -231,7 +231,7 @@ open Alg _≈ˢ_
 ≈⇒⊆ˢ˘ = proj₂
 
 ∅─-identityʳ : RightIdentity ∅ _─_
-∅─-identityʳ s rewrite L.filter-all (_∉? []) {xs = list s} All∉[] = ≈-refl {x = s}
+∅─-identityʳ s = (λ x∈ → ∈-─⁻ _ s ∅ x∈) , (λ x∈ → ∈-─⁺ _ s ∅ x∈ (∉∅ _))
 
 ∅∪-identityˡ : LeftIdentity ∅ _∪_
 ∅∪-identityˡ xs =

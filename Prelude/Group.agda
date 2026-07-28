@@ -69,7 +69,7 @@ module _ (G : Type ℓ) ⦃ _ : Semigroup G ⦄ ⦃ _ : Monoid G ⦄ ⦃ _ : Gro
   module GSet-Morphisms (X Y : Type ℓ′)
     ⦃ _ : ISetoid X ⦄ ⦃ _ : ISetoid Y ⦄
     ⦃ _ : GSet X ⦄ ⦃ _ : GSet Y ⦄ where
-    record _—𝔾→_ : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ relℓ) where
+    record _—𝔾→_ : Type (ℓ ⊔ₗ ℓ′ ⊔ₗ relℓ {A = Y}) where
       field
         F : X → Y
         equivariant : ∀ {g : G} {x : X} → F (g · x) ≈ g · F x
